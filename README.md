@@ -15,4 +15,5 @@ Generate a Compressed Sensing (CS) accelerated MR sequence and reconstruct the a
 Please read LICENSE file for licensing details.
 
 Detailed information and installation instructions are available at:
+
 https://sites.google.com/site/kspaceastronauts/compressed-sensing/cslab
