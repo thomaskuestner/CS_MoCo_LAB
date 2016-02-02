@@ -1,0 +1,7 @@
+# Compile instruction for mtimesx
+1.) download BLAS library: http://www.netlib.org/blas/blas.tgz
+2.) unzip into empty directory: tar xfvz blas.tgz
+3.) change into this directory: cd BLAS
+4.) compile "shared library": gfortran -shared -O2 *.f -o libblas.so -fPIC
+5.) copy "libblas.so" into mtimesx directory
+6.) mex it: mex('-DDEFINEUNIX','-largeArrayDims','mtimesx.c','./libblas.so');

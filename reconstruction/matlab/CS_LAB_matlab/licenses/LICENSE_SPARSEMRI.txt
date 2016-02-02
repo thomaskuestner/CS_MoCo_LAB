@@ -1,0 +1,9 @@
+(c) Miki Lustig
+This is an implementation of Compressed Sensing reconstruction for MRI data.
+It implements the non-linear conjugate sub-gradient algorithm as described in 
+the paper "Sparse MRI: The Application of Compressed Sensing for Rapid MR Imaging", 2007
+Magn Res Med, In Press.
+
+If you have any questions/comments, feel free to contact Michael (Miki)  Lustig at: mlustig at stanford dot edu
+
+http://www.mlustig.com

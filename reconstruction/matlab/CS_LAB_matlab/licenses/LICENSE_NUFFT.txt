@@ -1,0 +1,15 @@
+NUFFT - nonuniform FFT toolbox for Matlab
+by Jeff Fessler, Brad Sutton, and Yingying Zhang
+
+This directory contains a Matlab toolbox for computing nonuniform
+fast Fourier transforms (NUFFT) for unequally spaced samples.
+The interpolation methods have been optimized by a min-max criterion
+that minimizes the worst-case error.
+
+See "Nonuniform fast Fourier transforms using min-max interpolation"
+by Jeffrey A. Fessler and Bradley P. Sutton,
+IEEE Trans. Signal Processing, 51(2):560-74, Feb. 2003
+
+This work was inspired by collaboration on MR imaging with Doug Noll.
+For more details, look for MR-related papers on Fessler's web site:
+	http://www.eecs.umich.edu/~fessler/

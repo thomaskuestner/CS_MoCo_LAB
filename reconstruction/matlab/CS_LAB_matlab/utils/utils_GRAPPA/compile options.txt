@@ -1,0 +1,2 @@
+mex -O CFLAGS="\$CFLAGS -std=c99 -Wall" im3colR.c
+mex -O CFLAGS="\$CFLAGS -std=c99 -Wall" im3colC.c

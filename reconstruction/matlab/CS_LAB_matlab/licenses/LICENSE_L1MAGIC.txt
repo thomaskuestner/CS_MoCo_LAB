@@ -1,0 +1,22 @@
+(c) copyright Justin Romberg
+Caltech, Applied and Computational Mathematics, jrom@acm.caltech.edu
+
+"Near-optimal signal recovery from random projections and universal encoding strategies"
+by: Emmanuel Candes and Terence Tao
+Submitted to IEEE Transactions on Information Theory, November 2004.
+
+"Stable signal recovery from incomplete and inaccurate measurements"
+by: Emmanuel Candes, Justin Romberg, and Terence Tao
+To appear in Communications on Pure and Applied Mathematics, 2006.
+
+"The Dantzig selector: Statistical estimation when p is much smaller than n"
+by: Emmanuel Candes and Terence Tao
+Submitted to IEEE Transactions on Information Theory, June 2005.
+
+"Decoding by Linear Programming"
+by: Emmanuel Candes and Terence Tao
+IEEE Transactions on Information Theory, December 2005.
+
+"Quantitative robust uncertainty principles and optimally sparse decompositions"
+by: Emmanuel Candes and Justin Romberg
+To appear in Foundations of Computational Mathematics, 2006.

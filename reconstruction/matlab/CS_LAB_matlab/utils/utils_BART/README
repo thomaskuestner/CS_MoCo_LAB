@@ -1,0 +1,328 @@
+
+See LICENSE file for licensing information.
+
+-------------------------------------------------------------------------------
+
+
+The tools in this software implement various reconstruction algorithms. 
+Please cite the corresponding articles when using these tools for research.
+Some references can be found at the end of this file. The source code might
+provide more detailed references, e.g. for specific iterative algorithms.
+
+
+
+1. Help
+=======
+
+Please direct all questions or comments to the public mailing list:
+
+	mrirecon@lists.eecs.berkeley.edu
+
+	https://lists.eecs.berkeley.edu/sympa/info/mrirecon
+
+
+Note: This list has a public archive! Please do not send
+any confidential information.
+
+
+
+Updates and further information can be found here:
+
+	http://mikgroup.github.io/bart/
+
+
+
+
+2. Installation
+===============
+
+2.1. Prerequisites
+
+GCC compiler, the FFTW, GSL (or ACML) libraries and optionally 
+a CUDA Implementation (see recon/Makefile to turn these
+options on or off)
+
+The software can be used in combination with Matlab or octave.
+
+
+There is limited support for reading Cartesian data encoded with
+the ISMRM Raw Data format when linking with the ISMRMRD library
+(http://ismrmrd.sourceforge.net/). Currently, BART only supports
+version 0.5.2 of this library. Later versions do not work.
+
+
+In the following, the symbol '$' indicates a shell prompt.
+Do not type '$' when entering commands.
+
+
+
+2.1.1. Linux
+
+The software tools in recon should run on any recent Linux distribution.
+
+To install the required libraries on Debian and Ubuntu run:
+
+$ sudo apt-get install gcc make libfftw3-dev libgsl0-dev liblapack-dev libpng-dev
+
+(optional)
+$ sudo apt-get install octave
+
+(optional)
+install version 0.5.2 of the ISMRMRD library
+
+
+
+2.1.2. Mac OS X
+
+Xcode is required and it is recommended to install a newer version 
+of gcc (4.7 seems to work) from MacPorts (http://www.macports.org/).
+
+
+$ sudo port install fftw-3-single
+$ sudo port install gsl
+$ sudo port install gcc47
+$ sudo port install libpng
+
+(optional)
+$ sudo port install octave
+
+(optional)
+install version 0.5.2 of the ISMRMRD library
+
+
+
+2.1.3. Windows
+
+You can use BART on Windows using Cygwin:
+
+https://www.cygwin.com/
+
+Install Cygwin and select the following packages:
+
+Devel: gcc, make
+Math: fftw3, fftw3-doc, libfftw3-devel, libfftw3_3
+Math: liblapack-devel, liblapack-doc, liblapack0
+Libs: gsl, gsl-apps, gsl-devel, gsl-doc, libpng, libpng-devel
+
+
+Then use the cygwin shell to compile BART as described below.
+
+
+(An alternative to using Cygwin is a virtual machine with Linux.)
+
+
+
+2.2. Downloading and Compilation
+
+
+If you are a git user, you can simply clone our public repository:
+
+$ git clone https://github.com/mikgroup/bart
+
+
+Otherwise, please download the latest version as a zip file
+from Github:
+
+	http://github.com/mikgroup/bart/releases/latest
+
+and unpack it somewhere on your computer.
+
+
+Open a terminal window and enter the bart directory (the top-level
+directory with the Makefile in it). To build the reconstruction
+tools type:
+
+$ make
+
+
+
+If you have installed the ISMRMRD library version 0.5.2, you can also
+build the ISMRM raw data import tool:
+
+$ make ismrmrd
+
+
+
+
+
+
+
+
+2.3. Getting Started
+
+2.3.1. Organization
+
+
+.		main directory / built software tools
+Makefile	Makefile
+matlab/		Matlab helper scripts
+python/		Python helper functions
+doc/		documentation
+src/		source code
+src/calib 	source code for sensitivity calibration
+src/sense	source code for SENSE or ESPIRiT reconstruction
+src/noir	source code for nonlinear inversion
+src/sake	source code for SAKE reconstruction
+src/wavelet2	source code for wavelets
+src/wavelet3	source code for new wavelets (experimental)
+src/num		base library with numerical functions
+src/iter	iterative algorithms
+src/linops	library of linear operators
+src/misc	miscellaneous (e.g. I/O)
+src/ismrm	support for ISMRM raw data format
+lib/		built software libraries
+
+
+
+
+2.3.2. Terminal
+
+When using the toolbox commands from a UNIX shell, it is recommended
+to set the TOOLBOX_PATH to the base directory and to add it to
+the PATH variable. You can do this by running the following command:
+
+$ . vars.sh
+
+Note: The dot or 'source' command is needed so that the variables
+are imported into the current shell.
+
+
+2.3.3. Matlab
+
+You can set the TOOLBOX_PATH to the base directory and to add it
+to the Matlab path by running the following command in the
+bart directory:
+
+>> vars
+
+(Note: The '>>' indicates the shell prompt. Do not type '>>'
+when entering commands.)
+
+
+
+You can use Matlab to read and visualize/process files. To write
+a data file 'xyz' from Matlab you can run:
+
+>> writecfl('xyz', A);
+
+
+Note, that the name 'xyz' is used without filename extension.
+See below for more information about the file format used in BART.
+
+To read the data file 'xyz' back into Matlab use:
+
+>> A = readcfl('xyz');
+
+
+To call a BART tool (e.g. ecalib) from Matlab, you can use the
+'bart' command:
+
+>> sensitivities = bart('ecalib', kspace);
+
+
+
+Download and unpack the examples which demonstrate interoperability
+with Matlab. Go to the examples directory and run:
+
+>> examples
+
+
+
+
+
+
+
+3. Data Format
+==============
+
+3.1. Generic
+
+The input and output datasets are each stored in a pair of files: one
+header (*.hdr) and one raw data (*.cfl). The header is a simple text
+readable file that describes the dimensions of the data. The raw data
+file is a binary file containing a single contiguous block of array
+data of dimensions described in the header stored in column-major order
+(first index is sequential). The raw data file is complex float 
+(32 bit real + 32 bit imaginary, IEEE 747 binary32 little-endian).
+
+Convenience methods to read and write our data files using Matlab may
+be found in recon/matlab (readcfl.m and writecfl.m).
+
+
+
+3.2. Magnetic Resonance Imaging Data
+
+For MRI data and images, the dimensions are usually assigned in
+the following order:
+
+0 readout
+1 phase-encoding dimension 1
+2 phase-encoding dimension 2
+3 receive channels
+4 ESPIRiT maps
+...
+...
+
+(more dimensions are defined in src/misc/mri.h)
+
+
+Undersampled data is stored with with zeros in the unsampled
+positions.
+
+
+
+3.3. Non-Cartesian Trajectories and Samples
+
+The k-space coordinates for each sample are stored along dimension 0
+which must have size equal to three. The unit of measurement is 1/FOV.
+Dimension 1 stores the samples along a single readout windows while
+dimension 2 may be used to differentiate between different lines
+(e.g. radial spokes). Channel (3) and map (4) dimensions must not
+be used (i.e. have size one), while other dimensions can be used
+as for Cartesian data. Non-Cartesian samples are stored in a similar
+way as trajectories except that dimension 0 is not used. The channel
+dimension can be used for different receiver coils as usual.
+
+
+
+
+4. Command-line Tools
+=====================
+
+All tools operate on the simple file format given above. Indices and
+dimensions run from 0 to N-1. Sometimes a set of dimensions is given
+as a bitmask where the lowest bit corresponds to the 0st dimension.
+
+
+For example, an inverse Fourier transform of first three dimensions can
+be performed with the following command:
+
+
+$ fft -i 7 kspace volume
+
+
+More information about each command can be found in 'doc/commands.txt'.
+
+
+
+
+
+5. References
+=============
+
+
+Uecker M, Ong F, Tamir JI, Bahri D, Virtue P, Cheng JY, Zhang T, Lustig m,
+Berkeley Advanced Reconstruction Toolbox, Annual Meeting ISMRM, Toronto 2015
+In: Proc Intl Soc Mag Reson Med 23:2486 (accepted)
+
+
+Uecker M, Virtue P, Ong F, Murphy MJ, Alley MT, Vasanawala SS, Lustig M,
+Software Toolbox and Programming Library for Compressed Sensing and
+Parallel Imaging, ISMRM Workshop on Data Sampling and Image
+Reconstruction, Sedona 2013
+
+
+References related to implemented methods and algorithms can be
+found in the file 'doc/references.txt'.
+
+

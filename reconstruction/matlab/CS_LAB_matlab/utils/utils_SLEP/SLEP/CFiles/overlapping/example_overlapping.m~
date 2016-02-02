@@ -1,0 +1,44 @@
+%clear, clc;
+
+p=100;
+g=10;
+
+v=randn(p,1);
+
+lambda1=0.5;
+lambda2=1.5;
+Y=zeros(200,1);
+maxIter=1000;
+tol=1e-12;
+
+
+%% ---- Example 1
+%% 
+
+G=[1:20, 11:30, 21:40, 31:50, 41:60, 51:70, 61:80, 71:90, 81:100, 91:100, 1:10]-1;
+w=[ [1 20 1]', [21 40 1]', [41 60 1]', [61 80 1]', [81 100 1]',...
+    [101 120 1]', [121 140 1]', [141 160 1]', [161 180 1]', [181 200 1]' ];
+w(1:2,:)=w(1:2,:)-1;
+
+
+%%
+u=max(abs(v)-lambda1,0);
+
+fprintf('\n flag=0');
+flag=0;
+tic;
+[x1,gap1,penalty21]=overlapping(v,  p, g, lambda1, lambda2,...
+    w, G, Y, maxIter, flag, tol);
+toc;
+
+
+Y=zeros(200,1);
+
+fprintf('\n\n flag=1');
+flag=1;
+tic;
+[x2,gap2, penalty22]=overlapping(v,  p, g, lambda1, lambda2,...
+    w, G, Y, maxIter, flag, tol);
+toc;
+
+aa=[v, u, x1, x2];

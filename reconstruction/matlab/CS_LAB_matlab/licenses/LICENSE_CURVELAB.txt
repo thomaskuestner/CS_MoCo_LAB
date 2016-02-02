@@ -1,0 +1,19 @@
+(c) CurveLab is copyright of California Institute of Technology, 2005-2007
+
+CurveLab is a collection of Matlab and C++ programs to compute fast
+discrete curvelet transform in two and three dimensions.
+
+The 2d software includes the implementations of two algorithms: the
+transform using wrapping and the one using unequally-spaced fast
+fourier transform (USFFT).
+
+The 3d software includes the in-core, out-core and MPI-based parallel
+implementation of the 3d algorithm.
+
+To install the package, see curvelab.pdf.
+
+Contacts:
+curvelab@curvelet.org
+www.curvelet.org
+
+
