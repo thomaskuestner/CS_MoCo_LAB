@@ -1,0 +1,1 @@
+Please place precompiled subsampling class code in here.
