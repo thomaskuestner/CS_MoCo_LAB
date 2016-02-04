@@ -54,12 +54,8 @@ addpath(genpath([currpath,filesep,'postproc']));
 
 % load ADCs
 if(nargin == 0 || ~exist('path','var') || isempty(path))
-    if(strcmp(getenv('computername'),'M123PC'))
-        defpath = 'K:\Compressed Sensing\Rohdaten\3D';
-    else
-        defpath = 'S:\Rohdaten\Thomas\ktFOCUSS\3D';
-    end
-    [file, path] = uigetfile({'*.mat;*.dat'; '*.h5', 'ADC measdata (*.mat, *.dat)'; 'ISMRMD (*.h5)'} ,'Select measdata file', 'MultiSelect', 'off', defpath);
+	defpath = pwd;
+    [file, path] = uigetfile({'*.mat;*.dat;', 'ADC measdata (*.mat, *.dat)'; '*.h5', 'ISMRMD (*.h5)'} ,'Select measdata file', 'MultiSelect', 'off', defpath);
     if(isequal(file,0))
         error('CS_reconstruction(): User Termination');
     end
@@ -69,7 +65,7 @@ if(nargin == 0 || ~exist('path','var') || isempty(path))
 else
     if(ischar(path))
         if(isdir(path))
-            [file, path] = uigetfile({'*.mat;*.dat'; '*.h5', 'ADC measdata (*.mat, *.dat)'; 'ISMRMD (*.h5)'} ,'Select measdata file', 'MultiSelect', 'off', path);
+            [file, path] = uigetfile({'*.mat;*.dat;', 'ADC measdata (*.mat, *.dat)'; '*.h5', 'ISMRMD (*.h5)'},'Select measdata file', 'MultiSelect', 'off', path);
             if(isequal(file,0))
                 error('CS_reconstruction(): User Termination');
             end

@@ -229,12 +229,6 @@ for i=[piNOUTER,piNINNER,pp,plambda,pepsilon,poversampling,plambdaCalib,pcalibTy
                 consExist = false;
                 return
             end
-        case pgrayscale
-            if(any(allPara{1,i} < 0))
-                msg = sprintf('%s must be positive values', allVarnames{1,i});
-                consExist = false;
-                return
-            end
         otherwise
             if(~isscalar(allPara{1,i}) || allPara{1,i} < 0)
                 msg = sprintf('%s must be a positive scalar', allVarnames{1,i});
