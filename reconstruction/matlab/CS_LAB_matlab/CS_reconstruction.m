@@ -301,8 +301,8 @@ dispProgress('InitDispProgress',prop);
 
 
 %% check variable consistency and existence
-allPara = { cstype,   measPara.dimension,   measPara.dim,   iNOUTER,   iNINNER,   p,   lambda,   epsilon,   measPara.oversampling,   lambdaCalib,   calibTyk,   reconTyk,   kernelSize,   calibSize,   opt_problem,   postproc,   trafo,   FFTwindow,   espresso,   measPara.LCall, lbtol,   tvmu,   cgtol,   cgmaxiter,   flagToolbox,   flagZeropadding,  measPara.aniso, maxitr,   maxiitr,   grayscale,   measPara.precision, reconDIM,   flags,   lambdaGroup,   lambdaNLTV,   lambdaTV;...
-           'cstype', 'dimension',           'dim',         'iNOUTER', 'iNINNER', 'p', 'lambda', 'epsilon', 'oversampling',          'lambdaCalib', 'calibTyk', 'reconTyk', 'kernelSize', 'calibSize', 'opt_problem', 'postproc', 'trafo', 'FFTwindow', 'espresso', 'LCall',        'lbtol', 'tvmu', 'cgtol', 'cgmaxiter', 'flagToolbox', 'flagZeropadding', 'aniso',       'maxitr', 'maxiitr', 'grayscale', 'precision',        'reconDIM', 'flags', 'lambdaGroup', 'lambdaNLTV', 'lambdaTV'}; %#ok<*NODEF>
+allPara = { cstype,   measPara.dimension,   measPara.dim,   iNOUTER,   iNINNER,   p,   lambda,   epsilon,   measPara.oversampling,   lambdaCalib,   calibTyk,   reconTyk,   kernelSize,   calibSize,   opt_problem,   postproc,   trafo,   FFTwindow,   espresso,   measPara.LCall, lbtol,   tvmu,   cgtol,   cgmaxiter,   flagToolbox,   flagZeropadding,  measPara.aniso, measPara.precision, reconDIM,   flags,   lambdaGroup,   lambdaNLTV,   lambdaTV;...
+           'cstype', 'dimension',           'dim',         'iNOUTER', 'iNINNER', 'p', 'lambda', 'epsilon', 'oversampling',          'lambdaCalib', 'calibTyk', 'reconTyk', 'kernelSize', 'calibSize', 'opt_problem', 'postproc', 'trafo', 'FFTwindow', 'espresso', 'LCall',        'lbtol', 'tvmu', 'cgtol', 'cgmaxiter', 'flagToolbox', 'flagZeropadding', 'aniso',        'precision',        'reconDIM', 'flags', 'lambdaGroup', 'lambdaNLTV', 'lambdaTV'}; %#ok<*NODEF>
 
 [consExist, msg, msgWarn, kernelSize, calibSize, FFTwindow, trafo, flagToolbox, measPara.precision, flags, reconDIM] = checkConsExist(allPara);
 if(~consExist)
@@ -329,10 +329,7 @@ elseif(strcmp(cstype,'sparseMRI'))
     
 elseif(strcmp(cstype,'L1_Magic_TV') || strcmp(cstype,'L1_Magic_L1') || strcmp(cstype,'L1_Magic_TVDantzig') || strcmp(cstype,'L1_Magic_L1Dantzig'))
     obj = L1_Magic(cstype(10:length(cstype)), measPara, epsilon, lbtol, tvmu, cgtol, cgmaxiter, pdmaxiter, espresso);
-
-elseif(strcmp(cstype,'FCSA_TV') || strcmp(cstype,'FCSA_NLTV'))
-    obj = FCSA(cstype, iNINNER, measPara, trafo.waveletFilter, trafo.waveletFilterSize, trafo.waveletStages, lambda, lambdaTV, maxitr, maxiitr, grayscale);
-    
+   
 elseif(strcmp(cstype,'Zero'))
     obj = Zero(measPara, espresso);
     

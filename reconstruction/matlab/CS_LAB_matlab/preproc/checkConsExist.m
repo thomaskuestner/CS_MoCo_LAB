@@ -5,9 +5,8 @@ function [consExist, msg, msgWarn, kernelSize, calibSize, window, trafo, flagToo
 %            calibTyk, reconTyk, kernelSize, calibSize, opt_problem, 
 %            postproc, trafo, FFTwindow, espresso, LCall, 
 %            lbtol, tvmu, cgtol, cgmaxiter, flagToolbox,
-%            flagToolbox, aniso, maxitr, maxiitr, grayscale,
-%            precision, reconDim, flags, lambdaGroup, lambdaNLTV,
-%            lambdaTV}
+%            flagToolbox, aniso, precision, reconDim, flags, 
+%            lambdaGroup, lambdaNLTV, lambdaTV}
 %
 %
 % (c) Thomas Kuestner
@@ -44,9 +43,6 @@ pcgmaxiter = find(strcmp('cgmaxiter',allVarnames));
 pflagToolbox = find(strcmp('flagToolbox',allVarnames));
 pflagZeropadding = find(strcmp('flagZeropadding',allVarnames));
 paniso = strcmp('aniso',allVarnames);
-pmaxitr = find(strcmp('maxitr',allVarnames));
-pmaxiitr = find(strcmp('maxiitr',allVarnames));
-pgrayscale = find(strcmp('grayscale',allVarnames));
 pPrecision = find(strcmp('precision',allVarnames));
 preconDim = find(strcmp('reconDIM',allVarnames));
 pflags = find(strcmp('flags',allVarnames));
@@ -135,9 +131,6 @@ elseif(strcmp(cstype,'SPIRiT_CG') || strcmp(cstype,'SPIRiT_POCS') || strcmp(csty
 elseif(strcmp(cstype,'L1_Magic_TV'))
     % necessary: epsilon, lbtol, mu, cgtol, cgmaxiter
     range = [pepsilon, plbtol, pmu, pcgtol, pcgmaxiter];
-elseif(strcmp(cstype,'FCSA_TV') || strcmp(cstype,'FCSA_NLTV'))
-    % necessary: maxitr, maxiitr, lowerScale, upperScale
-    range = [pmaxitr, pmaxiitr, pgrayscale];
 end
 
 if(~isempty(range))
@@ -216,9 +209,9 @@ end
 
 
 %% consistency
-for i=[piNOUTER,piNINNER,pp,plambda,pepsilon,poversampling,plambdaCalib,pcalibTyk,preconTyk,plbtol,pmu,pcgtol,pcgmaxiter,pmaxitr,pmaxiitr,pgrayscale]
+for i=[piNOUTER,piNINNER,pp,plambda,pepsilon,poversampling,plambdaCalib,pcalibTyk,preconTyk,plbtol,pmu,pcgtol,pcgmaxiter]
     % iNOUTER, iNINNER, p, lambda, epsilon, oversampling, lambdaCalib,
-    % calibTyk, lbtol, mu, cgtol, cgmaxiter, maxitr, maxiitr, grayscale
+    % calibTyk, lbtol, mu, cgtol, cgmaxiter
     switch i
         case poversampling
             if(~isvector(allPara{1,i}{1,1}) || any(allPara{1,i}{1,1} <= 0) || allPara{1,i}{1,1}(end) > dim(2))
