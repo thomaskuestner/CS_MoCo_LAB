@@ -56,7 +56,7 @@ currpath = fileparts(mfilename('fullpath'));
 cd(currpath);
 addpath(genpath(currpath));
 addpath(genpath([currpath,filesep,'utils']));
-addpath(genpath([fileparts(currpath),filesep,'CS_LAB']));
+addpath(genpath([fileparts(currpath),filesep,'CS_LAB_matlab']));
 handles.currpath = currpath;
 
 warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
