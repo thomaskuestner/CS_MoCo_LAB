@@ -387,6 +387,409 @@ for j = 1:nSolver
         if(strcmp(obj.measPara.dimension,'3D')); dispProgress('Slices','Close'); end;
 %         reconData.SB_proxA = SB_proxA;
         reconData = SB_proxA{1,1};
+    %% A_PFISTA
+    elseif(strcmp(obj.solver{1,j},'A_PFISTA'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'l1';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_PFISTA{1,1} = reconImageCha;
+                    A_PFISTA{2,1} = reconSSIM_map;
+                end;
+                A_PFISTA{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_PFISTA{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_PFISTA{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_PFISTA{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_PFISTA{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_PFISTA.....\n');
+        end;
+%         reconData.A_PFISTA = A_PFISTA;
+        reconData = A_PFISTA{1,1};
+    %% A_TDIHT
+    elseif(strcmp(obj.solver{1,j},'A_TDIHT'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'l0';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_TDIHT{1,1} = reconImageCha;
+                    A_TDIHT{2,1} = reconSSIM_map;
+                end;
+                A_TDIHT{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_PG(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_TDIHT{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_TDIHT{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_TDIHT{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_TDIHT{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_TDIHT.....\n');
+        end;
+%         reconData.A_TDIHT = A_TDIHT;
+        reconData = A_TDIHT{1,1};
+    %% A_ADMM_L1
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_L1'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'l1';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_L1{1,1} = reconImageCha;
+                    A_ADMM_L1{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_L1{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_L1{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_L1{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_L1{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_L1{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_L1.....\n');
+        end;
+%         reconData.A_ADMM_L1 = A_ADMM_L1;
+        reconData = A_ADMM_L1{1,1};
+    %% A_ADMM_L1
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_L0'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'l0';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_L0{1,1} = reconImageCha;
+                    A_ADMM_L0{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_L0{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_L0{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_L0{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_L0{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_L0{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_L0.....\n');
+        end;
+%         reconData.A_ADMM_L0 = A_ADMM_L0;
+        reconData = A_ADMM_L0{1,1};
+    %% A_ADMM_SCAD
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_SCAD'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'SCAD';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        solver_supported(j) = true;
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_SCAD{1,1} = reconImageCha;
+                    A_ADMM_SCAD{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_SCAD{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_SCAD{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_SCAD{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_SCAD{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_SCAD{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_SCAD.....\n');
+        end;
+%         reconData.A_ADMM_SCAD = A_ADMM_SCAD;
+        reconData = A_ADMM_SCAD{1,1};
+    %% A_ADMM_MCP
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_MCP'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'MCP';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        solver_supported(j) = true;
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_MCP{1,1} = reconImageCha;
+                    A_ADMM_MCP{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_MCP{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_MCP{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_MCP{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_MCP{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_MCP{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_MCP.....\n');
+        end;
+%         reconData.A_ADMM_MCP = A_ADMM_MCP;
+        reconData = A_ADMM_MCP{1,1};
+    %% A_ADMM_ATAN
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_ATAN'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'ATAN';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        solver_supported(j) = true;
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_ATAN{1,1} = reconImageCha;
+                    A_ADMM_ATAN{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_ATAN{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_ATAN{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_ATAN{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_ATAN{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_ATAN{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_ATAN.....\n');
+        end;
+%         reconData.A_ADMM_ATAN = A_ADMM_ATAN;
+        reconData = A_ADMM_ATAN{1,1};
+    %% A_ADMM_PSHRINK
+    elseif(strcmp(obj.solver{1,j},'A_ADMM_PSHRINK'))
+        solver_supported(j) = true;
+        
+        % additional input variables:
+        input.regularizer = 'PSHRINK';
+        TransformSpecifics = get_transformSpecifics( obj.trafo.transformDict,obj.reconDIM,obj.trafo.waveletStages,obj.trafo.waveletFilterName_l1,n1,n2,1);
+       
+        % recon
+        for s = iSli_start:nSlices
+%             for h = 1:nCha
+%                 input.im_ref{1,h} = im_ref{1,h}(:,:,s); % only chosen slices are needed for metrics
+%             end;
+            if obj.flagFixedSlice
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    A_ADMM_PSHRINK{1,1} = reconImageCha;
+                    A_ADMM_PSHRINK{2,1} = reconSSIM_map;
+                end;
+                A_ADMM_PSHRINK{3,1} = reconMetrics;
+            else
+                for h = 1:nCha
+                    input.b{1,h} = b{1,h}(:,:,s);
+                end;
+                if obj.flagRealOnly
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                else
+                    [reconImageCha, reconSSIM_map, reconMetrics] = obj.algo_A_ADMM(input,TransformSpecifics);
+                end;
+                if obj.flagSaveImages
+                    for h = 1:nCha
+                        A_ADMM_PSHRINK{1,1}{1,h}(:,:,nSlices +1 -s) = reconImageCha{1,h};
+                    end;
+                    if(~isempty(reconSSIM_map))
+                        for h = 1:nCha+1
+                            A_ADMM_PSHRINK{2,1}{1,1}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,1}{1,h};
+                            A_ADMM_PSHRINK{2,1}{1,2}{1,h}(:,:,nSlices +1 -s) = reconSSIM_map{1,2}{1,h};
+                        end;
+                    end
+                end;
+                A_ADMM_PSHRINK{3,nSlices +1 -s} = reconMetrics;
+            end;
+            fprintf('Called the function A_ADMM_PSHRINK.....\n');
+        end;
+%         reconData.A_ADMM_PSHRINK = A_ADMM_PSHRINK;
+        reconData = A_ADMM_PSHRINK{1,1};
     end;
     if ~solver_supported(j)
         warning(['solver ' obj.solver{1,j} ' is not supported for 2D CS']);

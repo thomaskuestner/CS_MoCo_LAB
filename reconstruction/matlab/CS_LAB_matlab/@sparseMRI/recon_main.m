@@ -111,21 +111,23 @@ elseif(strcmp(obj.measPara.dimension,'3D'))
     % prepare k-space 
     % => k_y - k_z - k_x - cha
     kSpaceL = cell2mat(shiftdim(obj.kSpace(:,:,iRep,iAvg),-2));
-    kSpaceL = permute(kSpaceL,[1 3 2 4]);
+    
     if(strcmp(obj.measPara.precision,'double'))
         kSpaceL = double(kSpaceL);
     end
     % same undersampling for all coils and fully sampled in k_x direction
-    obj.fullMask = abs(kSpaceL) > 0; % k_y - k_z - k_x - cha
+    obj.fullMask = abs(kSpaceL) > 0; % k_y - k_x - k_z - cha
     if(obj.measPara.oversampling{2,1})
-        kSpaceL = fftshift(ifft(ifftshift(kSpaceL, 3),[],3),3); % -> k_y - k_z - x - cha
-        kSpaceL = kSpaceL(:, :, obj.measPara.oversampling{1,1}, :); % anti-aliasing
-        obj.fullMask = obj.fullMask(:,:, obj.measPara.oversampling{1,1}, :);
-        kSpaceL = fftshift(fft(ifftshift(kSpaceL,3),[],3),3); % -> k_y - k_z - k_x - cha
+        kSpaceL = fftshift(ifft(ifftshift(kSpaceL, 2),[],2),2); % -> k_y - x - k_z - cha
+        kSpaceL = kSpaceL(:, obj.measPara.oversampling{1,1},:, :); % anti-aliasing
+        obj.fullMask = obj.fullMask(:,obj.measPara.oversampling{1,1},:, :);
+        kSpaceL = fftshift(fft(ifftshift(kSpaceL,2),[],2),2); % -> k_y - k_z - k_x - cha
         kSpaceL = kSpaceL .* obj.fullMask;
-        obj.measPara.dim(2) = size(kSpaceL,3);
+        obj.measPara.dim(2) = size(kSpaceL,2);
     end
     
+    kSpaceL = permute(kSpaceL,[1 3 2 4]);
+    obj.fullMask = permute(obj.fullMask, [1 3 2 4]);
     [nPha, nZ, nFreq, nCha] = size(kSpaceL);   
 
     fprintf('Performing calibration\n');

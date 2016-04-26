@@ -5,58 +5,85 @@
 
 % FOCUSS reconstruction
 % FOCUSS: FOcal Underdetermined System Solver with conjugate gradient
-% solver
+%         solver
 
 % sparseMRI
 % M. Lustig, D. Donoho and JM Pauly "Sparse MRI: The Application
 % of Compressed Sensing for rapid MR Imaging", Magnetic Resonance in
 % Medicine, 2007
 % sparseMRI: sparse nonlinear reconstruction with L1-norm minimization
-% with the help of a non-linear conjugate gradient
+%            with the help of a non-linear conjugate gradient
 
 % SPIRiT and ESPIRiT reconstruction
 % SPIRiT_*: M. Lustig and JM Pauly "SPIRiT: iTerative Self-consistent Parallel 
 % Imaging Reconstruction from Arbitrary k-space", Magnetic Resonance in 
 % Medicine, 2010
-% SPIRiT_CG: conjugate gradient SPIRiT reconstruction
+% SPIRiT_CG:   conjugate gradient SPIRiT reconstruction
 % SPIRiT_POCS: projection onto convex sets SPIRiT reconstruction with
-% L1-sparsity
+%              L1-sparsity
 % ESPIRiT_*: Uecker et. al "ESPIRiT - An Eigenvalue Approach to Autocalibrating
 % Parallel MRI: Where SENSE meets GRAPPA", Magnetic Resonance in Medicine,
 % 2013 DOI 10.1002/mrm.24751
-% ESPIRiT_CG: conjugate gradient ESPIRiT reconstruction in k-space
-% ESPIRiT_L1: conjugate gradient ESPIRiT reconstruction with L1-wavelet
-% thresholding in image domain
+% ESPIRiT_CG:  conjugate gradient ESPIRiT reconstruction in k-space
+% ESPIRiT_L1:  conjugate gradient ESPIRiT reconstruction with L1-wavelet
+%              thresholding in image domain
+
+% BART 
+% BART: Berkeley Advanced Reconstruction Toolbox  
 
 % L1-Magic
 % L1_Magic_*: reconstruction via l1-magic package from Emmanuel Candes and 
 % Justin Romberg, Caltech: "l1-magic: Recovery of Sparse Signals via 
 % Convex Programming", October 2005
-% L1_Magic_TV: TV minimization
-% L1_Magic_L1: L1 minimization with quadratic constraints
+% L1_Magic_TV:        TV minimization
+% L1_Magic_L1:        L1 minimization with quadratic constraints
 % L1_Magic_TVDantzig: Dantzig TV minimization 
 % L1_Magic_L1Dantzig: L1 minimization with bounded residual correlation
 
 % Proximal averages 
-% uses wavelet_mat, in brackets reconstruction dimensionality (set in reconDim)
+% uses wavelet_mat, in brackets reconstruction dimensionality
 % and number space
+% synthesis model:
 % *_proxA (Proximal Average): Average of proximal operators. Based on Y. Yu 
-% "Better Approximation and Faster Algorithm using the Proximal Average", 2013.
+% "Better Approximation and Faster Algorithm using the Proximal Average", 
+% 2013.
 % FCSA_* : Implementation according to Huang et al. "Efficient MR image 
 % reconstruction for compressed MR imaging", 2011.
 % FCSA_WaTMRI: implementation according to Huang et al. "Exploiting the 
-% wavelet structure in compressed sensing MRI", MRI 2014 (2D real)
-% FCSA_SLEP: WaTMRI modifications for group sparsity using SLEP (Liu et
-% al., "SLEP: Sparse Learning with Efficient Projections", 2009) to solve
-% TSGLasso (2D real)
-% FCSA_proxA: FCSA with proximal averages (2D real/complex, 3D real/complex)
+%              wavelet structure in compressed sensing MRI", MRI 2014      (2D real)
+% FCSA_SLEP:   WaTMRI modifications for group sparsity using SLEP (Liu et
+%              al., "SLEP: Sparse Learning with Efficient Projections",
+%              2009) to solve TSGLasso                                     (2D real)
+% FCSA_proxA:  FCSA with proximal averages                                 (2D real/complex, 3D real/complex)
 % BFCSA_proxA: FCSA with an outer Bregman Iteration based on BOS method by 
-% Zhang et al. "Bregmanized nonlocal regularization for deconvolution and sparse 
-% reconstruction", 2012 (2D real/complex, 3D_sliced real/complex)
-% ADMM_proxA: ADMM with proximal average according to Afonso et al. "Fast Image Recovery
-% Using Variable Splitting and Constrained Optimization", 2010 (2D real/complex, 3D_sliced real/complex) 
-% SB_proxA: Split-Bregman according to Goldstein et al. "The Split Bregman 
-% Method for L1-regularized Problems", 2009 (2D real/complex, 3D_sliced real/complex)
+%              Zhang et al. "Bregmanized nonlocal regularization for 
+%              deconvolution and sparse reconstruction", 2012              (2D real/complex, 3D_sliced real/complex)
+% ADMM_proxA:  ADMM with proximal average according to Afonso et al. "Fast 
+%              Image Recovery Using Variable Splitting and Constrained 
+%              Optimization", 2010                                         (2D real/complex, 3D_sliced real/complex) 
+% SB_proxA:    Split-Bregman according to Goldstein et al. "The Split  
+%              Bregman Method for L1-regularized Problems", 2009           (2D real/complex, 3D_sliced real/complex)
+% analysis model:
+% A_PFISTA:    projected FISTA according to Liu et al., "Projected 
+%              Iterative Soft-Thresholding Algorithms for linear inverse 
+%              problems", 2015                                             (2D real/complex, 3D real/complex)
+% A_TDIHT:     transform domain IHT according to Giryes, "A greedy 
+%              algorithm for the analysis transform domain", 2016          (2D real/complex, 3D real/complex)
+% A_ADMM_L1:   analysis ADMM with l1 penalty                               (2D real/complex)
+% A_ADMM_L0:   analysis ADMM with l0 penalty                               (2D real/complex)
+% A_ADMM_SCAD: analysis ADMM with Smoothly Clipped Absolute Deviation
+%              penalty according to Fan and Li, "Variable selection via 
+%              nonconcave penalized likelihood and its oracle properties",
+%              2001                                                        (2D real/complex, 3D real/complex)
+% A_ADMM_MCP:  analysis ADMM with Minimax Concave Penalty according to
+%              Zhang, "Nearly unbiased variable selection under minimax 
+%              concave penalty", 2010                                      (2D real/complex, 3D real/complex)
+% A_ADMM_ATAN: analysis ADMM with arctangent penalty according to Selesnick
+%              and Bayram, "Sparse signal estimation by maximally sparse 
+%              convex optimization", 2014                                  (2D real/complex, 3D real/complex)
+% A_ADMM_PSHRINK: analysis ADMM with p-shrinkage penalty according to 
+%                 Woodworth and Chartrand, "Compressed sensing recovery via
+%                 nonconvex shrinkage penalties", 2015                     (2D real/complex, 3D real/complex)
 
 cstype = 'FOCUSS';
 
@@ -207,7 +234,7 @@ eigThresh_k = 0.002;
 eigThresh_im = 1e-4; 
 
 % weight the sensitivity maps with n maps of eigenvalues (default: 2)
-n_maps = 2;
+n_maps = 1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%% NLCG/sparseMRI %%%%

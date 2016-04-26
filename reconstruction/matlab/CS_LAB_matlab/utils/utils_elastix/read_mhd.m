@@ -1,4 +1,4 @@
-function [img info]=read_mhd(filename)
+function [img, info]=read_mhd(filename)
 % This function is based upon "read_mhd" function from the package
 % ReadData3D_version1 from the matlab exchange.
 % Copyright (c) 2010, Dirk-Jan Kroon
@@ -6,7 +6,7 @@ function [img info]=read_mhd(filename)
 
 info = mhareadheader(filename);
 
-[path name extension] = fileparts(filename);
+[path, name, extension] = fileparts(filename);
 
 if (isfield(info,'ElementNumberOfChannels'))
     ndims = str2num(info.ElementNumberOfChannels);
@@ -17,9 +17,18 @@ img = ImageType();
 
 
 if (ndims == 1)
-    data = read_raw([ path  filesep  info.DataFile ], info.Dimensions,info.DataType,'native',0,ndims); 
+    data = read_raw([ path  filesep  info.DataFile ], info.Dimensions,info.DataType,'native',0,ndims);
     img=ImageType(size(data),info.Offset',info.PixelDimensions',reshape(info.TransformMatrix,numel(info.PixelDimensions),numel(info.PixelDimensions)));
     img.data = data;
+elseif (ndims == 2)
+    clear img;
+        
+    [datax datay] = read_raw([ path  filesep  info.DataFile], info.Dimensions,info.DataType,'native',0,ndims);
+    img = VectorImageType(size(datax),info.Offset',info.PixelDimensions',reshape(info.TransformMatrix,numel(info.PixelDimensions),numel(info.PixelDimensions)));
+    
+    img.datax = datax; clear datax;
+    img.datay=datay; clear datay;
+    img.data = img.datax.^2+img.datay.^2;
 elseif (ndims == 3)
     clear img;
         
@@ -36,7 +45,7 @@ end
 
 end
 
-function [rawData rdy rdz] =read_raw(filename,imSize,type,endian,skip,ndims)
+function [rawData, rdy, rdz] =read_raw(filename,imSize,type,endian,skip,ndims)
 
 % Reads a raw file
 % Inputs: filename, image size, image type, byte ordering, skip
@@ -50,6 +59,7 @@ function [rawData rdy rdz] =read_raw(filename,imSize,type,endian,skip,ndims)
 rdy=[];
 rdz=[];
 fid = fopen(filename,'rb',endian);
+%type='uint8';
 if (fid < 0)
     display(['Filename ' filename ' does not exist']);
     rawData = -1;
@@ -69,10 +79,9 @@ else
         if status == 0
             r = fread(fid,prod(imSize)*3,type);
             fclose(fid);
-            if length(imSize) == 3
-            %    slices = length(r)/imSize(1)/imSize(2)/3;% 3 for vx, vy, vz
-            %    imSize(3) = slices;
-            %    imSize(4) = 3; 
+            if length(imSize) == 2
+                im_size=[ 2 imSize([1 2]) ];
+            elseif length(imSize) == 3
                 im_size=[ 3 imSize([1 2 3]) ];
             elseif length(imSize) == 4
                 im_size=[3 imSize([1 2 3 4]) ];
@@ -83,7 +92,11 @@ else
         else
             r = status;
         end
-         if length(imSize) == 3
+         if length(imSize) == 2
+            rawData=squeeze(r(1,:,:,:));
+            rdy=squeeze(r(2,:,:,:));
+            rdz=rdy*0; 
+         elseif length(imSize) == 3
             rawData=squeeze(r(1,:,:,:));
             rdy=squeeze(r(2,:,:,:));
             rdz=squeeze(r(3,:,:,:));
@@ -124,6 +137,8 @@ end
 info.Filename=filename;
 info.Format='MHA';
 info.CompressedData='false';
+info.TransformMatrix = [];
+info.CenterOfRotation=[];
 readelementdatafile=false;
 while(~readelementdatafile)
     str=fgetl(fid);
@@ -182,6 +197,15 @@ while(~readelementdatafile)
     end
 end
 
+if ~numel(info.TransformMatrix)
+   info.TransformMatrix = reshape(eye(info.NumberOfDimensions), 1,info.NumberOfDimensions*info.NumberOfDimensions);
+end
+
+if ~numel(info.CenterOfRotation)
+  info.CenterOfRotation = zeros(1,info.NumberOfDimensions);
+end
+
+
 switch(info.DataType)
     case 'char', info.BitDepth=8;
     case 'uchar', info.BitDepth=8;
@@ -198,3 +222,4 @@ if(~isfield(info,'HeaderSize'))
 end
 fclose(fid);
 end
+

@@ -137,19 +137,24 @@ if(usejava('jvm') && ~feature('ShowFigureWindows'))
     flagDisp = false;
 else
     flagDisp = true;
+    if(exist('multiWaitbar','file'))
+        flagMW = true;
+    else
+        flagMW = false;
+    end
 end
 
-if(flagDisp), multiWaitbar('Loading specified ADCs', 0); end;
+if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', 0); else hw = waitbar(0,'Loading specified ADCs'); end; end;
 fid = fopen([sPath, filesep, sName, '.dat'], 'r');
 for iI = 1:length(iSP)
     fseek(fid, double(iSP(iI)) + 128, 'bof');
     dLine = fread(fid, double(iNSamples*2), 'float');
     dRealData(iI, :) = dLine(1:2:end);
     dImagData(iI, :) = dLine(2:2:end);
-    if(flagDisp), multiWaitbar('Loading specified ADCs', iI/length(iSP)); end;
+    if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', iI/length(iSP)); else waitbar(iI/length(iSP),hw); end; end;
 end
 fclose(fid);
-if(flagDisp), multiWaitbar('Loading specified ADCs', 'Close'); end;
+if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', 'Close'); else close(hw); end; end;
 
 dData = complex(dRealData, dImagData);
 

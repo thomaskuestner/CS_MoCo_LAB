@@ -11,6 +11,13 @@ function res = fftnshift(x,fftdim,scrambledim)
 
 %     if(exist(['utils',filesep,'general',filesep,'fftw_wisdom.mat'],'file') || exist([fileparts(mfilename('fullpath')),filesep,'fftw_wisdom.mat'],'file'))
 %         load([fileparts(mfilename('fullpath')),filesep,'fftw_wisdom.mat']);
+    if(any(fftdim > ndims(x)))
+        fftdim = fftdim(fftdim <= ndims(x));
+    end
+    if(isempty(fftdim))
+        res = x;
+        return;
+    end
     if(evalin('base','exist(''fftw_wisdom'',''var'')'))
         sizesCalculated = evalin('base', 'fftw_wisdom.sizesCalculated');
         wisdom_str = evalin('base', 'fftw_wisdom.wisdom_str');

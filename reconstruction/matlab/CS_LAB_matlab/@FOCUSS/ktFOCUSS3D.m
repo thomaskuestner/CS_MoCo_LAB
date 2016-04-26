@@ -53,6 +53,7 @@ for n=1:length(s)
         eval(sprintf('if(op{1,~tmp} %s hShift(tmp) %s %d), idx{n} = idx{n} %s hShift(tmp); else idx{n} = idx{n}(idx{n} %s %d);end;',op{2,tmp}, op{3,tmp}, op{4,tmp}, op{2,tmp}, op{3,~tmp}, op{4,~tmp}));
    end
 end
+if(length(idx) == 2), idx{3} = 1; end;
 helper(idx{1},idx{2},idx{3},:) = false;
 kSpaceCenter = ~helper;
 
@@ -394,9 +395,13 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, ones(1,nCha)),2);
                 adjDy(:,1,:) = -tmp(:,1,:);
                 adjDy(:,end,:) = tmp(:,end-1,:);
                 tmp = Gtv(:,:,:,3);
-                adjDz = tmp(:,:,[1,1:end-1]) - tmp;
-                adjDz(:,:,1) = -tmp(:,:,1);
-                adjDz(:,:,end) = tmp(:,:,end-1);
+                if(size(tmp,3) > 1)
+                    adjDz = tmp(:,:,[1,1:end-1]) - tmp;
+                    adjDz(:,:,1) = -tmp(:,:,1);
+                    adjDz(:,:,end) = tmp(:,:,end-1);
+                else
+                    adjDz = 0;
+                end
 
                 tv(:,:,:,c) = adjDx + adjDy + adjDz;
                 
@@ -572,7 +577,9 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, ones(1,nCha)),2);
             phase = permute(phase,[1 3 2 4]);
             phase = exp(2i * angle(phase));
             lmaskSym = repmat(squeeze(lmaskSym),[1 1 1 nCha]);
-            lmaskSym = permute(lmaskSym,[1 3 2 4]);
+            if(size(lmaskSym,3) > 1)
+                lmaskSym = permute(lmaskSym,[1 3 2 4]);
+            end
             if(~obj.espresso.state)
                 lmaskConj = maskRight(end:-1:1,:,:,:);
 

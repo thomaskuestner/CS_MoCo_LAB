@@ -48,7 +48,11 @@ elseif(ismember('SDrecksMDH', {matfile.name}))
 else
     % no drecksMDH at all
     drecksMDH = [];
-    iLCPositions = [];
+    try
+        load(fullfile(sPath,[sName,'.mat']),'iLCPositions');
+    catch
+        iLCPositions = [];
+    end
 end
 
 end
