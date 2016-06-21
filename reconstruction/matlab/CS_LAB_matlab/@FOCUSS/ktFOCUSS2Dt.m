@@ -153,8 +153,7 @@ for iI = 1:obj.iNOUTER % outer loop for kt-FOCUSS
             beta(:,:,:,c) = (G_helper(:)'*G_helper(:))/(g_old_helper(:)'*g_old_helper(:)); 
         end
         clear 'G_helper' 'g_old_helper';
-        d = beta.*d_old - G;
-        d_old = d;
+        d = beta.*d - G;
         g_old = G;
         z = bTrafo(W.*d).*lMask; % -> t-k_y-x-cha
         alpha = zeros(size(W),obj.measPara.precision);
