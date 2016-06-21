@@ -35,10 +35,14 @@ function [image, imageCha, objOut] = CS_reconstruction(path, para)
 % - sparseMRI v0.2  in @sparseMRI, @p2DFT, @A_operator,
 %                   @TVOP                                under LICENSE_SPARSEMRI
 % - L1Magic v1.11   in @L1_Magic                         under LICENSE_L1MAGIC
+% - GIST            in utils/utils_Proximal/GIST         under LICENSE_GIST
 % - Wavelab850      in @Wavelet, utils/utils_Wavelet     under LICENSE_WAVELAB
 % - Rice Wavelet v3.0 in utils/utils_WaveletRice         under LICENSE_WAVELETRICE
 % - Curvelab v2.1.3 in utils/utils_TRAFO/CurveLab-2.1.3  under LICENSE_CURVELAB
 % - NUFFT           in @NUFFT, utils/utils_NUFFT         under LICENSE_NUFFT
+% - DTCWT           in utils/utils_TRAFO/DTCWT           under LICENSE_DTCWT
+% - Shearlet        in utils/utils_TRAFO/Shearlet        under LICENSE_SHEARLET
+% - Denoising       in utils/utils_Proximal/Denoising    under LICENSE_DENOISING
 
 warning('off','MATLAB:dispatcher:nameConflict');
 warning('off','MATLAB:mat2cell:TrailingUnityVectorArgRemoved');
@@ -54,7 +58,11 @@ addpath(genpath([currpath,filesep,'postproc']));
 
 % load ADCs
 if(nargin == 0 || ~exist('path','var') || isempty(path))
-	defpath = pwd;
+    if(strcmp(getenv('computername'),'M123PC'))
+        defpath = 'K:\Compressed Sensing\Rohdaten\3D';
+    else
+        defpath = 'S:\Rohdaten\Thomas\ktFOCUSS\3D';
+    end
     [file, path] = uigetfile({'*.mat;*.dat;', 'ADC measdata (*.mat, *.dat)'; '*.h5', 'ISMRMD (*.h5)'} ,'Select measdata file', 'MultiSelect', 'off', defpath);
     if(isequal(file,0))
         error('CS_reconstruction(): User Termination');
@@ -65,7 +73,7 @@ if(nargin == 0 || ~exist('path','var') || isempty(path))
 else
     if(ischar(path))
         if(isdir(path))
-            [file, path] = uigetfile({'*.mat;*.dat;', 'ADC measdata (*.mat, *.dat)'; '*.h5', 'ISMRMD (*.h5)'},'Select measdata file', 'MultiSelect', 'off', path);
+            [file, path] = uigetfile({'*.mat;*.dat;', 'ADC measdata (*.mat, *.dat)'; '*.h5', 'ISMRMD (*.h5)'} ,'Select measdata file', 'MultiSelect', 'off', path);
             if(isequal(file,0))
                 error('CS_reconstruction(): User Termination');
             end
@@ -195,7 +203,7 @@ prop.flagPlot = true;
 
 
 %% display output
-prop.disp.names = {'Repetitions', 'Averages', 'Slices', 'Channels', 'Time', 'Frequency', 'Extracting K-Space', 'Phase Correction', 'GRAPPA calibration', 'FOCUSS', 'CG', 'ESPReSSo', 'Trafo', 'POCS', 'MC', 'Line Search', 'Log barrier', 'Newton', 'Proximal Average', 'SENSE - Slice', 'SENSE - Time', 'SENSE - Calibration', 'SENSE - Kernel', 'SENSE - Concatenate'};
+prop.disp.names = {'Repetitions', 'Averages', 'Slices', 'Channels', 'Time', 'Frequency', 'Extracting K-Space', 'Phase Correction', 'GRAPPA calibration', 'FOCUSS', 'CG', 'ESPReSSo', 'Trafo', 'POCS', 'MC', 'Line Search', 'Log barrier', 'Newton', 'Proximal Average', 'ADMM', 'SENSE - Slice', 'SENSE - Time', 'SENSE - Calibration', 'SENSE - Kernel', 'SENSE - Concatenate'};
 if(usejava('jvm') && ~feature('ShowFigureWindows'))
     % use text-based alternative
     prop.flagDisp = false;
@@ -297,7 +305,7 @@ dispProgress('InitDispProgress',prop);
 
 
 %% check variable consistency and existence
-allPara = { cstype,   measPara.dimension,   measPara.dim,   iNOUTER,   iNINNER,   p,   lambda,   epsilon,   measPara.oversampling,   lambdaCalib,   calibTyk,   reconTyk,   kernelSize,   calibSize,   opt_problem,   postproc,   trafo,   FFTwindow,   espresso,   measPara.LCall, lbtol,   tvmu,   cgtol,   cgmaxiter,   flagToolbox,   flagZeropadding,  measPara.aniso, measPara.precision, reconDIM,   flags,   lambdaGroup,   lambdaNLTV,   lambdaTV;...
+allPara = { cstype,   measPara.dimension,   measPara.dim,   iNOUTER,   iNINNER,   p,   lambda,   epsilon,   measPara.oversampling,   lambdaCalib,   calibTyk,   reconTyk,   kernelSize,   calibSize,   opt_problem,   postproc,   trafo,   FFTwindow,   espresso,   measPara.LCall, lbtol,   tvmu,   cgtol,   cgmaxiter,   flagToolbox,   flagZeropadding,  measPara.aniso,  measPara.precision, reconDIM,   flags,   lambdaGroup,   lambdaNLTV,   lambdaTV;...
            'cstype', 'dimension',           'dim',         'iNOUTER', 'iNINNER', 'p', 'lambda', 'epsilon', 'oversampling',          'lambdaCalib', 'calibTyk', 'reconTyk', 'kernelSize', 'calibSize', 'opt_problem', 'postproc', 'trafo', 'FFTwindow', 'espresso', 'LCall',        'lbtol', 'tvmu', 'cgtol', 'cgmaxiter', 'flagToolbox', 'flagZeropadding', 'aniso',        'precision',        'reconDIM', 'flags', 'lambdaGroup', 'lambdaNLTV', 'lambdaTV'}; %#ok<*NODEF>
 
 [consExist, msg, msgWarn, kernelSize, calibSize, FFTwindow, trafo, flagToolbox, measPara.precision, flags, reconDIM] = checkConsExist(allPara);
@@ -319,17 +327,21 @@ elseif(strcmp(cstype,'SPIRiT_CG') || strcmp(cstype,'SPIRiT_POCS'))
         
 elseif(strcmp(cstype,'ESPIRiT_CG') || strcmp(cstype,'ESPIRiT_L1'))
     obj = ESPIRiT_Wrapper(cstype(9:length(cstype)), iNINNER, iNIterSplit, measPara, kernelSize, calibTyk, reconTyk, eigThresh_k, eigThresh_im, n_maps, splitWeight, trafo, flagToolbox, path, espresso, FFTwindow, calibSize);
+
+elseif(strcmp(cstype,'BART'))
+    obj = BART_Wrapper(lambda, lambdaCalib, lambdaTV, lambdaMC, measPara, kernelSize, n_maps, trafo, espresso, FFTwindow, currpath, calibSize);
     
 elseif(strcmp(cstype,'sparseMRI'))
     obj = sparseMRI(iNOUTER, iNINNER, measPara, lambda, lambdaTV, lambdaESPReSSo, p, trafo, espresso, FFTwindow, l1Smooth, lineSearchItnlim, lineSearchAlpha, lineSearchBeta, lineSearchT0, gradToll);
     
 elseif(strcmp(cstype,'L1_Magic_TV') || strcmp(cstype,'L1_Magic_L1') || strcmp(cstype,'L1_Magic_TVDantzig') || strcmp(cstype,'L1_Magic_L1Dantzig'))
     obj = L1_Magic(cstype(10:length(cstype)), measPara, epsilon, lbtol, tvmu, cgtol, cgmaxiter, pdmaxiter, espresso);
-   
+
 elseif(strcmp(cstype,'Zero'))
     obj = Zero(measPara, espresso);
     
-elseif(strcmp(cstype,'FCSA_WaTMRI') || strcmp(cstype,'FCSA_SLEP') || strcmp(cstype,'FCSA_proxA') || strcmp(cstype,'BFCSA_proxA') || strcmp(cstype,'ADMM_proxA') || strcmp(cstype,'SB_proxA'))
+elseif(strcmp(cstype,'FCSA_WaTMRI') || strcmp(cstype,'FCSA_SLEP') || strcmp(cstype,'FCSA_proxA') || strcmp(cstype,'BFCSA_proxA') || strcmp(cstype,'ADMM_proxA') || strcmp(cstype,'SB_proxA') || ...
+        strcmp(cstype,'A_PFISTA') || strcmp(cstype,'A_TDIHT') || strcmp(cstype,'A_ADMM_L1') || strcmp(cstype,'A_ADMM_L0') || strcmp(cstype,'A_ADMM_SCAD') || strcmp(cstype,'A_ADMM_MCP') || strcmp(cstype,'A_ADMM_ATAN') || strcmp(cstype,'A_ADMM_PSHRINK'))
     obj = Proximal(cstype, iNINNER, itrNLTV, iNOUTER, measPara, trafo, lambda, lambdaTV, lambdaGroup, lambdaNLTV, lambdaNLTV_h, mue, regularizerWeights, flags, reconDIM, espresso);
     
 else
@@ -352,10 +364,16 @@ else
 end
 
 
+%% correct phase perturbations (echo alignment)
+if(isfield(measPara,'sequenceName') && strcmp(measPara.sequenceName, 'CS_EPI'))
+    obj.kSpace = alignEchos(obj.kSpace, evalMask, measPara, dData, iLC, iEvalInfoMask);
+end
+
+
 % clear all unnecessary variables
 clear 'dData' 'iLC' 'dDataRep' 'iLCRep' 'dDataSli' 'iLCSli' 'drecksMDH' 'iLCPositions' 'evalMask' 'helper' 'espresso' 'trafo' 'flagOversampling' 'mc';
 sCallingStack = dbstack;
-if(strcmp(sCallingStack(end).name,'fRetroGateAndRecon')) % for 4D CS_Retro
+if(strcmp(sCallingStack(end).name,'fRetroGateAndRecon') || strcmp(sCallingStack(end).name,'MotionCorrection')) % for 4D CS_Retro
     evalin('caller', 'clear ''kSpace'';'); % ''para''
 end
 clear 'sCallingStack';
@@ -438,17 +456,17 @@ dispProgress('Repetitions', 'Close');
 obj.kSpace = []; % clear kSpace variable
 
 cs_time = toc(cs_time);
-tmp(1) = mod(cs_time,60);
-tmp(2) = mod((cs_time - tmp(1))/60,60);
-tmp(3) = mod(((cs_time - tmp(1))/60 - tmp(2))/60, 24);
+dRecontime(1) = mod(cs_time,60);
+dRecontime(2) = mod((cs_time - dRecontime(1))/60,60);
+dRecontime(3) = mod(((cs_time - dRecontime(1))/60 - dRecontime(2))/60, 24);
 if(cs_time >= 3600)   
-    fprintf('Execution time: %.2dh %.2dmin %.2ds\n', tmp(3), tmp(2), round(tmp(1)));
+    fprintf('Execution time: %.2dh %.2dmin %.2ds\n', dRecontime(3), dRecontime(2), round(dRecontime(1)));
 elseif(cs_time >= 60)
-    fprintf('Execution time: %.2dmin %.2ds\n', tmp(2), round(tmp(1)));
+    fprintf('Execution time: %.2dmin %.2ds\n', dRecontime(2), round(dRecontime(1)));
 else
-    fprintf('Execution time: %.2ds\n', round(tmp(1)));
+    fprintf('Execution time: %.2ds\n', round(dRecontime(1)));
 end
-
+obj.dRecontime = dRecontime;
 
 %% postprocessing
 if(isempty(obj.kernelSize))
@@ -481,7 +499,7 @@ if(nargout > 2 || prop.flagSave)
     % convert obj->struct and reduce size
     objProp = properties(obj);
     for iObj = 1:numel(objProp)
-        if(any(strcmp(objProp{iObj},{'kernel','kernelImg','kCalib','A'})))
+        if(any(strcmp(objProp{iObj},{'kernel','kernelImg','kCalib','A','kSpace'})))
             continue;
         end
         eval(['objOut.',objProp{iObj},' = obj.',objProp{iObj},';']);

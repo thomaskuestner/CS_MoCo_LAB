@@ -82,7 +82,7 @@ if nargin
     end
     if  lVer == -1 % no DrecksMDH
         iLCDrecks = [];
-        iLCPositions = [];
+        iLCPositions = dMDH(~lDrecksMDH, 32:38);
     elseif lVer == 0 % or dMDH(1,6) ?, bitget(uint16(dMDH(1, 1)), 16) == 0
         % DrecksMDH 1.0
         iLCDrecks = [dMDH(lDrecksMDH,4:19),zeros(nnz(lDrecksMDH),4),dMDH(lDrecksMDH,30),zeros(nnz(lDrecksMDH),1),dMDH(lDrecksMDH,20:29),dMDH(lDrecksMDH,31:37),zeros(nnz(lDrecksMDH),1),dMDH(lDrecksMDH,38)];
@@ -107,7 +107,7 @@ if nargin
     
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (lVer == -1)
-        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask');
+        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'iLCPositions');
         fMeasInfo(sFilename);
     elseif (lVer == 0)   % or dMDH(1,6) ?, bitget(uint16(dMDH(1, 1)), 16) == 0   %
         % DrecksMDH 1.0

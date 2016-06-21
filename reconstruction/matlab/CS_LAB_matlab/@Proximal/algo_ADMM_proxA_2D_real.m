@@ -156,7 +156,7 @@ for j = 1:nCha
     K_inv{1,j} = 1./(mue*mask + (flagWave*regularizerWeights(1) + flagTV*regularizerWeights(2) +  flagGroup*regularizerWeights(3))*ones(n1,n2)); % flagNLTV changes K_inv -> in separate
 end;
 
-dispProgress('Proximal Average', 0, maxitr);
+dispProgress('ADMM', 0, maxitr);
 for itr = 1:maxitr  % total iter counter        
         
 %% x - step
@@ -262,13 +262,13 @@ for itr = 1:maxitr  % total iter counter
 
 %% metrics of current itr:
 %     disp(itr);
-    dispProgress('Proximal Average', itr/maxitr);
+    dispProgress('ADMM', itr/maxitr);
     
    	metrics.xtime(itr+1)= toc(timer_proxA);  
 %     [metrics, ssim_map{1,2}] = get_metrics_itr( im_ref, im_ref_full, x, itr, maxitr, nCha, n1, n2, metrics, obj.K_1, obj.K_2, obj.W_size, obj.W_sigma );       
 
 end;
-dispProgress('Proximal Average', 'Close');
+dispProgress('ADMM', 'Close');
     
     imageCha = x; 
     for j = 1:nCha

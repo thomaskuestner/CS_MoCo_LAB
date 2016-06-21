@@ -28,6 +28,7 @@ classdef CSMaster < handle
         espresso % espresso parameters
         window % cut out window options
         lSense % apply sense mask for multicoil reconstruction
+        dRecontime % reconstruction time
     end
     
     methods

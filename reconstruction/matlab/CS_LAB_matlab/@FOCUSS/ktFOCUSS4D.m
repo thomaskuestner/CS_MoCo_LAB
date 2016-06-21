@@ -16,7 +16,7 @@ function dImg = ktFOCUSS4D(obj, kSpace)
 % fft: f -> t   x -> k_x   y -> k_y
 
 fprintf(' |- prepare k-space and image kernel...\n');
-
+evalin('caller', 'clear ''kSpaceL'';');
 [nTime, nPha, nZ, nFreq, nCha] = size(kSpace);
 
 % retrieve mask
