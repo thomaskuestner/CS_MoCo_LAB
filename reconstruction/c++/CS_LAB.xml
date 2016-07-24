@@ -43,14 +43,13 @@
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0.005</value></property>
 	  <property><name>algorithm</name><value>0</value></property>
-	  <property><name>iNOUTER</name><value>1</value></property>
-	  <property><name>iNINNER</name><value>1</value></property>
-	  <property><name>Kernel_FFT_dim</name><value>3</value></property>
-	  <property><name>FFT_Sparse</name><value>3</value></property>
+	  <property><name>iNOUTER</name><value>2</value></property>
+	  <property><name>iNINNER</name><value>2</value></property>
+	  <property><name>Kernel_FFT_dim</name><value>1</value></property>
+	  <property><name>FFT_Sparse</name><value>1</value></property>
 	  <property><name>DCT_Sparse</name><value>0</value></property>
-	  <property><name>PCA_Sparse</name><value>0</value></property>
 	  <property><name>kSpaceTrafo</name><value>0</value></property>
-	  <property><name>Transform_fftBA_dim</name><value>4</value></property>
+	  <property><name>Transform_fftBA_dim</name><value>2</value></property>
 	  <property><name>kSpaceOut</name><value>0</value></property>
 	  <property><name>CS - ESPReSSo</name><value>0</value></property>
   </gadget>

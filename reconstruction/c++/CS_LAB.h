@@ -7,7 +7,7 @@ version		: 	1.0
 
 date		: 	16.12.2015
 
-description	: 	evaluates the object dimensions of the incoming data set and creates the respective class object. This class is derived from "CS_FOCUSS" and is based on the Composite design pattern. For a detailed description it is suggested to read p. 55 of the thesis.
+description	: 	evaluates the object dimensions of the incoming data set and creates the respective class object.
 
 input		:	m1					: 	appended acquisition header information
 				m2					: 	data set
@@ -47,19 +47,19 @@ namespace Gadgetron
 	{
 		GADGET_DECLARE(CS_LAB)
 	public:
-		int fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<std::complex<float>> &hacfRecon){ return true; };
+		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon){ return true; };
 
-		void fMatlabControl();
+		void fExternalControl();
 
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){ return true; };
 
-		int process_config(ACE_Message_Block* mb);
+		int process_config(ACE_Message_Block* mb) { return true; };
 
-		void fGradESPReSSo(hoNDArray<std::complex<float>>& hacfRho, hoNDArray<std::complex<float>>&hacfFullMask, hoNDArray<std::complex<float>>&hacfKSpace, hoNDArray<std::complex<float>>&hacfW, hoNDArray<std::complex<float>>&hacfQ){};
+		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
 
 		void fInitESPReSSo(hoNDArray<bool>& habFullMask){};
 
-		void fWindowing(hoNDArray<std::complex<float>>& hacfWWindowed){};
+		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){};
 
 		// pointer to CS_FOCUSS class object
 		CS_FOCUSS *opCS_;
@@ -71,7 +71,7 @@ namespace Gadgetron
 		int iDataset_;
 
 		// Matlab transformation parameters..
-		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iFFTBA_, kSpaceOut_;
+		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iFFTBA_, kSpaceOut_, iTime_;
 };
 
 }
