@@ -21,7 +21,7 @@ FIND_LIBRARY( ISMRMRD_LIBRARIES
 
 FIND_FILE( ISMRMRD_XSD_SOURCE
            NAMES "ismrmrd.cxx"
-           HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
+           HINTS $ENV{ISMRMRD_HOME} PATHS include /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
 
 INCLUDE( "FindPackageHandleStandardArgs" )
 FIND_PACKAGE_HANDLE_STANDARD_ARGS( "Ismrmrd" DEFAULT_MSG ISMRMRD_INCLUDE_DIR ISMRMRD_LIBRARIES ISMRMRD_SCHEMA_DIR)
