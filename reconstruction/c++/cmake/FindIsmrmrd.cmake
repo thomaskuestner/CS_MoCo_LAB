@@ -13,7 +13,7 @@ FIND_PATH( ISMRMRD_XSD_INCLUDE_DIR ismrmrd.hxx
 HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
 
 FIND_PATH( ISMRMRD_SCHEMA_DIR ismrmrd.xsd 
-HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
+HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local/share /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
 
 FIND_LIBRARY( ISMRMRD_LIBRARIES
               NAMES "ismrmrd"
