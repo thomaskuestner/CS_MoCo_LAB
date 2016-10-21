@@ -204,6 +204,16 @@ endif()
 find_package(XSD)
 find_package(XercesC)
 
+###############################################################
+# MATLAB
+###############################################################
+find_package(GMatlab)
+if (MATLAB_FOUND)
+    add_definitions(-DUSE_MATLAB)
+    include_directories(${MATLAB_INCLUDE_DIR})
+    target_link_libraries(CS_LAB ${MATLAB_MEX_LIBRARY})
+endif (MATLAB_FOUND)
+
 if (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
 else()
   message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
