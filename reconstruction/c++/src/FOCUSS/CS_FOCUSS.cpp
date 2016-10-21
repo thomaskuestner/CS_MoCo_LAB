@@ -55,21 +55,15 @@ void CS_FOCUSS::fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1){
 	// initialize the global vector variables
 	for(int i = 0; i < 20; i++){
 		GlobalVar_FOCUSS::instance()->vbStatPrinc_.push_back(false);
-		GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float>>());
+		GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
 	}
 
-	// get fully sampled value
-	fFullySampled_ = m1->getObjectPtr()->user_float[1];
-	
-	// get partial fourier value
-	fPartialFourierVal_ = m1->getObjectPtr()->user_float[2];
-
-	// get values from user float array (ismrmrd header)
-	iESPReSSoDirection_ = m1->getObjectPtr()->user_int[4];
-
-	// get Lambda values
-	cfLambda_ = m1->getObjectPtr()->user_float[3];
-	cfLambdaESPReSSo_ = m1->getObjectPtr()->user_float[4];
+	iVDMap_				= m1->getObjectPtr()->user_int[7];		
+	fFullySampled_		= m1->getObjectPtr()->user_float[5];
+	cfLambdaESPReSSo_	= m1->getObjectPtr()->user_float[6];
+	cfLambda_			= m1->getObjectPtr()->user_float[7];
+	iESPReSSoDirection_ = m1->getObjectPtr()->user_int[7];
+	fPartialFourierVal_ = m1->getObjectPtr()->user_float[3];
 }
 
 void CS_FOCUSS::fSetupTransformation(){
@@ -108,7 +102,7 @@ void CS_FOCUSS::fSetupTransformation(){
 		}
 	}
 	// check PCA entry
-	if ((dim = this->get_int_value("PCA_Sparse")) != 0){
+	/*if ((dim = this->get_int_value("PCA_Sparse")) != 0){
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
@@ -116,7 +110,7 @@ void CS_FOCUSS::fSetupTransformation(){
 				GADGET_DEBUG2("KernelTransform - PCA sparse - dim: %i \n", i);
 			}
 		}
-	}
+	}*/
 
 	// configure KernelTransformation - FFT
 	if ((dim = this->get_int_value("Kernel_FFT_dim")) != 0){

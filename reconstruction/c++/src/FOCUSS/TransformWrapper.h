@@ -24,9 +24,9 @@ namespace Gadgetron{
 	class TransformWrapper{
 
 		public:
-			virtual bool KernelFTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform) = 0;
+			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform) = 0;
 
-			virtual bool KernelBTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform) = 0;
+			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform) = 0;
 		
 	};
 	
@@ -36,13 +36,13 @@ namespace Gadgetron{
 		public:
 		
 			// forward transformation
-			virtual bool KernelFTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				hoNDFFT<float>::instance()->ifft(&Array, (unsigned int)dim_to_transform);
 				return GADGET_OK;
 			};
 			
 			// backward transformation
-			virtual bool KernelBTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				hoNDFFT<float>::instance()->fft(&Array, (unsigned int)dim_to_transform);
 				return GADGET_OK;
 			};
@@ -54,7 +54,7 @@ namespace Gadgetron{
 		public:
 		
 			// forward transformation - DCT II
-			virtual bool KernelFTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				// split real and imaginary part for split DCT
 				hoNDArray<float> RealArray(Array.get_dimensions()), ImagArray(Array.get_dimensions());
 				float *fRealPtr = RealArray.get_data_ptr(), *fImagPtr = ImagArray.get_data_ptr();
@@ -80,7 +80,7 @@ namespace Gadgetron{
 			};
 			
 			// backward transformation - DCT III
-			virtual bool KernelBTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				// split real and imaginary part for split DCT
 				hoNDArray<float> RealArray(Array.get_dimensions()), ImagArray(Array.get_dimensions());
 				float *fRealPtr = RealArray.get_data_ptr(), *fImagPtr = ImagArray.get_data_ptr();
@@ -112,7 +112,7 @@ namespace Gadgetron{
 		public:
 		
 			// forward transformation
-			virtual bool KernelFTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){	
+			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){	
 				/*// vector for permutation
 				std::vector<size_t> vtDimOrder;
 				 
@@ -144,7 +144,7 @@ namespace Gadgetron{
 					GADGET_DEBUG1("Not implemented in this version - only 2D/3D support\n");
 				
 				// permute array
-				hoNDArray<std::complex<float>> TmpArray = *permute(&Array, &vtDimOrder, false);
+				hoNDArray<std::complex<float> >  TmpArray = *permute(&Array, &vtDimOrder, false);
 				std::vector<size_t> dims = *TmpArray.get_dimensions();
 			
 				// check if principle components are stored for this dimension an ifno principle components found - initialize
@@ -159,7 +159,7 @@ namespace Gadgetron{
 			};
 
 			// backward transformation
-			virtual bool KernelBTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				/*// vector for permutation
 				std::vector<size_t> vtDimOrder;
 				
@@ -191,7 +191,7 @@ namespace Gadgetron{
 					GADGET_DEBUG1("Not implemented in this version - only 2D/3D support\n");
 				
 				// permute array
-				hoNDArray<std::complex<float>> TmpArray = *permute(&Array, &vtDimOrder, false);
+				hoNDArray<std::complex<float> >  TmpArray = *permute(&Array, &vtDimOrder, false);
 				std::vector<size_t> dims = *TmpArray.get_dimensions();
 			
 				// check if principle components are stored for this dimension an if no principle components found - initialize
@@ -210,12 +210,12 @@ namespace Gadgetron{
 	class WaveletWrapper : public TransformWrapper
 	{
 		public:
-			virtual bool KernelFTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				GADGET_DEBUG1("not implemented in this version...\n");
 				return GADGET_OK;
 			};
 
-			virtual bool KernelBTrafo(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 				GADGET_DEBUG1("not implemented in this version...\n");
 				return GADGET_OK;
 			}; 

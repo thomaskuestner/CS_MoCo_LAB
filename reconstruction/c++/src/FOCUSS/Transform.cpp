@@ -16,7 +16,7 @@ namespace Gadgetron{
 	Transform::Transform() : bIsActive_(false){};
 
 	// array transformtion - inplace transformation without FFT wrapping
-	bool Transform::KernelFTransform(hoNDArray<std::complex<float>> &Array){
+	bool Transform::KernelFTransform(hoNDArray<std::complex<float> >  &Array){
 		// image domain (Cartesian base) -> new base
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
 			if (!(dynamic_cast<FFTWrapper*>(TVec_.at(i)))) // dynamic cast result NULL if not specified object type
@@ -24,7 +24,7 @@ namespace Gadgetron{
 		}	
 		return GADGET_OK;
 	}
-	bool Transform::KernelBTransform(hoNDArray<std::complex<float>> &Array){
+	bool Transform::KernelBTransform(hoNDArray<std::complex<float> >  &Array){
 		// new base -> image domain (Cartesian base)
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
 			if (!(dynamic_cast<FFTWrapper*>(TVec_.at(i))))
@@ -35,7 +35,7 @@ namespace Gadgetron{
 
 	// array forward transformation - in-place transformation
 	// depending on the stored DFT dimensions and sparsifying dimensions
-	bool Transform::FTransform(hoNDArray<std::complex<float>> &Array){
+	bool Transform::FTransform(hoNDArray<std::complex<float> >  &Array){
 		// k-space -> image domain
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_FFT_.size(); i++){
 			hoNDFFT<float>::instance()->ifft(&Array, (unsigned int)dims_to_trans_FFT_.at(i));
@@ -46,7 +46,7 @@ namespace Gadgetron{
 		}	
 		return GADGET_OK;
 	}
-	bool Transform::BTransform(hoNDArray<std::complex<float>> &Array){
+	bool Transform::BTransform(hoNDArray<std::complex<float> >  &Array){
 		// new base -> image domain (Cartesian base)
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
 			if (!(dynamic_cast<FFTWrapper*>(TVec_.at(i))))
@@ -59,7 +59,7 @@ namespace Gadgetron{
 	}
 
 	// do F/BTransformation (sparsifying with fft wrapping) in only one direction - input: array, dim to transform, associated function for this dimension will be called
-	bool Transform::FTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+	bool Transform::FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 		// iterate vector dims to find the entry
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
 			if(dims_to_trans_sparsity_.at(i) == dim_to_transform){
@@ -72,7 +72,7 @@ namespace Gadgetron{
 		}
 		return GADGET_OK;
 	}
-	bool Transform::BTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform){
+	bool Transform::BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
 		// iterate vector dims to find the entry
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
 			if(dims_to_trans_sparsity_.at(i) == dim_to_transform){
@@ -87,8 +87,8 @@ namespace Gadgetron{
 	}
 
 	// do F/BTransformation (sparsifying with specified transformation type and dim to transform) - fft wrapper is checked if active for specified dimension
-	bool Transform::FTransform(hoNDArray<std::complex<float>> &Array, int transformation_type, int dim_to_transform){
-		std::function<bool(hoNDArray<std::complex<float>>&,int)> fPtr;
+	bool Transform::FTransform(hoNDArray<std::complex<float> >  &Array, int transformation_type, int dim_to_transform){
+		std::function<bool(hoNDArray<std::complex<float> > &,int)> fPtr;
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_FFT_.size(); i++)
 			if(dims_to_trans_FFT_.at(i) == dim_to_transform)
 				hoNDFFT<float>::instance()->ifft(&Array, (unsigned int)dims_to_trans_FFT_.at(i));
@@ -111,8 +111,8 @@ namespace Gadgetron{
 		};
 		return GADGET_OK;
 	}
-	bool Transform::BTransform(hoNDArray<std::complex<float>> &Array, int transformation_type, int dim_to_transform){
-		std::function<bool(hoNDArray<std::complex<float>>&,int)> fPtr;
+	bool Transform::BTransform(hoNDArray<std::complex<float> >  &Array, int transformation_type, int dim_to_transform){
+		std::function<bool(hoNDArray<std::complex<float> > &,int)> fPtr;
 		TransformWrapper* f;
 		switch(transformation_type){
 			case 0:

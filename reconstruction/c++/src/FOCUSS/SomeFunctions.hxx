@@ -189,7 +189,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
 
 // calculate abs and pow to b
 template <typename T>
-bool fAbsPow(hoNDArray<T> &a, const float b){
+bool fAbsPow(hoNDArray<T> &a, float b){
 	T*pA = a.begin();
 	
 	long long N = a.get_number_of_elements();
@@ -215,7 +215,7 @@ bool fAbsPow(hoNDArray<T> &a, const float b){
 
 // calculate abs, pow to b and divide by signal energy
 template <typename T>
-bool fAbsPowDivide(hoNDArray<T> &a, const float b, const hoNDArray<T> &c){
+bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
 	T*pA = a.begin();
 	const T* pC = c.begin();
 	
@@ -341,8 +341,8 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	const T* pkS = ifft_kSpaceCombi.begin();
 	T* pO = out.begin();
 
-	const std::complex<float> cVal(1.0);
-	const std::complex<float> cVal2(0.5);
+	std::complex<float> cVal(1.0);
+	std::complex<float> cVal2(0.5);
 
 	long long N = W.get_number_of_elements();
 
@@ -396,8 +396,10 @@ bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result){
 	std::vector<size_t> dims = *Array.get_dimensions();
 	
 	// get center indices
-	int iCenterX = std::floorf((dims[2]-1)/2), iCenterY = std::floorf((dims[0]-1)/2), iCenterZ = std::floorf((dims[1]-1)/2);
-
+	int iCenterX = std::floor((float)(dims[2]-1)/2);
+	int iCenterY = std::floor((float)(dims[0]-1)/2);
+	int iCenterZ = std::floor((float)(dims[1]-1)/2);
+	
 	// get border indices
 	//GADGET_DEBUG2("y: %i, z: %i\n", y,z);
 	int iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower;
@@ -491,7 +493,7 @@ inline bool fAllZero(const hoNDArray<bool> &Array){
 
 	return isAllZero;
 }
-inline bool fAllZero(const hoNDArray<std::complex<float>> &Array){
+inline bool fAllZero(const hoNDArray<std::complex<float> >  &Array){
 	// output value
 	bool isAllZero = true;
 	
@@ -605,5 +607,68 @@ inline std::vector<float>& fGetHammingWindow(int iElements){
 	}
 
 	return vfHamming;
+}
+
+// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim) 
+template <typename T>
+bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
+	
+	hoNDArray<T> NewTmpArray = Array;
+
+	// get number of dimensions
+	int iNoDim = NewTmpArray.get_number_of_dimensions();
+
+	// get dimensions
+	std::vector<size_t> vDims = *NewTmpArray.get_dimensions();
+
+	// check dimensions
+	if (Array.get_number_of_dimensions() <= dimension){
+		BOOST_THROW_EXCEPTION( runtime_error("sum_dim: Error occurred - array is smaller than expected by the user!\n"));
+	}
+	else{
+		if (iNoDim > 1){
+			// permute array - summation dimension will be last dimension
+			std::vector<size_t> vPermute;
+			for (int i = 0; i < iNoDim; i++)
+				if (i != dimension)
+					vPermute.push_back(i);
+		
+			vPermute.push_back(dimension);
+			NewTmpArray = *permute(&NewTmpArray, &vPermute,false);
+	
+			// number of elements of all dimension except the summation dimension
+			long lMax = NewTmpArray.get_number_of_elements()/vDims.at(dimension);
+			//GADGET_DEBUG2("lMax: %i\n", lMax);
+			// create output array
+			std::vector<size_t> vNewDims = *NewTmpArray.get_dimensions();
+			vNewDims.pop_back();
+			hoNDArray<T> tmp(&vNewDims); tmp.fill(T(0.0));
+
+			// summation in specified dimension
+			T* pNewArray = tmp.get_data_ptr();
+			T* pOldArray = NewTmpArray.get_data_ptr();
+			for (int sum_dim = 0; sum_dim < vDims.at(dimension); sum_dim++)
+				for (int i = 0; i < tmp.get_number_of_elements(); i++)
+					pNewArray[i] += pOldArray[i + tmp.get_number_of_elements()*sum_dim];	
+
+			// output
+			result = tmp;
+		}
+		else{
+			// create output
+			hoNDArray<T> tmp(1);
+			
+			// summation
+			T* pOldArray = NewTmpArray.get_data_ptr();
+			T* pNewArray = tmp.get_data_ptr(); pNewArray[0] = 0;
+			for (long sum_dim = 0; sum_dim < vDims.at(0); sum_dim++)
+				pNewArray[0] += pOldArray[sum_dim];
+
+			// output
+			result = tmp;
+		}
+	}
+
+	return GADGET_OK;
 }
 }

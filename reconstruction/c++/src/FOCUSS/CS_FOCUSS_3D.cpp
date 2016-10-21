@@ -54,7 +54,7 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 //------------- process - CG-FOCUSS with additional constraints ------------
 //--------------------------------------------------------------------------
 int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2)
-{	bDebug_=true;
+{	
 	//------------------------------------------------------------------------
 	//------------------------------ initial ---------------------------------
 	//------------------------------------------------------------------------
@@ -67,7 +67,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	fInitVal(m1);
 	
 	// declare recon output
-	hoNDArray<std::complex<float>> hacfOutput;
+	hoNDArray<std::complex<float> >  hacfOutput;
 	
 	// FOCUSS reconstruction - this function is also called by the Matlab implementation
 	fRecon(*m2->getObjectPtr(), hacfOutput);
@@ -102,7 +102,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 //--------------------------------------------------------------------------
 //------------- 3D FOCUSS reconstruction - accessible from MATLAB ----------
 //--------------------------------------------------------------------------
-int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<std::complex<float>> &hacfRecon){
+int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon){
 	
 	// input dimensions
 	vtDim_ = *hacfInput.get_dimensions();
@@ -111,19 +111,19 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	iNChannels_ = (int)vtDim_[3];
 
 	// if Matlab is used, initialize singleton variables
-	if (bMatlab_){
+	/*if (bMatlab_){
 		for (int iI = 0; iI < 20; iI++){
 			GlobalVar_FOCUSS::instance()->vbStatPrinc_.push_back(false);
-			GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float>>());
+			GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
 		}
-	}
+	}*/
 
 	// const complex values
 	const std::complex<float> cfZero(0.0);
 	const std::complex<float> cfOne(1.0);
 
 	// store incoming data in array
-	hoNDArray<std::complex<float>> hacfKSpace = hacfInput;
+	hoNDArray<std::complex<float> >  hacfKSpace = hacfInput;
 		
 	// permute kSpace: x-y-z-c -> y-z-x-c
 	std::vector<size_t> vtDimOrder; vtDimOrder.push_back(1); vtDimOrder.push_back(2); vtDimOrder.push_back(0); vtDimOrder.push_back(3);
@@ -135,17 +135,18 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	//------------------------------------------------------------------------
 	//-------------------------- sampling mask -------------------------------
 	//------------------------------------------------------------------------
-	hoNDArray<std::complex<float>> hacfFullMask(hacfKSpace.get_dimensions()); hacfFullMask.fill(cfZero);
+	hoNDArray<std::complex<float> >  hacfFullMask(hacfKSpace.get_dimensions()); hacfFullMask.fill(cfZero);
 	hoNDArray<bool> habFullMask(hacfKSpace.get_dimensions()); habFullMask.fill(false);
 	pcfPtr_ = hacfKSpace.get_data_ptr();
 	pcfPtr2_ = hacfFullMask.get_data_ptr();
 	pbPtr_ = habFullMask.get_data_ptr();
-	for (int i = 0; i < hacfKSpace.get_number_of_elements(); i++)
+	for (int i = 0; i < hacfKSpace.get_number_of_elements(); i++){
 		if (pcfPtr_[i] != cfZero){
 			pcfPtr2_[i] = cfOne;
 			pbPtr_[i] = true;
 		}
-
+	}
+	
 	//-------------------------------------------------------------------------
 	//---------------- iFFT x direction - x ky kz ^= v (nü) -------------------
 	//-------------------------------------------------------------------------
@@ -157,7 +158,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 		}
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
-	hoNDArray<std::complex<float>> hacfWWindowed = hacfKSpace;
+	hoNDArray<std::complex<float> >  hacfWWindowed = hacfKSpace;
 	
 	//------------------------------------------------------------------------
 	//---------------------------- windowing ---------------------------------
@@ -189,15 +190,15 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	fAbsPow(hacfWWindowed, fP_);
 
 	// calculate energy and divide windowed image for initial estimate
-	hoNDArray<std::complex<float>> hacfTotEnergy(hacfWWindowed.get_dimensions());
+	hoNDArray<std::complex<float> >  hacfTotEnergy(hacfWWindowed.get_dimensions());
 	pcfPtr_ = hacfTotEnergy.get_data_ptr();
 	pcfPtr2_ = hacfWWindowed.get_data_ptr();
 	for (int iCha = 0; iCha < iNChannels_; iCha++){
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-		hoNDArray<std::complex<float>> hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
+		hoNDArray<std::complex<float> >  hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
 		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("energy in channel[%i]: %e..\n",iCha, fTmp);
+			GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
@@ -213,8 +214,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	//------------------- iterative calculation -------------------------------
 	//-------------------------------------------------------------------------
 	// initial estimates for CG - all zero (except g_old)
-	hoNDArray<std::complex<float>> hacfQ(hacfWWindowed.get_dimensions()); 
-	hoNDArray<std::complex<float>> hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
+	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions()); 
+	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 
 	// outer loop - FOCUSS iterations
 	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
@@ -247,7 +248,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				std::vector<float> vfVec;
 				for (int iCha = 0; iCha < iNChannels_; iCha++){
 					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-					hoNDArray<std::complex<float>> eCha(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
+					hoNDArray<std::complex<float> >  eCha(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 					if (!bMatlab_ && bDebug_)
@@ -330,8 +331,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-				hoNDArray<std::complex<float>> hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
-				hoNDArray<std::complex<float>> hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);	
+				hoNDArray<std::complex<float> >  hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
+				hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);	
 				std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
 
 				// calculate nominator
@@ -370,8 +371,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				std::complex<float> fAlphaCha (0.0);
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-				hoNDArray<std::complex<float>> hacfSubArrayE(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
-				hoNDArray<std::complex<float>> hacfSubArrayZ(vtDim_[0], vtDim_[1], vtDim_[2], hacfZ.get_data_ptr()+ tOffset, false);
+				hoNDArray<std::complex<float> >  hacfSubArrayE(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
+				hoNDArray<std::complex<float> >  hacfSubArrayZ(vtDim_[0], vtDim_[1], vtDim_[2], hacfZ.get_data_ptr()+ tOffset, false);
 				std::complex<float> fNumerator(0.0), fDenominator(0.0);
 				// calculate nominator
 				pcfPtr2_ = hacfSubArrayE.get_data_ptr();
@@ -437,13 +438,13 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 //--------------------------------------------------------------------------
 //------------------ gradient of the ESPReSSo constraint -------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float>>& hacfRho, hoNDArray<std::complex<float>>&hacfFullMask, hoNDArray<std::complex<float>>&hacfKSpace, hoNDArray<std::complex<float>>&hacfW, hoNDArray<std::complex<float>>&hacfQ){
+void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){
 	
 	//--------------------------------------------------------------------------
 	//------------------ transform to Cartesian k-space image ------------------
 	//--------------------------------------------------------------------------
 	// new base --> Cartesian base (ky-kz-x-c)
-	hoNDArray<std::complex<float>> hacfRhoTmp = hacfRho;
+	hoNDArray<std::complex<float> >  hacfRhoTmp = hacfRho;
 	Transform_KernelTransform_->BTransform(hacfRhoTmp);
 	
 	if (fAllZero(hacfRhoTmp))
@@ -460,7 +461,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float>>& hacfRho, hoNDAr
 	try{
 
 		// flip in espresso direction
-		hoNDArray<std::complex<float>> hacfRhoFlipped = hacfRhoTmp;
+		hoNDArray<std::complex<float> >  hacfRhoFlipped = hacfRhoTmp;
 		pcfPtr_ = hacfRhoTmp.get_data_ptr();
 		pcfPtr2_ = hacfRhoFlipped.get_data_ptr();
 		if (iESPReSSoDirection_ == 1)
@@ -489,14 +490,14 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float>>& hacfRho, hoNDAr
 		hoNDFFT<float>::instance()->ifft3(hacfRhoFlipped);
 		
 		// get phase image - phase = exp(2i * angle(rhoTmp))
-		hoNDArray<std::complex<float>> hacfPhase = hacfRhoFlipped;
+		hoNDArray<std::complex<float> >  hacfPhase = hacfRhoFlipped;
 		pcfPtr_ = hacfPhase.get_data_ptr();
 		#pragma omp parallel for
 		for (int iI = 0; iI < hacfPhase.get_number_of_elements(); iI++)
 			pcfPtr_[iI] = std::polar(1.0, 2.0*std::arg(pcfPtr_[iI]));
 
 		// kSpaceCombi
-		hoNDArray<std::complex<float>> hacfKSpaceCombi = hacfKSpace;
+		hoNDArray<std::complex<float> >  hacfKSpaceCombi = hacfKSpace;
 		
 		//--------------------------------------------------------------------------
 		//--------------------------- conjugate symmetry ---------------------------
@@ -926,8 +927,8 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 		// create filter array (inital all ones)
 		hacfFilter_.create(habFullMask.get_dimensions()); 
 		hacfFilter_.fill(std::complex<float>(1.0));
-		hoNDArray<std::complex<float>> hacfFilt1D(vtDim_[0], vtDim_[1]);
-		hoNDArray<std::complex<float>> hacfFilt1DFullArray(habFullMask.get_dimensions()); 
+		hoNDArray<std::complex<float> >  hacfFilt1D(vtDim_[0], vtDim_[1]);
+		hoNDArray<std::complex<float> >  hacfFilt1DFullArray(habFullMask.get_dimensions()); 
 			
 		// loop over the 3 spatial dimensions
 		for (int iDim = 0; iDim < 3; iDim++){
@@ -1013,9 +1014,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 //--------------------------------------------------------------------------
 //---------------------------- windowing -----------------------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float>>& hacfWWindowed){
+void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 	// array with mask
-	hoNDArray<std::complex<float>> hacfMask3D(hacfWWindowed.get_dimensions()); hacfMask3D.fill(std::complex<float>(0.0));
+	hoNDArray<std::complex<float> >  hacfMask3D(hacfWWindowed.get_dimensions()); hacfMask3D.fill(std::complex<float>(0.0));
 
 	// get calibration mask
 	std::vector<size_t> vStart, vSize;

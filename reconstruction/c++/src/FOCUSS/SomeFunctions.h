@@ -49,7 +49,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r);
 
 // calculate abs, pow to b and divide by signal energy
 template <typename T>
-bool fAbsPowDivide(hoNDArray<T> &a, const float b, const hoNDArray<T> &c);
+bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c);
 
 // multiply: a = a.*b
 template <typename T>
@@ -73,11 +73,11 @@ float fCalcEnergy(hoNDArray<T> a);
 
 // calculate abs and pow to b
 template <typename T>
-bool fAbsPow(hoNDArray<T> &a, const float b);
+bool fAbsPow(hoNDArray<T> &a, float b);
 
 // all zero?
 bool fAllZero(const hoNDArray<bool> &Array);
-bool fAllZero(const hoNDArray<std::complex<float>> &Array);
+bool fAllZero(const hoNDArray<std::complex<float> >  &Array);
 
 // all non-zero?
 bool fAllOne(const hoNDArray<bool> &Array);
@@ -87,5 +87,9 @@ std::vector<float>& fGetHanningWindow(int iElements);
 
 // get hamming window values
 std::vector<float>& fGetHammingWindow(int iElements);
+
+// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
+template <typename T>
+bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
 }
 

@@ -35,7 +35,7 @@ namespace Gadgetron{
 			}
 			
 		// wisdom string vector
-		std::vector<hoNDArray<std::complex<float>>*> vfPrincipleComponents_;
+		std::vector<hoNDArray<std::complex<float> > *> vfPrincipleComponents_;
 		std::vector<bool> vbStatPrinc_;
 
 		private:
