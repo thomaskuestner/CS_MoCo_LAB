@@ -44,32 +44,32 @@ namespace Gadgetron{
 			Transform();
 
 			// array forward transformtion - inplace transformation without FFT wrapping
-			bool KernelFTransform(hoNDArray<std::complex<float>> &Array);
+			bool KernelFTransform(hoNDArray<std::complex<float> >  &Array);
 
 			// array backward transformtion - inplace transformation without FFT wrapping
-			bool KernelBTransform(hoNDArray<std::complex<float>> &Array);
+			bool KernelBTransform(hoNDArray<std::complex<float> >  &Array);
 
 			// array forward transformation - inplace transformation
-			bool FTransform(hoNDArray<std::complex<float>> &Array);
+			bool FTransform(hoNDArray<std::complex<float> >  &Array);
 
 			// array backward transformation - inplace transformation
-			bool BTransform(hoNDArray<std::complex<float>> &Array);
+			bool BTransform(hoNDArray<std::complex<float> >  &Array);
 
 			// do transformation in only one direction - input: dim to transform, associated function for this dimension will be called
-			bool FTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform);
-			bool BTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform);
+			bool FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform);
+			bool BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform);
 
 			// do transformation on array, input: array, type of transformation, dim_to_transform
-			bool FTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform, int transformation_type);
-			bool BTransform(hoNDArray<std::complex<float>> &Array, int dim_to_transform, int transformation_type);
+			bool FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, int transformation_type);
+			bool BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, int transformation_type);
 
 			// do transformation in specified dimensions - input: array, vector with dimensions
-			bool FTransform(hoNDArray<std::complex<float>> &Array, std::vector<int> &dims);
-			bool BTransform(hoNDArray<std::complex<float>> &Array, std::vector<int> &dims);
+			bool FTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims);
+			bool BTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims);
 
 			// do transformation in specified dimensions and transformation type - input: array, type, vector with dimensions
-			bool FTransform(hoNDArray<std::complex<float>> &Array, std::vector<int> &dims, int transformation_type);
-			bool BTransform(hoNDArray<std::complex<float>> &Array, std::vector<int> &dims, int transformation_type);
+			bool FTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims, int transformation_type);
+			bool BTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims, int transformation_type);
 			
 			// set active
 			void set_active();

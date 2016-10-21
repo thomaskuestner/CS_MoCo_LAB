@@ -55,24 +55,36 @@ int CS_FOCUSS_2D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	//------------------------------------------------------------------------
 	//--- set variables - store incoming data - permute incoming data --------
 	//------------------------------------------------------------------------
-	GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
+	if (bDebug_)
+		GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
 
 	// init member values based on header information	
 	fInitVal(m1);	
-	
-	// dimensions of incoming data
-	vtDim_ = *m2->getObjectPtr()->get_dimensions();
-	iNChannels_ = (int)vtDim_[3];
 
 	// declare recon output
-	hoNDArray<std::complex<float>> hacfOutput;
+	hoNDArray<std::complex<float> >  hacfOutput;
 
 	// FOCUSS reconstruction - this function is also called by the Matlab implementation
 	fRecon(*m2->getObjectPtr(), hacfOutput);
 
-	// put calculated image on stream
-	*m2->getObjectPtr() = hacfOutput;
-	
+	// new GadgetContainer
+	GadgetContainerMessage< hoNDArray< std::complex<float> > >* cm2 = new GadgetContainerMessage<hoNDArray< std::complex<float> > >();
+    
+	// concatenate data with header
+	m1->cont(cm2);
+
+	// create output
+	try{cm2->getObjectPtr()->create(&vtDim_);}
+	catch (std::runtime_error &err){
+		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		m1->release();
+		return -1;
+	}
+
+	// copy data
+	memcpy(cm2->getObjectPtr()->get_data_ptr(), hacfOutput.begin(), sizeof(std::complex<float>)*hacfOutput.get_number_of_elements());
+
+	// pass data on stream or to control object
 	if (!bControl_){
 		//Now pass on image
 		if (this->next()->putq(m1) < 0) {
@@ -83,32 +95,40 @@ int CS_FOCUSS_2D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 }
 
 
-int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<std::complex<float>> &hacfRecon){
+int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon){
+	
 	// input dimensions
 	vtDim_ = *hacfInput.get_dimensions();
 
 	// number of channels
-	iNChannels_ = (int)vtDim_[3];
+	iNChannels_ = (int)vtDim_[2];
 
 	// if Matlab is used, initialize singleton variables
-	if (bMatlab_){
+	/*if (bMatlab_){
 		for (int iI = 0; iI < 20; iI++){
 			GlobalVar_FOCUSS::instance()->vbStatPrinc_.push_back(false);
-			GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float>>());
+			GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
 		}
-	}
+	}*/
 
 	// const complex values
 	const std::complex<float> cfZero(0.0);
 	const std::complex<float> cfOne(1.0);
 
 	// store incoming data in array
-	hoNDArray<std::complex<float>> hacfKSpace = hacfInput;
+	hoNDArray<std::complex<float> >  hacfKSpace = hacfInput;
+
+	// permute kSpace: x-y-c -> y-x-c
+	std::vector<size_t> vtDimOrder; vtDimOrder.push_back(1); vtDimOrder.push_back(0); vtDimOrder.push_back(2);
+	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder,false);
+	
+	// update dim_ vector
+	vtDim_.clear(); vtDim_ = *hacfKSpace.get_dimensions();
 
 	//------------------------------------------------------------------------
 	//-------------------------- sampling mask -------------------------------
 	//------------------------------------------------------------------------
-	hoNDArray<std::complex<float>> hacfFullMask(hacfKSpace.get_dimensions()); hacfFullMask.fill(cfZero);
+	hoNDArray<std::complex<float> >  hacfFullMask(hacfKSpace.get_dimensions()); hacfFullMask.fill(cfZero);
 	hoNDArray<bool> habFullMask(hacfKSpace.get_dimensions()); habFullMask.fill(false);
 	pcfPtr_ = hacfKSpace.get_data_ptr();
 	pcfPtr2_ = hacfFullMask.get_data_ptr();
@@ -130,11 +150,16 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 		}
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
-	hoNDArray<std::complex<float>> hacfWWindowed = hacfKSpace;
+	hoNDArray<std::complex<float> >  hacfWWindowed = hacfKSpace;
 
 	//------------------------------------------------------------------------
 	//---------------------------- windowing ---------------------------------
 	//------------------------------------------------------------------------
+	if (!bMatlab_ && bDebug_)
+			GADGET_DEBUG1("get calib size..\n");
+		else if(bMatlab_ && bDebug_){
+			mexPrintf("get calib size..\n");mexEvalString("drawnow;");
+		}
 	fGetCalibrationSize(habFullMask);
 	fWindowing(hacfWWindowed);
 
@@ -154,21 +179,21 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	fAbsPow(hacfWWindowed, fP_);
 
 	// calculate energy and divide windowed image for initial estimate
-	hoNDArray<std::complex<float>> hacfTotEnergy(hacfWWindowed.get_dimensions());
+	hoNDArray<std::complex<float> >  hacfTotEnergy(hacfWWindowed.get_dimensions());
 	pcfPtr_ = hacfTotEnergy.get_data_ptr();
 	pcfPtr2_ = hacfWWindowed.get_data_ptr();
 	for (int iCha = 0; iCha < iNChannels_; iCha++){
-		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-		hoNDArray<std::complex<float>> hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
+		size_t tOffset = vtDim_[0]*vtDim_[1]*iCha;
+		hoNDArray<std::complex<float> >  hacfEnergyPerChannel(vtDim_[0], vtDim_[1], hacfWWindowed.get_data_ptr()+ tOffset, false);
 		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("energy in channel[%i]: %e..\n",iCha, fTmp);
+			GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
 		// fill channel
 		#pragma  omp parallel for
-		for (long i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]; i++){
+		for (long i = 0; i < vtDim_[0]*vtDim_[1]; i++){
 			pcfPtr_[i+tOffset] = std::complex<float>(fTmp);
 			pcfPtr2_[i+tOffset] /= fTmp;
 		}
@@ -179,8 +204,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	--------------------- iterative calculation -------------------------------
 	--------------------------------------------------------------------------*/
 	// initial estimates for CG - all zero (except g_old)
-	hoNDArray<std::complex<float>> hacfQ(hacfWWindowed.get_dimensions()); 
-	hoNDArray<std::complex<float>> hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
+	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions()); 
+	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 
 	// outer loop for FOCUSS
 	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
@@ -202,18 +227,18 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
 
-				// rho: x-y-z ---> x-ky-kz
+				// rho: x-y ---> x-ky
 				hacfRho_fft = hacfRho;
 				Transform_KernelTransform_->BTransform(hacfRho_fft);
 
-				// e = v - Phi*F*rho - e: x-ky-kz
+				// e = v - Phi*F*rho - e: x-ky
 				fAminusBmultC(hacfKSpace,hacfFullMask,hacfRho_fft,hacfE);
 
 				//l2 norm calculation - check epsilon
 				std::vector<float> vfVec;
 				for (int iCha = 0; iCha < iNChannels_; iCha++){
-					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-					hoNDArray<std::complex<float>> eCha(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
+					size_t tOffset = vtDim_[0]*vtDim_[1]*iCha;
+					hoNDArray<std::complex<float> >  eCha(vtDim_[0], vtDim_[1], hacfE.get_data_ptr()+ tOffset, false);
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 					if (!bMatlab_ && bDebug_)
@@ -238,7 +263,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				// if all channels converged -> stop calculation
 				if (iNom == 0) break;
 
-				// e: x-ky-kz --> x-y-z
+				// e: x-ky --> x-y
 				hacfE_ifft = hacfE;				
 				Transform_KernelTransform_->FTransform(hacfE_ifft);
 
@@ -246,8 +271,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				//---------------------------- constraints -------------------------------
 				//------------------------------------------------------------------------
 
-				// emphasize conjugate similarity - not used in 2Dt
-				hoNDArray<std::complex<float>> hacfGradient_ESPReSSo = hacfRho; hacfGradient_ESPReSSo.fill(0.0);
+				// emphasize conjugate similarity - not used in 2D
+				hoNDArray<std::complex<float> >  hacfGradient_ESPReSSo = hacfRho; hacfGradient_ESPReSSo.fill(0.0);
 
 				//----------------- gradient -------------------------
 				// G = -conj(W).*IFFT(e)+Lambda.*Q	
@@ -261,9 +286,9 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				for (int iCha = 0; iCha < iNChannels_; iCha++){
 				
 					// fill sub array with data from higher order data array
-					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-					hoNDArray<std::complex<float>> hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
-					hoNDArray<std::complex<float>> hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);	
+					size_t tOffset = vtDim_[0]*vtDim_[1]*iCha;
+					hoNDArray<std::complex<float> >  hacfSubArrayG_old(vtDim_[0], vtDim_[1], hacfG_old.get_data_ptr()+ tOffset, false);
+					hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], hacfG.get_data_ptr()+ tOffset, false);	
 					std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
 
 					// calculate nominator
@@ -281,7 +306,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 	
 					// fill part of the 3D array					
 					#pragma  omp parallel for
-					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]; lI++)
+					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++)
 						pcfPtr_[lI+tOffset] = fBetaCha;
 				}
 				//--------------------------------------------------------------------------
@@ -301,9 +326,9 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 				for (int iCha = 0; iCha < iNChannels_; iCha++){				
 					std::complex<float> fAlphaCha (0.0);
 					// fill sub array with data from higher order data array
-					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-					hoNDArray<std::complex<float>> hacfSubArrayE(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
-					hoNDArray<std::complex<float>> hacfSubArrayZ(vtDim_[0], vtDim_[1], vtDim_[2], hacfZ.get_data_ptr()+ tOffset, false);
+					size_t tOffset = vtDim_[0]*vtDim_[1]*iCha;
+					hoNDArray<std::complex<float> >  hacfSubArrayE(vtDim_[0], vtDim_[1], hacfE.get_data_ptr()+ tOffset, false);
+					hoNDArray<std::complex<float> >  hacfSubArrayZ(vtDim_[0], vtDim_[1], hacfZ.get_data_ptr()+ tOffset, false);
 					std::complex<float> fNumerator(0.0), fDenominator(0.0);
 					// calculate nominator
 					pcfPtr2_ = hacfSubArrayE.get_data_ptr();
@@ -320,7 +345,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 
 					// fill 3D alpha array
 					#pragma  omp parallel for
-					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]; lI++)
+					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++)
 						pcfPtr_[lI+tOffset] = fAlphaCha;
 				}
 				//--------------------------------------------------------------------------
@@ -352,6 +377,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 		Transform_fftAA_->BTransform(hacfRho);
 	}
 
+	// permute output - rho: y-x-c -> x-y-c
+	vtDimOrder.clear(); vtDimOrder.push_back(1); vtDimOrder.push_back(0); vtDimOrder.push_back(2);
+	hacfRho = *permute(&hacfRho, &vtDimOrder,false);
+	vtDim_.clear(); vtDim_ = *hacfRho.get_dimensions();
+	
 	// set output and return
 	hacfRecon = hacfRho;
 
@@ -368,13 +398,13 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float>> &hacfInput, hoNDArray<st
 //--------------------------------------------------------------------------
 //---------------------------- windowing -----------------------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float>>& hacfWWindowed){
+void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 	// array with mask
-	hoNDArray<std::complex<float>> hacfMask3D(hacfWWindowed.get_dimensions()); hacfMask3D.fill(std::complex<float>(0.0));
+	hoNDArray<std::complex<float> >  hacfMask2D(hacfWWindowed.get_dimensions()); hacfMask2D.fill(std::complex<float>(0.0));
 
 	// get calibration mask
 	std::vector<size_t> vStart, vSize;
-	for (int iI = 0; iI < 2; iI++){
+	for (int iI = 0; iI < 1; iI++){
 		if (viCalibrationSize_.at(iI) % 2){
 			vStart.push_back(std::floor((float)vtDim_[iI]/2)+std::ceil(-(float)viCalibrationSize_.at(iI)/2));
 		}
@@ -384,22 +414,21 @@ void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float>>& hacfWWindowed){
 	}
 	vStart.push_back(0); vStart.push_back(0);
 	for (int iY = vStart.at(0); iY < vStart.at(0)+viCalibrationSize_.at(0); iY++)
-		for (int iZ = vStart.at(1); iZ < vStart.at(1)+viCalibrationSize_.at(1); iZ++)
-			for (int iX = vStart.at(2); iX < vStart.at(2)+viCalibrationSize_.at(2); iX++){
-				for (int iC = vStart.at(3); iC < vStart.at(3)+viCalibrationSize_.at(3); iC++)
-					hacfMask3D(iY, iZ, iX, iC) = std::complex<float>(1.0);
-			}
+		for (int iX = vStart.at(1); iX < vStart.at(1)+viCalibrationSize_.at(1); iX++){
+			for (int iC = vStart.at(2); iC < vStart.at(2)+viCalibrationSize_.at(2); iC++)
+				hacfMask2D(iY, iX, iC) = std::complex<float>(1.0);
+		}
 
 	// windowing W
-	hacfWWindowed *= hacfMask3D;
+	hacfWWindowed *= hacfMask2D;
 
 	// get kSpaceCenter
 	habKSpaceCenter_.create(hacfWWindowed.get_dimensions());
 	habKSpaceCenter_.fill(true);
 	pbPtr_ = habKSpaceCenter_.get_data_ptr();
-	pcfPtr_ = hacfMask3D.get_data_ptr();
+	pcfPtr_ = hacfMask2D.get_data_ptr();
 	#pragma omp parallel for
-	for (long lI = 0; lI < hacfMask3D.get_number_of_elements(); lI++)
+	for (long lI = 0; lI < hacfMask2D.get_number_of_elements(); lI++)
 		if(pcfPtr_[lI] == std::complex<float>(0.0))
 			pbPtr_[lI] = false;
 
@@ -422,7 +451,7 @@ void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 	while(!(bYflag)){
 		if (!bYflag){			
 			for (int iY = std::ceil((float)vtDim[0]/2)-iSY+1; iY < std::ceil((float)vtDim[0]/2)+iSY+1; iY++){
-				if (!pbArray)
+				if (!habArray(iY, std::ceil((float)vtDim[1]/2)))//!pbArray)
 					bYflag = true;
 				else
 					iSY++;
@@ -436,7 +465,6 @@ void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 	viCalibrationSize_.push_back(iSY);	
 	viCalibrationSize_.push_back(vtDim[1]);	
 	viCalibrationSize_.push_back(vtDim[2]);
-	viCalibrationSize_.push_back(vtDim[3]);
 
 	for (std::vector<int>::size_type i = 0; i != viCalibrationSize_.size(); i++){
 		if (!bMatlab_ && bDebug_)
