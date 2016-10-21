@@ -10,7 +10,7 @@ FIND_PATH( ISMRMRD_INCLUDE_DIR ismrmrd.h
 HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local /usr PATH_SUFFIXES include ismrmrd ismrmrd/include)
 
 FIND_PATH( ISMRMRD_XSD_INCLUDE_DIR ismrmrd.hxx
-HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
+HINTS $ENV{ISMRMRD_HOME} PATHS include /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
 
 FIND_PATH( ISMRMRD_SCHEMA_DIR ismrmrd.xsd 
 HINTS $ENV{ISMRMRD_HOME} PATHS /usr/local/share /usr/local /usr PATH_SUFFIXES schema ismrmrd ismrmrd/schema)
