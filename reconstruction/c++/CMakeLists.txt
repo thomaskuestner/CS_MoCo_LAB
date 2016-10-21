@@ -204,14 +204,6 @@ endif()
 find_package(XSD)
 find_package(XercesC)
 
-###############################################################
-# MATLAB
-###############################################################
-find_package(GMatlab)
-if (MATLAB_FOUND)
-    add_definitions(-DUSE_MATLAB)
-endif (MATLAB_FOUND)
-
 if (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
 else()
   message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
@@ -235,17 +227,16 @@ include_directories(
     ${HDF5_INCLUDE_DIR}/cpp
     ${ARMADILLO_INCLUDE_DIRS}
     ${ISMRMRD_INCLUDE_DIR}
-	${CMAKE_SOURCE_DIR}/src/FOCUSS
-	${ACE_INCLUDE_DIR} 
+    ${CMAKE_SOURCE_DIR}/src/FOCUSS
+    ${ACE_INCLUDE_DIR} 
     ${Boost_INCLUDE_DIR}
     ${GADGETRON_INCLUDE_DIR}
     ${ISMRMRD_INCLUDE_DIR}
     ${ISMRMRD_SCHEMA_DIR}
     ${ISMRMRD_XSD_INCLUDE_DIR}
-	${FFTW3_INCLUDE_DIR}
-	${MATLAB_INCLUDE_DIR}
-	${XSD_INCLUDE_DIR}
-	${XERCESC_INCLUDE_DIR}
+    ${FFTW3_INCLUDE_DIR}
+    ${XSD_INCLUDE_DIR}
+    ${XERCESC_INCLUDE_DIR}
 )
 
 set( cs_lab_header_files 	src/FOCUSS/CS_Control.h 
@@ -297,7 +288,6 @@ else()
 endif()
 
 target_link_libraries(	CS_LAB					
-						${MATLAB_MEX_LIBRARY}
 						${ISMRMRD_LIBRARIES} 
 						${FFTW3_LIBRARIES} 
 						${BOOST_LIBRARIES}
