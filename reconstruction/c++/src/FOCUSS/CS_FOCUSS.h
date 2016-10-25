@@ -80,7 +80,6 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 #include <cmath>
 #include "hoMatrix_util.h"
 #include "SomeFunctions.hxx"
-#include "mex.h"
 
 namespace Gadgetron
 {
