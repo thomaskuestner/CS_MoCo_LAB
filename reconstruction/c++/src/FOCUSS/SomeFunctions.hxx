@@ -54,7 +54,7 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -100,7 +100,7 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+        GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -145,7 +145,7 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+        GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -180,7 +180,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
+        GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -206,7 +206,7 @@ bool fAbsPow(hoNDArray<T> &a, float b){
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -239,7 +239,7 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -266,7 +266,7 @@ bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -319,7 +319,7 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in calc_gradient(...) .. ");
+        GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
         return false;
     }
 	
@@ -381,7 +381,7 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	}
 	catch(...)
 	{
-		GADGET_ERROR_MSG("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
+		GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
 		return false;
 	}
 
@@ -472,7 +472,7 @@ float fCalcEnergy(hoNDArray<T> a){
     }
     catch(...)
     {
-        GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 

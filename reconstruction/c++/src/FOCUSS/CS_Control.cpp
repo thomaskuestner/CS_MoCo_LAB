@@ -53,11 +53,11 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	// evaluate dimension and create suitable class object
 	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
 		pCS = new CS_FOCUSS_2D();
-		GADGET_DEBUG1("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
+		GDEBUG("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
 		//pCS = new CS_FOCUSS_2Dt();
-		GADGET_DEBUG1("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
+		GDEBUG("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
 		GadgetContainerMessage< hoNDArray< std::complex<float> > >* tmp_m2 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
@@ -66,10 +66,10 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 		//vDims = *m2->getObjectPtr()->get_dimensions();
 
 		pCS = new CS_FOCUSS_3D();
-		GADGET_DEBUG1("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
+		GDEBUG("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
-		GADGET_DEBUG1("not implemented in this version\n");
+		GDEBUG("not implemented in this version\n");
 	}
 	
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class

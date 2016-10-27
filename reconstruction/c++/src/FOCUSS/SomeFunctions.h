@@ -23,7 +23,6 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "hoNDImage.h"
 #include "complext.h"
 #include "cpucore_math_export.h"
-#include "GadgetronCommon.h"
 #include <complex>
 
 namespace Gadgetron{

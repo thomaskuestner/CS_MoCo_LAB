@@ -211,12 +211,12 @@ namespace Gadgetron{
 	{
 		public:
 			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
-				GADGET_DEBUG1("not implemented in this version...\n");
+				GDEBUG("not implemented in this version...\n");
 				return GADGET_OK;
 			};
 
 			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
-				GADGET_DEBUG1("not implemented in this version...\n");
+				GDEBUG("not implemented in this version...\n");
 				return GADGET_OK;
 			}; 
 	};
