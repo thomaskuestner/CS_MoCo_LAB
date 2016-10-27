@@ -88,7 +88,7 @@ namespace Gadgetron
 	{
 
 	public:
-	
+
 		// reconstruct the k-space data in the process(...) method
 		virtual int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2) = 0;
 
@@ -100,7 +100,7 @@ namespace Gadgetron
 
 		// calculating gradient of ESPReSSo
 		virtual void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) = 0;
-		
+
 		// init filter array and sampling masks for ESPReSSo constraint
 		virtual void fInitESPReSSo(hoNDArray<bool>& habFullMask) = 0;
 
@@ -164,7 +164,7 @@ namespace Gadgetron
 		float fP_;
 
 		// noise level (default: 1e-6)
-		float fEpsilon_;		
+		float fEpsilon_;
 
 		// CS acceleration factor
 		float fCSAccel_;
@@ -186,7 +186,7 @@ namespace Gadgetron
 	// hoNDArray<cx_float>:
 		// FilterArray for ESPReSSo filtering
 		hoNDArray<std::complex<float> >  hacfFilter_;
-	
+
 	// objects
 		// Transformation object for KernelTransform
 		Transform *Transform_KernelTransform_;
@@ -195,7 +195,7 @@ namespace Gadgetron
 		Transform *Transform_fftBA_;
 
 		// Transformation object after all - put k-space or image on stream
-		Transform *Transform_fftAA_;	
+		Transform *Transform_fftAA_;
 
 		// debug output on/off
 		bool bDebug_;
@@ -219,7 +219,7 @@ class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
 		// 2D FOCUSS CS reconstruction
 		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
 
-	protected:	
+	protected:
 		// calculating gradient of ESPReSSo - not used in 2Dt
 		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
 
@@ -248,7 +248,7 @@ class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
 //		// 2Dt FOCUSS CS reconstruction
 //		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
 //
-//	protected:	
+//	protected:
 //		// calculating gradient of ESPReSSo - not used in 2Dt
 //		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
 //
@@ -269,10 +269,10 @@ class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
 		CS_FOCUSS_3D(){	bControl_ = false; };
 
 		GADGET_DECLARE(CS_FOCUSS_3D)
-		
+
 		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
 		// 3D FOCUSS CS reconstruction
-		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);		
+		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
 
 		int process_config(ACE_Message_Block* mb);
 

@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_Control.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -21,18 +21,18 @@ int CS_CONTROL::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
 	iCGResidual_ = this->get_int_value("CG Beta");
-	
+
 	// maximum number of FOCUSS iterations
 	iNOuter_ = this->get_int_value("OuterIterations");
 	if (iNOuter_ <= 0) iNOuter_ = 2;
-	
+
 	// maximum number of CG iterations
 	iNInner_ = this->get_int_value("InnerIterations");
 	if (iNInner_ <= 0) iNInner_ = 20;
-	
+
 	// p-value for the lp-norm
 	fP_ = .5;
-	
+
 	// use ESPReSSo-constraint for pure CS data
 	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 
@@ -46,7 +46,7 @@ int CS_CONTROL::process_config(ACE_Message_Block* mb){
 };
 
 int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){
-	
+
 	// get dimension of the incoming data object
 	std::vector<size_t> vDims = *m2->getObjectPtr()->get_dimensions();
 
@@ -71,7 +71,7 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
 		GDEBUG("not implemented in this version\n");
 	}
-	
+
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class
 	pCS->iCGResidual_				= iCGResidual_;
 	pCS->iNChannels_				= iNChannels_;
@@ -80,7 +80,7 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	pCS->fP_						= fP_;
 	pCS->cfLambda_					= cfLambda_;
 	pCS->cfLambdaESPReSSo_			= cfLambdaESPReSSo_;
-	pCS->fEpsilon_					= fEpsilon_;		
+	pCS->fEpsilon_					= fEpsilon_;
 	pCS->fCSAccel_					= fCSAccel_;
 	pCS->iESPReSSoDirection_		= iESPReSSoDirection_;
 	pCS->fPartialFourierVal_		= fPartialFourierVal_;
