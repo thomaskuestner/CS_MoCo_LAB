@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_FOCUSS_3D.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -11,13 +11,13 @@ description	: 	implementation of the class "CS_FOCUSS_3D" (file CS_FOCUSS.h)
 
 reference	:
 				- Gorodnitsky I. and Rao B.: "Sparse Signal Reconstruction from Limited Data Using FOCUSS: A Re-weigted Minimum Norm Algorithm", IEEE Transaction on Signal Processing 1997:45(3)
-				- Küstner T. et al.: "ESPReSSo: A Compressed Sensing Partial k-Space Acquisition and Reconstruction", Proc. ISMRM 2014
+				- Kï¿½stner T. et al.: "ESPReSSo: A Compressed Sensing Partial k-Space Acquisition and Reconstruction", Proc. ISMRM 2014
 */
 
 #include "CS_FOCUSS.h"
 
 // for matlab print function
-#include "mex.h" 
+#include "mex.h"
 
 using namespace Gadgetron;
 
@@ -26,18 +26,18 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
 	iCGResidual_ = this->get_int_value("CG Beta");
-	
+
 	// maximum number of FOCUSS iterations
 	iNOuter_ = this->get_int_value("OuterIterations");
 	if (iNOuter_ <= 0) iNOuter_ = 2;
-	
+
 	// maximum number of CG iterations
 	iNInner_ = this->get_int_value("InnerIterations");
 	if (iNInner_ <= 0) iNInner_ = 20;
-	
+
 	// p-value for the lp-norm
 	fP_ = .5;
-	
+
 	// use ESPReSSo-constraint for pure CS data
 	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 
@@ -54,30 +54,34 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 //------------- process - CG-FOCUSS with additional constraints ------------
 //--------------------------------------------------------------------------
 int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2)
-{	
+{
 	//------------------------------------------------------------------------
 	//------------------------------ initial ---------------------------------
 	//------------------------------------------------------------------------
 	//--- set variables - store incoming data - permute incoming data --------
 	//------------------------------------------------------------------------
 	if (bDebug_)
-		GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Starting FOCUSS reconstruction\n");
+		#else
+			GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
+		#endif
 
 	// init member values based on header information
 	fInitVal(m1);
-	
+
 	// declare recon output
 	hoNDArray<std::complex<float> >  hacfOutput;
-	
+
 	// FOCUSS reconstruction - this function is also called by the Matlab implementation
 	fRecon(*m2->getObjectPtr(), hacfOutput);
-	
+
 	// new GadgetContainer
 	GadgetContainerMessage< hoNDArray< std::complex<float> > >* cm2 = new GadgetContainerMessage<hoNDArray< std::complex<float> > >();
-    
+
 	// concatenate data with header
 	m1->cont(cm2);
-	
+
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
@@ -103,7 +107,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 //------------- 3D FOCUSS reconstruction - accessible from MATLAB ----------
 //--------------------------------------------------------------------------
 int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon){
-	
+
 	// input dimensions
 	vtDim_ = *hacfInput.get_dimensions();
 
@@ -124,11 +128,11 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 
 	// store incoming data in array
 	hoNDArray<std::complex<float> >  hacfKSpace = hacfInput;
-		
+
 	// permute kSpace: x-y-z-c -> y-z-x-c
 	std::vector<size_t> vtDimOrder; vtDimOrder.push_back(1); vtDimOrder.push_back(2); vtDimOrder.push_back(0); vtDimOrder.push_back(3);
 	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder,false);
-	
+
 	// update dim_ vector
 	vtDim_.clear(); vtDim_ = *hacfKSpace.get_dimensions();
 
@@ -146,43 +150,51 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			pbPtr_[i] = true;
 		}
 	}
-	
+
 	//-------------------------------------------------------------------------
-	//---------------- iFFT x direction - x ky kz ^= v (nü) -------------------
+	//---------------- iFFT x direction - x ky kz ^= v (nï¿½) -------------------
 	//-------------------------------------------------------------------------
 	if (Transform_fftBA_->get_active()){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("FFT in read direction..\n");
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("FFT in read direction..\n");
+			#else
+				GADGET_DEBUG1("FFT in read direction..\n");
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 		}
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
 	hoNDArray<std::complex<float> >  hacfWWindowed = hacfKSpace;
-	
+
 	//------------------------------------------------------------------------
 	//---------------------------- windowing ---------------------------------
 	//------------------------------------------------------------------------
 	fGetCalibrationSize(habFullMask);
 	fWindowing(hacfWWindowed);
-	
+
 	//------------------------------------------------------------------------
 	//-------------------------- ESPReSSo init -------------------------------
 	//------------------------------------------------------------------------
 	//------ find symmetrical, conjugate sampled part - build filter ---------
 	//------------------------------------------------------------------------
 	if (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)
-		fInitESPReSSo(habFullMask);	
+		fInitESPReSSo(habFullMask);
 
 	//-------------------------------------------------------------------------
 	//----------------------- initial estimate --------------------------------
 	//-------------------------------------------------------------------------
 	if (!bMatlab_ && bDebug_)
-		GADGET_DEBUG1("Prepare initial estimate..\n");
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Prepare initial estimate..\n");
+		#else
+			GADGET_DEBUG1("Prepare initial estimate..\n");
+		#endif
 	else if(bMatlab_ && bDebug_){
 		mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 	}
-	
+
 	// W in x-y-z-cha --> new base
 	Transform_KernelTransform_->FTransform(hacfWWindowed);
 
@@ -214,7 +226,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//------------------- iterative calculation -------------------------------
 	//-------------------------------------------------------------------------
 	// initial estimates for CG - all zero (except g_old)
-	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions()); 
+	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions());
 	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 
 	// outer loop - FOCUSS iterations
@@ -224,7 +236,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
-		
+
 		// reset initial values
 		hacfRho.fill(cfZero); hacfD.fill(cfZero); hacfQ.fill(cfZero); hacfG_old.fill(std::complex<float>(1.0,1.0));
 
@@ -236,7 +248,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				else if(bMatlab_ && bDebug_){
 					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
-				
+
 				// rho: x-y-z ---> x-ky-kz
 				hacfRho_fft = hacfRho;
 				Transform_KernelTransform_->BTransform(hacfRho_fft);
@@ -257,7 +269,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
 				}
-				
+
 				// how many channels are converged
 				int iNom = 0;
 				for (int iI = 0; iI < vfVec.size(); iI++){
@@ -269,17 +281,21 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					mexPrintf("number of non converged channels - %i\n", iNom);
 					mexEvalString("drawnow;");
 				}
-				
+
 				// if all channels converged -> stop calculation
 				if (iNom == 0) break;
 
 				// e: x-ky-kz --> x-y-z
-				hacfE_ifft = hacfE;				
+				hacfE_ifft = hacfE;
 				Transform_KernelTransform_->FTransform(hacfE_ifft);
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in first part..\n");
+					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("Exception in first part..\n");
+					#else
+						GADGET_DEBUG1("Exception in first part..\n");
+					#endif
 				else if(bMatlab_ && bDebug_){
 					mexPrintf("Exception in first part..\n");mexEvalString("drawnow;");
 				}
@@ -290,7 +306,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			//------------------------------------------------------------------------
 			// emphasize conjugate similarity
 			try{
-				if (cfLambdaESPReSSo_ != cfZero && (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)){	
+				if (cfLambdaESPReSSo_ != cfZero && (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)){
 					hacfGradient_ESPReSSo = hacfRho;
 					fGradESPReSSo(hacfGradient_ESPReSSo, hacfFullMask, hacfKSpace, hacfWWindowed, hacfQ);
 				}
@@ -299,22 +315,30 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in ESPReSSo constraint\n");
+					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("Exception in ESPReSSo constraint\n");
+					#else
+						GADGET_DEBUG1("Exception in ESPReSSo constraint\n");
+					#endif
 				else  if(bMatlab_ && bDebug_){
-					mexPrintf("Exception in ESPReSSo constraint\n");	
+					mexPrintf("Exception in ESPReSSo constraint\n");
 					mexEvalString("drawnow;");
 				}
 				hacfGradient_ESPReSSo.fill(cfZero);
 			}
 
 			//-------------calculate gradient -------------------------
-			// G = -conj(W).*IFFT(e)+Lambda.*Q + LambdaESPReSSo.*gradESPReSSo		
+			// G = -conj(W).*IFFT(e)+Lambda.*Q + LambdaESPReSSo.*gradESPReSSo
 			try{
 				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in gradient calculation\n");
+					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("Exception in gradient calculation\n");
+					#else
+						GADGET_DEBUG1("Exception in gradient calculation\n");
+					#endif
 				else if(bMatlab_ && bDebug_){
 					mexPrintf("Exception in gradient calculation\n");
 					mexEvalString("drawnow;");
@@ -325,14 +349,14 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			//------------------- cg beta - Polak-Ribiere -------------------------------
 			std::complex<float> fBetaCha (0.0);
 			pcfPtr_ = hacfBeta.get_data_ptr();
-				
+
 			// loop over channels
 			for (int iCha = 0; iCha < iNChannels_; iCha++){
-				
+
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
 				hoNDArray<std::complex<float> >  hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
-				hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);	
+				hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);
 				std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
 
 				// calculate nominator
@@ -346,9 +370,9 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++){
 					fDenominator +=  pcfPtr2_[iI]*pcfPtr2_[iI];
 				}
-				if (abs(fDenominator) != 0) fBetaCha = fNumerator / fDenominator;						
-	
-				// fill part of the 3D array					
+				if (abs(fDenominator) != 0) fBetaCha = fNumerator / fDenominator;
+
+				// fill part of the 3D array
 				#pragma  omp parallel for
 				for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]; lI++)
 					pcfPtr_[lI+tOffset] = fBetaCha;
@@ -358,7 +382,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			// d = beta.*d - G and g_old = G
 			fAmultBminusC(hacfBeta, hacfD, hacfG, hacfD);
 			hacfG_old = hacfG;
-	
+
 			// z = Phi.*FFT(W.*d) - x-ky-kz
 			multiply(hacfWWindowed, hacfD, hacfZ);
 			Transform_KernelTransform_->BTransform(hacfZ);
@@ -366,8 +390,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 
 			//---------------------------- cg alpha -------------------------------------
 			//alpha(:,:,:,c) = (z_helper(:)'*e_helper(:))/(z_helper(:)'*z_helper(:));
-			pcfPtr_ = hacfAlpha.get_data_ptr();		
-			for (int iCha = 0; iCha < iNChannels_; iCha++){				
+			pcfPtr_ = hacfAlpha.get_data_ptr();
+			for (int iCha = 0; iCha < iNChannels_; iCha++){
 				std::complex<float> fAlphaCha (0.0);
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
@@ -399,16 +423,16 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 
 			// rho = W.*q
 			multiply(hacfWWindowed, hacfQ, hacfRho);
-		}	
+		}
 
 		// W = abs(rho).^p - p = .5 normalization
 		hacfWWindowed = hacfRho;
-		fAbsPowDivide(hacfWWindowed, fP_, hacfTotEnergy);	
+		fAbsPowDivide(hacfWWindowed, fP_, hacfTotEnergy);
 	}
-	
+
 	// rho = W.*q
 	multiply(hacfWWindowed, hacfQ, hacfRho);
-	
+
 	//rho = kernelBTrafo(rho) -> x-y-z cart
 	Transform_KernelTransform_->KernelBTransform(hacfRho);
 
@@ -416,19 +440,23 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	if (Transform_fftAA_->get_active()){
 		Transform_fftAA_->BTransform(hacfRho);
 	}
-	
+
 	// permute output - rho: y-z-x-c -> x-y-z-c
 	vtDimOrder.clear(); vtDimOrder.push_back(2); vtDimOrder.push_back(0); vtDimOrder.push_back(1); vtDimOrder.push_back(3);
 	hacfRho = *permute(&hacfRho, &vtDimOrder,false);
 	vtDim_.clear(); vtDim_ = *hacfRho.get_dimensions();
-	
+
 	// set output and return
 	hacfRecon = hacfRho;
 
 	if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("FOCUSS done..\n");
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("FOCUSS done..\n");
+			#else
+				GADGET_DEBUG1("FOCUSS done..\n");
+			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FOCUSS done..\n");		
+			mexPrintf("FOCUSS done..\n");
 			mexEvalString("drawnow;");
 		}
 
@@ -439,20 +467,20 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 //------------------ gradient of the ESPReSSo constraint -------------------
 //--------------------------------------------------------------------------
 void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){
-	
+
 	//--------------------------------------------------------------------------
 	//------------------ transform to Cartesian k-space image ------------------
 	//--------------------------------------------------------------------------
 	// new base --> Cartesian base (ky-kz-x-c)
 	hoNDArray<std::complex<float> >  hacfRhoTmp = hacfRho;
 	Transform_KernelTransform_->BTransform(hacfRhoTmp);
-	
+
 	if (fAllZero(hacfRhoTmp))
 		hacfRhoTmp = hacfKSpace;
 
 	// back to kSpace - (ky-kz-x-c) --> (ky-kz-kx-c)
 	if (Transform_fftBA_->get_active()) Transform_fftBA_->BTransform(hacfRhoTmp);
-	
+
 	//--------------------------------------------------------------------------
 	//--------------------------- espresso_reconGrad ---------------------------
 	//--------------------------------------------------------------------------
@@ -480,15 +508,15 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 					for (int idY = 0; idY < vtDim_[0]; idY++)
 						for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 							pcfPtr2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pcfPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
-			
-		
+
+
 		// filter kSpace for low-resolution and smooth transitions (k-space times filter - s(kx,ky,kz)*H(kx,ky,kz))
 		multiply(hacfRhoFlipped, hacfFilter_, hacfRhoFlipped);
 		hoNDFFT<float>::instance()->fftshift3D(hacfRhoFlipped);
-		
+
 		// iFFT for initial image (all three spatial dimensions) - (ky,kz,kx)-->(y,z,x)
 		hoNDFFT<float>::instance()->ifft3(hacfRhoFlipped);
-		
+
 		// get phase image - phase = exp(2i * angle(rhoTmp))
 		hoNDArray<std::complex<float> >  hacfPhase = hacfRhoFlipped;
 		pcfPtr_ = hacfPhase.get_data_ptr();
@@ -498,7 +526,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 
 		// kSpaceCombi
 		hoNDArray<std::complex<float> >  hacfKSpaceCombi = hacfKSpace;
-		
+
 		//--------------------------------------------------------------------------
 		//--------------------------- conjugate symmetry ---------------------------
 		//--------------------------------------------------------------------------
@@ -529,7 +557,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 							}
 						}
 		}
-		
+
 		//--------------------------------------------------------------------------
 		//------------------------- get ESPReSSo gradient --------------------------
 		//--------------------------------------------------------------------------
@@ -538,20 +566,24 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 	}
 	catch(...){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("Error occured in ESPReSSo gradient calculation...return 0\n");
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("Error occured in ESPReSSo gradient calculation...return 0\n");
+			#else
+				GADGET_DEBUG1("Error occured in ESPReSSo gradient calculation...return 0\n");
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("Error occured in ESPReSSo gradient calculation...return 0\n");mexEvalString("drawnow;");
 		}
 		clear(hacfRho);
 	}
-	return;		
+	return;
 }
 
 //--------------------------------------------------------------------------
 //------------------- initialize the ESPReSSo constraint -------------------
 //--------------------------------------------------------------------------
 void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
-	
+
 	// temporal array
 	hoNDArray<bool> habSamplPtrSym;
 
@@ -559,16 +591,16 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 	int iCenterX = (int)(vtDim_[2]/2), iCenterY = (int)(vtDim_[0]/2), iCenterZ = (int)(vtDim_[1]/2);
 
 	if (cfLambdaESPReSSo_ != std::complex<float>(0.0)){
-	
+
 		// ESPReSSo acquisition
 		if (fPartialFourierVal_ < 1.0 && fPartialFourierVal_ > 0.0){
-		
+
 			//-------------------------------------------------------------------------
 			//------------------------- Upper / Lower ?  ------------------------------
 			//------- check if upper or lower region in the k-space is sampled --------
 			//-------------------------------------------------------------------------
 			int iNumFoundUpper = 0, iNumFoundLower = 0;
-	
+
 			// check only for one channel - sampling mask is same for all channels
 			pbPtr_ = habFullMask.get_data_ptr();
 
@@ -586,7 +618,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				}
 				(iNumFoundLower > iNumFoundUpper) ? bESPReSSoIsLower_ = true : bESPReSSoIsLower_ = false;
 			}
-			
+
 			// ESPReSSo direction is partition encoding direction
 			else{
 				for (int idZ = (int)(fPartialFourierVal_*vtDim_[1])-1; idZ < vtDim_[1]; idZ++){
@@ -607,17 +639,21 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			//- sampling mask is mirrored at the center line depending on ESPReSSo dir.-
 			//--------------------------------------------------------------------------
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG1("compute symmetrical sampling pattern\n");
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("compute symmetrical sampling pattern\n");
+				#else
+					GADGET_DEBUG1("compute symmetrical sampling pattern\n");
+				#endif
 			else if(bMatlab_ && bDebug_){
 				mexPrintf("compute symmetrical sampling pattern\n");mexEvalString("drawnow;");
 			}
-			
+
 			habSamplPtrSym = habFullMask;
 			pbPtr_ = habSamplPtrSym.get_data_ptr();
-			
+
 			// lower half sampled
 			if (bESPReSSoIsLower_){
-			
+
 				// ESPReSSo direction is phase encoding direction
 				if (iESPReSSoDirection_ == 1)
 					#pragma omp parallel for
@@ -626,7 +662,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 							for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 								for (int idY = vtDim_[0]-1; idY > vtDim_[0]/2; idY--)
 									pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
-				
+
 				// ESPReSSo direction is partition encoding direction
 				else
 					#pragma omp parallel for
@@ -636,7 +672,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 								for (int idZ = vtDim_[1]-1; idZ > vtDim_[1]/2; idZ--)
 									pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 			}
-			
+
 			// upper half sampled
 			else{
 				// ESPReSSo direction is phase encoding direction
@@ -648,7 +684,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 								for (int idY = 0; idY < vtDim_[0]/2; idY++)
 									pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 
-				
+
 				// ESPReSSo direction is partition encoding direction
 				else
 					#pragma omp parallel for
@@ -658,29 +694,33 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 								for (int idZ = 0; idZ < vtDim_[1]/2; idZ++)
 									pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 			}
-		
+
 			//-------------------------------------------------------------------------
 			//--------------------------- conjugate sampling pattern ------------------
 			//---- conjugation - get only unsampled points for complex conjugation ----
 			//-------------------------------------------------------------------------
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG1("compute conjugate sampling pattern\n");
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("compute conjugate sampling pattern\n");
+				#else
+					GADGET_DEBUG1("compute conjugate sampling pattern\n");
+				#endif
 			else if(bMatlab_ && bDebug_){
 				mexPrintf("compute conjugate sampling pattern\n");
 				mexEvalString("drawnow;");
 			}
-			
+
 			habMaskConj_.create(habFullMask.get_dimensions());
 			pbPtr_ = habMaskConj_.get_data_ptr();
 			pbPtr2_ = habFullMask.get_data_ptr();
 			pbPtr3_ = habSamplPtrSym.get_data_ptr();
-			
-			// get unsampled points - XOR gating				
+
+			// get unsampled points - XOR gating
 			#pragma omp parallel for
 			for (int i = 0; i < habMaskConj_.get_number_of_elements(); i++)
 				pbPtr_[i] = pbPtr2_[i]^pbPtr3_[i];
 		}
-		
+
 		// ESPReSSo constraint for pure CS data without Partial Fourier technique
 		else{
 
@@ -689,7 +729,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			//--------------------------------------------------------------------------
 			habMaskRight_ = habFullMask;
 			pbPtr_ = habMaskRight_.get_data_ptr();
-			
+
 			// set upper half zero
 			#pragma omp parallel for
 			for (int iCha = 0; iCha < vtDim_[3]; iCha++)
@@ -707,7 +747,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					for (int idY = vtDim_[0]/2; idY < vtDim_[0]; idY++)
 						for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 							pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = false;
-			
+
 			// logical OR with kSpaceCenter
 			pbPtr_  = habMaskRight_.get_data_ptr();
 			pbPtr2_ = habKSpaceCenter_.get_data_ptr();
@@ -719,7 +759,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					pbPtr3_[i] = true;
 				}
 
-			// flip both masks (lmaskRight and lmaskLeft) and write to habMaskConj_ and habMaskConj2_	
+			// flip both masks (lmaskRight and lmaskLeft) and write to habMaskConj_ and habMaskConj2_
 			habMaskConj_.create(habMaskRight_.get_dimensions());
 			habMaskConj2_.create(habMaskRight_.get_dimensions());
 			bool* pcfPtr_habMaskConj_ = habMaskConj_.get_data_ptr();
@@ -732,12 +772,12 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 							pcfPtr_habMaskConj_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] =  pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 							pcfPtr_habMaskConj2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr3_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 						}
-			
+
 			pbPtr_ = habFullMask.get_data_ptr();
 			pbPtr2_ = habMaskConj_.get_data_ptr();
 			pbPtr3_ = habMaskConj2_.get_data_ptr();
-			
-			// get unsampled points - XOR gating				
+
+			// get unsampled points - XOR gating
 			#pragma omp parallel for
 			for (int i = 0; i < habMaskConj_.get_number_of_elements(); i++){
 				pbPtr2_[i] = pbPtr_[i]^pbPtr2_[i] || pbPtr_[i]^pbPtr3_[i];
@@ -745,35 +785,39 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// set values for symmetrical kSpace part / filter
 			iESPReSSoDirection_ = 1;
-			bESPReSSoIsLower_ = true;	
+			bESPReSSoIsLower_ = true;
 		}
-		
+
 		//-------------------------------------------------------------------------
 		//-------------------- symmetrical kSpace part / filter --------------------
 		//--------------------------------------------------------------------------
 		// get indices of center kSpace lines - find symmetrical kSpace part and calc filter
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("find symmetrical kSpace part..\n");
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("find symmetrical kSpace part..\n");
+			#else
+				GADGET_DEBUG1("find symmetrical kSpace part..\n");
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("find symmetrical kSpace part..\n");mexEvalString("drawnow;");
 		}
-			
+
 		// vectors for storing the outer sampled lines
 		std::vector<int> viKSpaceLines_1;
 		std::vector<int> viKSpaceLines_2;
-		
+
 		// loop over the symmetrical pattern beginning at the center line to the first unsampled point
 		// --> difference between center line and first zero is half the symmetrical sampled lines
-		// store the upper and lower symmetrical sampled line in the kSpaceLine vector 
-		
+		// store the upper and lower symmetrical sampled line in the kSpaceLine vector
+
 		// ESPReSSo is active
 		if (fPartialFourierVal_ != 1.0){
 			pbPtr_ = habSamplPtrSym.get_data_ptr();
-			
+
 			// phase encoding direction
 			if (iESPReSSoDirection_ == 1){
 				for (int iZ = 0; iZ < vtDim_[1]; iZ++){
-								
+
 					// lower region is sampled
 					if (bESPReSSoIsLower_ == true){
 						if (fPartialFourierVal_ != .5){
@@ -788,7 +832,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 									// number of "mirrored" line
 									viKSpaceLines_2.push_back(vtDim_[0]-iY);
 									break;
-								}	
+								}
 								else if(iY==iCenterY-1){
 									// number of line in k-space
 									viKSpaceLines_1.push_back(iY-1);
@@ -812,7 +856,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 									// number of "mirrored" line
 									viKSpaceLines_2.push_back(iY);
 									break;
-								}	
+								}
 								else if(iY==iCenterY+1){
 									// number of line in k-space
 									viKSpaceLines_1.push_back(iY-1);
@@ -827,7 +871,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			// partition encoding direction
 			else{
 				for (int iY = 0; iY < vtDim_[0]; iY++){
-								
+
 					// lower region is sampled
 					if (bESPReSSoIsLower_ == true){
 						if (fPartialFourierVal_ != .5){
@@ -842,7 +886,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 									// number of "mirrored" line
 									viKSpaceLines_2.push_back(vtDim_[1]-iZ);
 									break;
-								}	
+								}
 								else if(iZ==iCenterZ-1){
 									// number of line in k-space
 									viKSpaceLines_1.push_back(iZ-1);
@@ -866,7 +910,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 									// number of "mirrored" line
 									viKSpaceLines_2.push_back(iZ);
 									break;
-								}	
+								}
 								else if(iZ==iCenterZ+1){
 									// number of line in k-space
 									viKSpaceLines_1.push_back(iZ-1);
@@ -879,7 +923,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				}
 			}
 		}
-		
+
 		// additional complex conjugate symmetry constraint for normal Compressed Sensing data
 		else{
 			int iLine1 = .75*vtDim_[0]-iCenterY;
@@ -889,13 +933,17 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				viKSpaceLines_2.push_back(iLine2);
 			}
 		}
-		
+
 		// if no line is found --> filter width will be 0 --> take default values from window calculation
 		if (viKSpaceLines_1.size() == 0 || viKSpaceLines_2.size()==0){
 			viKSpaceLines_1.clear(); viKSpaceLines_2.clear();
-			
+
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG1("Estimate filter size by calculated window");
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("Estimate filter size by calculated window");
+				#else
+					GADGET_DEBUG1("Estimate filter size by calculated window");
+				#endif
 			else if(bMatlab_ && bDebug_){
 				mexPrintf("Estimate filter size by calculated window");	mexEvalString("drawnow;");
 			}
@@ -908,9 +956,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					viKSpaceLines_1.push_back(iLine1);
 					viKSpaceLines_2.push_back(iLine2);
 				}
-				
+
 			// partition encoding direction
-			else 
+			else
 				for (int iY = 0; iY < vtDim_[0]; iY++){
 					int iLine1 = .75*vtDim_[1]-iCenterZ;
 					int iLine2 = .75*vtDim_[1];
@@ -919,17 +967,21 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				}
 		}
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("calculate filter..\n");
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("calculate filter..\n");
+			#else
+				GADGET_DEBUG1("calculate filter..\n");
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("calculate filter..\n");mexEvalString("drawnow;");
 		}
-		
+
 		// create filter array (inital all ones)
-		hacfFilter_.create(habFullMask.get_dimensions()); 
+		hacfFilter_.create(habFullMask.get_dimensions());
 		hacfFilter_.fill(std::complex<float>(1.0));
 		hoNDArray<std::complex<float> >  hacfFilt1D(vtDim_[0], vtDim_[1]);
-		hoNDArray<std::complex<float> >  hacfFilt1DFullArray(habFullMask.get_dimensions()); 
-			
+		hoNDArray<std::complex<float> >  hacfFilt1DFullArray(habFullMask.get_dimensions());
+
 		// loop over the 3 spatial dimensions
 		for (int iDim = 0; iDim < 3; iDim++){
 			hacfFilt1D.fill(std::complex<float>(0.0)); hacfFilt1DFullArray.fill(std::complex<float>(0.0));
@@ -939,7 +991,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				// phase encoding direction
 				if (iESPReSSoDirection_ == 1){
 					for (int iZ = 0; iZ < vtDim_[1]; iZ++){
-					
+
 						// get filter coefficients (passed parameter is window width)
 						std::vector<float> HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
 
@@ -967,7 +1019,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			}
 
 			// filter for other direction (Hamming) - same procedure as in ESPReSSo direction
-			else{	
+			else{
 				// x-direction
 				if (iDim == 0){
 					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
@@ -977,7 +1029,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 								for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idX));
 				}
-				
+
 				// y-direction
 				if (iDim == 1){
 					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
@@ -987,7 +1039,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 								for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idY));
 				}
-				
+
 				// z-direction
 				if (iDim == 2){
 					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
@@ -999,7 +1051,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				}
 			}
 			hacfFilter_ *= hacfFilt1DFullArray;
-		}	
+		}
 
 		// check maximum value in filter array
 		pcfPtr_ = hacfFilter_.get_data_ptr();
@@ -1050,7 +1102,11 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 			pbPtr_[lI] = false;
 
 	if (!bMatlab_ && bDebug_)
-		GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("data windowed for initial estimate and kSpaceCenter found..\n");
+		#else
+			GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
+		#endif
 	else if(bMatlab_ && bDebug_){
 		mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
 	}
@@ -1063,7 +1119,7 @@ void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 	int iSY = 2, iSZ = 2;
 	bool bYflag = false, bZflag = false;
 	std::vector<size_t> vtDim = *habArray.get_dimensions();
-	
+
 	hoNDArray<bool> habMask_helper;
 
 	while(!(bYflag && bZflag)){
@@ -1090,8 +1146,8 @@ void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 	}
 
 	// push values on calibration size vector
-	viCalibrationSize_.push_back(iSY);	
-	viCalibrationSize_.push_back(iSZ);	
+	viCalibrationSize_.push_back(iSY);
+	viCalibrationSize_.push_back(iSZ);
 	viCalibrationSize_.push_back(vtDim[2]);
 	viCalibrationSize_.push_back(vtDim[3]);
 
