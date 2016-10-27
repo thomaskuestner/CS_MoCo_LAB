@@ -54,7 +54,7 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
         GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
@@ -104,7 +104,7 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
@@ -153,7 +153,7 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
@@ -192,7 +192,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
@@ -222,7 +222,7 @@ bool fAbsPow(hoNDArray<T> &a, float b){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
@@ -259,7 +259,7 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
@@ -290,7 +290,7 @@ bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
@@ -347,7 +347,7 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in calc_gradient(...) .. ");
@@ -413,7 +413,7 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	}
 	catch(...)
 	{
-		#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 			GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
 		#else
 			GADGET_ERROR_MSG("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
@@ -508,7 +508,7 @@ float fCalcEnergy(hoNDArray<T> a){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");

@@ -1,11 +1,11 @@
 # add gadgetron flags
-set(__GADGETRON__ 2)
+set(__GADGETRON__ 3)
 set(__GADGETRON_MINOR__ 8)
 set(__GADGETRON_PATCHLEVEL__ 2)
 
-add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=FALSE)
+add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=TRUE)
+  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=1)
 ENDIF()
 
 cmake_minimum_required(VERSION 2.6)
