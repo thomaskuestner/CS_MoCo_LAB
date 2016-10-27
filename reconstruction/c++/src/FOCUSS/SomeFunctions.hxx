@@ -54,11 +54,11 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
     }
     catch(...)
     {
-				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
-					GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-				#else
-					GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-				#endif
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#endif
         return false;
     }
 
@@ -104,7 +104,7 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
@@ -153,11 +153,11 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
     }
     catch(...)
     {
-				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
-					GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-				#else
-					GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-				#endif
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+				GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#endif
         return false;
     }
 
@@ -192,7 +192,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
@@ -222,7 +222,7 @@ bool fAbsPow(hoNDArray<T> &a, float b){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
@@ -259,7 +259,7 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
@@ -290,11 +290,11 @@ bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
     }
     catch(...)
     {
-				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
-					GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-				#else
-					GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-				#endif
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
+				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#endif
         return false;
     }
 
@@ -347,7 +347,7 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in calc_gradient(...) .. ");
@@ -413,7 +413,7 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	}
 	catch(...)
 	{
-		#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 			GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
 		#else
 			GADGET_ERROR_MSG("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
@@ -508,7 +508,7 @@ float fCalcEnergy(hoNDArray<T> a){
     }
     catch(...)
     {
-			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__ == TRUE
 				GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
 			#else
 				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
@@ -523,7 +523,7 @@ float fCalcEnergy(hoNDArray<T> a){
 inline bool fAllZero(const hoNDArray<bool> &Array){
 	// output value
 	bool isAllZero = true;
-	
+
 	bool *PtrIn = Array.get_data_ptr();
 	for (long i = 0; i < Array.get_number_of_elements(); i++)
 		if (PtrIn[i] != false){
@@ -536,7 +536,7 @@ inline bool fAllZero(const hoNDArray<bool> &Array){
 inline bool fAllZero(const hoNDArray<std::complex<float> >  &Array){
 	// output value
 	bool isAllZero = true;
-	
+
 	std::complex<float> *PtrIn = Array.get_data_ptr();
 	for (long i = 0; i < Array.get_number_of_elements(); i++)
 		if (PtrIn[i] != std::complex<float>(0, 0)){
@@ -551,7 +551,7 @@ inline bool fAllZero(const hoNDArray<std::complex<float> >  &Array){
 inline bool fAllOne(const hoNDArray<bool> &Array){
 	bool *PtrIn = Array.get_data_ptr();
 	for (long i = 0; i < Array.get_number_of_elements(); i++)
-		if (PtrIn[i] == false){		
+		if (PtrIn[i] == false){
 			return false;
 		}
 
@@ -559,7 +559,7 @@ inline bool fAllOne(const hoNDArray<bool> &Array){
 }
 
 // calculate L-point hanning window with L = elements-1
-/* 
+/*
 
 implementation reference:
 
@@ -606,7 +606,7 @@ inline std::vector<float>& fGetHanningWindow(int iElements){
 }
 
 // calculate L-point hamming window with L = N (periodic case)
-/* 
+/*
 
 implementation reference:
 
@@ -639,20 +639,20 @@ inline std::vector<float>& fGetHammingWindow(int iElements){
 	float fL = float(iElements);
 	// calc n
 	for (std::vector<int>::size_type i = 0; i != vfHamming.size(); i++){
-		vfHamming.at(i) = float(i)-fL/2;					
+		vfHamming.at(i) = float(i)-fL/2;
 	}
 	// calc w(n)
 	for (std::vector<int>::size_type i = 0; i != vfHamming.size(); i++){
-		vfHamming.at(i) = 0.54 + 0.46*std::cos(2*pi*vfHamming.at(i)/fL); 
+		vfHamming.at(i) = 0.54 + 0.46*std::cos(2*pi*vfHamming.at(i)/fL);
 	}
 
 	return vfHamming;
 }
 
-// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim) 
+// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 template <typename T>
 bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
-	
+
 	hoNDArray<T> NewTmpArray = Array;
 
 	// get number of dimensions
@@ -672,10 +672,10 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 			for (int i = 0; i < iNoDim; i++)
 				if (i != dimension)
 					vPermute.push_back(i);
-		
+
 			vPermute.push_back(dimension);
 			NewTmpArray = *permute(&NewTmpArray, &vPermute,false);
-	
+
 			// number of elements of all dimension except the summation dimension
 			long lMax = NewTmpArray.get_number_of_elements()/vDims.at(dimension);
 			//GADGET_DEBUG2("lMax: %i\n", lMax);
@@ -689,7 +689,7 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 			T* pOldArray = NewTmpArray.get_data_ptr();
 			for (int sum_dim = 0; sum_dim < vDims.at(dimension); sum_dim++)
 				for (int i = 0; i < tmp.get_number_of_elements(); i++)
-					pNewArray[i] += pOldArray[i + tmp.get_number_of_elements()*sum_dim];	
+					pNewArray[i] += pOldArray[i + tmp.get_number_of_elements()*sum_dim];
 
 			// output
 			result = tmp;
@@ -697,7 +697,7 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 		else{
 			// create output
 			hoNDArray<T> tmp(1);
-			
+
 			// summation
 			T* pOldArray = NewTmpArray.get_data_ptr();
 			T* pNewArray = tmp.get_data_ptr(); pNewArray[0] = 0;
