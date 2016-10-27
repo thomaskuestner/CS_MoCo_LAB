@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	SomeFunctions.hxx
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -18,13 +18,13 @@ reference	:	hoNDArray_math_util.h from the Gadgetron implementation
 namespace Gadgetron{
 
 // r = a-b*c - all arrays same size
-template <typename T> 
+template <typename T>
 bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r)
 {
 	// check if number of elements are equal
 	GADGET_DEBUG_CHECK_RETURN_FALSE(a.get_number_of_elements()==b.get_number_of_elements());
 	GADGET_DEBUG_CHECK_RETURN_FALSE(b.get_number_of_elements()==c.get_number_of_elements());
-	
+
 	const T *pA = a.begin();
 	const T *pB = b.begin();
 	const T *pC = c.begin();
@@ -54,7 +54,11 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+					GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#else
+					GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#endif
         return false;
     }
 
@@ -62,7 +66,7 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
 }
 
 // r = a*b-c
-template <typename T> 
+template <typename T>
 bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r)
 {
 	// check if number of elements are equal
@@ -96,11 +100,15 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
         {
             pR[n] -= pC[n];
         }
-        
+
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#endif
         return false;
     }
 
@@ -108,7 +116,7 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
 }
 
 // r = a+b*c
-template <typename T> 
+template <typename T>
 bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r)
 {
 	// check if number of elements are equal
@@ -136,7 +144,7 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
         {
             pR[n] = pA[n];
         }
-        
+
 		#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pB, pC, pR)
         for ( n=0; n<(long long)N; n++ )
         {
@@ -145,7 +153,11 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+					GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#else
+					GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+				#endif
         return false;
     }
 
@@ -153,7 +165,7 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
 }
 
 // r = a + b; a: constant value, b: array
-template <typename T> 
+template <typename T>
 bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
 {
 	const T*pA = a.begin();
@@ -176,11 +188,15 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
         {
             pR[n] = a+pB[n];
         }
-        
+
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
+			#endif
         return false;
     }
 
@@ -191,7 +207,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
 template <typename T>
 bool fAbsPow(hoNDArray<T> &a, float b){
 	T*pA = a.begin();
-	
+
 	long long N = a.get_number_of_elements();
 
     try
@@ -206,7 +222,11 @@ bool fAbsPow(hoNDArray<T> &a, float b){
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#endif
         return false;
     }
 
@@ -218,7 +238,7 @@ template <typename T>
 bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
 	T*pA = a.begin();
 	const T* pC = c.begin();
-	
+
 	long long N = a.get_number_of_elements();
 
     try
@@ -239,7 +259,11 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+			#endif
         return false;
     }
 
@@ -251,7 +275,7 @@ template <typename T>
 bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
 	T*pA = a.begin();
 	const T* pB = b.begin();
-	
+
 	long long N = a.get_number_of_elements();
 
     try
@@ -266,14 +290,18 @@ bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+				#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+					GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+				#else
+					GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
+				#endif
         return false;
     }
 
 	return true;
 }
 
-// G: r = -conj(a)*b+c*d+e*f 
+// G: r = -conj(a)*b+c*d+e*f
 template <typename T>
 bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoNDArray<T>& d, T e, const hoNDArray<T>& f, hoNDArray<T>& r)
 {
@@ -294,12 +322,12 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     {
 		if ( r.get_number_of_elements()!=a.get_number_of_elements()){
             r.create(a.get_dimensions());
-			
+
         }
 
         long long n;
 		r=b;
-		
+
 		#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pA, pR)
         for ( n=0; n<(long long)N; n++ ){
             pR[n] *= -std::conj(pA[n]);
@@ -319,14 +347,18 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in calc_gradient(...) .. ");
+			#endif
         return false;
     }
-	
+
     return true;
 }
 
-//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase)); 
+//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase));
 template <typename T>
 bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out)
 {
@@ -334,7 +366,7 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	GADGET_DEBUG_CHECK_RETURN_FALSE(W.get_number_of_elements()==q.get_number_of_elements());
 	GADGET_DEBUG_CHECK_RETURN_FALSE(q.get_number_of_elements()==phase.get_number_of_elements());
 	GADGET_DEBUG_CHECK_RETURN_FALSE(phase.get_number_of_elements()==ifft_kSpaceCombi.get_number_of_elements());
-	
+
 	const T* pW = W.begin();
 	const T* pQ = q.begin();
 	const T* pPh = phase.begin();
@@ -381,7 +413,11 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	}
 	catch(...)
 	{
-		GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
+		#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+			GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
+		#else
+			GADGET_ERROR_MSG("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
+		#endif
 		return false;
 	}
 
@@ -394,12 +430,12 @@ bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result){
 	int y = a, z = b;
 	// get dims of incoming array
 	std::vector<size_t> dims = *Array.get_dimensions();
-	
+
 	// get center indices
 	int iCenterX = std::floor((float)(dims[2]-1)/2);
 	int iCenterY = std::floor((float)(dims[0]-1)/2);
 	int iCenterZ = std::floor((float)(dims[1]-1)/2);
-	
+
 	// get border indices
 	//GADGET_DEBUG2("y: %i, z: %i\n", y,z);
 	int iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower;
@@ -472,7 +508,11 @@ float fCalcEnergy(hoNDArray<T> a){
     }
     catch(...)
     {
-        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+				GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#else
+				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
+			#endif
         return false;
     }
 
