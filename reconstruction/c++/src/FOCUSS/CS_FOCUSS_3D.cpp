@@ -25,21 +25,37 @@ using namespace Gadgetron;
 int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
-	iCGResidual_ = this->get_int_value("CG Beta");
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	  iCGResidual_ = iCGResidual_.value();
+	#else
+	  iCGResidual_ = this->get_int_value("CG Beta");
+	#endif
 
 	// maximum number of FOCUSS iterations
-	iNOuter_ = this->get_int_value("OuterIterations");
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	  iNOuter_ = iNOuter_.value();
+	#else
+	  iNOuter_ = this->get_int_value("OuterIterations");
+	#endif
 	if (iNOuter_ <= 0) iNOuter_ = 2;
 
 	// maximum number of CG iterations
-	iNInner_ = this->get_int_value("InnerIterations");
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	  iNInner_ = iNInner_.value();
+	#else
+	  iNInner_ = this->get_int_value("InnerIterations");
+	#endif
 	if (iNInner_ <= 0) iNInner_ = 20;
 
 	// p-value for the lp-norm
 	fP_ = .5;
 
 	// use ESPReSSo-constraint for pure CS data
-	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	  bESPRActiveCS_ = bESPRActiveCS_.value();
+	#else
+	  bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
+	#endif
 
 	// convergence boundary
 	fEpsilon_ = (float)1e-6;

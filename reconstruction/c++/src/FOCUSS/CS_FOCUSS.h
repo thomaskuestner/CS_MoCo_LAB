@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_FOCUSS.h
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -10,9 +10,9 @@ date		: 	17.12.2015
 description	: 	abstract class for the member variables and member function prototypes. Base class for the dimension specific FOCUSS algorithm classes. For a detailed description, it is suggested to read ch. 4 of the thesis.
 
 input		:	-
-				
+
 output		:	-
-				
+
 functions	:	process(...)		:	function prototype - reconstruct the Compressed Sensing k-space data with the FOCUSS algorithm and additional constraints for the Conjugate Gradient method (Total Variation, ESPReSSo)
 				process_config(...)	:	read the flexible header information and XML configuration file - this function is the same for all sub-classes
 				fInitVal(...)		:	map CS specific values (ESPReSSo, fully sampled, VDMap,..) between user values in the header fields and respective member variables - this function is the same for all sub-classes
@@ -51,9 +51,9 @@ variables	:	pbPtrN_				:	data pointer for boolean variables
 				Transform_KernelTransform_: transformation object for the kernel transformation
 				Transform_fftBA_	: 	transformation object, which controls the transformation before all (like the Fourier transformation in x-direction in the "normal" FOCUSS algorithm)
 				Transform_fftAA_	:	transformation object, which controls the transformation after all, e. g. for outputting k-space data instead of image data
-								
+
 references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensing Partial k-Space Acquisition and Reconstruction"
-				FOCUSS: 
+				FOCUSS:
 					- Algorithm				:	Gorodnitsky, I. and Rao, B. (1997): "Sparse Signal Reconstruction from Limited Data Using FOCUSS: A Re-weighted Minimum Norm Algorithm"
 					- FOCUSS in MRI			:	Jung, H. et al. (2009): "k-t FOCUSS: A General Compressed Sensing Framework for High Resolution Dynamic MRI"
 */
@@ -121,7 +121,11 @@ namespace Gadgetron
 		bool bESPReSSoIsLower_;
 
 		// using ESPReSSo constraint for non-ESPReSSo acquisitions
-		bool bESPRActiveCS_;
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(bESPRActiveCS_, bool, "CS - ESPReSSo", false);
+		#else
+    	bool bESPRActiveCS_;
+		#endif
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
 		bool bControl_;
@@ -132,7 +136,11 @@ namespace Gadgetron
 
 	// int:
 		// residual of CG method
-		int iCGResidual_;//
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iCGResidual_, int, "CG Beta", 0);
+		#else
+			int iCGResidual_;
+		#endif
 
 		// number of dimensions
 		int iDim_;
@@ -141,16 +149,41 @@ namespace Gadgetron
 		int iNChannels_;
 
 		//k-t FOCUSS loops#
-		int iNOuter_;
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iNOuter_ ,int, "OuterIterations", 0);
+		#else
+			int iNOuter_;
+		#endif
 
 		// CG loops
-		int iNInner_;
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iNInner_, int, "InnerIterations", 0);
+		#else
+			int iNInner_;
+		#endif
 
 		// ESPReSSo direction (y: 1, z: 2)
 		int iESPReSSoDirection_;
 
 		// density map
 		int iVDMap_;
+
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			// FFT_Sparse dimension
+			GADGET_PROPERTY(fftSparseDim_, int, "FFT_Sparse", 0);
+
+			// DCT_Sparse dimension
+			GADGET_PROPERTY(dctSparseDim_, int, "DCT_Sparse", 0);
+
+			// Kernel_FFT dimension
+			GADGET_PROPERTY(kernelFftDim_, int, "Kernel_FFT_dim", 0);
+
+			// Transform_fftBA dimension
+			GADGET_PROPERTY(transformFftBaDim_, int, "Transform_fftBA_dim", 0);
+
+			// kSpaceOut dimension
+			GADGET_PROPERTY(kSpaceOutDim_, int, "kSpaceOut", 0);
+		#endif
 
 	// vector int
 		std::vector<int> viCalibrationSize_;
