@@ -16,9 +16,6 @@ reference	:
 
 #include "CS_FOCUSS.h"
 
-// for matlab print function
-#include "mex.h"
-
 using namespace Gadgetron;
 
 // read config file
@@ -26,14 +23,14 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iCGResidual_ = iCGResidual_.value();
+	  iCGResidual_ = iCGResidual.value();
 	#else
 	  iCGResidual_ = this->get_int_value("CG Beta");
 	#endif
 
 	// maximum number of FOCUSS iterations
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNOuter_ = iNOuter_.value();
+	  iNOuter_ = iNOuter.value();
 	#else
 	  iNOuter_ = this->get_int_value("OuterIterations");
 	#endif
@@ -41,7 +38,7 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
 	// maximum number of CG iterations
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNInner_ = iNInner_.value();
+	  iNInner_ = iNInner.value();
 	#else
 	  iNInner_ = this->get_int_value("InnerIterations");
 	#endif
@@ -52,7 +49,7 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
 	// use ESPReSSo-constraint for pure CS data
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  bESPRActiveCS_ = bESPRActiveCS_.value();
+	  bESPRActiveCS_ = bESPRActiveCS.value();
 	#else
 	  bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 	#endif
@@ -182,7 +179,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG1("FFT in read direction..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
+			// mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 		}
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
@@ -212,7 +209,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			GADGET_DEBUG1("Prepare initial estimate..\n");
 		#endif
 	else if(bMatlab_ && bDebug_){
-		mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
+		// mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 	}
 
 	// W in x-y-z-cha --> new base
@@ -236,7 +233,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
+			// mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
 		// fill channel
 		#pragma  omp parallel for
@@ -262,7 +259,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
+			// mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
 
 		// reset initial values
@@ -278,7 +275,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG2("CG Loop: %i\n", iInner);
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
+					// mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
 
 				// rho: x-y-z ---> x-ky-kz
@@ -302,7 +299,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 							GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
 						#endif
 					else if(bMatlab_ && bDebug_){
-						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
+						// mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
 				}
 
@@ -318,8 +315,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("number of non converged channels - %i\n", iNom);
-					mexEvalString("drawnow;");
+					// mexPrintf("number of non converged channels - %i\n", iNom);
+					// mexEvalString("drawnow;");
 				}
 
 				// if all channels converged -> stop calculation
@@ -337,7 +334,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG1("Exception in first part..\n");
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("Exception in first part..\n");mexEvalString("drawnow;");
+					// mexPrintf("Exception in first part..\n");mexEvalString("drawnow;");
 				}
 			}
 
@@ -361,8 +358,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG1("Exception in ESPReSSo constraint\n");
 					#endif
 				else  if(bMatlab_ && bDebug_){
-					mexPrintf("Exception in ESPReSSo constraint\n");
-					mexEvalString("drawnow;");
+					// mexPrintf("Exception in ESPReSSo constraint\n");
+					// mexEvalString("drawnow;");
 				}
 				hacfGradient_ESPReSSo.fill(cfZero);
 			}
@@ -380,8 +377,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG1("Exception in gradient calculation\n");
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("Exception in gradient calculation\n");
-					mexEvalString("drawnow;");
+					// mexPrintf("Exception in gradient calculation\n");
+					// mexEvalString("drawnow;");
 				}
 				hacfG.fill(cfZero);
 			}
@@ -496,8 +493,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG1("FOCUSS done..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FOCUSS done..\n");
-			mexEvalString("drawnow;");
+			// mexPrintf("FOCUSS done..\n");
+			// mexEvalString("drawnow;");
 		}
 
 	return GADGET_OK;
@@ -612,7 +609,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 				GADGET_DEBUG1("Error occured in ESPReSSo gradient calculation...return 0\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("Error occured in ESPReSSo gradient calculation...return 0\n");mexEvalString("drawnow;");
+			// mexPrintf("Error occured in ESPReSSo gradient calculation...return 0\n");mexEvalString("drawnow;");
 		}
 		clear(hacfRho);
 	}
@@ -685,7 +682,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					GADGET_DEBUG1("compute symmetrical sampling pattern\n");
 				#endif
 			else if(bMatlab_ && bDebug_){
-				mexPrintf("compute symmetrical sampling pattern\n");mexEvalString("drawnow;");
+				// mexPrintf("compute symmetrical sampling pattern\n");mexEvalString("drawnow;");
 			}
 
 			habSamplPtrSym = habFullMask;
@@ -746,8 +743,8 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					GADGET_DEBUG1("compute conjugate sampling pattern\n");
 				#endif
 			else if(bMatlab_ && bDebug_){
-				mexPrintf("compute conjugate sampling pattern\n");
-				mexEvalString("drawnow;");
+				// mexPrintf("compute conjugate sampling pattern\n");
+				// mexEvalString("drawnow;");
 			}
 
 			habMaskConj_.create(habFullMask.get_dimensions());
@@ -839,7 +836,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				GADGET_DEBUG1("find symmetrical kSpace part..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("find symmetrical kSpace part..\n");mexEvalString("drawnow;");
+			// mexPrintf("find symmetrical kSpace part..\n");mexEvalString("drawnow;");
 		}
 
 		// vectors for storing the outer sampled lines
@@ -985,7 +982,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					GADGET_DEBUG1("Estimate filter size by calculated window");
 				#endif
 			else if(bMatlab_ && bDebug_){
-				mexPrintf("Estimate filter size by calculated window");	mexEvalString("drawnow;");
+				// mexPrintf("Estimate filter size by calculated window");	mexEvalString("drawnow;");
 			}
 
 			// phase encoding direction
@@ -1013,7 +1010,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				GADGET_DEBUG1("calculate filter..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("calculate filter..\n");mexEvalString("drawnow;");
+			// mexPrintf("calculate filter..\n");mexEvalString("drawnow;");
 		}
 
 		// create filter array (inital all ones)
@@ -1148,7 +1145,7 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 			GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
 		#endif
 	else if(bMatlab_ && bDebug_){
-		mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
+		// mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
 	}
 }
 
@@ -1199,7 +1196,7 @@ void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 				GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
+			// mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
 		}
 	}
 }
