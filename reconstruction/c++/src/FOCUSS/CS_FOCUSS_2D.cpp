@@ -203,7 +203,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		hoNDArray<std::complex<float> >  hacfEnergyPerChannel(vtDim_[0], vtDim_[1], hacfWWindowed.get_data_ptr()+ tOffset, false);
 		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
+			#else
+				GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
@@ -230,7 +234,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	// outer loop for FOCUSS
 	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("FOCUSS loop: %i\n", iOuter);
+			#else
+				GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
@@ -242,7 +250,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		for (int iInner = 0; iInner < iNInner_; iInner++){
 			try{
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG2("CG Loop: %i\n", iInner);
+					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("CG Loop: %i\n", iInner);
+					#else
+						GADGET_DEBUG2("CG Loop: %i\n", iInner);
+					#endif
 				else if(bMatlab_ && bDebug_){
 					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
@@ -262,7 +274,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 					if (!bMatlab_ && bDebug_)
-						GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
+						#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+							GDEBUG("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
+						#else
+							GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
+						#endif
 					else if(bMatlab_ && bDebug_){
 						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
@@ -274,7 +290,11 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					if (vfVec[iI] > fEpsilon_) iNom++;
 				}
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
+					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("number of non converged channels - %i\n", iNom);
+					#else
+						GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
+					#endif
 				else if(bMatlab_ && bDebug_){
 					mexPrintf("number of non converged channels - %i\n", iNom);
 					mexEvalString("drawnow;");
@@ -500,7 +520,11 @@ void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 
 	for (std::vector<int>::size_type i = 0; i != viCalibrationSize_.size(); i++){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
+			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				GDEBUG("calibration size: %i..\n", viCalibrationSize_.at(i));
+			#else
+				GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
+			#endif
 		else if(bMatlab_ && bDebug_){
 			mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
 		}

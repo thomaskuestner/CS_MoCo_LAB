@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_FOCUSS.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -25,18 +25,18 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
 	iCGResidual_ = this->get_int_value("CG Beta");
-	
+
 	// maximum number of FOCUSS iterations
 	iNOuter_ = this->get_int_value("OuterIterations");
 	if (iNOuter_ <= 0) iNOuter_ = 2;
-	
+
 	// maximum number of CG iterations
 	iNInner_ = this->get_int_value("InnerIterations");
 	if (iNInner_ <= 0) iNInner_ = 20;
-	
+
 	// p-value for the lp-norm
 	fP_ = .5;
-	
+
 	// use ESPReSSo-constraint for pure CS data
 	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 
@@ -51,14 +51,14 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 
 // set several variables
 void CS_FOCUSS::fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1){
-	
+
 	// initialize the global vector variables
 	for(int i = 0; i < 20; i++){
 		GlobalVar_FOCUSS::instance()->vbStatPrinc_.push_back(false);
 		GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
 	}
 
-	iVDMap_				= m1->getObjectPtr()->user_int[7];		
+	iVDMap_				= m1->getObjectPtr()->user_int[7];
 	fFullySampled_		= m1->getObjectPtr()->user_float[5];
 	cfLambdaESPReSSo_	= m1->getObjectPtr()->user_float[6];
 	cfLambda_			= m1->getObjectPtr()->user_float[7];
@@ -87,7 +87,11 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1) {
 				Transform_KernelTransform_->set_transformation_sparsity(0,i);
-				GADGET_DEBUG2("KernelTransform - FFT sparse - dim: %i \n", i);
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("KernelTransform - FFT sparse - dim: %i \n", i);
+				#else
+					GADGET_DEBUG2("KernelTransform - FFT sparse - dim: %i \n", i);
+				#endif
 			}
 		}
 	}
@@ -97,7 +101,11 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1) {
 				Transform_KernelTransform_->set_transformation_sparsity(1,i);
-				GADGET_DEBUG2("KernelTransform - DCT sparse - dim: %i \n", i);
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("KernelTransform - DCT sparse - dim: %i \n", i);
+				#else
+					GADGET_DEBUG2("KernelTransform - DCT sparse - dim: %i \n", i);
+				#endif
 			}
 		}
 	}
@@ -118,7 +126,11 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
 				Transform_KernelTransform_->set_transformation_fft(i);
-				GADGET_DEBUG2("KernelTransform - FFT - dim: %i \n", i);
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("KernelTransform - FFT - dim: %i \n", i);
+				#else
+					GADGET_DEBUG2("KernelTransform - FFT - dim: %i \n", i);
+				#endif
 			}
 		}
 	}
@@ -132,7 +144,11 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
 				Transform_fftBA_->set_transformation_fft(i);
-				GADGET_DEBUG2("fftBA - dim: %i \n", i);
+				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+					GDEBUG("fftBA - dim: %i \n", i);
+				#else
+					GADGET_DEBUG2("fftBA - dim: %i \n", i);
+				#endif
 			}
 		}
 		Transform_fftBA_->set_active();
@@ -147,7 +163,11 @@ void CS_FOCUSS::fSetupTransformation(){
 		Transform_fftAA_->set_transformation_fft(1);
 		Transform_fftAA_->set_transformation_fft(2);
 		Transform_fftAA_->set_active();
-		GADGET_DEBUG2("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
+		#else
+			GADGET_DEBUG2("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
+		#endif
 	}
 }
 
