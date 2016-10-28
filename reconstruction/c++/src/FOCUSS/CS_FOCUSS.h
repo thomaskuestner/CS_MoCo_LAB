@@ -121,7 +121,9 @@ namespace Gadgetron
 		bool bESPReSSoIsLower_;
 
 		// using ESPReSSo constraint for non-ESPReSSo acquisitions
-		GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
+		#endif
 	    	bool bESPRActiveCS_;
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
@@ -133,7 +135,9 @@ namespace Gadgetron
 
 	// int:
 		// residual of CG method
-		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);
+		#endif
 		int iCGResidual_;
 
 		// number of dimensions
@@ -143,11 +147,15 @@ namespace Gadgetron
 		int iNChannels_;
 
 		//k-t FOCUSS loops#
-		GADGET_PROPERTY(iNOuter, int, "OuterIterations", 2);
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iNOuter, int, "OuterIterations", 2);
+		#endif
 		int iNOuter_;
 
 		// CG loops
-		GADGET_PROPERTY(iNInner, int, "InnerIterations", 20);
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(iNInner, int, "InnerIterations", 20);
+		#endif
 		int iNInner_;
 
 		// ESPReSSo direction (y: 1, z: 2)
