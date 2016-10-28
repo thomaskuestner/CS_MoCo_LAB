@@ -170,7 +170,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG1("FFT in read direction..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
+			// mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 		}
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
@@ -186,7 +186,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG1("get calib size..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("get calib size..\n");mexEvalString("drawnow;");
+			// mexPrintf("get calib size..\n");mexEvalString("drawnow;");
 		}
 	fGetCalibrationSize(habFullMask);
 	fWindowing(hacfWWindowed);
@@ -201,7 +201,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			GADGET_DEBUG1("Prepare initial estimate..\n");
 		#endif
 	else if(bMatlab_ && bDebug_){
-		mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
+		// mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 	}
 
 	// W in x-y-z-cha --> new base
@@ -225,7 +225,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
+			// mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
 		// fill channel
 		#pragma  omp parallel for
@@ -256,7 +256,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
+			// mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
 
 		// reset initial values
@@ -272,7 +272,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG2("CG Loop: %i\n", iInner);
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
+					// mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
 
 				// rho: x-y ---> x-ky
@@ -296,7 +296,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 							GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
 						#endif
 					else if(bMatlab_ && bDebug_){
-						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
+						// mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
 				}
 
@@ -312,8 +312,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 						GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
 					#endif
 				else if(bMatlab_ && bDebug_){
-					mexPrintf("number of non converged channels - %i\n", iNom);
-					mexEvalString("drawnow;");
+					// mexPrintf("number of non converged channels - %i\n", iNom);
+					// mexEvalString("drawnow;");
 				}
 
 				// if all channels converged -> stop calculation
@@ -452,8 +452,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 				GADGET_DEBUG1("FOCUSS done..\n");
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("FOCUSS done..\n");
-			mexEvalString("drawnow;");
+			// mexPrintf("FOCUSS done..\n");
+			// mexEvalString("drawnow;");
 		}
 
 	return GADGET_OK;
@@ -503,7 +503,7 @@ void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 			GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
 		#endif
 	else if(bMatlab_ && bDebug_){
-		mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
+		// mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
 	}
 }
 
@@ -542,7 +542,7 @@ void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 				GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
 			#endif
 		else if(bMatlab_ && bDebug_){
-			mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
+			// mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
 		}
 	}
 }
