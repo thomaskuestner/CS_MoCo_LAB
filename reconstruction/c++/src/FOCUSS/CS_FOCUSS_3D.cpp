@@ -101,7 +101,11 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GEXCEPTION(err,"Unable to allocate new image array\n");
+		#else
+			GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		#endif
 		m1->release();
 		return -1;
 	}
