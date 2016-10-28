@@ -136,4 +136,134 @@ void CS_LAB::fExternalControl(){
 	}
 }
 
+int CS_LAB::process_config(ACE_Message_Block* mb){
+
+	// get lambda of constraint
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		cfLambda_ = lambda.value();
+	#else
+		cfLambda_ = this->get_double_value("lambda");
+	#endif
+
+	// how to calculate the beta value
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		iCGResidual_ = iCGResidual.value();
+	#else
+  		iCGResidual_ = this->get_int_value("CG Beta");
+	#endif
+
+	// maximum number of FOCUSS iterations
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		iNOuter_ = iNOuter.value();
+	#else
+		iNOuter_ = this->get_int_value("OuterIterations");
+	#endif
+	if (iNOuter_ <= 0) iNOuter_ = 2;
+
+	// maximum number of CG iterations
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		iNInner_ = iNInner.value();
+	#else
+		iNInner_ = this->get_int_value("InnerIterations");
+	#endif
+	if (iNInner_ <= 0) iNInner_ = 20;
+
+	// p-value for the lp-norm
+	fP_ = .5;
+
+	// use ESPReSSo-constraint for pure CS data
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		bESPRActiveCS_ = bESPRActiveCS.value();
+	#else
+		bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
+	#endif
+
+	// convergence boundary
+	fEpsilon_ = (float)1e-6;
+
+	// setup of the transformation parameters - sparsity dim, fft dim, ..
+	fSetupTransformation();
+
+	return GADGET_OK;
+};
+
+
+int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){
+	
+	// get dimension of the incoming data object
+	std::vector<size_t> vDims = *m2->getObjectPtr()->get_dimensions();
+
+	// copy GadgetContainer and init with m2 data
+	GadgetContainerMessage< hoNDArray< std::complex<float> > >* tmp_m2 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
+	tmp_m2->getObjectPtr()->create(vDims);
+	memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_number_of_elements()*sizeof(std::complex< float >));
+	
+	// evaluate dimension and create suitable class object
+	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
+		opCS_ = new CS_FOCUSS_2D();
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
+		#else
+			GADGET_DEBUG1("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
+		#endif
+	}
+	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
+		//opCS_ = new CS_FOCUSS_2Dt();
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
+		#else
+			GADGET_DEBUG1("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
+		#endif
+	}
+	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
+		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
+		sum_dim(*tmp_m2->getObjectPtr(), 3, *tmp_m2->getObjectPtr());
+		
+		opCS_ = new CS_FOCUSS_3D();
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
+		#else
+			GADGET_DEBUG1("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
+		#endif
+	}
+	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("not implemented in this version\n");
+		#else
+			GADGET_DEBUG1("not implemented in this version\n");
+		#endif
+	}
+
+	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class
+	opCS_->iCGResidual_					= iCGResidual_;
+	opCS_->iNChannels_					= iNChannels_;
+	opCS_->iNOuter_						= iNOuter_;	
+	opCS_->iNInner_						= iNInner_;
+	opCS_->fP_							= fP_;
+	opCS_->cfLambda_					= cfLambda_;
+	opCS_->cfLambdaESPReSSo_			= cfLambdaESPReSSo_;
+	opCS_->fEpsilon_					= fEpsilon_;
+	opCS_->fCSAccel_					= fCSAccel_;
+	opCS_->iESPReSSoDirection_			= iESPReSSoDirection_;
+	opCS_->fPartialFourierVal_			= fPartialFourierVal_;
+	opCS_->bESPRActiveCS_				= bESPRActiveCS_;
+	opCS_->hacfFilter_					= hacfFilter_;
+	opCS_->Transform_KernelTransform_	= Transform_KernelTransform_;
+	opCS_->Transform_fftBA_				= Transform_fftBA_;
+	opCS_->Transform_fftAA_				= Transform_fftAA_;
+
+	// disable standalone Gadget behaviour
+	opCS_->bControl_	= true;
+	opCS_->bDebug_		= true;
+	opCS_->bMatlab_		= false;
+
+	// process data in class member function
+	opCS_->process(m1, tmp_m2);
+
+	//Now pass on image
+	if (this->next()->putq(m1) < 0) {
+		return GADGET_FAIL;
+	}
+	return GADGET_OK;
+}
 GADGET_FACTORY_DECLARE(CS_LAB)
