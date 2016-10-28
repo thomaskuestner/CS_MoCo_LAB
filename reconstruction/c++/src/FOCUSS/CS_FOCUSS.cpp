@@ -25,33 +25,33 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 
 	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iCGResidual_ = iCGResidual_.value();
+	  iCGResidual_ = iCGResidual.value();
 	#else
 	  iCGResidual_ = this->get_int_value("CG Beta");
 	#endif
 
 	// maximum number of FOCUSS iterations
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNOuter_ = iNOuter_.value();
+	  iNOuter_ = iNOuter.value();
 	#else
 	  iNOuter_ = this->get_int_value("OuterIterations");
+          if (iNOuter_ <= 0) iNOuter_ = 2;
 	#endif
-	if (iNOuter_ <= 0) iNOuter_ = 2;
 
 	// maximum number of CG iterations
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNInner_ = iNInner_.value();
+	  iNInner_ = iNInner.value();
 	#else
 	  iNInner_ = this->get_int_value("InnerIterations");
+	  if (iNInner_ <= 0) iNInner_ = 20;
 	#endif
-	if (iNInner_ <= 0) iNInner_ = 20;
 
 	// p-value for the lp-norm
 	fP_ = .5;
 
 	// use ESPReSSo-constraint for pure CS data
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  bESPRActiveCS_ = bESPRActiveCS_.value();
+	  bESPRActiveCS_ = bESPRActiveCS.value();
 	#else
 	  bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 	#endif
@@ -99,7 +99,7 @@ void CS_FOCUSS::fSetupTransformation(){
 	// configure KernelTransformation - sparsifying transform
 	// check FFT entry
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (fftSparseDim_.value() != 0){
+	if (fftSparseDim.value() != 0){
 #else
 	if ((dim = this->get_int_value("FFT_Sparse")) != 0){
 #endif
@@ -117,7 +117,7 @@ void CS_FOCUSS::fSetupTransformation(){
 	}
 	// check DCT entry
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (dctSparseDim_.value() != 0){
+	if (dctSparseDim.value() != 0){
 #else
 	if ((dim = this->get_int_value("DCT_Sparse")) != 0){
 #endif
@@ -146,7 +146,7 @@ void CS_FOCUSS::fSetupTransformation(){
 
 	// configure KernelTransformation - FFT
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (kernelFftDim_.value() != 0){
+	if (kernelFftDim.value() != 0){
 #else
 	if ((dim = this->get_int_value("Kernel_FFT_dim")) != 0){
 #endif
@@ -168,7 +168,7 @@ void CS_FOCUSS::fSetupTransformation(){
 	--------------------------------------------------------------------------*/
 	// configure fftBA - transform dimension before start FOCUSS
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (transformFftBaDim_.value() != 0){
+	if (transformFftBaDim.value() != 0){
 #else
 	if ((dim = this->get_int_value("Transform_fftBA_dim")) != 0){
 #endif
@@ -188,7 +188,7 @@ void CS_FOCUSS::fSetupTransformation(){
 
 	// configure fftAA - output image or k-space
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (kSpaceOutDim_.value() != 0){
+	if (kSpaceOutDim.value() != 0){
 #else
 	if ((dim = this->get_int_value("kSpaceOut")) != 0){
 #endif

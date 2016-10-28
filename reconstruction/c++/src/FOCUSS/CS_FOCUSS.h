@@ -121,11 +121,8 @@ namespace Gadgetron
 		bool bESPReSSoIsLower_;
 
 		// using ESPReSSo constraint for non-ESPReSSo acquisitions
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(bESPRActiveCS_, bool, "CS - ESPReSSo", false);
-		#else
-    	bool bESPRActiveCS_;
-		#endif
+		GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
+	    	bool bESPRActiveCS_;
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
 		bool bControl_;
@@ -136,11 +133,8 @@ namespace Gadgetron
 
 	// int:
 		// residual of CG method
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iCGResidual_, int, "CG Beta", 0);
-		#else
-			int iCGResidual_;
-		#endif
+		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);
+		int iCGResidual_;
 
 		// number of dimensions
 		int iDim_;
@@ -149,18 +143,12 @@ namespace Gadgetron
 		int iNChannels_;
 
 		//k-t FOCUSS loops#
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iNOuter_ ,int, "OuterIterations", 0);
-		#else
-			int iNOuter_;
-		#endif
+		GADGET_PROPERTY(iNOuter, int, "OuterIterations", 2);
+		int iNOuter_;
 
 		// CG loops
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iNInner_, int, "InnerIterations", 0);
-		#else
-			int iNInner_;
-		#endif
+		GADGET_PROPERTY(iNInner, int, "InnerIterations", 20);
+		int iNInner_;
 
 		// ESPReSSo direction (y: 1, z: 2)
 		int iESPReSSoDirection_;
@@ -170,19 +158,19 @@ namespace Gadgetron
 
 		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 			// FFT_Sparse dimension
-			GADGET_PROPERTY(fftSparseDim_, int, "FFT_Sparse", 0);
+			GADGET_PROPERTY(fftSparseDim, int, "FFT_Sparse", 0);
 
 			// DCT_Sparse dimension
-			GADGET_PROPERTY(dctSparseDim_, int, "DCT_Sparse", 0);
+			GADGET_PROPERTY(dctSparseDim, int, "DCT_Sparse", 0);
 
 			// Kernel_FFT dimension
-			GADGET_PROPERTY(kernelFftDim_, int, "Kernel_FFT_dim", 0);
+			GADGET_PROPERTY(kernelFftDim, int, "Kernel_FFT_dim", 0);
 
 			// Transform_fftBA dimension
-			GADGET_PROPERTY(transformFftBaDim_, int, "Transform_fftBA_dim", 0);
+			GADGET_PROPERTY(transformFftBaDim, int, "Transform_fftBA_dim", 0);
 
 			// kSpaceOut dimension
-			GADGET_PROPERTY(kSpaceOutDim_, int, "kSpaceOut", 0);
+			GADGET_PROPERTY(kSpaceOutDim, int, "kSpaceOut", 0);
 		#endif
 
 	// vector int
