@@ -66,6 +66,11 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	// get dimension of the incoming data object
 	std::vector<size_t> vDims = *m2->getObjectPtr()->get_dimensions();
 
+	// copy GadgetContainer and init with m2 data
+	GadgetContainerMessage< hoNDArray< std::complex<float> > >* tmp_m2 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
+	tmp_m2->getObjectPtr()->create(vDims);
+	memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_number_of_elements()*sizeof(std::complex< float >));
+	
 	// evaluate dimension and create suitable class object
 	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
 		pCS = new CS_FOCUSS_2D();
@@ -84,10 +89,10 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 		#endif
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
-		GadgetContainerMessage< hoNDArray< std::complex<float> > >* tmp_m2 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
-		tmp_m2->getObjectPtr()->create(vDims);
+		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
 		sum_dim(*tmp_m2->getObjectPtr(), 3, *tmp_m2->getObjectPtr());
-		//vDims = *m2->getObjectPtr()->get_dimensions();
+		
+		//tmp_m2->getObjectPtr()->print(std::cout);
 
 		pCS = new CS_FOCUSS_3D();
 		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
@@ -128,7 +133,7 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	pCS->bMatlab_	= false;
 
 	// process data in class member function
-	pCS->process(m1, m2);
+	pCS->process(m1, tmp_m2);
 
 	//Now pass on image
 	if (this->next()->putq(m1) < 0) {
