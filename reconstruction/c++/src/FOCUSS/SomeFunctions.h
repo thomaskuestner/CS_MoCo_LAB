@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	SomeFunctions.h
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -8,7 +8,7 @@ version		: 	1.0
 date		: 	03.01.2015
 
 description	: 	collection of mathematical operations on arrays
-				
+
 references	:	hoNDArray_math_util.h from the Gadgetron implementation
 */
 
@@ -23,28 +23,30 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "hoNDImage.h"
 #include "complext.h"
 #include "cpucore_math_export.h"
-#include "GadgetronCommon.h"
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+  #include "GadgetronCommon.h"
+#endif
 #include <complex>
 
 namespace Gadgetron{
 // r = a-b*c
-template <typename T> 
+template <typename T>
 bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
 
 // r = a*b-c
-template <typename T> 
+template <typename T>
 bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
-    
+
 // r = a+b*c
-template <typename T> 
+template <typename T>
 bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
-    
+
 // r = a+b*c
-template <typename T> 
+template <typename T>
 bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, const hoNDArray<T>& d, const hoNDArray<T>& e, const hoNDArray<T>& f, const hoNDArray<T>& g, const hoNDArray<T>& h, const hoNDArray<T>& i, hoNDArray<T>& r);
 
 // r = a+b
-template <typename T> 
+template <typename T>
 bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r);
 
 // calculate abs, pow to b and divide by signal energy
@@ -55,11 +57,11 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c);
 template <typename T>
 bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b);
 
-// G: r = -a*b+c*d+e*f+g*h+i*j 
+// G: r = -a*b+c*d+e*f+g*h+i*j
 template <typename T>
 bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoNDArray<T>& d, T e, const hoNDArray<T>& f, hoNDArray<T>& r);
 
-//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase)); 
+//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase));
 template <typename T>
 bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out);
 
@@ -92,4 +94,3 @@ std::vector<float>& fGetHammingWindow(int iElements);
 template <typename T>
 bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
 }
-

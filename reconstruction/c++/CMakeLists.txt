@@ -1,3 +1,13 @@
+# add gadgetron flags
+set(__GADGETRON__ 3)
+set(__GADGETRON_MINOR__ 8)
+set(__GADGETRON_PATCHLEVEL__ 2)
+
+add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=1)
+ENDIF()
+
 cmake_minimum_required(VERSION 2.6)
 project(CS_LAB)
 
@@ -21,14 +31,14 @@ endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 find_package(OpenMP)
 option(USE_OPENMP "Use OpenMP" On)
 if (OPENMP_FOUND)
-    if(USE_OPENMP) 
+    if(USE_OPENMP)
         message("OpenMP multithreading enabled")
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
         add_definitions(-DUSE_OMP)
     else (USE_OPENMP)
         message("OpenMP multithreading is supported, but disabled")
-    endif(USE_OPENMP) 
+    endif(USE_OPENMP)
 else (OPENMP_FOUND)
   message("OpenMP multithreading not supported")
 endif (OPENMP_FOUND)
@@ -50,8 +60,8 @@ if (WIN32)
     set (CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set (CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     # The two flags below is to fix Windows problems in relation to multiple defined operators new/delete and some constructors that are defined in our headers
-    #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE") 
-    #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE") 
+    #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+    #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
 else (WIN32)
     if (UNIX)
         if (APPLE)
@@ -238,7 +248,7 @@ include_directories(
     ${ARMADILLO_INCLUDE_DIRS}
     ${ISMRMRD_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/src/FOCUSS
-    ${ACE_INCLUDE_DIR} 
+    ${ACE_INCLUDE_DIR}
     ${Boost_INCLUDE_DIR}
     ${GADGETRON_INCLUDE_DIR}
     ${ISMRMRD_INCLUDE_DIR}
@@ -249,33 +259,35 @@ include_directories(
     ${XERCESC_INCLUDE_DIR}
 )
 
-set( cs_lab_header_files 	src/FOCUSS/CS_Control.h 
-                            src/FOCUSS/CS_FOCUSS.h 
-                            src/FOCUSS/GlobalVar_FOCUSS.h 
-                            src/FOCUSS/hoNDDCT.h 
-                            src/FOCUSS/SomeFunctions.h 
-                            src/FOCUSS/SomeFunctions.hxx 
-                            src/FOCUSS/Transform.h 
-							src/FOCUSS/TransformWrapper.h
-							CS_LAB.h
-							 )
+set(cs_lab_header_files
+	src/FOCUSS/CS_Control.h 
+        src/FOCUSS/CS_FOCUSS.h 
+        src/FOCUSS/GlobalVar_FOCUSS.h 
+        src/FOCUSS/hoNDDCT.h 
+        src/FOCUSS/SomeFunctions.h 
+        src/FOCUSS/SomeFunctions.hxx 
+        src/FOCUSS/Transform.h 
+	src/FOCUSS/TransformWrapper.h
+	CS_LAB.h
+)
 
-set( cs_lab_src_files		src/FOCUSS/CS_Control.cpp 
-                            src/FOCUSS/CS_FOCUSS.cpp 
-                            src/FOCUSS/CS_FOCUSS_2D.cpp 
-                            src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-							src/FOCUSS/CS_FOCUSS_3D.cpp
-							CS_LAB.cpp
-							src/FOCUSS/GlobalVar_FOCUSS.cpp
-							src/FOCUSS/hoNDDCT.cpp
-							src/FOCUSS/Transform.cpp
-							)
+set(cs_lab_src_files 
+	src/FOCUSS/CS_Control.cpp 
+	src/FOCUSS/CS_FOCUSS.cpp 
+        src/FOCUSS/CS_FOCUSS_2D.cpp 
+        src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+	src/FOCUSS/CS_FOCUSS_3D.cpp
+	CS_LAB.cpp
+	src/FOCUSS/GlobalVar_FOCUSS.cpp
+	src/FOCUSS/hoNDDCT.cpp
+	src/FOCUSS/Transform.cpp
+)
 
 set( cs_lab_config_files CS_LAB.xml)
 
-add_library(CS_LAB SHARED 
-    CS_LAB_export.h 
-    ${cs_lab_header_files} 
+add_library(CS_LAB SHARED
+    CS_LAB_export.h
+    ${cs_lab_header_files}
     ${cs_lab_src_files}
     ${cs_lab_config_files}
     ${ISMRMRD_XSD_SOURCE}
@@ -283,35 +295,32 @@ add_library(CS_LAB SHARED
 
 if(WIN32)
 	set(ADDITIONAL_LIBRARIES  
-						${GADGETRON_HOME}/lib/cpucore.lib
-						${GADGETRON_HOME}/lib/cpufft.lib
-						${GADGETRON_HOME}/lib/cpucore_math.lib
-						${Boost_LIBRARY_DIR}/boost_system-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_thread-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_date_time-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_chrono-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_program_options-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_filesystem-vc100-mt-1_55.lib
-		)
+		${GADGETRON_HOME}/lib/cpucore.lib
+		${GADGETRON_HOME}/lib/cpufft.lib
+		${GADGETRON_HOME}/lib/cpucore_math.lib
+		${Boost_LIBRARY_DIR}/boost_system-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_thread-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_date_time-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_chrono-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_program_options-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_filesystem-vc100-mt-1_55.lib
+	)
 else()
 
 endif()
 
 target_link_libraries(	CS_LAB					
-						${ISMRMRD_LIBRARIES} 
-						${FFTW3_LIBRARIES} 
-						${BOOST_LIBRARIES}
-						${XERCESC_LIBRARIES} 
-						${ACE_LIBRARY}
-						${ADDITIONAL_LIBRARIES}
+	${ISMRMRD_LIBRARIES} 
+	${FFTW3_LIBRARIES} 
+	${BOOST_LIBRARIES}
+	${XERCESC_LIBRARIES} 
+	${ACE_LIBRARY}
+	${ADDITIONAL_LIBRARIES}
 )
 
 
 
-install (FILES 
-         CS_LAB_export.h
-		 ${cs_lab_header_files}
-         DESTINATION include)
+install(FILES CS_LAB_export.h ${cs_lab_header_files} DESTINATION include)
 
 install(TARGETS CS_LAB DESTINATION lib)
 

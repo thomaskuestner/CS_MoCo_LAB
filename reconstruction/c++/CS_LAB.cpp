@@ -1,7 +1,6 @@
 #include "CS_LAB.h"
 
 #include "GadgetIsmrmrdReadWrite.h"
-#include "mex.h"
 
 using namespace Gadgetron;
 
@@ -13,18 +12,18 @@ void CS_LAB::fExternalControl(){
 		// evaluate dimension and create suitable class object
 		if (iDataset_ == 2 && iTime_ == 0){
 			opCS_ = new CS_FOCUSS_2D();
-			if (bMatlab_)
-					mexPrintf("2D dataset detected - init 2D FOCUSS..\n");mexEvalString("drawnow;");
+			// if (bMatlab_)
+					// mexPrintf("2D dataset detected - init 2D FOCUSS..\n");mexEvalString("drawnow;");
 		}
 		else if (iDataset_ == 2 && iTime_){
 			//opCS_ = new CS_FOCUSS_2Dt();
-			if (bMatlab_)
-					mexPrintf("2Dt dataset detected - init 2Dt FOCUSS..\n");mexEvalString("drawnow;");
+			// if (bMatlab_)
+					// mexPrintf("2Dt dataset detected - init 2Dt FOCUSS..\n");mexEvalString("drawnow;");
 		}
 		else if (iDataset_ == 3){
 			opCS_ = new CS_FOCUSS_3D();
-			if (bMatlab_)
-					mexPrintf("3D dataset detected - init 3D FOCUSS..\n");mexEvalString("drawnow;");
+			// if (bMatlab_)
+					// mexPrintf("3D dataset detected - init 3D FOCUSS..\n");mexEvalString("drawnow;");
 		}
 	}
 	else {
@@ -72,8 +71,8 @@ void CS_LAB::fExternalControl(){
 			int bit = (iFFT_Sparse_ & (1 << i)) >> i;
 			if (bit == 1) {
 				opCS_->Transform_KernelTransform_->set_transformation_sparsity(0,i);
-				if (bMatlab_)
-					mexPrintf("KernelTransform - FFT sparse - dim: %i \n", i); mexEvalString("drawnow;");
+				// if (bMatlab_)
+					// mexPrintf("KernelTransform - FFT sparse - dim: %i \n", i); mexEvalString("drawnow;");
 			}
 		}
 	}
@@ -83,8 +82,8 @@ void CS_LAB::fExternalControl(){
 			int bit = (iDCT_Sparse_ & (1 << i)) >> i;
 			if (bit == 1) {
 				opCS_->Transform_KernelTransform_->set_transformation_sparsity(1,i);
-				if (bMatlab_)
-					mexPrintf("KernelTransform - DCT sparse - dim: %i \n", i); mexEvalString("drawnow;");
+				// if (bMatlab_)
+					// mexPrintf("KernelTransform - DCT sparse - dim: %i \n", i); mexEvalString("drawnow;");
 			}
 		}
 	}
@@ -95,8 +94,8 @@ void CS_LAB::fExternalControl(){
 			int bit = (iKernel_FFT_dim_ & (1 << i)) >> i;
 			if (bit == 1){
 				opCS_->Transform_KernelTransform_->set_transformation_fft(i);
-				if (bMatlab_)
-					mexPrintf("KernelTransform - FFT - dim: %i \n", i); mexEvalString("drawnow;");
+				// if (bMatlab_)
+					// mexPrintf("KernelTransform - FFT - dim: %i \n", i); mexEvalString("drawnow;");
 			}
 		}
 	}
@@ -110,8 +109,8 @@ void CS_LAB::fExternalControl(){
 			int bit = (iFFTBA_ & (1 << i)) >> i;
 			if (bit == 1){
 				opCS_->Transform_fftBA_->set_transformation_fft(i);
-				if (bMatlab_)
-					mexPrintf("KernelTransform - fftBA - dim: %i \n", i); mexEvalString("drawnow;");
+				// if (bMatlab_)
+					// mexPrintf("KernelTransform - fftBA - dim: %i \n", i); mexEvalString("drawnow;");
 			}
 		}
 		opCS_->Transform_fftBA_->set_active();
@@ -121,8 +120,8 @@ void CS_LAB::fExternalControl(){
 	---------------------------------- fftAA ----------------------------------
 	--------------------------------------------------------------------------*/
 	if (kSpaceOut_ == true){
-		if (bMatlab_)
-					mexPrintf("output kSpace data: true\n"); mexEvalString("drawnow;");
+		// if (bMatlab_)
+					// mexPrintf("output kSpace data: true\n"); mexEvalString("drawnow;");
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,0);
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,1);
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,2);
@@ -132,8 +131,8 @@ void CS_LAB::fExternalControl(){
 		opCS_->Transform_fftAA_->set_active();
 	}
 	else{
-		if (bMatlab_)
-					mexPrintf("output kSpace data: false\n"); mexEvalString("drawnow;");
+		// if (bMatlab_)
+					// mexPrintf("output kSpace data: false\n"); mexEvalString("drawnow;");
 	}
 }
 

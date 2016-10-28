@@ -1,4 +1,4 @@
-///*	
+///*
 //file name	: 	CS_FOCUSS_2Dt.cpp
 //
 //author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -9,7 +9,7 @@
 //
 //description	: 	implementation of the class "CS_FOCUSS_2Dt" (file CS_FOCUSS.h)
 //
-//reference	:	MATLAB implementation of Küstner, T.
+//reference	:	MATLAB implementation of Kï¿½stner, T.
 //*/
 //
 //#include "CS_FOCUSS.h"
@@ -19,18 +19,18 @@
 //
 //	// how to calculate the beta value
 //	iCGResidual_ = this->get_int_value("CG Beta");
-//	
+//
 //	// maximum number of FOCUSS iterations
 //	iNOuter_ = this->get_int_value("OuterIterations");
 //	if (iNOuter_ <= 0) iNOuter_ = 2;
-//	
+//
 //	// maximum number of CG iterations
 //	iNInner_ = this->get_int_value("InnerIterations");
 //	if (iNInner_ <= 0) iNInner_ = 20;
-//	
+//
 //	// p-value for the lp-norm
 //	fP_ = .5;
-//	
+//
 //	// use ESPReSSo-constraint for pure CS data
 //	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
 //
@@ -46,7 +46,7 @@
 ////------------- process - CG-FOCUSS with additional constraints ------------
 ////--------------------------------------------------------------------------
 //int CS_FOCUSS_2Dt::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2)
-//{	
+//{
 //	//------------------------------------------------------------------------
 //	//------------------------------ initial ---------------------------------
 //	//------------------------------------------------------------------------
@@ -56,7 +56,7 @@
 //
 //	// init member values based on header information
 //	fInitVal(m1);
-//	
+//
 //	// dimensions of incoming data - only handle 3D
 //	vtDim_ = *m2->getObjectPtr()->get_dimensions();
 //	iNChannels_ = (int)vtDim_[3];
@@ -66,7 +66,7 @@
 //
 //	// put calculated image on stream
 //	*m2->getObjectPtr() = hacfOutput;
-//	
+//
 //	// pass data on stream or to control object
 //	if (!bControl_){
 //		//Now pass on image
@@ -114,7 +114,7 @@
 //		}
 //
 //	//-------------------------------------------------------------------------
-//	//---------------- iFFT x direction - x ky kz ^= v (nü) -------------------
+//	//---------------- iFFT x direction - x ky kz ^= v (nï¿½) -------------------
 //	//-------------------------------------------------------------------------
 //	if (Transform_fftBA_->get_active()){
 //		if (!bMatlab_ && bDebug_)
@@ -140,7 +140,7 @@
 //	else if(bMatlab_ && bDebug_){
 //		mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 //	}
-//	
+//
 //	// W in x-y-z-cha --> new base
 //	Transform_KernelTransform_->FTransform(hacfWWindowed);
 //
@@ -173,7 +173,7 @@
 //	--------------------- iterative calculation -------------------------------
 //	--------------------------------------------------------------------------*/
 //	// initial estimates for CG - all zero (except g_old)
-//	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions()); 
+//	hoNDArray<std::complex<float> >  hacfQ(hacfWWindowed.get_dimensions());
 //	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 //
 //	// outer loop for FOCUSS
@@ -183,7 +183,7 @@
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 //		}
-//		
+//
 //		// reset initial values
 //		hacfRho.fill(cfZero); hacfD.fill(cfZero); hacfQ.fill(cfZero); hacfG_old.fill(std::complex<float>(1.0,1.0));
 //
@@ -216,7 +216,7 @@
 //						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 //					}
 //				}
-//				
+//
 //				// how many channels are converged
 //				int iNom = 0;
 //				for (int iI = 0; iI < vfVec.size(); iI++){
@@ -228,12 +228,12 @@
 //					mexPrintf("number of non converged channels - %i\n", iNom);
 //					mexEvalString("drawnow;");
 //				}
-//				
+//
 //				// if all channels converged -> stop calculation
 //				if (iNom == 0) break;
 //
 //				// e: x-ky-kz --> x-y-z
-//				hacfE_ifft = hacfE;				
+//				hacfE_ifft = hacfE;
 //				Transform_KernelTransform_->FTransform(hacfE_ifft);
 //
 //				//------------------------------------------------------------------------
@@ -244,20 +244,20 @@
 //				hoNDArray<std::complex<float> >  hacfGradient_ESPReSSo = hacfRho; hacfGradient_ESPReSSo.fill(0.0);
 //
 //				//----------------- gradient -------------------------
-//				// G = -conj(W).*IFFT(e)+Lambda.*Q	
+//				// G = -conj(W).*IFFT(e)+Lambda.*Q
 //				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
-//	
+//
 //				//------------------- cg beta - Polak-Ribiere -------------------------------
 //				std::complex<float> fBetaCha (0.0);
 //				pcfPtr_ = hacfBeta.get_data_ptr();
-//				
+//
 //				// loop over channels
 //				for (int iCha = 0; iCha < iNChannels_; iCha++){
-//				
+//
 //					// fill sub array with data from higher order data array
 //					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
 //					hoNDArray<std::complex<float> >  hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
-//					hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);	
+//					hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);
 //					std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
 //
 //					// calculate nominator
@@ -271,9 +271,9 @@
 //					for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++){
 //						fDenominator +=  pcfPtr2_[iI]*pcfPtr2_[iI];
 //					}
-//					if (abs(fDenominator) != 0) fBetaCha = fNumerator / fDenominator;						
-//	
-//					// fill part of the 3D array					
+//					if (abs(fDenominator) != 0) fBetaCha = fNumerator / fDenominator;
+//
+//					// fill part of the 3D array
 //					#pragma  omp parallel for
 //					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]; lI++)
 //						pcfPtr_[lI+tOffset] = fBetaCha;
@@ -283,7 +283,7 @@
 //				// d = beta.*d - G and g_old = G
 //				fAmultBminusC(hacfBeta, hacfD, hacfG, hacfD);
 //				hacfG_old = hacfG;
-//	
+//
 //				// z = Phi.*FFT(W.*d) - x-ky-kz
 //				multiply(hacfWWindowed, hacfD, hacfZ);
 //				Transform_KernelTransform_->BTransform(hacfZ);
@@ -291,8 +291,8 @@
 //
 //				//---------------------------- cg alpha -------------------------------------
 //				//alpha(:,:,:,c) = (z_helper(:)'*e_helper(:))/(z_helper(:)'*z_helper(:));
-//				pcfPtr_ = hacfAlpha.get_data_ptr();		
-//				for (int iCha = 0; iCha < iNChannels_; iCha++){				
+//				pcfPtr_ = hacfAlpha.get_data_ptr();
+//				for (int iCha = 0; iCha < iNChannels_; iCha++){
 //					std::complex<float> fAlphaCha (0.0);
 //					// fill sub array with data from higher order data array
 //					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
@@ -337,7 +337,7 @@
 //
 //	// rho = W.*q
 //	multiply(hacfWWindowed, hacfQ, hacfRho);
-//	
+//
 //	//rho = kernelBTrafo(rho) -> x-y-z cart
 //	Transform_KernelTransform_->KernelBTransform(hacfRho);
 //
@@ -352,7 +352,7 @@
 //	if (!bMatlab_ && bDebug_)
 //			GADGET_DEBUG1("FOCUSS done..\n");
 //		else if(bMatlab_ && bDebug_){
-//			mexPrintf("FOCUSS done..\n");		
+//			mexPrintf("FOCUSS done..\n");
 //			mexEvalString("drawnow;");
 //		}
 //
@@ -412,7 +412,7 @@
 //	bool * pbArray = habArray.get_data_ptr();
 //
 //	while(!(bYflag)){
-//		if (!bYflag){			
+//		if (!bYflag){
 //			for (int iY = std::ceil((float)vtDim[0]/2)-iSY+1; iY < std::ceil((float)vtDim[0]/2)+iSY+1; iY++){
 //				if (!pbArray)
 //					bYflag = true;
@@ -425,8 +425,8 @@
 //	}
 //
 //	// push values on calibration size vector
-//	viCalibrationSize_.push_back(iSY);	
-//	viCalibrationSize_.push_back(vtDim[1]);	
+//	viCalibrationSize_.push_back(iSY);
+//	viCalibrationSize_.push_back(vtDim[1]);
 //	viCalibrationSize_.push_back(vtDim[2]);
 //	viCalibrationSize_.push_back(vtDim[3]);
 //
