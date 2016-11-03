@@ -5,7 +5,8 @@ Generate a Compressed Sensing (CS) accelerated MR sequence and reconstruct the a
 
 ## Acquistion
 - Generic subsampling class for Compressed Sensing acquisitions
-- precompiled CS accelerated gradient echo sequence: CS_FLASH (Siemens, VB20P)
+- precompiled CS accelerated gradient echo sequence (2D, 2D+time, 3D, 3D+time): CS_FLASH (Siemens, VB20P)
+- for a full 4D (3D+time) CS accelerated gradient echo sequence under free movement, please refer to: CS_Retro in https://github.com/thomaskuestner/4DMRImaging
 
 ## Reconstruction
 - CS reconstruction system for Gadgetron (C++)
