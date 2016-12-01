@@ -15,17 +15,7 @@
     <slot>1008</slot>
     <dll>gadgetron_mricore</dll>
     <classname>MRIAcquisitionWriterCXFLOAT</classname>
-  </writer>
-	<writer>
-      <slot>1005</slot>
-      <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriterFLOAT</classname>
-    </writer>
-	<writer>
-      <slot>1004</slot>
-      <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriterCPLX</classname>
-    </writer>
+ 
 	<!-- first try - normal AccumulatorGadget -->
   <gadget>
     <name>Accumulator</name>
@@ -63,29 +53,18 @@
 	  <property><name>CS - ESPReSSo</name><value>0</value></property>
   </gadget>
 
-  <!-- Convert ImageData to AcquisitionData --><!-- uncomment when used in MRI environment
+  <!-- Convert ImageData to AcquisitionData -->
   <gadget>
     <name>ConvertImage</name>
     <dll>CS_LAB</dll>
     <classname>CS_MRIImageToAcquisitionGadget</classname>
-  </gadget>-->
+  </gadget>
 
-  <!-- make ACE message block --><!-- uncomment when used in MRI environment
+  <!-- make ACE message block -->
   <gadget>
     <name>AcqFinish</name>
     <dll>CS_LAB</dll>
     <classname>AcquisitionFinishGadget</classname>
-  </gadget>-->
-
-  <!-- save hdf file at specified location -->
-  <gadget>
-		<name>SaveHDFImg</name>
-		<dll>CS_LAB</dll>
-		<classname>ImageSaveHDFGadgetCPLX</classname>
-		<property><name>file_prefix</name><value>Test</value></property>
-		<property><name>file_path</name><value>D:\</value></property>
-		<property><name>append_timestamp</name><value>1</value></property>
-	</gadget>
-
+  </gadget>
   
 </gadgetronStreamConfiguration>

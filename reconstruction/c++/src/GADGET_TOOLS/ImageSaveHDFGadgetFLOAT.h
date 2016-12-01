@@ -15,15 +15,15 @@
 namespace Gadgetron
 {
 
-	class EXPORTCSLAB ImageSaveHDFGadgetCPLX : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex<float> > >
+	class EXPORTCSLAB ImageSaveHDFGadgetFLOAT : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< float > >
 	{
 		public:
-			ImageSaveHDFGadgetCPLX(){}
-			~ImageSaveHDFGadgetCPLX(){}
-			GADGET_DECLARE(ImageSaveHDFGadgetCPLX);
+			ImageSaveHDFGadgetFLOAT(){}
+			~ImageSaveHDFGadgetFLOAT(){}
+			GADGET_DECLARE(ImageSaveHDFGadgetFLOAT);
 
 		protected:
-			int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+			int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< float > >* m2);
 
 			// process config - get filename, ..
 			int process_config(ACE_Message_Block* mb)
