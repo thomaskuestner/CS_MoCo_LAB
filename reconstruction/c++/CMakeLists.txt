@@ -265,6 +265,9 @@ set( cs_lab_header_files 	src/FOCUSS/CS_Control.h
 							src/GADGET_TOOLS/CS_GlobalVar.h
 							src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
 							src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.h
+							src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.h
+							src/GADGET_TOOLS/SlicerGadget.h
+							src/GADGET_TOOLS/CS_CombineGadget.h
 							 )
 
 set( cs_lab_src_files		src/FOCUSS/CS_Control.cpp 
@@ -281,6 +284,9 @@ set( cs_lab_src_files		src/FOCUSS/CS_Control.cpp
 							src/GADGET_TOOLS/CS_GlobalVar.cpp
 							src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
 							src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.cpp
+							src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.cpp
+							src/GADGET_TOOLS/SlicerGadget.cpp
+							src/GADGET_TOOLS/CS_CombineGadget.cpp
 							)
 
 set( cs_lab_config_files CS_LAB.xml)
