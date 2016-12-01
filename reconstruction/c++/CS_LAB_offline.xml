@@ -9,13 +9,6 @@
     <dll>gadgetron_mricore</dll>
     <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>
   </reader>
-
-  <!-- write outgoing data in different formats : serialization -->
-	<writer>
-      <slot>1005</slot>
-      <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriterFLOAT</classname>
-    </writer>
 	
 	<!-- first try - normal AccumulatorGadget -->
   <gadget>
@@ -43,14 +36,14 @@
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0</value></property>
 	  <property><name>algorithm</name><value>0</value></property>
-	  <property><name>OuterIterations</name><value>2</value></property>
-	  <property><name>InnerIterations</name><value>2</value></property>
+	  <property><name>OuterIterations</name><value>1</value></property>
+	  <property><name>InnerIterations</name><value>1</value></property>
 	  <property><name>Kernel_FFT_dim</name><value>3</value></property>
 	  <property><name>FFT_Sparse</name><value>3</value></property>
 	  <property><name>DCT_Sparse</name><value>0</value></property>
 	  <property><name>kSpaceTrafo</name><value>0</value></property>
 	  <property><name>Transform_fftBA_dim</name><value>4</value></property>
-	  <property><name>kSpaceOut</name><value>0</value></property>
+	  <property><name>kSpaceOut</name><value>1</value></property>
 	  <property><name>CS - ESPReSSo</name><value>0</value></property>
   </gadget>
 
@@ -65,7 +58,7 @@
     <gadget>
       <name>Combine</name>
       <dll>CS_LAB</dll>
-      <classname>CombineGadget</classname>
+      <classname>CS_CombineGadget</classname>
 	  <property><name>Combine Mode</name><value>0</value></property>
 	  <property><name>Scale</name><value>1.0</value></property>
 	  <property><name>Offset</name><value>0.0</value></property>
@@ -79,32 +72,14 @@
       <classname>ExtractGadget</classname>
 	  <property><name>extract_mask</name><value>1</value></property>
     </gadget>  
-	
-	<!-- autoscale image before converting to FLOAT -->
+
+	<!-- save HDF image to specified path (file_path) -->
 	<gadget>
-		<name>AutoScale</name>
-		<dll>gadgetron_mricore</dll>
-		<classname>AutoScaleGadget</classname>
+		<name>SaveHDFImg</name>
+		<dll>CS_LAB</dll>
+		<classname>ImageSaveHDFGadgetFLOAT</classname>
+		<property><name>file_prefix</name><value>Test</value></property>
+		<property><name>file_path</name><value>D:\</value></property>
+		<property><name>append_timestamp</name><value>1</value></property>
 	</gadget>
-	
-	<!-- make slices out of the full 3D object -->
-	<gadget>
-      <name>Slicer</name>
-      <dll>gadgetron_mricore</dll> CS_LAB
-      <classname>SlicerGadget</classname>
-    </gadget>
-	
-	<!-- convert auto-scaled FLOAT images to USHORT images -->
-	<gadget>
-		<name>FloatToUShort</name>
-		<dll>gadgetron_mricore</dll>
-		<classname>FloatToUShortGadget</classname>
-	</gadget>
-	
-	<!-- put image in specific format on output queue --> 
-    <gadget>
-      <name>ImageFinishUSHORT</name>
-      <dll>gadgetron_mricore</dll>
-      <classname>ImageFinishGadgetUSHORT</classname>
-    </gadget>
 </gadgetronStreamConfiguration>
