@@ -289,7 +289,7 @@ set( cs_lab_src_files		src/FOCUSS/CS_Control.cpp
 							src/GADGET_TOOLS/CS_CombineGadget.cpp
 							)
 
-set( cs_lab_config_files CS_LAB.xml)
+set( cs_lab_config_files CS_LAB_offline.xml CS_LAB_online.xml)
 
 add_library(CS_LAB SHARED 
     CS_LAB_export.h 
