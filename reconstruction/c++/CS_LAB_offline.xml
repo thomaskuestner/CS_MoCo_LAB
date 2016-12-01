@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gadgetronStreamConfiguration xsi:schemaLocation="http://gadgetron.sf.net/gadgetron gadgetron.xsd"
+        xmlns="http://gadgetron.sf.net/gadgetron"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- read incoming acquisition data : deserialization -->
+  <reader>
+    <slot>1008</slot>
+    <dll>gadgetron_mricore</dll>
+    <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>
+  </reader>
+
+  <!-- write outgoing data in different formats : serialization -->
+	<writer>
+      <slot>1005</slot>
+      <dll>gadgetron_mricore</dll>
+      <classname>MRIImageWriterFLOAT</classname>
+    </writer>
+	
+	<!-- first try - normal AccumulatorGadget -->
+  <gadget>
+    <name>Accumulator</name>
+    <dll>CS_LAB</dll>
+    <classname>CS_AccumulatorGadget</classname>
+  </gadget>
+
+  <!-- CS reconstruction -->
+  <!-- FOCUSS iterations - default: 2 										-->
+  <!-- CG Iterations - default: 20 											-->
+  <!-- Lambda - default: 0.01 												-->
+  <!-- Lambda ESPReSSo - default: 0.02 										-->
+  <!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,.. 						-->
+  <!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y,.. 				-->
+  <!-- Sparsifying Transform for each direction 							-->
+  <!-- KernelTrafo - is kSpace trafo active 								-->
+  <!-- fft in read direction 												-->
+  <!-- FOCUSS output: kSpace = 1, Image = 0 								-->
+  <!-- use ESPReSSo constraint for normal CS acquisitions - default: 0  -->
+  <gadget>
+    <name>FOCUSS</name>
+    <dll>CS_LAB</dll>  
+	  <classname>CS_LAB</classname> 
+	  <property><name>lambda</name><value>0.01</value></property>
+	  <property><name>lambdaESPReSSo</name><value>0</value></property>
+	  <property><name>algorithm</name><value>0</value></property>
+	  <property><name>OuterIterations</name><value>2</value></property>
+	  <property><name>InnerIterations</name><value>2</value></property>
+	  <property><name>Kernel_FFT_dim</name><value>3</value></property>
+	  <property><name>FFT_Sparse</name><value>3</value></property>
+	  <property><name>DCT_Sparse</name><value>0</value></property>
+	  <property><name>kSpaceTrafo</name><value>0</value></property>
+	  <property><name>Transform_fftBA_dim</name><value>4</value></property>
+	  <property><name>kSpaceOut</name><value>0</value></property>
+	  <property><name>CS - ESPReSSo</name><value>0</value></property>
+  </gadget>
+
+  <!-- fast fourier transform in all spatial dimensions --> 
+    <gadget>
+      <name>FFT</name>
+      <dll>gadgetron_mricore</dll>
+      <classname>FFTGadget</classname>
+    </gadget>	
+
+	<!-- combine the channel data to one image - Mode 0: Unweighted Combine (CPLX data) - 1: Selfweighted Combine (real data only!) -->
+    <gadget>
+      <name>Combine</name>
+      <dll>CS_LAB</dll>
+      <classname>CombineGadget</classname>
+	  <property><name>Combine Mode</name><value>0</value></property>
+	  <property><name>Scale</name><value>1.0</value></property>
+	  <property><name>Offset</name><value>0.0</value></property>
+	  <property><name>Repetition Averaging</name><value>false</value></property>
+    </gadget>
+
+	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->
+    <gadget>
+      <name>Extract</name>
+      <dll>gadgetron_mricore</dll>
+      <classname>ExtractGadget</classname>
+	  <property><name>extract_mask</name><value>1</value></property>
+    </gadget>  
+	
+	<!-- autoscale image before converting to FLOAT -->
+	<gadget>
+		<name>AutoScale</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>AutoScaleGadget</classname>
+	</gadget>
+	
+	<!-- make slices out of the full 3D object -->
+	<gadget>
+      <name>Slicer</name>
+      <dll>gadgetron_mricore</dll> CS_LAB
+      <classname>SlicerGadget</classname>
+    </gadget>
+	
+	<!-- convert auto-scaled FLOAT images to USHORT images -->
+	<gadget>
+		<name>FloatToUShort</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>FloatToUShortGadget</classname>
+	</gadget>
+	
+	<!-- put image in specific format on output queue --> 
+    <gadget>
+      <name>ImageFinishUSHORT</name>
+      <dll>gadgetron_mricore</dll>
+      <classname>ImageFinishGadgetUSHORT</classname>
+    </gadget>
+</gadgetronStreamConfiguration>
