@@ -1,3 +1,13 @@
+# add gadgetron flags
+set(__GADGETRON__ 3)
+set(__GADGETRON_MINOR__ 8)
+set(__GADGETRON_PATCHLEVEL__ 2)
+
+add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=1)
+ENDIF()
+
 cmake_minimum_required(VERSION 2.6)
 project(CS_LAB)
 
@@ -246,7 +256,6 @@ include_directories(
     ${ISMRMRD_SCHEMA_DIR}
     ${ISMRMRD_XSD_INCLUDE_DIR}
 	${FFTW3_INCLUDE_DIR}
-	${MATLAB_INCLUDE_DIR}
 	${XSD_INCLUDE_DIR}
 	${XERCESC_INCLUDE_DIR}
 )
@@ -316,7 +325,6 @@ else()
 endif()
 
 target_link_libraries(	CS_LAB					
-						${MATLAB_MEX_LIBRARY}
 						${ISMRMRD_LIBRARIES} 
 						${FFTW3_LIBRARIES} 
 						${BOOST_LIBRARIES}
