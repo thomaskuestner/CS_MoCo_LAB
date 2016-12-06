@@ -1,15 +1,19 @@
 /*	
 file name	: 	CS_AccumulatorGadget.cpp
 
-author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
+author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de),
+				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 
-version		: 	1.2
+version		: 	1.3
 
-date		: 	02.02.2016 (v1.1: 17.02.2015)
+date		: 	v1.1: 17.02.2015
+				v1.2: 02.02.2016
+				v1.3: 06.12.2016
 
 description	: 	implementation of the class "AccumulatorGadget.h"
 
 references	:	original Gadgetron version 2.5 from 02-18-2014
+				updated for Gadgetron version 3.6
 */
 
 #include "CS_AccumulatorGadget.h"
@@ -26,28 +30,50 @@ CS_AccumulatorGadget::~CS_AccumulatorGadget() {if (hacfBuffer_) delete hacfBuffe
 // read flexible data header
 int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 {
-	// read xml header file
-	boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		ISMRMRD::IsmrmrdHeader h;
+		ISMRMRD::deserialize(mb->rd_ptr(),h);
+		
+		ISMRMRD::EncodingSpace e_space = h.encoding[0].encodedSpace;
+		ISMRMRD::EncodingSpace r_space = h.encoding[0].reconSpace;
+		ISMRMRD::EncodingLimits e_limits = h.encoding[0].encodingLimits;
+  
+		// get FOV
+		vFOV_.push_back(r_space.fieldOfView_mm.x);
+		vFOV_.push_back(e_space.fieldOfView_mm.y);
+		vFOV_.push_back(e_space.fieldOfView_mm.z);
+		
+		// get matrix size
+		vDim_.push_back(r_space.matrixSize.x);
+		vDim_.push_back(e_space.matrixSize.y);
+		vDim_.push_back(e_space.matrixSize.z);
+   
+		iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
+		
+	#else		
+		// read xml header file
+		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
 
-	// create sequence encoding parameters
-	ISMRMRD::ismrmrdHeader::encoding_sequence e_seq = cfg->encoding();
-	ISMRMRD::encodingSpaceType e_space = (*e_seq.begin()).encodedSpace();
-	ISMRMRD::encodingSpaceType r_space = (*e_seq.begin()).reconSpace();
-	ISMRMRD::encodingLimitsType e_limits = (*e_seq.begin()).encodingLimits();
-	
-	// get FOV
-	vFOV_.push_back(r_space.fieldOfView_mm().x());
-	vFOV_.push_back(e_space.fieldOfView_mm().y());
-	vFOV_.push_back(e_space.fieldOfView_mm().z());
+		// create sequence encoding parameters
+		ISMRMRD::ismrmrdHeader::encoding_sequence e_seq = cfg->encoding();
+		ISMRMRD::encodingSpaceType e_space = (*e_seq.begin()).encodedSpace();
+		ISMRMRD::encodingSpaceType r_space = (*e_seq.begin()).reconSpace();
+		ISMRMRD::encodingLimitsType e_limits = (*e_seq.begin()).encodingLimits();
+		
+		// get FOV
+		vFOV_.push_back(r_space.fieldOfView_mm().x());
+		vFOV_.push_back(e_space.fieldOfView_mm().y());
+		vFOV_.push_back(e_space.fieldOfView_mm().z());
 
-	// get matrix size
-	vDim_.push_back(r_space.matrixSize().x());
-	vDim_.push_back(e_space.matrixSize().y());
-	vDim_.push_back(e_space.matrixSize().z());
-	
-	// get no. of phases
-	iNPhases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
-	vDim_.push_back(iNPhases_);
+		// get matrix size
+		vDim_.push_back(r_space.matrixSize().x());
+		vDim_.push_back(e_space.matrixSize().y());
+		vDim_.push_back(e_space.matrixSize().z());
+		
+		// get no. of phases
+		iNPhases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
+		vDim_.push_back(iNPhases_);
+	#endif
 
 	// read CS/ESPReSSo data and interpret integer values
 	int iESPReSSoY = 0;
