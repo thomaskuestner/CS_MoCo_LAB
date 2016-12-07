@@ -17,6 +17,8 @@ references	:	original Gadgetron version 2.5 from 02-18-2014
 */
 
 #include "CS_AccumulatorGadget.h"
+#include "ismrmd/xml.h"
+
 namespace Gadgetron{
 // class constructor
 CS_AccumulatorGadget::CS_AccumulatorGadget() : hacfBuffer_(0), image_counter_(0), image_series_(0){

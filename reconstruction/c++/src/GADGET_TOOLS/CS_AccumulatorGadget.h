@@ -5,8 +5,8 @@
 	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
 	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
 	#define GADGET_DEBUG1(__VA_ARGS__) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(__VA_ARGS__) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(__VA_ARGS__) GEXCEPTION(__VA_ARGS__)
+	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
+	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
 #endif
 
 #pragma once
