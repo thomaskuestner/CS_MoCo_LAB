@@ -208,6 +208,9 @@ namespace Gadgetron
 
 		//FOCUSS stability in noisy environment (default:5, max:75)
 		std::complex<float> cfLambda_;
+		/*#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(lambda, float, "lambda", 0.01);
+		#endif*/
 
 		// lambda for ESPReSSo conjugate similarity
 		std::complex<float> cfLambdaESPReSSo_;
