@@ -139,11 +139,11 @@ void CS_LAB::fExternalControl(){
 int CS_LAB::process_config(ACE_Message_Block* mb){
 
 	// get lambda of constraint
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	/*#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		cfLambda_ = lambda.value();
 	#else
 		cfLambda_ = this->get_double_value("lambda");
-	#endif
+	#endif*/
 
 	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1

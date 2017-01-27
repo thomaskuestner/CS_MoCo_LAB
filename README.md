@@ -12,6 +12,10 @@ Generate a Compressed Sensing (CS) accelerated MR sequence and reconstruct the a
 - CS and motion-resolved reconstruction system for Gadgetron (C++)
 - CS reconstruction system in Matlab (including a GUI)
 
+## PET/MR motion correction
+- acquisition: CS_Retro (Siemens, VB20P)
+- reconstruction: CS_LAB in gadgetron + data emitters and injectors
+
 --------------------------------------------------------
 Please read LICENSE file for licensing details.
 
