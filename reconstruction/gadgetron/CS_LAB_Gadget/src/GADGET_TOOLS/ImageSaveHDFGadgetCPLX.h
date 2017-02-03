@@ -8,8 +8,16 @@
 #include <complex>
 #include <ismrmrd.h>
 #include <fstream>
-#include <ismrmrd_hdf5.h>
-#include <Shlwapi.h>
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#include <dataset.h>
+#else
+	#include <ismrmrd_hdf5.h>
+#endif
+
+#if __WIN32__
+	#include <Shlwapi.h>
+#endif
 #include <CS_LAB_export.h>
 
 namespace Gadgetron
@@ -47,6 +55,7 @@ namespace Gadgetron
 					ACE_OS_String::strncpy(ace_file_path, file_path_.c_str(), 4096);
 					ACE_DEBUG((LM_INFO, ACE_TEXT("\n -- no directory in xml config file - assume default path - file path changed to: %s\n"), ace_file_path));
 				}
+#if __WIN32__
 				if (!dirExists(file_path_)){
 					// create directory
 					if (!CreateDirectory((LPCSTR)file_path_.c_str(), NULL)){
@@ -56,6 +65,17 @@ namespace Gadgetron
 						ACE_DEBUG((LM_INFO, ACE_TEXT("\n -- failed to create directory - file path changed to: %s\n"), ace_file_path));
 					}
 				}
+#else
+				if (!stat(file_path_)){
+					// create directory
+					if (mkdir(file_path_.c_str())){
+						// set default value
+						file_path_ = (std::string)getenv("GADGETRON_HOME");
+						ACE_OS_String::strncpy(ace_file_path, file_path_.c_str(), 4096);
+						ACE_DEBUG((LM_INFO, ACE_TEXT("\n -- failed to create directory - file path changed to: %s\n"), ace_file_path));
+					}
+				}
+#endif
 
 				//Generate filename
 				ismrmrd_file_name_ = file_path_ + file_prefix_ + std::string("_") + get_date_time_string() + std::string(".h5");
@@ -115,7 +135,12 @@ namespace Gadgetron
 			std::string file_prefix_;
 			std::string file_path_;
 			std::string ismrmrd_file_name_;
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			boost::shared_ptr<ISMRMRD::ISMRMRD_Dataset> ismrmrd_dataset_;
+#else
 			boost::shared_ptr<ISMRMRD::IsmrmrdDataset>  ismrmrd_dataset_;
+#endif
+
 			bool append_timestamp_;
 	};
 }

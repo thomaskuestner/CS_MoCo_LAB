@@ -4,14 +4,16 @@
 #ifndef CS_GLOBALVAR_H
 #define CS_GLOBALVAR_H
 
+#pragma once
 #include "Gadget.h"
 #include "NDArray.h"
 #include "GadgetMRIHeaders.h"
 #include "ismrmrd.h"
+#include "CS_LAB_export.h"
 
 namespace Gadgetron{
 
-	class CS_GlobalVar{
+	class EXPORTCSLAB CS_GlobalVar{
 		public:
 			static CS_GlobalVar* instance(){
 				static CGuard g;

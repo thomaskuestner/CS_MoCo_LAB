@@ -31,7 +31,11 @@ int CS_MRIImageToAcquisitionGadget::process(GadgetContainerMessage<ISMRMRD::Imag
 					GadgetContainerMessage< hoNDArray< std::complex<float> > >* hacfTmp = new GadgetContainerMessage<hoNDArray< std::complex<float> > >();
 					try{hacfTmp->getObjectPtr()->create(vDims_[0]*m1->getObjectPtr()->channels) ;}
 					catch (std::runtime_error &err){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+						GDEBUG("Unable to allocate new image array\n");
+#else
 						GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+#endif
 						hacfTmp->release();
 						return -1;
 					}
@@ -79,6 +83,26 @@ int CS_MRIImageToAcquisitionGadget::fCorrectHeader(GadgetContainerMessage<ISMRMR
 	// -------------------------- set several flags ------------------------------------
 	// ---------------------------------------------------------------------------------
 	// first scan in partition encoding
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	if (iPartition == 0)
+		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2-1);
+
+	// last scan in partition encoding
+	if (iPartition == vDims_[2]-1)
+		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_LAST_IN_ENCODE_STEP2-1);
+	
+	// first scan in phase encoding
+	if (iLine == 0)
+		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP1-1);
+
+	// last scan in phase encoding
+	if (iLine == vDims_[1]-1)
+		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1-1);
+
+	// last scan in measurement
+	if (iLine == vDims_[1]-1 && iPartition == vDims_[2]-1 && iPhase == vDims_[3]-1)
+		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT-1);
+#else
 	if (iPartition == 0)
 		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ACQ_FIRST_IN_ENCODE_STEP2-1);
 
@@ -97,7 +121,7 @@ int CS_MRIImageToAcquisitionGadget::fCorrectHeader(GadgetContainerMessage<ISMRMR
 	// last scan in measurement
 	if (iLine == vDims_[1]-1 && iPartition == vDims_[2]-1 && iPhase == vDims_[3]-1)
 		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ACQ_LAST_IN_MEASUREMENT-1);
-
+#endif
 	return GADGET_OK;
 }
 

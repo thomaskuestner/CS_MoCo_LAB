@@ -4,13 +4,17 @@
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "CS_LAB_export.h"
-
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#include "xml.h"
+#else	
+	#include "ismrmrd/xml.h"
+#endif
 #include <ismrmrd.h>
 #include <complex>
 
 namespace Gadgetron{
   
-  class  EXPORTCSLAB CS_CombineGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex<float> > >
+  class EXPORTCSLAB CS_CombineGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex< float > > >
     {
     public:
       CS_CombineGadget();
@@ -19,7 +23,7 @@ namespace Gadgetron{
 	  int process_config(ACE_Message_Block* mb);
       
     protected:
-      virtual int process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,  GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);   
+      virtual int process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,  GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2);   
 
 	  // combine mode
 	  int combine_mode_;

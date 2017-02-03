@@ -172,7 +172,11 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				GadgetContainerMessage< hoNDArray< float> >* sec_buffer_ = new GadgetContainerMessage<hoNDArray< float > >();
 				try{sec_buffer_->getObjectPtr()->create(dimension[0], dimension[1], 1, 1, 1) ;}
 				catch (std::runtime_error &err){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				  GDEBUG("Unable to allocate new image array\n");
+#else
 				  GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+#endif
 				  sec_buffer_->release();
 				  return -1;
 				}
@@ -209,8 +213,13 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				cm1_sec_buffer_->getObjectPtr()->channels = 1;
 				cm1_sec_buffer_->getObjectPtr()->slice = tmp_m1->getObjectPtr()->idx.slice;
 				cm1_sec_buffer_->getObjectPtr()->repetition = tmp_m1->getObjectPtr()->idx.repetition;
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+				cm1_sec_buffer_->getObjectPtr()->data_type = ISMRMRD::ISMRMRD_FLOAT;
+				cm1_sec_buffer_->getObjectPtr()->image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
+#else
 				cm1_sec_buffer_->getObjectPtr()->image_data_type = ISMRMRD::DATA_FLOAT;
 				cm1_sec_buffer_->getObjectPtr()->image_type = ISMRMRD::TYPE_MAGNITUDE;
+#endif
 				cm1_sec_buffer_->getObjectPtr()->image_series_index = (uint16_t)image_series_;
 				cm1_sec_buffer_->getObjectPtr()->user_int[0] = tmp_m1->getObjectPtr()->idx.kspace_encode_step_2;
 				

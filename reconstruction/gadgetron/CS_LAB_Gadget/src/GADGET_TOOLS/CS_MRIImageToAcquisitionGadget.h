@@ -5,7 +5,7 @@
 #include "Gadget.h"
 #include "NDArray.h"
 #include "GadgetMRIHeaders.h"
-#include "gadgetron_mricore_export.h"
+#include "CS_LAB_export.h"
 #include <ismrmrd.h>
 #include <complex>
 #include "CS_GlobalVar.h"
@@ -15,7 +15,7 @@
 
 namespace Gadgetron{
 	
-	class CS_MRIImageToAcquisitionGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex<float> > >
+	class EXPORTCSLAB CS_MRIImageToAcquisitionGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex<float> > >
     {
     public:
 		GADGET_DECLARE(CS_MRIImageToAcquisitionGadget);
