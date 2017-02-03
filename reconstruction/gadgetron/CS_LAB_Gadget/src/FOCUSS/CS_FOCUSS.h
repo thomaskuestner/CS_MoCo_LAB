@@ -62,6 +62,7 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 #define CS_FOCUSS_H
 
 #pragma once
+#include "CS_LAB_export.h"
 #include "GlobalVar_FOCUSS.h"
 #include "Gadget.h"
 #include "hoNDArray.h"
@@ -84,13 +85,13 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 namespace Gadgetron
 {
 	// abstract base class for the FOCUSS reconstruction
-	class CS_FOCUSS : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<std::complex<float> > >
+	class EXPORTCSLAB CS_FOCUSS : public Gadget2< ISMRMRD::ImageHeader, hoNDArray< std::complex< float > > >
 	{
 
 	public:
 
 		// reconstruct the k-space data in the process(...) method
-		virtual int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2) = 0;
+		virtual int process( GadgetContainerMessage< ISMRMRD::ImageHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2) = 0;
 
 		// read the flexible data header
 		int process_config(ACE_Message_Block* mb)=0;
@@ -99,19 +100,62 @@ namespace Gadgetron
 		void fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1);
 
 		// calculating gradient of ESPReSSo
-		virtual void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) = 0;
+		virtual void fGradESPReSSo(hoNDArray< std::complex< float > > & hacfRho, hoNDArray< std::complex< float > > &hacfFullMask, hoNDArray< std::complex< float > > &hacfKSpace, hoNDArray <std::complex< float > > &hacfW, hoNDArray< std::complex< float > > &hacfQ) = 0;
 
 		// init filter array and sampling masks for ESPReSSo constraint
-		virtual void fInitESPReSSo(hoNDArray<bool>& habFullMask) = 0;
+		virtual void fInitESPReSSo(hoNDArray< bool >& habFullMask) = 0;
 
 		// windowing incoming data for initial estimate
-		virtual void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed) = 0;
+		virtual void fWindowing(hoNDArray<std::complex< float > > & hacfWWindowed) = 0;
 
 		// FOCUSS reconstruction
-		virtual int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon) = 0;
+		virtual int fRecon(hoNDArray< std::complex< float > >  &hacfInput, hoNDArray< std::complex< float > >  &hacfRecon) = 0;
 
 		// method for setting up the transformation objects
 		void fSetupTransformation();
+
+	// properties
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			
+		// ESPReSSo active?
+		GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
+
+		// header config or xml config control
+		GADGET_PROPERTY(bXMLControl, bool, "XMLControl", false);
+
+		// residual of CG method
+		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);		
+
+		// k-t FOCUSS loops
+		GADGET_PROPERTY(OuterIterations, int, "OuterIterations", 2);
+	
+		// CG loops
+		GADGET_PROPERTY(InnerIterations, int, "InnerIterations", 20);
+
+		// FFT_Sparse dimension
+		GADGET_PROPERTY(fftSparseDim, int, "FFT_Sparse", 0);
+
+		// DCT_Sparse dimension
+		GADGET_PROPERTY(dctSparseDim, int, "DCT_Sparse", 0);
+
+		// PCA Sparse dimension
+		GADGET_PROPERTY(pcaSparseDim, int, "PCA_Sparse", 0);
+
+		// Kernel_FFT dimension
+		GADGET_PROPERTY(kernelFftDim, int, "Kernel_FFT_dim", 0);
+
+		// Transform_fftBA dimension
+		GADGET_PROPERTY(transformFftBaDim, int, "Transform_fftBA_dim", 0);
+
+		// kSpaceOut dimension
+		GADGET_PROPERTY(kSpaceOutDim, int, "kSpaceOut", 0);
+
+		// FOCUSS
+		GADGET_PROPERTY(lambda, float, "lambda", 0.01);
+		GADGET_PROPERTY(cfLambdaESPReSSo, float, "cfLambdaESPReSSo", 0.0);
+
+	#endif
+
 
 	// bool:
 		// data pointer
@@ -120,14 +164,14 @@ namespace Gadgetron
 		// data is upper or lower Partial Fourier data
 		bool bESPReSSoIsLower_;
 
-		// using ESPReSSo constraint for non-ESPReSSo acquisitions
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
-		#endif
+		// using ESPReSSo constraint for non-ESPReSSo acquisitions		
 	    	bool bESPRActiveCS_;
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
 		bool bControl_;
+
+		// second control flag - indicates if class parameters are set by XML config or by accu gadget
+		bool bXMLControl_;
 
 	// hoNDArray<bool>:
 		// Masking for ESPReSSo
@@ -135,9 +179,6 @@ namespace Gadgetron
 
 	// int:
 		// residual of CG method
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);
-		#endif
 		int iCGResidual_;
 
 		// number of dimensions
@@ -146,16 +187,10 @@ namespace Gadgetron
 		// number of channels
 		int iNChannels_;
 
-		//k-t FOCUSS loops#
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iNOuter, int, "OuterIterations", 2);
-		#endif
+		//k-t FOCUSS loops
 		int iNOuter_;
 
 		// CG loops
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(iNInner, int, "InnerIterations", 20);
-		#endif
 		int iNInner_;
 
 		// ESPReSSo direction (y: 1, z: 2)
@@ -163,23 +198,6 @@ namespace Gadgetron
 
 		// density map
 		int iVDMap_;
-
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			// FFT_Sparse dimension
-			GADGET_PROPERTY(fftSparseDim, int, "FFT_Sparse", 0);
-
-			// DCT_Sparse dimension
-			GADGET_PROPERTY(dctSparseDim, int, "DCT_Sparse", 0);
-
-			// Kernel_FFT dimension
-			GADGET_PROPERTY(kernelFftDim, int, "Kernel_FFT_dim", 0);
-
-			// Transform_fftBA dimension
-			GADGET_PROPERTY(transformFftBaDim, int, "Transform_fftBA_dim", 0);
-
-			// kSpaceOut dimension
-			GADGET_PROPERTY(kSpaceOutDim, int, "kSpaceOut", 0);
-		#endif
 
 	// vector int
 		std::vector<int> viCalibrationSize_;
@@ -208,9 +226,6 @@ namespace Gadgetron
 
 		//FOCUSS stability in noisy environment (default:5, max:75)
 		std::complex<float> cfLambda_;
-		/*#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(lambda, float, "lambda", 0.01);
-		#endif*/
 
 		// lambda for ESPReSSo conjugate similarity
 		std::complex<float> cfLambdaESPReSSo_;

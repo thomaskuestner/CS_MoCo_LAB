@@ -17,40 +17,53 @@ references	:	-
 #include "GadgetIsmrmrdReadWrite.h"
 
 using namespace Gadgetron;
-int CS_CONTROL::process_config(ACE_Message_Block* mb){
+/*int CS_CONTROL::process_config(ACE_Message_Block* mb){
 
-	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iCGResidual_ = iCGResidual.value();
+		bXMLControl_ = bXMLControl.value();
 	#else
-  	iCGResidual_ = this->get_int_value("CG Beta");
-	#endif
+		bXMLControl_ = this->get_bool_value("XMLControl");
+	#endif	
 
-	// maximum number of FOCUSS iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iNOuter_ = iNOuter.value();
-	#else
-		iNOuter_ = this->get_int_value("OuterIterations");
-	#endif
-	if (iNOuter_ <= 0) iNOuter_ = 2;
+	if (bXMLControl_) {
 
-	// maximum number of CG iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iNInner_ = iNInner.value();
-	#else
-		iNInner_ = this->get_int_value("InnerIterations");
-	#endif
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1		
+			iNOuter_ = OuterIterations.value();
+		  	iCGResidual_ = residual.value();
+			iNInner_ = InnerIterations.value();
+			bESPRActiveCS_ = CSESPReSSo.value();
+			cfLambda_ = lambda.value();
+		#else
+		  	// how to calculate the beta value
+			iCGResidual_ = this->get_int_value("residual");	
+
+			// maximum number of FOCUSS iterations	
+		  	iNOuter_ = this->get_int_value("OuterIterations");
+		  	
+			// maximum number of CG iterations	
+		  	iNInner_ = this->get_int_value("InnerIterations");
+		  	
+			// use ESPReSSo-constraint for pure CS data
+			bESPRActiveCS_ = this->get_bool_value("CSESPReSSo");
+
+			// FOCUSS lambda
+			cfLambda_ = this->get_double_value("lambda");
+		#endif
+	}
+	else{
+		iNOuter_ = GlobalVar::instance()->iNOuter_;
+		iNInner_ = GlobalVar::instance()->iNInner_;
+		iCGResiudal_ = GlobalVar::instance()->iCGResiudal_;
+		bESPRActiveCS_ = GlobalVar::instance()->bESPRActiveCS_;
+		cfLambda_ = GlobalVar::instance()->lambda_;
+	
+	}
+
 	if (iNInner_ <= 0) iNInner_ = 20;
+	if (iNOuter_ <= 0) iNOuter_ = 2;	
 
 	// p-value for the lp-norm
 	fP_ = .5;
-
-	// use ESPReSSo-constraint for pure CS data
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		bESPRActiveCS_ = bESPRActiveCS.value();
-	#else
-		bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
-	#endif
 
 	// convergence boundary
 	fEpsilon_ = (float)1e-6;
@@ -59,7 +72,7 @@ int CS_CONTROL::process_config(ACE_Message_Block* mb){
 	fSetupTransformation();
 
 	return GADGET_OK;
-};
+};*/
 
 int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){
 

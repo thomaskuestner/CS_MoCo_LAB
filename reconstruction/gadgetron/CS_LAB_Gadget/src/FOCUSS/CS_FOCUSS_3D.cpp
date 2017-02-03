@@ -17,42 +17,46 @@ reference	:
 #include "CS_FOCUSS.h"
 
 using namespace Gadgetron;
-
+/*
 // read config file
 int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 
-	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iCGResidual_ = iCGResidual.value();
+		bXMLControl_ = bXMLControl.value();
 	#else
-	  iCGResidual_ = this->get_int_value("CG Beta");
-	#endif
+		bXMLControl_ = this->get_bool_value("XMLControl");
+	#endif	
 
-	// maximum number of FOCUSS iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNOuter_ = iNOuter.value();
-	#else
-	  iNOuter_ = this->get_int_value("OuterIterations");
-	#endif
-	if (iNOuter_ <= 0) iNOuter_ = 2;
+	if (bXMLControl_) {
 
-	// maximum number of CG iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNInner_ = iNInner.value();
-	#else
-	  iNInner_ = this->get_int_value("InnerIterations");
-	#endif
-	if (iNInner_ <= 0) iNInner_ = 20;
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1		
+			iNOuter_ = OuterIterations.value();
+		  	//iCGResidual_ = iCGResidual.value();
+			iNInner_ = InnerIterations.value();
+			//bESPRActiveCS_ = bESPRActiveCS.value();
+			//cfLambda_ = lambda.value();
+		#else
+		  	// how to calculate the beta value
+			iCGResidual_ = this->get_int_value("CG Beta");	
+
+			// maximum number of FOCUSS iterations	
+		  	iNOuter_ = this->get_int_value("OuterIterations");
+		  	if (iNOuter_ <= 0) iNOuter_ = 2;	
+
+			// maximum number of CG iterations	
+		  	iNInner_ = this->get_int_value("InnerIterations");
+		  	if (iNInner_ <= 0) iNInner_ = 20;
+		
+			// use ESPReSSo-constraint for pure CS data
+			bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
+
+			// FOCUSS lambda
+			cfLambda_ = this->get_double_value("lambda");
+		#endif
+	}
 
 	// p-value for the lp-norm
 	fP_ = .5;
-
-	// use ESPReSSo-constraint for pure CS data
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  bESPRActiveCS_ = bESPRActiveCS.value();
-	#else
-	  bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
-	#endif
 
 	// convergence boundary
 	fEpsilon_ = (float)1e-6;
@@ -61,7 +65,7 @@ int CS_FOCUSS_3D::process_config(ACE_Message_Block* mb){
 	fSetupTransformation();
 
 	return GADGET_OK;
-};
+};*/
 
 //--------------------------------------------------------------------------
 //------------- process - CG-FOCUSS with additional constraints ------------
@@ -1103,12 +1107,13 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 //--------------------------------------------------------------------------
 //---------------------------- windowing -----------------------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
+void CS_FOCUSS_3D::fWindowing(hoNDArray< std::complex< float > > & hacfWWindowed){
+
 	// array with mask
-	hoNDArray<std::complex<float> >  hacfMask3D(hacfWWindowed.get_dimensions()); hacfMask3D.fill(std::complex<float>(0.0));
+	hoNDArray< std::complex< float > >  hacfMask3D(hacfWWindowed.get_dimensions()); hacfMask3D.fill(std::complex< float >(0.0));
 
 	// get calibration mask
-	std::vector<size_t> vStart, vSize;
+	std::vector< size_t > vStart, vSize;
 	for (int iI = 0; iI < 2; iI++){
 		if (viCalibrationSize_.at(iI) % 2){
 			vStart.push_back(std::floor((float)vtDim_[iI]/2)+std::ceil(-(float)viCalibrationSize_.at(iI)/2));
@@ -1122,7 +1127,7 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 		for (int iZ = vStart.at(1); iZ < vStart.at(1)+viCalibrationSize_.at(1); iZ++)
 			for (int iX = vStart.at(2); iX < vStart.at(2)+viCalibrationSize_.at(2); iX++){
 				for (int iC = vStart.at(3); iC < vStart.at(3)+viCalibrationSize_.at(3); iC++)
-					hacfMask3D(iY, iZ, iX, iC) = std::complex<float>(1.0);
+					hacfMask3D(iY, iZ, iX, iC) = std::complex< float >(1.0);
 			}
 
 	// windowing W
@@ -1135,7 +1140,7 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 	pcfPtr_ = hacfMask3D.get_data_ptr();
 	#pragma omp parallel for
 	for (long lI = 0; lI < hacfMask3D.get_number_of_elements(); lI++)
-		if(pcfPtr_[lI] == std::complex<float>(0.0))
+		if(pcfPtr_[lI] == std::complex< float >(0.0))
 			pbPtr_[lI] = false;
 
 	if (!bMatlab_ && bDebug_)
