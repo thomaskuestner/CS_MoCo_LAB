@@ -21,38 +21,38 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # build options for 64 bits system
-if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
   message("64bit system is found")
   set( HAS_64_BIT On CACHE BOOL "64bit build")
-else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+ELSE( CMAKE_SIZEOF_VOID_P EQUAL 8 )
   message("32bit system is found")
   set( HAS_64_BIT Off CACHE BOOL "64bit build")
-endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+ENDIF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
 # build options for OpenMP support
 find_package(OpenMP)
 option(USE_OPENMP "Use OpenMP" On)
-if (OPENMP_FOUND)
-    if(USE_OPENMP) 
+IF (OPENMP_FOUND)
+    IF(USE_OPENMP) 
         message("OpenMP multithreading enabled")
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
         add_definitions(-DUSE_OMP)
-    else (USE_OPENMP)
+    ELSE (USE_OPENMP)
         message("OpenMP multithreading is supported, but disabled")
-    endif(USE_OPENMP) 
-else (OPENMP_FOUND)
+    ENDIF(USE_OPENMP) 
+ELSE (OPENMP_FOUND)
   message("OpenMP multithreading not supported")
-endif (OPENMP_FOUND)
+ENDIF (OPENMP_FOUND)
 
-if (WIN32)
+IF (WIN32)
     add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
 #    ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_definitions(-D_VARIADIC_MAX=10) #to fix compiler limitations in Visual Studio Express
-    if ( HAS_64_BIT )
+    IF ( HAS_64_BIT )
         add_definitions(-DWIN64 -D_WIN64)
-    endif ( HAS_64_BIT )
+    ENDIF ( HAS_64_BIT )
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
     set (CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} /INCREMENTAL:NO")
@@ -64,43 +64,43 @@ if (WIN32)
     # The two flags below is to fix Windows problems in relation to multiple defined operators new/delete and some constructors that are defined in our headers
     #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE") 
     #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE") 
-else (WIN32)
-    if (UNIX)
-        if (APPLE)
-        else (APPLE)
+ELSE (WIN32)
+    IF (UNIX)
+        IF (APPLE)
+        ELSE (APPLE)
             set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
             set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libgfortran")
-        endif (APPLE)
-    endif (UNIX)
-endif (WIN32)
+        ENDIF (APPLE)
+    ENDIF (UNIX)
+ENDIF (WIN32)
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/CS_LAB)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # whether to suppress compilation warnings
 option(BUILD_SUPPRESS_WARNINGS "Build package while suppressing warnings" Off)
-if (BUILD_SUPPRESS_WARNINGS)
-    if (WIN32)
+IF (BUILD_SUPPRESS_WARNINGS)
+    IF (WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
-    elseif (WIN32)
+    ELSEIF (WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
-    endif (WIN32)
-endif (BUILD_SUPPRESS_WARNINGS)
+    ENDIF (WIN32)
+ENDIF (BUILD_SUPPRESS_WARNINGS)
 
 # whether to compile toolboxes as static library
 option(BUILD_TOOLBOX_STATIC "Build static library for toolboxes" Off)
 
-if ( BUILD_TOOLBOX_STATIC )
+IF ( BUILD_TOOLBOX_STATIC )
     message("Building static toolbox libray")
     add_definitions(-DBUILD_TOOLBOX_STATIC)
     set(LIBTYPE STATIC)
-    if ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
+    IF ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
-    endif ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
-else ( BUILD_TOOLBOX_STATIC )
+    ENDIF ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
+ELSE ( BUILD_TOOLBOX_STATIC )
     message("Building dynamic toolbox libray")
     set(LIBTYPE SHARED)
-endif ( BUILD_TOOLBOX_STATIC )
+ENDIF ( BUILD_TOOLBOX_STATIC )
 
 ###############################################################
 # BOOST
@@ -111,36 +111,36 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 # necessary for Windows and RHEL <=6 systems
 set(Boost_NO_BOOST_CMAKE ON)
 
-if(WIN32)
+IF(WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
-endif(WIN32)
+ENDIF(WIN32)
 
-if(WIN32)
+IF(WIN32)
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
-endif(WIN32)
+ENDIF(WIN32)
 
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
-if (WIN32)
+IF (WIN32)
   find_package(Boost COMPONENTS system thread date_time chrono program_options filesystem REQUIRED)
-else(WIN32)
+ELSE(WIN32)
   find_package(Boost COMPONENTS system thread program_options filesystem REQUIRED)
-endif(WIN32)
+ENDIF(WIN32)
 
 ###############################################################
 # ACE
 ###############################################################
 find_package(ACE)
-if(NOT ACE_FOUND)
+IF(NOT ACE_FOUND)
   message("ACE not found.")
-endif(NOT ACE_FOUND)
+ENDIF(NOT ACE_FOUND)
 
 ###############################################################
 # CUDA
 ###############################################################
 find_package(CUDA_advanced)
-if (CUDA_FOUND)
+IF (CUDA_FOUND)
   add_definitions(-DUSE_CUDA)
   message("CUDA found, GPU components are compiled if CULA is also found")
   set( GADGETRON_CUDA_FOUND_BOOL 1 )
@@ -152,82 +152,96 @@ if (CUDA_FOUND)
   # Support compute model 3.5 from Cuda 5 and up
   message("Compiling with ${CUDA_NVCC_FLAGS}")
 
-else (CUDA_FOUND)
+ELSE (CUDA_FOUND)
   message("CUDA not found. CUDA components will not be compiled.")
   set( GADGETRON_CUDA_FOUND_BOOL 0 )
-endif (CUDA_FOUND)
+ENDIF (CUDA_FOUND)
 
 ###############################################################
 # Armadillo
 ###############################################################
 find_package(Armadillo)
 # check whether ILP64 MKL should is used
-if(ARMADILLO_FOUND)
+IF(ARMADILLO_FOUND)
     add_definitions(-DUSE_ARMADILLO)
     set(ARMADILLO_BLAS_LONG_LONG FALSE)
-    if(EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp")
+    IF(EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp")
         # Read and parse armadillo config.hpp to find out whether BLAS uses long long
         file(STRINGS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp" _armadillo_blas_long_long REGEX "// #define ARMA_BLAS_LONG_LONG")
-        if ( NOT _armadillo_blas_long_long )
+        IF ( NOT _armadillo_blas_long_long )
             set(ARMADILLO_BLAS_LONG_LONG TRUE)
             message("Armadillo is found to use long long for BLAS calls")
-        else ( NOT _armadillo_blas_long_long )
+        ELSE ( NOT _armadillo_blas_long_long )
             message("Armadillo found. Note that ARMADILLO_BLAS_LONG_LONG _must_ be defined in ${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp to link against the MKL ILP64 interface.")
-        endif ( NOT _armadillo_blas_long_long )
+        ENDIF ( NOT _armadillo_blas_long_long )
         unset(_armadillo_blas_long_long)
-    endif()
-else()
+    ENDIF()
+ELSE()
   message("Armadillo not found. This will disable many toolboxes and gadgets.")
-endif()
+ENDIF()
 
 ###############################################################
 # HDF
 ###############################################################
 find_package(HDF5 1.8 COMPONENTS C CXX HL)
-if (HDF5_FOUND)
+IF (HDF5_FOUND)
 message("HDF5 Found")
-else()
+ELSE()
 message("HDF5 not found")
-endif()
+ENDIF()
 
 ###############################################################
 # FFTW
 ###############################################################
 find_package(FFTW3 COMPONENTS single double)
-if (FFTW3_FOUND)
+IF (FFTW3_FOUND)
 message("FFTW3 Found")
-else()
+ELSE()
 message("FFTW3 not found")
-endif()
+ENDIF()
 
 ###############################################################
 # ISMRMRD
 ###############################################################
 find_package(Ismrmrd)
-if (ISMRMRD_FOUND)
+IF (ISMRMRD_FOUND)
 message("ISMRMRD Found")
-else()
+ELSE()
 message("ISMRMRD not found")
-endif()
+ENDIF()
 
 ###############################################################
 # XSD/XersesC
 ###############################################################
-find_package(XSD)
-find_package(XercesC)
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	
+ELSE()
+	IF (WIN32)
+		find_package(XSD)
+		find_package(XercesC)
+	ENDIF()	
+ENDIF()
+
 
 ###############################################################
 # MATLAB
 ###############################################################
 find_package(GMatlab)
-if (MATLAB_FOUND)
+IF (MATLAB_FOUND)
     add_definitions(-DUSE_MATLAB)
-endif (MATLAB_FOUND)
+ENDIF (MATLAB_FOUND)
 
-if (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
-else()
-  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
-endif()
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	IF (ACE_FOUND AND ISMRMRD_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
+	ELSE()
+	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, FFTW3, HDF5).")
+	ENDIF()	
+ELSE()
+	IF (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
+	ELSE()
+	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
+	ENDIF()	
+ENDIF()
 
 add_subdirectory(cmake)
 
@@ -235,8 +249,13 @@ IF (WIN32)
     add_definitions(-D__BUILD_CS_LAB__)
 ENDIF (WIN32)
 
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	find_package(Gadgetron REQUIRED)
+ELSE()
+	find_package(GadgetronOld REQUIRED)	
+ENDIF()
+
 find_package(Ismrmrd REQUIRED)
-find_package(Gadgetron REQUIRED)
 find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
@@ -246,104 +265,136 @@ include_directories(
     ${HDF5_INCLUDE_DIR}
     ${HDF5_INCLUDE_DIR}/cpp
     ${ARMADILLO_INCLUDE_DIRS}
-    ${ISMRMRD_INCLUDE_DIR}
 	${CMAKE_SOURCE_DIR}/src/FOCUSS
 	${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
 	${ACE_INCLUDE_DIR} 
     ${Boost_INCLUDE_DIR}
     ${GADGETRON_INCLUDE_DIR}
     ${ISMRMRD_INCLUDE_DIR}
+    ${ISMRMRD_INCLUDE_DIR}/ismrmrd
     ${ISMRMRD_SCHEMA_DIR}
     ${ISMRMRD_XSD_INCLUDE_DIR}
 	${FFTW3_INCLUDE_DIR}
-	${XSD_INCLUDE_DIR}
-	${XERCESC_INCLUDE_DIR}
+
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	
+ELSE()
+	if (WIN32)
+		${XSD_INCLUDE_DIR}
+		${XERCESC_INCLUDE_DIR}
+	ENDIF()	
+ENDIF()
+
 )
 
-set( cs_lab_header_files 	src/FOCUSS/CS_Control.h 
-                            src/FOCUSS/CS_FOCUSS.h 
-                            src/FOCUSS/GlobalVar_FOCUSS.h 
-                            src/FOCUSS/hoNDDCT.h 
-                            src/FOCUSS/SomeFunctions.h 
-                            src/FOCUSS/SomeFunctions.hxx 
-                            src/FOCUSS/Transform.h 
-							src/FOCUSS/TransformWrapper.h
-							CS_LAB.h
-							src/GADGET_TOOLS/AcquisitionFinishGadget.h
-							src/GADGET_TOOLS/CS_AccumulatorGadget.h
-							src/GADGET_TOOLS/CS_GlobalVar.h
-							src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
-							src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.h
-							src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.h
-							src/GADGET_TOOLS/SlicerGadget.h
-							src/GADGET_TOOLS/CS_CombineGadget.h
-							 )
+set( cs_lab_header_files src/FOCUSS/CS_Control.h 
+                         src/FOCUSS/CS_FOCUSS.h 
+                         src/FOCUSS/GlobalVar_FOCUSS.h 
+                         src/FOCUSS/hoNDDCT.h 
+                         src/FOCUSS/SomeFunctions.h 
+                         src/FOCUSS/SomeFunctions.hxx 
+                         src/FOCUSS/Transform.h 
+			 src/FOCUSS/TransformWrapper.h
+			 CS_LAB.h
+			 src/GADGET_TOOLS/AcquisitionFinishGadget.h
+			 src/GADGET_TOOLS/CS_AccumulatorGadget.h
+			 src/GADGET_TOOLS/CS_GlobalVar.h
+			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
+		#	 src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.h
+		#	 src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.h
+			 src/GADGET_TOOLS/SlicerGadget.h
+			 src/GADGET_TOOLS/CS_CombineGadget.h
+			 include/hoNDArray_math_util.h
+			 include/GadgetronCommon.h
+			 include/hoNDArray_operators.h
+			 include/hoNDArray_blas.h
+			 include/hoMatrix_util.h
+)
 
-set( cs_lab_src_files		src/FOCUSS/CS_Control.cpp 
-                            src/FOCUSS/CS_FOCUSS.cpp 
-                            src/FOCUSS/CS_FOCUSS_2D.cpp 
-                            src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-							src/FOCUSS/CS_FOCUSS_3D.cpp
-							CS_LAB.cpp
-							src/FOCUSS/GlobalVar_FOCUSS.cpp
-							src/FOCUSS/hoNDDCT.cpp
-							src/FOCUSS/Transform.cpp
-							src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-							src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
-							src/GADGET_TOOLS/CS_GlobalVar.cpp
-							src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
-							src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.cpp
-							src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.cpp
-							src/GADGET_TOOLS/SlicerGadget.cpp
-							src/GADGET_TOOLS/CS_CombineGadget.cpp
-							)
+set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
+                      src/FOCUSS/CS_FOCUSS.cpp 
+                      src/FOCUSS/CS_FOCUSS_2D.cpp 
+                      src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+		      src/FOCUSS/CS_FOCUSS_3D.cpp
+		      CS_LAB.cpp
+		      src/FOCUSS/GlobalVar_FOCUSS.cpp
+		      src/FOCUSS/hoNDDCT.cpp
+		      src/FOCUSS/Transform.cpp
+	              src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+		      src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
+		      src/GADGET_TOOLS/CS_GlobalVar.cpp
+		      src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+		 #     src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.cpp
+		 #     src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.cpp
+		      src/GADGET_TOOLS/SlicerGadget.cpp
+		      src/GADGET_TOOLS/CS_CombineGadget.cpp
+		      include/hoNDArray_math_util.cpp
+		      include/hoNDArray_operators.cpp
+)
 
-set( cs_lab_config_files CS_LAB_offline.xml CS_LAB_online.xml)
+set(cs_lab_config_files CS_LAB_offline.xml CS_LAB_online.xml)
 
 add_library(CS_LAB SHARED 
     CS_LAB_export.h 
     ${cs_lab_header_files} 
     ${cs_lab_src_files}
     ${cs_lab_config_files}
-    ${ISMRMRD_XSD_SOURCE}
 )
 
-if(WIN32)
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	
+ELSE()
+	IF (WIN32)
+    		add_library(CS_LAB SHARED ${ISMRMRD_XSD_SOURCE})
+	ENDIF()	
+ENDIF()
+
+IF (WIN32)
 	set(ADDITIONAL_LIBRARIES  
-						${GADGETRON_HOME}/lib/cpucore.lib
-						${GADGETRON_HOME}/lib/cpufft.lib
-						${GADGETRON_HOME}/lib/cpucore_math.lib
-						${Boost_LIBRARY_DIR}/boost_system-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_thread-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_date_time-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_chrono-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_program_options-vc100-mt-1_55.lib
-						${Boost_LIBRARY_DIR}/boost_filesystem-vc100-mt-1_55.lib
+		${GADGETRON_HOME}/lib/cpucore.lib
+		${GADGETRON_HOME}/lib/cpufft.lib
+		${GADGETRON_HOME}/lib/cpucore_math.lib
+		${Boost_LIBRARY_DIR}/boost_system-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_thread-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_date_time-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_chrono-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_program_options-vc100-mt-1_55.lib
+		${Boost_LIBRARY_DIR}/boost_filesystem-vc100-mt-1_55.lib
 		)
-else()
+ELSE()
+	set(ADDITIONAL_LIBRARIES
+		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpucore.so
+		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpufft.so
+		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpucore_math.so
+	)
+ENDIF()
 
-endif()
+IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5)) 
+	target_link_libraries(	CS_LAB					
+							${ISMRMRD_LIBRARIES} 
+							${FFTW3_LIBRARIES} 
+							${BOOST_LIBRARIES}
+							${ACE_LIBRARY}
+							${ADDITIONAL_LIBRARIES}
+	)
+ELSE ()
+	target_link_libraries(	CS_LAB					
+							${ISMRMRD_LIBRARIES} 
+							${FFTW3_LIBRARIES} 
+							${BOOST_LIBRARIES}
+							${XERCESC_LIBRARIES} 
+							${ACE_LIBRARY}
+							${ADDITIONAL_LIBRARIES}
+	)
+ENDIF()
+#set_property(TARGET CS_LAB PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
+install (FILES CS_LAB_export.h ${cs_lab_header_files} DESTINATION ${GADGETRON_HOME}/include)
+install(TARGETS CS_LAB DESTINATION ${GADGETRON_HOME}/lib)
 
-target_link_libraries(	CS_LAB					
-						${ISMRMRD_LIBRARIES} 
-						${FFTW3_LIBRARIES} 
-						${BOOST_LIBRARIES}
-						${XERCESC_LIBRARIES} 
-						${ACE_LIBRARY}
-						${ADDITIONAL_LIBRARIES}
-)
-
-
-
-install (FILES 
-         CS_LAB_export.h
-		 ${cs_lab_header_files}
-         DESTINATION include)
-
-install(TARGETS CS_LAB DESTINATION lib)
-
-install(FILES CS_LAB.xml DESTINATION config)
+IF (WIN32)
+	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/config)
+ELSE()
+	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/share/gadgetron/config)
+ENDIF()
 
 link_directories(${GADGETRON_LIB_DIR})
-
-#add_library(CS_LAB SHARED CS_LAB.cpp)
