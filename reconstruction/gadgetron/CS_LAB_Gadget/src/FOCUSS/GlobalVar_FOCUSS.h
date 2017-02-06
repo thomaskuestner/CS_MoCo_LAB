@@ -51,6 +51,7 @@ namespace Gadgetron{
 		std::complex< float > cfLambda_;
 		int iESPReSSoDirection_;
 		float fPartialFourierVal_;
+		float fCSAcc_;
 		int iDimFFT_;
 		int iDimDCTSparse_;
 		int iDimPCASparse_;

@@ -118,10 +118,10 @@ namespace Gadgetron
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 			
 		// ESPReSSo active?
-		GADGET_PROPERTY(bESPRActiveCS, bool, "CS - ESPReSSo", false);
+		GADGET_PROPERTY(CSESPReSSo, int, "CSESPReSSo", 0);
 
 		// header config or xml config control
-		GADGET_PROPERTY(bXMLControl, bool, "XMLControl", false);
+		GADGET_PROPERTY(bXMLControl, int, "XMLControl", 0);
 
 		// residual of CG method
 		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);		
@@ -151,8 +151,8 @@ namespace Gadgetron
 		GADGET_PROPERTY(kSpaceOutDim, int, "kSpaceOut", 0);
 
 		// FOCUSS
-		GADGET_PROPERTY(lambda, float, "lambda", 0.01);
-		GADGET_PROPERTY(cfLambdaESPReSSo, float, "cfLambdaESPReSSo", 0.0);
+		GADGET_PROPERTY(lambda, double, "lambda", 0.01);
+		GADGET_PROPERTY(lambdaESPReSSo, double, "lambdaESPReSSo", 0.0);
 
 	#endif
 
@@ -165,13 +165,13 @@ namespace Gadgetron
 		bool bESPReSSoIsLower_;
 
 		// using ESPReSSo constraint for non-ESPReSSo acquisitions		
-	    	bool bESPRActiveCS_;
+	    	int bESPRActiveCS_;
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
 		bool bControl_;
 
 		// second control flag - indicates if class parameters are set by XML config or by accu gadget
-		bool bXMLControl_;
+		int bXMLControl_;
 
 	// hoNDArray<bool>:
 		// Masking for ESPReSSo
