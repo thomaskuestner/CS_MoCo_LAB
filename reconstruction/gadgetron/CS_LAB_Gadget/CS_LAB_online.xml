@@ -23,7 +23,7 @@
     <classname>CS_AccumulatorGadget</classname>
   </gadget>
 
-  <!-- CS reconstruction -->
+   <!-- CS reconstruction -->
   <!-- FOCUSS iterations - default: 2 										-->
   <!-- CG Iterations - default: 20 											-->
   <!-- Lambda - default: 0.01 												-->
@@ -38,19 +38,19 @@
   <gadget>
     <name>FOCUSS</name>
     <dll>CS_LAB</dll>  
-	  <classname>CS_LAB</classname> 
+	  <classname>CS_LAB</classname>
+	  <property><name>bXMLControl</name><value>0</value></property>
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0</value></property>
-	  <property><name>algorithm</name><value>0</value></property>
-	  <property><name>OuterIterations</name><value>2</value></property>
-	  <property><name>InnerIterations</name><value>2</value></property>
-	  <property><name>Kernel_FFT_dim</name><value>3</value></property>
-	  <property><name>FFT_Sparse</name><value>3</value></property>
-	  <property><name>DCT_Sparse</name><value>0</value></property>
-	  <property><name>kSpaceTrafo</name><value>0</value></property>
-	  <property><name>Transform_fftBA_dim</name><value>4</value></property>
-	  <property><name>kSpaceOut</name><value>0</value></property>
-	  <property><name>CS - ESPReSSo</name><value>0</value></property>
+	  <property><name>iCGResidual</name><value>0</value></property>
+	  <property><name>OuterIterations</name><value>3</value></property>
+	  <property><name>InnerIterations</name><value>3</value></property>
+	  <property><name>kernelFftDim</name><value>3</value></property>
+	  <property><name>fftSparseDim</name><value>3</value></property>
+	  <property><name>dctSparseDim</name><value>0</value></property>
+	  <property><name>transformFftBaDim</name><value>4</value></property>
+	  <property><name>kSpaceOutDim</name><value>0</value></property>
+	  <property><name>CSESPReSSo</name><value>0</value></property>
   </gadget>
 
   <!-- Convert ImageData to AcquisitionData -->

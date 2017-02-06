@@ -1,6 +1,6 @@
 # add gadgetron flags
-set(__GADGETRON__ 3)
-set(__GADGETRON_MINOR__ 8)
+set(__GADGETRON__ 2)
+set(__GADGETRON_MINOR__ 5)
 set(__GADGETRON_PATCHLEVEL__ 2)
 
 add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
@@ -260,34 +260,93 @@ find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
 
-include_directories(
-    ${CMAKE_SOURCE_DIR}/include
-    ${HDF5_INCLUDE_DIR}
-    ${HDF5_INCLUDE_DIR}/cpp
-    ${ARMADILLO_INCLUDE_DIRS}
-	${CMAKE_SOURCE_DIR}/src/FOCUSS
-	${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
-	${ACE_INCLUDE_DIR} 
-    ${Boost_INCLUDE_DIR}
-    ${GADGETRON_INCLUDE_DIR}
-    ${ISMRMRD_INCLUDE_DIR}
-    ${ISMRMRD_INCLUDE_DIR}/ismrmrd
-    ${ISMRMRD_SCHEMA_DIR}
-    ${ISMRMRD_XSD_INCLUDE_DIR}
-	${FFTW3_INCLUDE_DIR}
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-	
+	include_directories(
+		${CMAKE_SOURCE_DIR}/include
+		${CMAKE_SOURCE_DIR}/include/new
+		${HDF5_INCLUDE_DIR}
+		${HDF5_INCLUDE_DIR}/cpp
+		${ARMADILLO_INCLUDE_DIRS}
+		${CMAKE_SOURCE_DIR}/src/FOCUSS
+		${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
+		${ACE_INCLUDE_DIR} 
+		${Boost_INCLUDE_DIR}
+		${GADGETRON_INCLUDE_DIR}
+		${ISMRMRD_INCLUDE_DIR}
+		${ISMRMRD_INCLUDE_DIR}/ismrmrd
+		${ISMRMRD_SCHEMA_DIR}
+		${ISMRMRD_XSD_INCLUDE_DIR}
+		${FFTW3_INCLUDE_DIR}
+	)
 ELSE()
 	if (WIN32)
-		${XSD_INCLUDE_DIR}
-		${XERCESC_INCLUDE_DIR}
+		include_directories(
+			${CMAKE_SOURCE_DIR}/include
+			${HDF5_INCLUDE_DIR}
+			${HDF5_INCLUDE_DIR}/cpp
+			${ARMADILLO_INCLUDE_DIRS}
+			${CMAKE_SOURCE_DIR}/src/FOCUSS
+			${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
+			${ACE_INCLUDE_DIR} 
+			${Boost_INCLUDE_DIR}
+			${GADGETRON_INCLUDE_DIR}
+			${ISMRMRD_INCLUDE_DIR}
+			${ISMRMRD_INCLUDE_DIR}/ismrmrd
+			${ISMRMRD_SCHEMA_DIR}
+			${ISMRMRD_XSD_INCLUDE_DIR}
+			${FFTW3_INCLUDE_DIR}
+			${XSD_INCLUDE_DIR}
+			${XERCESC_INCLUDE_DIR}
+		)		
 	ENDIF()	
 ENDIF()
 
-)
+IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 
-set( cs_lab_header_files src/FOCUSS/CS_Control.h 
+	set( cs_lab_header_files src/FOCUSS/CS_Control.h 
+						 src/FOCUSS/CS_FOCUSS.h 
+						 src/FOCUSS/GlobalVar_FOCUSS.h 
+						 src/FOCUSS/hoNDDCT.h 
+						 src/FOCUSS/SomeFunctions.h 
+						 src/FOCUSS/SomeFunctions.hxx 
+						 src/FOCUSS/Transform.h 
+			 src/FOCUSS/TransformWrapper.h
+			 CS_LAB.h
+			 src/GADGET_TOOLS/AcquisitionFinishGadget.h
+			 src/GADGET_TOOLS/CS_AccumulatorGadget.h
+			 src/GADGET_TOOLS/CS_GlobalVar.h
+			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
+			 src/GADGET_TOOLS/SlicerGadget.h
+			 src/GADGET_TOOLS/CS_CombineGadget.h
+			 include/hoNDArray_math_util.h
+			 include/GadgetronCommon.h
+			 include/hoNDArray_operators.h
+			 include/hoNDArray_blas.h
+			 include/hoMatrix_util.h
+	)
+
+	set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
+					  src/FOCUSS/CS_FOCUSS.cpp 
+					  src/FOCUSS/CS_FOCUSS_2D.cpp 
+					  src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+			  src/FOCUSS/CS_FOCUSS_3D.cpp
+			  CS_LAB.cpp
+			  src/FOCUSS/GlobalVar_FOCUSS.cpp
+			  src/FOCUSS/hoNDDCT.cpp
+			  src/FOCUSS/Transform.cpp
+				  src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+			  src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
+			  src/GADGET_TOOLS/CS_GlobalVar.cpp
+			  src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+			  src/GADGET_TOOLS/SlicerGadget.cpp
+			  src/GADGET_TOOLS/CS_CombineGadget.cpp
+			  include/hoNDArray_math_util.cpp
+			  include/hoNDArray_operators.cpp
+	)
+
+ELSE()
+	set( cs_lab_header_files src/FOCUSS/CS_Control.h 
                          src/FOCUSS/CS_FOCUSS.h 
                          src/FOCUSS/GlobalVar_FOCUSS.h 
                          src/FOCUSS/hoNDDCT.h 
@@ -300,52 +359,46 @@ set( cs_lab_header_files src/FOCUSS/CS_Control.h
 			 src/GADGET_TOOLS/CS_AccumulatorGadget.h
 			 src/GADGET_TOOLS/CS_GlobalVar.h
 			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
-		#	 src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.h
-		#	 src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.h
 			 src/GADGET_TOOLS/SlicerGadget.h
 			 src/GADGET_TOOLS/CS_CombineGadget.h
-			 include/hoNDArray_math_util.h
-			 include/GadgetronCommon.h
-			 include/hoNDArray_operators.h
-			 include/hoNDArray_blas.h
-			 include/hoMatrix_util.h
-)
+	)
 
-set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
-                      src/FOCUSS/CS_FOCUSS.cpp 
-                      src/FOCUSS/CS_FOCUSS_2D.cpp 
-                      src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-		      src/FOCUSS/CS_FOCUSS_3D.cpp
-		      CS_LAB.cpp
-		      src/FOCUSS/GlobalVar_FOCUSS.cpp
-		      src/FOCUSS/hoNDDCT.cpp
-		      src/FOCUSS/Transform.cpp
-	              src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-		      src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
-		      src/GADGET_TOOLS/CS_GlobalVar.cpp
-		      src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
-		 #     src/GADGET_TOOLS/ImageSaveHDFGadgetCPLX.cpp
-		 #     src/GADGET_TOOLS/ImageSaveHDFGadgetFLOAT.cpp
-		      src/GADGET_TOOLS/SlicerGadget.cpp
-		      src/GADGET_TOOLS/CS_CombineGadget.cpp
-		      include/hoNDArray_math_util.cpp
-		      include/hoNDArray_operators.cpp
-)
+	set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
+						  src/FOCUSS/CS_FOCUSS.cpp 
+						  src/FOCUSS/CS_FOCUSS_2D.cpp 
+						  src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+				  src/FOCUSS/CS_FOCUSS_3D.cpp
+				  CS_LAB.cpp
+				  src/FOCUSS/GlobalVar_FOCUSS.cpp
+				  src/FOCUSS/hoNDDCT.cpp
+				  src/FOCUSS/Transform.cpp
+					  src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+				  src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
+				  src/GADGET_TOOLS/CS_GlobalVar.cpp
+				  src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+				  src/GADGET_TOOLS/SlicerGadget.cpp
+				  src/GADGET_TOOLS/CS_CombineGadget.cpp
+	)
+ENDIF()
 
 set(cs_lab_config_files CS_LAB_offline.xml CS_LAB_online.xml)
 
-add_library(CS_LAB SHARED 
-    CS_LAB_export.h 
-    ${cs_lab_header_files} 
-    ${cs_lab_src_files}
-    ${cs_lab_config_files}
-)
-
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-	
+	add_library(CS_LAB SHARED 
+		CS_LAB_export.h 
+		${cs_lab_header_files} 
+		${cs_lab_src_files}
+		${cs_lab_config_files}
+	)
 ELSE()
 	IF (WIN32)
-    		add_library(CS_LAB SHARED ${ISMRMRD_XSD_SOURCE})
+			add_library(CS_LAB SHARED 
+				CS_LAB_export.h 
+				${cs_lab_header_files} 
+				${cs_lab_src_files}
+				${cs_lab_config_files}
+				${ISMRMRD_XSD_SOURCE}
+			)
 	ENDIF()	
 ENDIF()
 
@@ -398,3 +451,5 @@ ELSE()
 ENDIF()
 
 link_directories(${GADGETRON_LIB_DIR})
+
+

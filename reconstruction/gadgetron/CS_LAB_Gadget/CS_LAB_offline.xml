@@ -40,27 +40,19 @@
     <name>FOCUSS</name>
     <dll>CS_LAB</dll>  
 	  <classname>CS_LAB</classname>
-	  <property><name>XMLControl</name><value>1</value></property>
+	  <property><name>bXMLControl</name><value>0</value></property>
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0</value></property>
-	  <property><name>residual</name><value>0</value></property>
-	  <property><name>OuterIterations</name><value>2</value></property>
-	  <property><name>InnerIterations</name><value>2</value></property>
-	  <property><name>Kernel_FFT_dim</name><value>3</value></property>
-	  <property><name>FFT_Sparse</name><value>3</value></property>
-	  <property><name>DCT_Sparse</name><value>0</value></property>
-	  <property><name>kSpaceTrafo</name><value>0</value></property>
-	  <property><name>Transform_fftBA_dim</name><value>4</value></property>
-	  <property><name>kSpaceOut</name><value>0</value></property>
+	  <property><name>iCGResidual</name><value>0</value></property>
+	  <property><name>OuterIterations</name><value>3</value></property>
+	  <property><name>InnerIterations</name><value>3</value></property>
+	  <property><name>kernelFftDim</name><value>3</value></property>
+	  <property><name>fftSparseDim</name><value>3</value></property>
+	  <property><name>dctSparseDim</name><value>0</value></property>
+	  <property><name>transformFftBaDim</name><value>4</value></property>
+	  <property><name>kSpaceOutDim</name><value>0</value></property>
 	  <property><name>CSESPReSSo</name><value>0</value></property>
   </gadget>
-
-  <!-- fast fourier transform in all spatial dimensions --> <!--
-    <gadget>
-      <name>FFT</name>
-      <dll>gadgetron_mricore</dll>
-      <classname>FFTGadget</classname>
-    </gadget>	-->
 
 	<!-- combine the channel data to one image - Mode 0: Unweighted Combine (CPLX data) - 1: Selfweighted Combine (real data only!) -->
     <gadget>
