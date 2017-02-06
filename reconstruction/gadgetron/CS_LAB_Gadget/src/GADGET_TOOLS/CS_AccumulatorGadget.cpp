@@ -136,7 +136,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 			if (i->name == "kSpaceOutDim"){
 				GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value;
 			}	
-			if (i->name == "bESPRActiveCS"){
+			if (i->name == "CSESPReSSo"){
 				GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value;
 			}
 		}
@@ -188,7 +188,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					GlobalVar_FOCUSS::instance()->iNOuter_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "InnerIterations") == 0) {
-					GlobalVar_FOCUSS::instance()->iNInner = i->value();
+					GlobalVar_FOCUSS::instance()->iNInner_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "fftSparseDim") == 0) {
 					GlobalVar_FOCUSS::instance()->iDimFFT_ = i->value();
@@ -208,7 +208,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 				if (std::strcmp(i->name().c_str(), "kSpaceOutDim") == 0) {
 					GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value();
 				}
-				if (std::strcmp(i->name().c_str(), "bESPRActiveCS") == 0) {
+				if (std::strcmp(i->name().c_str(), "CSESPReSSo") == 0) {
 					GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value();
 				}			
 			}
@@ -232,23 +232,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		else{
 			GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
 		}
-		
-		GADGET_DEBUG2("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_);
-		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_);
-		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
-		GADGET_DEBUG2("CS Acceleration is %f \n", fCSAcc_);
-		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
-		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
-		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
-		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar_FOCUSS::instance()->iDimKernelFFT_);
-		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimPCASparse_);
-		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimDCTSparse_);
-		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
-		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
-		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
-		GADGET_DEBUG2("CG Residual is %i \n", GlobalVar_FOCUSS::instance()->iCGResidual_);
-		GADGET_DEBUG2("VDMap is %i \n", GlobalVar_FOCUSS::instance()->iVDMap_);
-			
+	
 		//-------------------------------------------------------------------------
 		//----------------------- Interpret Integer Data  -------------------------
 		//-------------------------------------------------------------------------		
