@@ -333,6 +333,7 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
             pR[n] *= -std::conj(pA[n]);
         }
 		if (c != std::complex<float>(0.0)){
+			//GDEBUG("calc gradient- lambda: %f + i %f..\n", c.real(), c.imag());
 			#pragma omp parallel for default(none) schedule(static) private(n) shared(N, c, pD, pR)
 			for ( n=0; n<(long long)N; n++ ){
 				pR[n] += c*pD[n];

@@ -179,7 +179,7 @@ namespace Gadgetron
 
 	// int:
 		// residual of CG method
-		int iCGResidual_;
+		//int iCGResidual_;
 
 		// number of dimensions
 		int iDim_;

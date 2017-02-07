@@ -43,7 +43,7 @@ namespace Gadgetron{
 		// FOCUSS parameters
 		int iNOuter_;
 		int iNInner_;
-		int iCGResidual_;
+		//int iCGResidual_;
 		bool bESPRActiveCS_;
 		int iVDMap_;
 		float fFullySampled_;

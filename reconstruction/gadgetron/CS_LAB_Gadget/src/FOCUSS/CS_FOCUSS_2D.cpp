@@ -23,21 +23,19 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 	#else
 		GADGET_DEBUG1("process config..\n");
 	#endif	
-	bXMLControl_ = true;
+	//bXMLControl_ = true;
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		bXMLControl_ = bXMLControl.value();
-		GDEBUG("XML Control enabled..\n");
+		bXMLControl_ = bXMLControl.value();		
 	#else
-		bXMLControl_ = this->get_int_value("bXMLControl");
-		GADGET_DEBUG1("XML Control enabled..\n");
+		bXMLControl_ = this->get_int_value("bXMLControl");		
 	#endif	
-
+	
 	if (bXMLControl_) {
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1		
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("XML Control enabled..\n");		
 			iNOuter_ = OuterIterations.value();
-		  	iCGResidual_ = iCGResidual.value();
-			iNInner_ = InnerIterations.value();
+		  	iNInner_ = InnerIterations.value();
 			bESPRActiveCS_ = CSESPReSSo.value();
 			cfLambda_ = lambda.value();			
 			cfLambdaESPReSSo_ = lambdaESPReSSo.value();
@@ -48,8 +46,7 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 			int iTransformFFTBA = transformFftBaDim.value();
 			int ikSpaceOut = kSpaceOutDim.value();
 		#else
-		  	// how to calculate the beta value
-			iCGResidual_ = this->get_int_value("iCGResidual");
+			GADGET_DEBUG1("XML Control enabled..\n");
 		  	iNOuter_ = this->get_int_value("OuterIterations");		  	
 		  	iNInner_ = this->get_int_value("InnerIterations");		  
 			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
@@ -66,7 +63,6 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 		// update global parameters
 		GlobalVar_FOCUSS::instance()->iNOuter_ = iNOuter_;
 		GlobalVar_FOCUSS::instance()->iNInner_ = iNInner_;
-		GlobalVar_FOCUSS::instance()->iCGResidual_ = iCGResidual_;
 		GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = bESPRActiveCS_;
 		GlobalVar_FOCUSS::instance()->cfLambda_ = cfLambda_;	
 		GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = cfLambdaESPReSSo_;
@@ -80,7 +76,6 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 	else{
 		iNOuter_ = GlobalVar_FOCUSS::instance()->iNOuter_;
 		iNInner_ = GlobalVar_FOCUSS::instance()->iNInner_;
-		iCGResidual_ = GlobalVar_FOCUSS::instance()->iCGResidual_;
 		bESPRActiveCS_ = GlobalVar_FOCUSS::instance()->bESPRActiveCS_;
 		iVDMap_ = GlobalVar_FOCUSS::instance()->iVDMap_;
 		fFullySampled_ = GlobalVar_FOCUSS::instance()->fFullySampled_;
@@ -92,10 +87,9 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 	}
 	
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		GDEBUG("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_);
-		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_);
+		GDEBUG("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_.real());
+		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_.real());
 		GDEBUG("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
-		GDEBUG("CS Acceleration is %f \n", GlobalVar_FOCUSS::instance()->fCSAcc_);
 		GDEBUG("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
 		GDEBUG("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
 		GDEBUG("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
@@ -105,13 +99,10 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 		GDEBUG("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
 		GDEBUG("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
 		GDEBUG("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
-		GDEBUG("CG Residual is %i \n", GlobalVar_FOCUSS::instance()->iCGResidual_);
-		GDEBUG("VDMap is %i \n", GlobalVar_FOCUSS::instance()->iVDMap_);
 	#else
 		GADGET_DEBUG2("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_);
 		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_);
 		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
-		GADGET_DEBUG2("CS Acceleration is %f \n", GlobalVar_FOCUSS::instance()->fCSAcc_);
 		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
 		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
 		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
@@ -121,8 +112,6 @@ int CS_FOCUSS_2D::process_config(ACE_Message_Block* mb){
 		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
 		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
 		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
-		GADGET_DEBUG2("CG Residual is %i \n", GlobalVar_FOCUSS::instance()->iCGResidual_);
-		GADGET_DEBUG2("VDMap is %i \n", GlobalVar_FOCUSS::instance()->iVDMap_);
 	#endif
 
 	if (iNInner_ <= 0) iNInner_ = 20;
