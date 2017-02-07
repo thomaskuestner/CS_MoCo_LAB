@@ -9,6 +9,40 @@ namespace Gadgetron{
 int CS_CombineGadget::process_config(ACE_Message_Block* mb)
 {
 	// get property values
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	ISMRMRD::IsmrmrdHeader h;
+	ISMRMRD::deserialize(mb->rd_ptr(),h);
+
+	if (h.userParameters) {
+		for (size_t i = 0; i < h.userParameters->userParameterString.size(); i++){
+			std::string name = h.userParameters->userParameterString[i].name;
+			std::string value = h.userParameters->userParameterString[i].value;
+			if (name.substr(0,5) == std::string("Combi")){
+				combine_mode_ = std::atoi(name.substr(5,name.size()-5).c_str());
+				if (combine_mode_ != 0 && combine_mode_ != 1){
+					GDEBUG("CS_CombineGadget: combine_mode_ false mode number!\n");
+					// set default value
+					combine_mode_ = 0;
+				}	
+			}
+			
+			if (name == std::string("Scale")){
+				scale_ = std::atoi(name.substr(5,name.size()-5).c_str());
+				if (scale_ == 0.0) scale_ = 1.0;
+			}
+
+			if (name == std::string("Offset")){
+				offset_ = std::atoi(name.substr(6,name.size()-6).c_str());
+			}
+
+			if (name.substr(0,5) == std::string("Repet")){
+				rep_avg_ = std::atoi(name.substr(5,name.size()-5).c_str());
+				GDEBUG("Repetition Averaging is: %i\n", rep_avg_);
+			}		
+		}
+	}
+#else
 	combine_mode_ = this->get_int_value("Combine Mode");
 	if (combine_mode_ != 0 && combine_mode_ != 1){
 		GADGET_DEBUG1("CS_CombineGadget: combine_mode_ false mode number!\n");
@@ -24,6 +58,7 @@ int CS_CombineGadget::process_config(ACE_Message_Block* mb)
 	// get repetition averaging
 	rep_avg_ = this->get_bool_value("Repetition Averaging");
 	GADGET_DEBUG2("Repetition Averaging is: %i\n", rep_avg_);
+#endif
 
   return GADGET_OK;
 }
@@ -36,12 +71,20 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 	// debug output
 	std::vector<size_t> di = *m2->getObjectPtr()->get_dimensions();
 	for (int i = 0; i < di.size(); i++){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("d: %i\n", di.at(i));
+#else
 		GADGET_DEBUG2("d: %i\n", di.at(i));
+#endif
 	}
 	
 	std::vector<size_t> dimensions_;
 	size_t nx = 0, ny = 0, nz = 0, nt = 0, nc = 0;
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	GDEBUG("CS_CombineGadget: dims: %i\n", num_dims);
+#else
 	GADGET_DEBUG2("CS_CombineGadget: dims: %i\n", num_dims);
+#endif
 	// 2D, 3D,..
 	if (num_dims == 4){
 		nx = m2->getObjectPtr()->get_size(0);
@@ -49,7 +92,11 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 		nz = m2->getObjectPtr()->get_size(2);
 		nc = m2->getObjectPtr()->get_size(3);	
 		nt = 1;
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("dim 2D 3D - x: %i, y: %i, z: %i, c: %i, t: %i\n", nx,ny,nz,nc,nt);
+#else
 		GADGET_DEBUG2("dim 2D 3D - x: %i, y: %i, z: %i, c: %i, t: %i\n", nx,ny,nz,nc,nt);
+#endif
 		dimensions_.push_back(nx);
 		dimensions_.push_back(ny);
 		dimensions_.push_back(nz);
@@ -61,14 +108,22 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 		nz = m2->getObjectPtr()->get_size(2);
 		nt = m2->getObjectPtr()->get_size(3);
 		nc = m2->getObjectPtr()->get_size(4);
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("dim 4D - x: %i, y: %i, z: %i, c: %i, t: %i\n", nx,ny,nz,nc,nt);
+#else
 		GADGET_DEBUG2("dim 4D - x: %i, y: %i, z: %i, c: %i, t: %i\n", nx,ny,nz,nc,nt);
+#endif
 		dimensions_.push_back(nx);
 		dimensions_.push_back(ny);
 		dimensions_.push_back(nz);
 		dimensions_.push_back(nt);
 	}
 	else{
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("Error occured - dimension..\n");
+#else
 		GADGET_DEBUG1("Error occured - dimension..\n");
+#endif
 	} 
 
 	hoNDArray<std::complex<float>> Data(dimensions_);
@@ -121,7 +176,11 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 		
 		try{m3->getObjectPtr()->create(dimensions_[0], dimensions_[1],1);}
 			catch (std::runtime_error &err){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("CS_CombineGadget, failed to allocate new array\n");
+#else
   			GADGET_DEBUG_EXCEPTION(err,"CS_CombineGadget, failed to allocate new array\n");
+#endif
 			return -1;
 		}
 		std::complex<float> *Ptr = m3->getObjectPtr()->get_data_ptr();
@@ -148,7 +207,11 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 	else if (num_dims == 5 && rep_avg_){
 		try{m3->getObjectPtr()->create(dimensions_[0], dimensions_[1], dimensions_[2]);}
 			catch (std::runtime_error &err){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("CS_CombineGadget, failed to allocate new array\n");
+#else
   			GADGET_DEBUG_EXCEPTION(err,"CS_CombineGadget, failed to allocate new array\n");
+#endif
 			return -1;
 		}
 		std::complex<float> *Ptr = m3->getObjectPtr()->get_data_ptr();
@@ -173,7 +236,11 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 	else{
 		try{m3->getObjectPtr()->create(&dimensions_);}
 			catch (std::runtime_error &err){
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("CS_CombineGadget, failed to allocate new array\n");
+#else
   			GADGET_DEBUG_EXCEPTION(err,"CS_CombineGadget, failed to allocate new array\n");
+#endif
 			return -1;
 		}
 		
@@ -182,8 +249,11 @@ int CS_CombineGadget::process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 		for (long i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++)
 			Ptr[i] = d2[i];
 	}
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	GDEBUG("num dims new array: %i\n", m3->getObjectPtr()->get_number_of_dimensions());
+#else
 	GADGET_DEBUG2("num dims new array: %i\n", m3->getObjectPtr()->get_number_of_dimensions());
-
+#endif
 	// Modify header to match the size and change the type to real
 	m1->getObjectPtr()->channels = 1;
 

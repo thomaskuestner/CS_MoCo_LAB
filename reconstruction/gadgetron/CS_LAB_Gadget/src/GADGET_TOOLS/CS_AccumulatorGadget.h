@@ -12,15 +12,23 @@
 #pragma once
 #include "Gadget.h"
 #include "hoNDArray.h"
-#include "gadgetron_mricore_export.h"
+#include "CS_LAB_export.h"
 #include <ismrmrd.h>
 #include <complex>
 #include "CS_GlobalVar.h"
+#include "GlobalVar_FOCUSS.h"
 #include "GadgetIsmrmrdReadWrite.h"
+
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#include "xml.h"
+#else	
+	#include "ismrmrd/xml.h"
+#endif
 
 namespace Gadgetron{
 	
-	class CS_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
+	class EXPORTCSLAB CS_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
     {
     public:      
       CS_AccumulatorGadget();

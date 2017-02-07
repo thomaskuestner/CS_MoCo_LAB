@@ -4,14 +4,14 @@
 #include "Gadget.h"
 #include "NDArray.h"
 #include "GadgetMRIHeaders.h"
-#include "gadgetron_mricore_export.h"
+#include "CS_LAB_export.h"
 
 #include <ismrmrd.h>
 #include <complex>
 
 namespace Gadgetron{
 
-  class AcquisitionFinishGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
+  class EXPORTCSLAB AcquisitionFinishGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
     {
     public:
       GADGET_DECLARE(AcquisitionFinishGadget);

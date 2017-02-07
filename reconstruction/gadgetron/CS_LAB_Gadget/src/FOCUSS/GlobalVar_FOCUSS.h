@@ -18,14 +18,16 @@ references	:	http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Entwurfsmuster
 #ifndef GlobalVar_FOCUSS_H
 #define GlobalVar_FOCUSS_H
 
+#pragma once
 #include "Gadget.h"
 #include "GadgetMRIHeaders.h"
 #include "ismrmrd.h"
 #include "hoNDArray.h"
+#include "CS_LAB_export.h"
 
 namespace Gadgetron{
 
-	class GlobalVar_FOCUSS{
+	class EXPORTCSLAB GlobalVar_FOCUSS{
 		public:
 			static GlobalVar_FOCUSS* instance(){
 				static CGuard g;
@@ -37,6 +39,25 @@ namespace Gadgetron{
 		// wisdom string vector
 		std::vector<hoNDArray<std::complex<float> > *> vfPrincipleComponents_;
 		std::vector<bool> vbStatPrinc_;
+
+		// FOCUSS parameters
+		int iNOuter_;
+		int iNInner_;
+		//int iCGResidual_;
+		bool bESPRActiveCS_;
+		int iVDMap_;
+		float fFullySampled_;
+		std::complex< float > cfLambdaESPReSSo_;
+		std::complex< float > cfLambda_;
+		int iESPReSSoDirection_;
+		float fPartialFourierVal_;
+		float fCSAcc_;
+		int iDimFFT_;
+		int iDimDCTSparse_;
+		int iDimPCASparse_;
+		int iDimKernelFFT_;
+		int iTransformFFTBA_;
+		int ikSpaceOut_;
 
 		private:
 			static GlobalVar_FOCUSS* _instance;

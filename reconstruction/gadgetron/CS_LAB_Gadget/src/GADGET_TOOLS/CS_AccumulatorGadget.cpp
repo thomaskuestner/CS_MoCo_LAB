@@ -4,11 +4,12 @@ file name	: 	CS_AccumulatorGadget.cpp
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de),
 				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 
-version		: 	1.3
+version		: 	1.
 
 date		: 	v1.1: 17.02.2015
 				v1.2: 02.02.2016
 				v1.3: 06.12.2016
+			v1.4: 31.01.2017
 
 description	: 	implementation of the class "AccumulatorGadget.h"
 
@@ -17,7 +18,6 @@ references	:	original Gadgetron version 2.5 from 02-18-2014
 */
 
 #include "CS_AccumulatorGadget.h"
-#include "ismrmd/xml.h"
 
 namespace Gadgetron{
 // class constructor
@@ -51,6 +51,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		vDim_.push_back(e_space.matrixSize.z);
    
 		iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
+		vDim_.push_back(iNPhases_);
+
 		
 	#else		
 		// read xml header file
@@ -86,6 +88,75 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	fCSAcc_ = 0;
 	fFullySa_ = 0;
 	try{
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	if (h.encoding[0].trajectoryDescription) {
+		GDEBUG("\n\nTrajectory description present!\n\n");
+		ISMRMRD::TrajectoryDescription traj_desc = *h.encoding[0].trajectoryDescription;
+		
+		for (std::vector<ISMRMRD::UserParameterLong>::iterator i (traj_desc.userParameterLong.begin()); i != traj_desc.userParameterLong.end(); ++i) {
+			if (i->name == "WIP_PF_y"){
+				iESPReSSoY = i->value;		
+			}
+			if (i->name == "WIP_PF_z"){
+				iESPReSSoZ = i->value;
+			}
+			if (i->name == "SamplingType"){
+				iSamplingType_ = i->value;
+			}
+			if (i->name == "VDMap"){
+				GlobalVar_FOCUSS::instance()->iVDMap_ = i->value;
+			}
+			if (i->name == "BodyRegion"){
+				iBodyRegion_ = i->value;
+			} 	
+			/*if (i->name == "iCGResidual"){
+				GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value;
+			}*/
+			if (i->name == "OuterIterations"){
+				GlobalVar_FOCUSS::instance()->iNOuter_ = i->value;
+			}	
+			if (i->name == "InnerIterations"){
+				GlobalVar_FOCUSS::instance()->iNInner_ = i->value;
+			}
+			if (i->name == "fftSparseDim"){
+				GlobalVar_FOCUSS::instance()->iDimFFT_ = i->value;
+			}
+			if (i->name == "dctSparseDim"){
+				GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = i->value;
+			}
+			if (i->name == "pcaSparseDim"){
+				GlobalVar_FOCUSS::instance()->iDimPCASparse_ = i->value;
+			}
+			if (i->name == "kernelFftDim"){
+				GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = i->value;
+			}
+			if (i->name == "transformFftBaDim"){
+				GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = i->value;
+			}
+			if (i->name == "kSpaceOutDim"){
+				GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value;
+			}	
+			if (i->name == "CSESPReSSo"){
+				GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value;
+			}
+		}
+
+		for (std::vector<ISMRMRD::UserParameterDouble>::iterator i (traj_desc.userParameterDouble.begin()); i != traj_desc.userParameterDouble.end(); ++i) {
+			if (i->name == "CS_Accel") {
+				fCSAcc_ = i->value;		
+			}
+			if (i->name == "FullySampled"){
+				GlobalVar_FOCUSS::instance()->fFullySampled_ = i->value;
+			}
+			if (i->name == "lambdaESPReSSo") {
+				GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = i->value;
+			}
+			if (i->name == "lambda"){
+				GlobalVar_FOCUSS::instance()->cfLambda_ = i->value;
+			}
+		}
+	}
+#else
 		if ((*e_seq.begin()).trajectoryDescription().present()) {
 			GADGET_DEBUG1("\n\nTrajectory description present!\n\n");
 			ISMRMRD::trajectoryDescriptionType traj_desc = (*e_seq.begin()).trajectoryDescription().get();
@@ -104,136 +175,168 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					GADGET_DEBUG2("Sampling Type is %i \n", iSamplingType_);
 				} 
 				if (std::strcmp(i->name().c_str(),"VDMap") == 0) {
-					iVDMap_ = i->value();
-					GADGET_DEBUG2("VDMap is %i \n", iVDMap_);
+					GlobalVar_FOCUSS::instance()->iVDMap_ = i->value();
 				} 
 				if (std::strcmp(i->name().c_str(),"BodyRegion") == 0) {
 					iBodyRegion_ = i->value();
 					GADGET_DEBUG2("Body Region is %i \n", iBodyRegion_);
 				} 
+				/*if (std::strcmp(i->name().c_str(), "iCGResidual") == 0) {
+					GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value();
+				}*/
+				if (std::strcmp(i->name().c_str(), "OuterIterations") == 0) {
+					GlobalVar_FOCUSS::instance()->iNOuter_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "InnerIterations") == 0) {
+					GlobalVar_FOCUSS::instance()->iNInner_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "fftSparseDim") == 0) {
+					GlobalVar_FOCUSS::instance()->iDimFFT_ = i->value();
+				}						
+				if (std::strcmp(i->name().c_str(), "dctSparseDim") == 0) {
+					GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "pcaSparseDim") == 0) {
+					GlobalVar_FOCUSS::instance()->iDimPCASparse_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "kernelFftDim") == 0) {
+					GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "transformFftBaDim") == 0) {
+					GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "kSpaceOutDim") == 0) {
+					GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(), "CSESPReSSo") == 0) {
+					GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value();
+				}			
 			}
 
 			for (ISMRMRD::trajectoryDescriptionType::userParameterDouble_sequence::iterator i (traj_desc.userParameterDouble().begin ()); i != traj_desc.userParameterDouble().end(); ++i) {
-					if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
+				if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
 					fCSAcc_ = i->value();
-					GADGET_DEBUG2("CS Acceleration is %f \n", fCSAcc_);
-					}
-					if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
-					fFullySa_ = i->value();
-					GADGET_DEBUG2("Fully Sampled is %f \n", fFullySa_);
-					}
-					if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
-					fLESPReSSo_ = i->value();
-					GADGET_DEBUG2("Lambda ESPReSSo is %f \n", fLESPReSSo_);
-					}
-					if (std::strcmp(i->name().c_str(),"lambda") == 0) {
-					fLQ_ = i->value();
-					GADGET_DEBUG2("Lambda Q is %f \n", fLQ_);
-					}
-			}
-
-			//-------------------------------------------------------------------------
-			//----------------------- Interpret Integer Data  -------------------------
-			//-------------------------------------------------------------------------		
-			switch (iBodyRegion_){
-				case 14:
-					GADGET_DEBUG1("Body region is none\n");
-					break;
-				case 15:
-					GADGET_DEBUG1("Body region is head\n");
-					break;
-				case 16:
-					GADGET_DEBUG1("Body region is thorax\n");
-					break;
-				case 17:
-					GADGET_DEBUG1("Body region is abdomen\n");
-					break;
-				case 18:
-					GADGET_DEBUG1("Body region is pelvis\n");
-					break;
-			}
-			switch (iVDMap_){
-				case 1:
-					GADGET_DEBUG1("VDMap is none\n");
-					break;
-				case 2:
-					GADGET_DEBUG1("VDMap is point\n");
-					break;
-				case 3:
-					GADGET_DEBUG1("VDMap is block\n");
-					break;
-				case 4:
-					GADGET_DEBUG1("VDMap is ellipse\n");
-					break;
-				case 5:
-					GADGET_DEBUG1("VDMap is ring\n");
-					break;
-			}
-			switch (iSamplingType_){
-				case 6:
-					GADGET_DEBUG1("sampling type is poisson\n");
-					break;
-				case 7:
-					GADGET_DEBUG1("sampling type is random\n");
-					break;
-				case 8:
-					GADGET_DEBUG1("sampling type is proba\n");
-					break;
-			}
-				
-			iESPReSSoDirection_ = 10;
-			fPartialFourierVal_ = 1.0;
-			if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
-				GADGET_DEBUG1("Partial Fourier data..\n");
-				GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
-				// get Partial Fourier dimension
-				if (iESPReSSoY > 9){
-					iESPReSSoDirection_ = 1;
-					// get Partial Fourier value
-					switch (iESPReSSoY){
-						case 10:
-							fPartialFourierVal_ = 0.5;
-							break;
-						case 11:
-							fPartialFourierVal_ = 0.625;
-							break;
-						case 12:
-							fPartialFourierVal_ = 0.75;
-							break;
-						case 13:
-							fPartialFourierVal_ = 0.875;
-							break;
-						default:
-							fPartialFourierVal_ = 1.0;
-							break;
-					}
 				}
-				else if (iESPReSSoZ > 9){
-					iESPReSSoDirection_ = 2;
-					// get Partial Fourier value
-					switch (iESPReSSoZ){
-						case 10:
-							fPartialFourierVal_ = 0.5;
-							break;
-						case 11:
-							fPartialFourierVal_ = 0.625;
-							break;
-						case 12:
-							fPartialFourierVal_ = 0.75;
-							break;
-						case 13:
-							fPartialFourierVal_ = 0.875;
-							break;
-						default:
-							fPartialFourierVal_ = 1.0;
-							break;
-					}
+				if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
+					GlobalVar_FOCUSS::instance()->fFullySampled_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
+					GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = i->value();
+				}
+				if (std::strcmp(i->name().c_str(),"lambda") == 0) {
+					GlobalVar_FOCUSS::instance()->cfLambda_ = i->value();					
 				}
 			}
 		}
+#endif
 		else{
 			GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
 		}
+	
+		//-------------------------------------------------------------------------
+		//----------------------- Interpret Integer Data  -------------------------
+		//-------------------------------------------------------------------------		
+		switch (iBodyRegion_){
+			case 14:
+				GADGET_DEBUG1("Body region is none\n");
+				break;
+			case 15:
+				GADGET_DEBUG1("Body region is head\n");
+				break;
+			case 16:
+				GADGET_DEBUG1("Body region is thorax\n");
+				break;
+			case 17:
+				GADGET_DEBUG1("Body region is abdomen\n");
+				break;
+			case 18:
+				GADGET_DEBUG1("Body region is pelvis\n");
+				break;
+		}
+		switch (iVDMap_){
+			case 1:
+				GADGET_DEBUG1("VDMap is none\n");
+				break;
+			case 2:
+				GADGET_DEBUG1("VDMap is point\n");
+				break;
+			case 3:
+				GADGET_DEBUG1("VDMap is block\n");
+				break;
+			case 4:
+				GADGET_DEBUG1("VDMap is ellipse\n");
+				break;
+			case 5:
+				GADGET_DEBUG1("VDMap is ring\n");
+				break;
+		}
+		switch (iSamplingType_){
+			case 6:
+				GADGET_DEBUG1("sampling type is poisson\n");
+				break;
+			case 7:
+				GADGET_DEBUG1("sampling type is random\n");
+				break;
+			case 8:
+				GADGET_DEBUG1("sampling type is proba\n");
+				break;
+		}
+
+		iESPReSSoDirection_ = 10;
+		fPartialFourierVal_ = 1.0;
+		if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
+			GADGET_DEBUG1("Partial Fourier data..\n");
+			GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
+			// get Partial Fourier dimension
+			if (iESPReSSoY > 9){
+				iESPReSSoDirection_ = 1;
+				// get Partial Fourier value
+				switch (iESPReSSoY){
+					case 10:
+						fPartialFourierVal_ = 0.5;
+						break;
+					case 11:
+						fPartialFourierVal_ = 0.625;
+						break;
+					case 12:
+						fPartialFourierVal_ = 0.75;
+						break;
+					case 13:
+						fPartialFourierVal_ = 0.875;
+						break;
+					default:
+						fPartialFourierVal_ = 1.0;
+						break;
+				}
+			}
+			else if (iESPReSSoZ > 9){
+				iESPReSSoDirection_ = 2;
+				// get Partial Fourier value
+				switch (iESPReSSoZ){
+					case 10:
+						fPartialFourierVal_ = 0.5;
+						break;
+					case 11:
+						fPartialFourierVal_ = 0.625;
+						break;
+					case 12:
+						fPartialFourierVal_ = 0.75;
+						break;
+					case 13:
+						fPartialFourierVal_ = 0.875;
+						break;
+					default:
+						fPartialFourierVal_ = 1.0;
+						break;
+				}
+			}
+		}
+			
+		GlobalVar_FOCUSS::instance()->fPartialFourierVal_ = fPartialFourierVal_;
+		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar_FOCUSS::instance()->fPartialFourierVal_);
+
+		GlobalVar_FOCUSS::instance()->iESPReSSoDirection_ = iESPReSSoDirection_;
+		GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar_FOCUSS::instance()->iESPReSSoDirection_);
 	}
 	catch(...){
 		GADGET_DEBUG1("Error occured - cannot find CS entries in trajectory description..\n");
@@ -274,7 +377,7 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 		}
 
 		// read value for image_series
-		image_series_ = this->get_int_value("image_series");
+		//image_series_ = this->get_int_value("image_series");
 
 		GADGET_DEBUG1("receiving data...\n");  
 	}
@@ -299,9 +402,13 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	}
 
 	// get dimension indicating flags
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	bool bLast_encoding_step1 = ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1).isSet(m1->getObjectPtr()->flags);
+	bool bLast_in_measurement = ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT).isSet(m1->getObjectPtr()->flags);
+#else
 	bool bLast_encoding_step1 = ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_ENCODE_STEP1).isSet(m1->getObjectPtr()->flags);
 	bool bLast_in_measurement = ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_MEASUREMENT).isSet(m1->getObjectPtr()->flags);
-
+#endif
 	// copy header information for current slice to global variable
 	if (bLast_encoding_step1){
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_tmp = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
@@ -365,7 +472,11 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	GC_img_hdr_m1->getObjectPtr()->field_of_view[2]		= vFOV_[2];
 	GC_img_hdr_m1->getObjectPtr()->channels				= (uint16_t)GC_acq_hdr_m1->getObjectPtr()->active_channels;
 	GC_img_hdr_m1->getObjectPtr()->slice				= GC_acq_hdr_m1->getObjectPtr()->idx.slice;
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	GC_img_hdr_m1->getObjectPtr()->data_type		= ISMRMRD::ISMRMRD_CXFLOAT;
+#else
 	GC_img_hdr_m1->getObjectPtr()->image_data_type		= ISMRMRD::DATA_COMPLEX_FLOAT;
+#endif
 	GC_img_hdr_m1->getObjectPtr()->image_index			= (uint16_t)(++image_counter_);
 	GC_img_hdr_m1->getObjectPtr()->image_series_index	= (uint16_t)image_series_;
 	memcpy(GC_img_hdr_m1->getObjectPtr()->position,GC_acq_hdr_m1->getObjectPtr()->position,sizeof(float)*3);

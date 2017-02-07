@@ -22,39 +22,107 @@ namespace Gadgetron{
 
 // read the XML configuration parameters
 int CS_FOCUSS::process_config(ACE_Message_Block* mb){
-
-	// how to calculate the beta value
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iCGResidual_ = iCGResidual.value();
+		GDEBUG("process config..\n");
 	#else
-	  iCGResidual_ = this->get_int_value("CG Beta");
+		GADGET_DEBUG1("process config..\n");
+	#endif	
+	//bXMLControl_ = true;
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		bXMLControl_ = bXMLControl.value();		
+	#else
+		bXMLControl_ = this->get_int_value("bXMLControl");		
+	#endif	
+	
+	if (bXMLControl_) {
+
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("XML Control enabled..\n");		
+			iNOuter_ = OuterIterations.value();
+		  	iNInner_ = InnerIterations.value();
+			bESPRActiveCS_ = CSESPReSSo.value();
+			cfLambda_ = lambda.value();			
+			cfLambdaESPReSSo_ = lambdaESPReSSo.value();
+			int iDimFFT = fftSparseDim.value();
+			int iDimDCTSparse = dctSparseDim.value();
+			int iDimPCASparse = pcaSparseDim.value();
+			int iDimKernelFFT = kernelFftDim.value();
+			int iTransformFFTBA = transformFftBaDim.value();
+			int ikSpaceOut = kSpaceOutDim.value();
+		#else
+			GADGET_DEBUG1("XML Control enabled..\n");
+		  	iNOuter_ = this->get_int_value("OuterIterations");		  	
+		  	iNInner_ = this->get_int_value("InnerIterations");		  
+			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
+			cfLambda_ = this->get_double_value("lambda");
+			cfLambdaESPReSSo_ = this->get_double_value("lambdaESPReSSo");
+			int iDimFFT = this->get_int_value("fftSparseDim");
+			int iDimDCTSparse = this->get_int_value("dctSparseDim");
+			int iDimPCASparse = this->get_int_value("pcaSparseDim");
+			int iDimKernelFFT = this->get_int_value("kernelFftDim");
+			int iTransformFFTBA = this->get_int_value("transformFftBaDim");
+			int ikSpaceOut = this->get_int_value("kSpaceOutDim");
+		#endif
+
+		// update global parameters
+		GlobalVar_FOCUSS::instance()->iNOuter_ = iNOuter_;
+		GlobalVar_FOCUSS::instance()->iNInner_ = iNInner_;
+		GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = bESPRActiveCS_;
+		GlobalVar_FOCUSS::instance()->cfLambda_ = cfLambda_;	
+		GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = cfLambdaESPReSSo_;
+		GlobalVar_FOCUSS::instance()->iDimFFT_ = iDimFFT;
+		GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = iDimDCTSparse;
+		GlobalVar_FOCUSS::instance()->iDimPCASparse_ = iDimPCASparse;
+		GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = iDimKernelFFT;
+		GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = iTransformFFTBA;
+		GlobalVar_FOCUSS::instance()->ikSpaceOut_ = ikSpaceOut;
+	}
+	else{
+		iNOuter_ = GlobalVar_FOCUSS::instance()->iNOuter_;
+		iNInner_ = GlobalVar_FOCUSS::instance()->iNInner_;
+		bESPRActiveCS_ = GlobalVar_FOCUSS::instance()->bESPRActiveCS_;
+		iVDMap_ = GlobalVar_FOCUSS::instance()->iVDMap_;
+		fFullySampled_ = GlobalVar_FOCUSS::instance()->fFullySampled_;
+		cfLambdaESPReSSo_ = GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_;
+		cfLambda_ = GlobalVar_FOCUSS::instance()->cfLambda_;
+		iESPReSSoDirection_ = GlobalVar_FOCUSS::instance()->iESPReSSoDirection_;
+		fPartialFourierVal_ = GlobalVar_FOCUSS::instance()->fPartialFourierVal_;
+	
+	}
+	
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_.real());
+		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_.real());
+		GDEBUG("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
+		GDEBUG("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
+		GDEBUG("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
+		GDEBUG("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
+		GDEBUG("kernelFftDim is %i \n", GlobalVar_FOCUSS::instance()->iDimKernelFFT_);
+		GDEBUG("pcaSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimPCASparse_);
+		GDEBUG("dctSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimDCTSparse_);
+		GDEBUG("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
+		GDEBUG("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
+		GDEBUG("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
+	#else
+		GADGET_DEBUG2("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_);
+		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_);
+		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
+		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
+		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
+		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
+		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar_FOCUSS::instance()->iDimKernelFFT_);
+		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimPCASparse_);
+		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimDCTSparse_);
+		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
+		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
+		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
 	#endif
 
-	// maximum number of FOCUSS iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNOuter_ = iNOuter.value();
-	#else
-	  iNOuter_ = this->get_int_value("OuterIterations");
-          if (iNOuter_ <= 0) iNOuter_ = 2;
-	#endif
-
-	// maximum number of CG iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  iNInner_ = iNInner.value();
-	#else
-	  iNInner_ = this->get_int_value("InnerIterations");
-	  if (iNInner_ <= 0) iNInner_ = 20;
-	#endif
+	if (iNInner_ <= 0) iNInner_ = 20;
+	if (iNOuter_ <= 0) iNOuter_ = 2;	
 
 	// p-value for the lp-norm
 	fP_ = .5;
-
-	// use ESPReSSo-constraint for pure CS data
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	  bESPRActiveCS_ = bESPRActiveCS.value();
-	#else
-	  bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
-	#endif
 
 	// convergence boundary
 	fEpsilon_ = (float)1e-6;
@@ -65,29 +133,24 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 	return GADGET_OK;
 };
 
+
 // set several variables
-void CS_FOCUSS::fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1){
+void CS_FOCUSS::fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader >* m1){
 
 	// initialize the global vector variables
-	for(int i = 0; i < 20; i++){
+	/*for(int i = 0; i < 20; i++){
 		GlobalVar_FOCUSS::instance()->vbStatPrinc_.push_back(false);
-		GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
-	}
+		GlobalVar_FOCUSS::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex< float > > ());
+	}*/
 
-	iVDMap_				= m1->getObjectPtr()->user_int[7];
-	fFullySampled_		= m1->getObjectPtr()->user_float[5];
-	cfLambdaESPReSSo_	= m1->getObjectPtr()->user_float[6];
-	cfLambda_			= m1->getObjectPtr()->user_float[7];
-	iESPReSSoDirection_ = m1->getObjectPtr()->user_int[7];
-	fPartialFourierVal_ = m1->getObjectPtr()->user_float[3];
 }
 
 void CS_FOCUSS::fSetupTransformation(){
 
 	// instantiate transformation objects
-	Transform_KernelTransform_	    = new Transform();
-	Transform_fftBA_				= new Transform();
-	Transform_fftAA_				= new Transform();
+	Transform_KernelTransform_	= new Transform();
+	Transform_fftBA_		= new Transform();
+	Transform_fftAA_		= new Transform();
 
 	int dim;
 	/*-------------------------------------------------------------------------
@@ -98,15 +161,13 @@ void CS_FOCUSS::fSetupTransformation(){
 
 	// configure KernelTransformation - sparsifying transform
 	// check FFT entry
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (fftSparseDim.value() != 0){
-#else
-	if ((dim = this->get_int_value("FFT_Sparse")) != 0){
-#endif
+	dim = GlobalVar_FOCUSS::instance()->iDimFFT_;
+	if (dim != 0){
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1) {
 				Transform_KernelTransform_->set_transformation_sparsity(0,i);
+
 				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 					GDEBUG("KernelTransform - FFT sparse - dim: %i \n", i);
 				#else
@@ -115,12 +176,10 @@ void CS_FOCUSS::fSetupTransformation(){
 			}
 		}
 	}
+
 	// check DCT entry
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (dctSparseDim.value() != 0){
-#else
-	if ((dim = this->get_int_value("DCT_Sparse")) != 0){
-#endif
+	dim = GlobalVar_FOCUSS::instance()->iDimDCTSparse_;
+	if (dim != 0){
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1) {
@@ -133,8 +192,12 @@ void CS_FOCUSS::fSetupTransformation(){
 			}
 		}
 	}
+
 	// check PCA entry
-	/*if ((dim = this->get_int_value("PCA_Sparse")) != 0){
+	/*if 
+	dim = GlobalVar_FOCUSS::instance()->iDimPCASparse_;
+	if (dim != 0)
+	{
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
@@ -142,14 +205,12 @@ void CS_FOCUSS::fSetupTransformation(){
 				GADGET_DEBUG2("KernelTransform - PCA sparse - dim: %i \n", i);
 			}
 		}
-	}*/
+	}
+	*/
 
 	// configure KernelTransformation - FFT
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (kernelFftDim.value() != 0){
-#else
-	if ((dim = this->get_int_value("Kernel_FFT_dim")) != 0){
-#endif
+	dim = GlobalVar_FOCUSS::instance()->iDimKernelFFT_;
+	if (dim != 0){
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
@@ -167,11 +228,8 @@ void CS_FOCUSS::fSetupTransformation(){
 	---------------------------------- fftBA ----------------------------------
 	--------------------------------------------------------------------------*/
 	// configure fftBA - transform dimension before start FOCUSS
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (transformFftBaDim.value() != 0){
-#else
-	if ((dim = this->get_int_value("Transform_fftBA_dim")) != 0){
-#endif
+	dim = GlobalVar_FOCUSS::instance()->iTransformFFTBA_;
+	if (dim != 0){
 		for(int i = 0; i < 7; i++){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
@@ -187,11 +245,8 @@ void CS_FOCUSS::fSetupTransformation(){
 	}
 
 	// configure fftAA - output image or k-space
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	if (kSpaceOutDim.value() != 0){
-#else
-	if ((dim = this->get_int_value("kSpaceOut")) != 0){
-#endif
+	dim = GlobalVar_FOCUSS::instance()->ikSpaceOut_;
+	if (dim != 0){
 		Transform_fftAA_->set_transformation_sparsity(0,0);
 		Transform_fftAA_->set_transformation_sparsity(0,1);
 		Transform_fftAA_->set_transformation_sparsity(0,2);

@@ -33,6 +33,7 @@ references	:	-
 #ifndef SLICERGADGET_H
 #define SLICERGADGET_H
 
+#pragma once
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "CS_LAB_export.h"

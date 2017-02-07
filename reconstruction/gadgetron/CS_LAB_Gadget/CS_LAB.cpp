@@ -30,7 +30,7 @@ void CS_LAB::fExternalControl(){
 		// not implemented in this version
 	}
 	
-	opCS_->iCGResidual_					= iCGResidual_;
+	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
 	opCS_->iNOuter_						= iNOuter_;
 	opCS_->iNInner_						= iNInner_;
@@ -137,46 +137,107 @@ void CS_LAB::fExternalControl(){
 }
 
 int CS_LAB::process_config(ACE_Message_Block* mb){
-
-	// get lambda of constraint
-	/*#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		cfLambda_ = lambda.value();
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("process config..\n");
 	#else
-		cfLambda_ = this->get_double_value("lambda");
-	#endif*/
-
-	// how to calculate the beta value
+		GADGET_DEBUG1("process config..\n");
+	#endif	
+	//bXMLControl_ = true;
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iCGResidual_ = iCGResidual.value();
+		bXMLControl_ = bXMLControl.value();		
 	#else
-  		iCGResidual_ = this->get_int_value("CG Beta");
+		bXMLControl_ = this->get_int_value("bXMLControl");		
+	#endif	
+	
+	if (bXMLControl_) {
+
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GDEBUG("XML Control enabled..\n");		
+			iNOuter_ = OuterIterations.value();
+		  	iNInner_ = InnerIterations.value();
+			bESPRActiveCS_ = CSESPReSSo.value();
+			cfLambda_ = std::complex< float > (lambda.value(), 0.0);			
+			cfLambdaESPReSSo_ = lambdaESPReSSo.value();
+			int iDimFFT = fftSparseDim.value();
+			int iDimDCTSparse = dctSparseDim.value();
+			int iDimPCASparse = pcaSparseDim.value();
+			int iDimKernelFFT = kernelFftDim.value();
+			int iTransformFFTBA = transformFftBaDim.value();
+			int ikSpaceOut = kSpaceOutDim.value();
+		#else
+			GADGET_DEBUG1("XML Control enabled..\n");
+		  	iNOuter_ = this->get_int_value("OuterIterations");		  	
+		  	iNInner_ = this->get_int_value("InnerIterations");		  
+			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
+			cfLambda_ = this->get_double_value("lambda");
+			cfLambdaESPReSSo_ = this->get_double_value("lambdaESPReSSo");
+			int iDimFFT = this->get_int_value("fftSparseDim");
+			int iDimDCTSparse = this->get_int_value("dctSparseDim");
+			int iDimPCASparse = this->get_int_value("pcaSparseDim");
+			int iDimKernelFFT = this->get_int_value("kernelFftDim");
+			int iTransformFFTBA = this->get_int_value("transformFftBaDim");
+			int ikSpaceOut = this->get_int_value("kSpaceOutDim");
+		#endif
+
+		// update global parameters
+		GlobalVar_FOCUSS::instance()->iNOuter_ = iNOuter_;
+		GlobalVar_FOCUSS::instance()->iNInner_ = iNInner_;
+		GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = bESPRActiveCS_;
+		GlobalVar_FOCUSS::instance()->cfLambda_ = cfLambda_;	
+		GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = cfLambdaESPReSSo_;
+		GlobalVar_FOCUSS::instance()->iDimFFT_ = iDimFFT;
+		GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = iDimDCTSparse;
+		GlobalVar_FOCUSS::instance()->iDimPCASparse_ = iDimPCASparse;
+		GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = iDimKernelFFT;
+		GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = iTransformFFTBA;
+		GlobalVar_FOCUSS::instance()->ikSpaceOut_ = ikSpaceOut;
+	}
+	else{
+		iNOuter_ = GlobalVar_FOCUSS::instance()->iNOuter_;
+		iNInner_ = GlobalVar_FOCUSS::instance()->iNInner_;
+		bESPRActiveCS_ = GlobalVar_FOCUSS::instance()->bESPRActiveCS_;
+		iVDMap_ = GlobalVar_FOCUSS::instance()->iVDMap_;
+		fFullySampled_ = GlobalVar_FOCUSS::instance()->fFullySampled_;
+		cfLambdaESPReSSo_ = GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_;
+		cfLambda_ = GlobalVar_FOCUSS::instance()->cfLambda_;
+		iESPReSSoDirection_ = GlobalVar_FOCUSS::instance()->iESPReSSoDirection_;
+		fPartialFourierVal_ = GlobalVar_FOCUSS::instance()->fPartialFourierVal_;
+	
+	}
+	
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GDEBUG("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_.real());
+		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_.real());
+		GDEBUG("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
+		GDEBUG("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
+		GDEBUG("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
+		GDEBUG("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
+		GDEBUG("kernelFftDim is %i \n", GlobalVar_FOCUSS::instance()->iDimKernelFFT_);
+		GDEBUG("pcaSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimPCASparse_);
+		GDEBUG("dctSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimDCTSparse_);
+		GDEBUG("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
+		GDEBUG("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
+		GDEBUG("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
+	#else
+		GADGET_DEBUG2("lambda is %f \n", GlobalVar_FOCUSS::instance()->cfLambda_);
+		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_);
+		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar_FOCUSS::instance()->fFullySampled_);
+		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar_FOCUSS::instance()->bESPRActiveCS_);
+		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar_FOCUSS::instance()->ikSpaceOut_);
+		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar_FOCUSS::instance()->iTransformFFTBA_);
+		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar_FOCUSS::instance()->iDimKernelFFT_);
+		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimPCASparse_);
+		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar_FOCUSS::instance()->iDimDCTSparse_);
+		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar_FOCUSS::instance()->iDimFFT_);
+		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar_FOCUSS::instance()->iNInner_);
+		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar_FOCUSS::instance()->iNOuter_);
 	#endif
 
-	// maximum number of FOCUSS iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iNOuter_ = iNOuter.value();
-	#else
-		iNOuter_ = this->get_int_value("OuterIterations");
-	#endif
-	if (iNOuter_ <= 0) iNOuter_ = 2;
-
-	// maximum number of CG iterations
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iNInner_ = iNInner.value();
-	#else
-		iNInner_ = this->get_int_value("InnerIterations");
-	#endif
 	if (iNInner_ <= 0) iNInner_ = 20;
+	if (iNOuter_ <= 0) iNOuter_ = 2;	
 
 	// p-value for the lp-norm
 	fP_ = .5;
-
-	// use ESPReSSo-constraint for pure CS data
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		bESPRActiveCS_ = bESPRActiveCS.value();
-	#else
-		bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
-	#endif
 
 	// convergence boundary
 	fEpsilon_ = (float)1e-6;
@@ -235,7 +296,7 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 	}
 
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class
-	opCS_->iCGResidual_					= iCGResidual_;
+	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
 	opCS_->iNOuter_						= iNOuter_;	
 	opCS_->iNInner_						= iNInner_;
