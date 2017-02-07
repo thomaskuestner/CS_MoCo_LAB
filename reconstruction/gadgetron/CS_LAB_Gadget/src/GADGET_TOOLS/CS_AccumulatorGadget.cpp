@@ -109,9 +109,9 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 			if (i->name == "BodyRegion"){
 				iBodyRegion_ = i->value;
 			} 	
-			if (i->name == "iCGResidual"){
+			/*if (i->name == "iCGResidual"){
 				GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value;
-			}
+			}*/
 			if (i->name == "OuterIterations"){
 				GlobalVar_FOCUSS::instance()->iNOuter_ = i->value;
 			}	
@@ -181,9 +181,9 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					iBodyRegion_ = i->value();
 					GADGET_DEBUG2("Body Region is %i \n", iBodyRegion_);
 				} 
-				if (std::strcmp(i->name().c_str(), "iCGResidual") == 0) {
+				/*if (std::strcmp(i->name().c_str(), "iCGResidual") == 0) {
 					GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value();
-				}
+				}*/
 				if (std::strcmp(i->name().c_str(), "OuterIterations") == 0) {
 					GlobalVar_FOCUSS::instance()->iNOuter_ = i->value();
 				}
