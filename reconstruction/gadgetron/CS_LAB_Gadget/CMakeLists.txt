@@ -1,6 +1,6 @@
 # add gadgetron flags
-set(__GADGETRON__ 2)
-set(__GADGETRON_MINOR__ 5)
+set(__GADGETRON__ 3)
+set(__GADGETRON_MINOR__ 8)
 set(__GADGETRON_PATCHLEVEL__ 2)
 
 add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
@@ -319,11 +319,12 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
 			 src/GADGET_TOOLS/SlicerGadget.h
 			 src/GADGET_TOOLS/CS_CombineGadget.h
-			 include/hoNDArray_math_util.h
-			 include/GadgetronCommon.h
-			 include/hoNDArray_operators.h
-			 include/hoNDArray_blas.h
-			 include/hoMatrix_util.h
+			 src/GADGET_TOOLS/hoNDFFT_CS.h
+			 include/new/hoNDArray_math_util.h
+			 include/new/GadgetronCommon.h
+			 include/new/hoNDArray_operators.h
+			 include/new/hoNDArray_blas.h
+			 include/new/hoMatrix_util.h
 	)
 
 	set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
@@ -341,8 +342,9 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 			  src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
 			  src/GADGET_TOOLS/SlicerGadget.cpp
 			  src/GADGET_TOOLS/CS_CombineGadget.cpp
-			  include/hoNDArray_math_util.cpp
-			  include/hoNDArray_operators.cpp
+			  src/GADGET_TOOLS/hoNDFFT_CS.cpp
+			  include/new/hoNDArray_math_util.cpp
+			  include/new/hoNDArray_operators.cpp
 	)
 
 ELSE()
