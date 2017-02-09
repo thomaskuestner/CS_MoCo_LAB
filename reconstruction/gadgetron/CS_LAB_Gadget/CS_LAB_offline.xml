@@ -40,7 +40,7 @@
     <name>FOCUSS</name>
     <dll>CS_LAB</dll>  
 	  <classname>CS_LAB</classname>
-	  <property><name>bXMLControl</name><value>1</value></property>
+	  <property><name>bXMLControl</name><value>0</value></property>
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0</value></property>
 	  <property><name>OuterIterations</name><value>2</value></property>
