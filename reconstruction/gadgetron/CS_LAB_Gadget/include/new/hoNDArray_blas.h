@@ -30,7 +30,7 @@ namespace Gadgetron{
     * @param[in] cc Specifies whether to use the complex conjugate of x (when applicable).
     * @return The dot product of x and y
     */
-    template<class T> EXPORTCPUCOREMATH T dot( hoNDArray<T> *x, hoNDArray<T> *y, bool cc = true );
+    //template<class T> EXPORTCPUCOREMATH T dot( hoNDArray<T> *x, hoNDArray<T> *y, bool cc = true );
 
     /**
     * @brief Calculates the sum of the l1-norms of the array entries
