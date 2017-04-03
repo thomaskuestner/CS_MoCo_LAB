@@ -12,6 +12,9 @@ description	: 	collection of mathematical operations on arrays
 references	:	hoNDArray_math_util.h from the Gadgetron implementation
 */
 
+#ifndef SOMEFUNCTIONS_H
+#define SOMEFUNCTIONS_H
+
 #pragma once
 #include "hoNDArray.h"
 #include "ho2DArray.h"
@@ -22,11 +25,19 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "ho7DArray.h"
 #include "hoNDImage.h"
 #include "complext.h"
-#include "cpucore_math_export.h"
+
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 0
   #include "GadgetronCommon.h"
 #endif
 #include <complex>
+
+#include "hoNDArray_utils.h"
+#include "Gadget.h"
+#include <fstream>
+#include <ismrmrd_hdf5.h>
+#include <Shlwapi.h>
+#include <ismrmrd.h>
+
 
 namespace Gadgetron{
 // r = a-b*c
@@ -93,4 +104,76 @@ std::vector<float>& fGetHammingWindow(int iElements);
 // sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 template <typename T>
 bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
+
+//inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
+
+inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
+
+// flip array in specified dimension
+template <typename T>
+bool flip_array(hoNDArray<T> &Array, int dimension);
+
+// flip line in array by specified offset
+template <typename T>
+bool flip_line(hoNDArray<T> &Array, size_t offset);
+
+// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
+template <typename T>
+bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
+
+// Gaussian 1D filter
+template <typename T>
+void filter1DGaussian(std::vector<T> &result, int length);
+
+// vector convolution
+template <typename T>
+void vectorConv(std::vector<T> &vector, std::vector<T> &kernelVec, int option);
+
+// array convolution - first dimension - same size
+template <typename T>
+void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec);
+
+// 1D array convolution - same size - arbitrary dimension
+template <typename T>
+void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, int dimensions);
+
+// circular 1D vector shift
+template <typename T>
+void circshift(std::vector<T> &Array, int shift);
+
+// circular 1D array shift (first dimension)
+template <typename T>
+void circshift(hoNDArray<T> &Array, int shift);
+
+// circular 1D array shift (arbitrary dimension)
+template <typename T>
+void circshift(hoNDArray<T> &Array, int shift, int dimension);
+
+// output a linear equally spaced vector
+template <typename T>
+std::vector<T>& linspace(T fStart, T fEnd, int iElements);
+
+// interpolation
+inline std::vector< float > interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > &x_new );//, int option);
+
+inline int findNearestNeighbourIndex( float value, std::vector< float > &x );
+
+// all elements true
+inline bool allTrue(hoNDArray<bool> &Array);
+inline bool allTrue(std::vector<bool> &Vector);
+
+// get sub array
+template <typename T>
+void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<size_t> vSize, hoNDArray<T> &out);
+
+
+template <typename T>
+bool sum_dim_g(hoNDArray<T> &Array, int dimension);
+
+inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);
+
+inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1);
 }
+#endif //SOMEFUNCTIONS_H
+
+#include "SomeFunctions.hxx"
