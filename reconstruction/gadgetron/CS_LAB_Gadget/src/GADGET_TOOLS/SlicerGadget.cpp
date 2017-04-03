@@ -13,8 +13,6 @@ references	:	-
 */
 
 #include "SlicerGadget.h"
-#include "GadgetIsmrmrdReadWrite.h"
-#include "CS_GlobalVar.h"
 
 namespace Gadgetron{
 
@@ -128,7 +126,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 	size_t num_rep = 0, num_par = 0;
 	
 	// get dimensions flag
-	if (num_dims == 3){
+	/*if (num_dims == 3){
 		if ((dimension.at(0) > 1)&&(dimension.at(1) > 1)&&(dimension.at(2) == 1 )&&(m1->getObjectPtr()->user_int[0] == 1 || m1->getObjectPtr()->user_int[0] == 3))
 			bIs2D_ = true;
 		else if((dimension.at(0) > 1)&&(dimension.at(1) > 1)&&(dimension.at(2) > 1)&&(m1->getObjectPtr()->user_int[0] == 2 || m1->getObjectPtr()->user_int[0] == 5)){
@@ -141,7 +139,16 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 		bIs4D_ = true;
 		num_rep = dimension.at(3);
 		num_par = dimension.at(2);
+	}*/
+	if (num_dims == 2){
+		bIs2D_ = true;
 	}
+	else if (num_dims == 3){
+		bIs3D_ = true;
+	}
+	else if (num_dims == 4){
+		bIs4D_ = true;
+	}	
 
 	if (bIs2D_){
 		// data is 2D - do nothing
@@ -166,7 +173,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 
 				// copy acquisition header (global variable) - needed for the correct slice position,..
-				copy_header(tmp_m1, CS_GlobalVar::instance()->AcqVec_.at(par));
+				copy_header(tmp_m1, GlobalVar::instance()->AcqVec_.at(par));
 
 				// create empty 2D array
 				GadgetContainerMessage< hoNDArray< float> >* sec_buffer_ = new GadgetContainerMessage<hoNDArray< float > >();
@@ -253,7 +260,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 		}
 
 		// clear AcquisitionHeader vector
-		CS_GlobalVar::instance()->AcqVec_.clear();
+		GlobalVar::instance()->AcqVec_.clear();
 
 		m1->release();
 		return GADGET_OK;

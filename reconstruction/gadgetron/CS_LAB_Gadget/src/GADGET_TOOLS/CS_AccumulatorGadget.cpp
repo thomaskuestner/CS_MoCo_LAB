@@ -9,7 +9,7 @@ version		: 	1.
 date		: 	v1.1: 17.02.2015
 				v1.2: 02.02.2016
 				v1.3: 06.12.2016
-			v1.4: 31.01.2017
+				v1.4: 31.01.2017
 
 description	: 	implementation of the class "AccumulatorGadget.h"
 
@@ -20,14 +20,19 @@ references	:	original Gadgetron version 2.5 from 02-18-2014
 #include "CS_AccumulatorGadget.h"
 
 namespace Gadgetron{
+	
 // class constructor
 CS_AccumulatorGadget::CS_AccumulatorGadget() : hacfBuffer_(0), image_counter_(0), image_series_(0){
 	//clear CS_GlobalVar AcquisitionHeader vector
-	CS_GlobalVar::instance()->AcqVec_.clear();
+	GlobalVar::instance()->AcqVec_.clear();
 }
  
 // class destructor 
-CS_AccumulatorGadget::~CS_AccumulatorGadget() {if (hacfBuffer_) delete hacfBuffer_;}
+CS_AccumulatorGadget::~CS_AccumulatorGadget(){
+	if (hacfBuffer_){
+		delete hacfBuffer_;
+	}
+}
 
 // read flexible data header
 int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
@@ -35,25 +40,23 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		ISMRMRD::IsmrmrdHeader h;
 		ISMRMRD::deserialize(mb->rd_ptr(),h);
-		
+
 		ISMRMRD::EncodingSpace e_space = h.encoding[0].encodedSpace;
 		ISMRMRD::EncodingSpace r_space = h.encoding[0].reconSpace;
 		ISMRMRD::EncodingLimits e_limits = h.encoding[0].encodingLimits;
-  
+
 		// get FOV
 		vFOV_.push_back(r_space.fieldOfView_mm.x);
 		vFOV_.push_back(e_space.fieldOfView_mm.y);
 		vFOV_.push_back(e_space.fieldOfView_mm.z);
-		
+
 		// get matrix size
 		vDim_.push_back(r_space.matrixSize.x);
 		vDim_.push_back(e_space.matrixSize.y);
 		vDim_.push_back(e_space.matrixSize.z);
-   
+
 		iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
 		vDim_.push_back(iNPhases_);
-
-		
 	#else		
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -104,40 +107,40 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 				iSamplingType_ = i->value;
 			}
 			if (i->name == "VDMap"){
-				GlobalVar_FOCUSS::instance()->iVDMap_ = i->value;
+				GlobalVar::instance()->iVDMap_ = i->value;
 			}
 			if (i->name == "BodyRegion"){
 				iBodyRegion_ = i->value;
 			} 	
 			/*if (i->name == "iCGResidual"){
-				GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value;
+				GlobalVar::instance()->iCGResidual_ = i->value;
 			}*/
 			if (i->name == "OuterIterations"){
-				GlobalVar_FOCUSS::instance()->iNOuter_ = i->value;
+				GlobalVar::instance()->iNOuter_ = i->value;
 			}	
 			if (i->name == "InnerIterations"){
-				GlobalVar_FOCUSS::instance()->iNInner_ = i->value;
+				GlobalVar::instance()->iNInner_ = i->value;
 			}
 			if (i->name == "fftSparseDim"){
-				GlobalVar_FOCUSS::instance()->iDimFFT_ = i->value;
+				GlobalVar::instance()->iDimFFT_ = i->value;
 			}
 			if (i->name == "dctSparseDim"){
-				GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = i->value;
+				GlobalVar::instance()->iDimDCTSparse_ = i->value;
 			}
 			if (i->name == "pcaSparseDim"){
-				GlobalVar_FOCUSS::instance()->iDimPCASparse_ = i->value;
+				GlobalVar::instance()->iDimPCASparse_ = i->value;
 			}
 			if (i->name == "kernelFftDim"){
-				GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = i->value;
+				GlobalVar::instance()->iDimKernelFFT_ = i->value;
 			}
 			if (i->name == "transformFftBaDim"){
-				GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = i->value;
+				GlobalVar::instance()->iTransformFFTBA_ = i->value;
 			}
 			if (i->name == "kSpaceOutDim"){
-				GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value;
+				GlobalVar::instance()->ikSpaceOut_ = i->value;
 			}	
 			if (i->name == "CSESPReSSo"){
-				GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value;
+				GlobalVar::instance()->bESPRActiveCS_ = i->value;
 			}
 		}
 
@@ -146,18 +149,18 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 				fCSAcc_ = i->value;		
 			}
 			if (i->name == "FullySampled"){
-				GlobalVar_FOCUSS::instance()->fFullySampled_ = i->value;
+				GlobalVar::instance()->fFullySampled_ = i->value;
 			}
 			if (i->name == "lambdaESPReSSo") {
-				GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = i->value;
+				GlobalVar::instance()->cfLambdaESPReSSo_ = i->value;
 			}
 			if (i->name == "lambda"){
-				GlobalVar_FOCUSS::instance()->cfLambda_ = i->value;
+				GlobalVar::instance()->cfLambda_ = i->value;
 			}
 		}
 	}
 #else
-		if ((*e_seq.begin()).trajectoryDescription().present()) {
+		if ((*e_seq.begin()).trajectoryDescription().present()){
 			GADGET_DEBUG1("\n\nTrajectory description present!\n\n");
 			ISMRMRD::trajectoryDescriptionType traj_desc = (*e_seq.begin()).trajectoryDescription().get();
 
@@ -175,41 +178,41 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					GADGET_DEBUG2("Sampling Type is %i \n", iSamplingType_);
 				} 
 				if (std::strcmp(i->name().c_str(),"VDMap") == 0) {
-					GlobalVar_FOCUSS::instance()->iVDMap_ = i->value();
+					GlobalVar::instance()->iVDMap_ = i->value();
 				} 
 				if (std::strcmp(i->name().c_str(),"BodyRegion") == 0) {
 					iBodyRegion_ = i->value();
 					GADGET_DEBUG2("Body Region is %i \n", iBodyRegion_);
 				} 
 				/*if (std::strcmp(i->name().c_str(), "iCGResidual") == 0) {
-					GlobalVar_FOCUSS::instance()->iCGResidual_ = i->value();
+					GlobalVar::instance()->iCGResidual_ = i->value();
 				}*/
 				if (std::strcmp(i->name().c_str(), "OuterIterations") == 0) {
-					GlobalVar_FOCUSS::instance()->iNOuter_ = i->value();
+					GlobalVar::instance()->iNOuter_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "InnerIterations") == 0) {
-					GlobalVar_FOCUSS::instance()->iNInner_ = i->value();
+					GlobalVar::instance()->iNInner_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "fftSparseDim") == 0) {
-					GlobalVar_FOCUSS::instance()->iDimFFT_ = i->value();
+					GlobalVar::instance()->iDimFFT_ = i->value();
 				}						
 				if (std::strcmp(i->name().c_str(), "dctSparseDim") == 0) {
-					GlobalVar_FOCUSS::instance()->iDimDCTSparse_ = i->value();
+					GlobalVar::instance()->iDimDCTSparse_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "pcaSparseDim") == 0) {
-					GlobalVar_FOCUSS::instance()->iDimPCASparse_ = i->value();
+					GlobalVar::instance()->iDimPCASparse_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "kernelFftDim") == 0) {
-					GlobalVar_FOCUSS::instance()->iDimKernelFFT_ = i->value();
+					GlobalVar::instance()->iDimKernelFFT_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "transformFftBaDim") == 0) {
-					GlobalVar_FOCUSS::instance()->iTransformFFTBA_ = i->value();
+					GlobalVar::instance()->iTransformFFTBA_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "kSpaceOutDim") == 0) {
-					GlobalVar_FOCUSS::instance()->ikSpaceOut_ = i->value();
+					GlobalVar::instance()->ikSpaceOut_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(), "CSESPReSSo") == 0) {
-					GlobalVar_FOCUSS::instance()->bESPRActiveCS_ = i->value();
+					GlobalVar::instance()->bESPRActiveCS_ = i->value();
 				}			
 			}
 
@@ -218,13 +221,13 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					fCSAcc_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
-					GlobalVar_FOCUSS::instance()->fFullySampled_ = i->value();
+					GlobalVar::instance()->fFullySampled_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
-					GlobalVar_FOCUSS::instance()->cfLambdaESPReSSo_ = i->value();
+					GlobalVar::instance()->cfLambdaESPReSSo_ = i->value();
 				}
 				if (std::strcmp(i->name().c_str(),"lambda") == 0) {
-					GlobalVar_FOCUSS::instance()->cfLambda_ = i->value();					
+					GlobalVar::instance()->cfLambda_ = i->value();					
 				}
 			}
 		}
@@ -232,7 +235,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		else{
 			GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
 		}
-	
+
 		//-------------------------------------------------------------------------
 		//----------------------- Interpret Integer Data  -------------------------
 		//-------------------------------------------------------------------------		
@@ -332,11 +335,11 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 			}
 		}
 			
-		GlobalVar_FOCUSS::instance()->fPartialFourierVal_ = fPartialFourierVal_;
-		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar_FOCUSS::instance()->fPartialFourierVal_);
+		GlobalVar::instance()->fPartialFourierVal_ = fPartialFourierVal_;
+		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
 
-		GlobalVar_FOCUSS::instance()->iESPReSSoDirection_ = iESPReSSoDirection_;
-		GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar_FOCUSS::instance()->iESPReSSoDirection_);
+		GlobalVar::instance()->iESPReSSoDirection_ = iESPReSSoDirection_;
+		GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
 	}
 	catch(...){
 		GADGET_DEBUG1("Error occured - cannot find CS entries in trajectory description..\n");
@@ -349,8 +352,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* m1,GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2)
 {
 	// create temporal buffer if not already exists
-	if (!hacfBuffer_) {
-		
+	if (!hacfBuffer_){
+
 		// get number of channels
 		vDim_.push_back(m1->getObjectPtr()->active_channels); //GADGET_DEBUG2("Number of receiver channels: %i\n", dimensionsIn_[4]);
 
@@ -409,6 +412,7 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	bool bLast_encoding_step1 = ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_ENCODE_STEP1).isSet(m1->getObjectPtr()->flags);
 	bool bLast_in_measurement = ISMRMRD::FlagBit(ISMRMRD::ACQ_LAST_IN_MEASUREMENT).isSet(m1->getObjectPtr()->flags);
 #endif
+
 	// copy header information for current slice to global variable
 	if (bLast_encoding_step1){
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_tmp = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
@@ -417,10 +421,10 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 		memset(GC_acq_tmp->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 	
 		// copy header data
-		fCopyHeader(GC_acq_tmp, m1);
+		fCopyAcqHeader(GC_acq_tmp, m1);
 
 		// push header to global header vector
-		CS_GlobalVar::instance()->AcqVec_.push_back(GC_acq_tmp);
+		GlobalVar::instance()->AcqVec_.push_back(GC_acq_tmp);
 	}
 	
 	// copy data to a new GadgetContainer
@@ -502,97 +506,96 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 }
 
 	// copy all AcquisitionHeader values
-int CS_AccumulatorGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new){
-	GC_acq_m1_new->getObjectPtr()->acquisition_time_stamp		= GC_acq_m1->getObjectPtr()->acquisition_time_stamp;
-	GC_acq_m1_new->getObjectPtr()->active_channels				= GC_acq_m1->getObjectPtr()->active_channels;
-	GC_acq_m1_new->getObjectPtr()->available_channels			= GC_acq_m1->getObjectPtr()->available_channels;
-	GC_acq_m1_new->getObjectPtr()->center_sample				= GC_acq_m1->getObjectPtr()->center_sample;
-	GC_acq_m1_new->getObjectPtr()->channel_mask[0]				= GC_acq_m1->getObjectPtr()->channel_mask[0];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[1]				= GC_acq_m1->getObjectPtr()->channel_mask[1];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[2]				= GC_acq_m1->getObjectPtr()->channel_mask[2];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[3]				= GC_acq_m1->getObjectPtr()->channel_mask[3];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[4]				= GC_acq_m1->getObjectPtr()->channel_mask[4];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[5]				= GC_acq_m1->getObjectPtr()->channel_mask[5];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[6]				= GC_acq_m1->getObjectPtr()->channel_mask[6];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[7]				= GC_acq_m1->getObjectPtr()->channel_mask[7];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[8]				= GC_acq_m1->getObjectPtr()->channel_mask[8];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[9]				= GC_acq_m1->getObjectPtr()->channel_mask[9];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[10]				= GC_acq_m1->getObjectPtr()->channel_mask[10];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[11]				= GC_acq_m1->getObjectPtr()->channel_mask[11];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[12]				= GC_acq_m1->getObjectPtr()->channel_mask[12];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[13]				= GC_acq_m1->getObjectPtr()->channel_mask[13];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[14]				= GC_acq_m1->getObjectPtr()->channel_mask[14];
-	GC_acq_m1_new->getObjectPtr()->channel_mask[15]				= GC_acq_m1->getObjectPtr()->channel_mask[15];
-	GC_acq_m1_new->getObjectPtr()->discard_post					= GC_acq_m1->getObjectPtr()->discard_post;
-	GC_acq_m1_new->getObjectPtr()->discard_pre					= GC_acq_m1->getObjectPtr()->discard_pre;
-	GC_acq_m1_new->getObjectPtr()->encoding_space_ref			= GC_acq_m1->getObjectPtr()->encoding_space_ref;
-	GC_acq_m1_new->getObjectPtr()->flags						= GC_acq_m1->getObjectPtr()->flags;
-	GC_acq_m1_new->getObjectPtr()->idx.average					= GC_acq_m1->getObjectPtr()->idx.average;
-	GC_acq_m1_new->getObjectPtr()->idx.contrast					= GC_acq_m1->getObjectPtr()->idx.contrast;
-	GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_1		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_1;
-	GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_2		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_2;
-	GC_acq_m1_new->getObjectPtr()->idx.phase					= GC_acq_m1->getObjectPtr()->idx.phase;
-	GC_acq_m1_new->getObjectPtr()->idx.repetition				= GC_acq_m1->getObjectPtr()->idx.repetition;
-	GC_acq_m1_new->getObjectPtr()->idx.segment					= GC_acq_m1->getObjectPtr()->idx.segment;
-	GC_acq_m1_new->getObjectPtr()->idx.set						= GC_acq_m1->getObjectPtr()->idx.set;
-	GC_acq_m1_new->getObjectPtr()->idx.slice					= GC_acq_m1->getObjectPtr()->idx.slice;
-	GC_acq_m1_new->getObjectPtr()->idx.user[0]					= GC_acq_m1->getObjectPtr()->idx.user[0];
-	GC_acq_m1_new->getObjectPtr()->idx.user[1]					= GC_acq_m1->getObjectPtr()->idx.user[1];
-	GC_acq_m1_new->getObjectPtr()->idx.user[2]					= GC_acq_m1->getObjectPtr()->idx.user[2];
-	GC_acq_m1_new->getObjectPtr()->idx.user[3]					= GC_acq_m1->getObjectPtr()->idx.user[3];
-	GC_acq_m1_new->getObjectPtr()->idx.user[4]					= GC_acq_m1->getObjectPtr()->idx.user[4];
-	GC_acq_m1_new->getObjectPtr()->idx.user[5]					= GC_acq_m1->getObjectPtr()->idx.user[5];
-	GC_acq_m1_new->getObjectPtr()->idx.user[6]					= GC_acq_m1->getObjectPtr()->idx.user[6];
-	GC_acq_m1_new->getObjectPtr()->idx.user[7]					= GC_acq_m1->getObjectPtr()->idx.user[7];
-	GC_acq_m1_new->getObjectPtr()->measurement_uid				= GC_acq_m1->getObjectPtr()->measurement_uid;
-	GC_acq_m1_new->getObjectPtr()->number_of_samples			= GC_acq_m1->getObjectPtr()->number_of_samples;
-	GC_acq_m1_new->getObjectPtr()->patient_table_position[0]	= GC_acq_m1->getObjectPtr()->patient_table_position[0];
-	GC_acq_m1_new->getObjectPtr()->patient_table_position[1]	= GC_acq_m1->getObjectPtr()->patient_table_position[1];
-	GC_acq_m1_new->getObjectPtr()->patient_table_position[2]	= GC_acq_m1->getObjectPtr()->patient_table_position[2];
-	GC_acq_m1_new->getObjectPtr()->phase_dir[0]					= GC_acq_m1->getObjectPtr()->phase_dir[0];
-	GC_acq_m1_new->getObjectPtr()->phase_dir[1]					= GC_acq_m1->getObjectPtr()->phase_dir[1];
-	GC_acq_m1_new->getObjectPtr()->phase_dir[2]					= GC_acq_m1->getObjectPtr()->phase_dir[2];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[0]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[0];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[1]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[1];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[2]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[2];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[3]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[3];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[4]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[4];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[5]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[5];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[6]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[6];
-	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[7]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[7];
-	GC_acq_m1_new->getObjectPtr()->position[0]					= GC_acq_m1->getObjectPtr()->position[0];
-	GC_acq_m1_new->getObjectPtr()->position[1]					= GC_acq_m1->getObjectPtr()->position[1];
-	GC_acq_m1_new->getObjectPtr()->position[2]					= GC_acq_m1->getObjectPtr()->position[2];
-	GC_acq_m1_new->getObjectPtr()->read_dir[0]					= GC_acq_m1->getObjectPtr()->read_dir[0];
-	GC_acq_m1_new->getObjectPtr()->read_dir[1]					= GC_acq_m1->getObjectPtr()->read_dir[1];
-	GC_acq_m1_new->getObjectPtr()->read_dir[2]					= GC_acq_m1->getObjectPtr()->read_dir[2];
-	GC_acq_m1_new->getObjectPtr()->sample_time_us				= GC_acq_m1->getObjectPtr()->sample_time_us;
-	GC_acq_m1_new->getObjectPtr()->scan_counter					= GC_acq_m1->getObjectPtr()->scan_counter;
-	GC_acq_m1_new->getObjectPtr()->slice_dir[0]					= GC_acq_m1->getObjectPtr()->slice_dir[0];
-	GC_acq_m1_new->getObjectPtr()->slice_dir[1]					= GC_acq_m1->getObjectPtr()->slice_dir[1];
-	GC_acq_m1_new->getObjectPtr()->slice_dir[2]					= GC_acq_m1->getObjectPtr()->slice_dir[2];
-	GC_acq_m1_new->getObjectPtr()->trajectory_dimensions		= GC_acq_m1->getObjectPtr()->trajectory_dimensions;
-	GC_acq_m1_new->getObjectPtr()->user_float[0]				= GC_acq_m1->getObjectPtr()->user_float[0];
-	GC_acq_m1_new->getObjectPtr()->user_float[1]				= GC_acq_m1->getObjectPtr()->user_float[1];
-	GC_acq_m1_new->getObjectPtr()->user_float[2]				= GC_acq_m1->getObjectPtr()->user_float[2];
-	GC_acq_m1_new->getObjectPtr()->user_float[3]				= GC_acq_m1->getObjectPtr()->user_float[3];
-	GC_acq_m1_new->getObjectPtr()->user_float[4]				= GC_acq_m1->getObjectPtr()->user_float[4];
-	GC_acq_m1_new->getObjectPtr()->user_float[5]				= GC_acq_m1->getObjectPtr()->user_float[5];
-	GC_acq_m1_new->getObjectPtr()->user_float[6]				= GC_acq_m1->getObjectPtr()->user_float[6];
-	GC_acq_m1_new->getObjectPtr()->user_float[7]				= GC_acq_m1->getObjectPtr()->user_float[7];
-	GC_acq_m1_new->getObjectPtr()->user_int[0]					= GC_acq_m1->getObjectPtr()->user_int[0];
-	GC_acq_m1_new->getObjectPtr()->user_int[1]					= GC_acq_m1->getObjectPtr()->user_int[1];
-	GC_acq_m1_new->getObjectPtr()->user_int[2]					= GC_acq_m1->getObjectPtr()->user_int[2];
-	GC_acq_m1_new->getObjectPtr()->user_int[3]					= GC_acq_m1->getObjectPtr()->user_int[3];
-	GC_acq_m1_new->getObjectPtr()->user_int[4]					= GC_acq_m1->getObjectPtr()->user_int[4];
-	GC_acq_m1_new->getObjectPtr()->user_int[5]					= GC_acq_m1->getObjectPtr()->user_int[5];
-	GC_acq_m1_new->getObjectPtr()->user_int[6]					= GC_acq_m1->getObjectPtr()->user_int[6];
-	GC_acq_m1_new->getObjectPtr()->user_int[7]					= GC_acq_m1->getObjectPtr()->user_int[7];
-	GC_acq_m1_new->getObjectPtr()->version						= GC_acq_m1->getObjectPtr()->version;
-	
-	return GADGET_OK;
-}
+//int CS_AccumulatorGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new){
+//	GC_acq_m1_new->getObjectPtr()->acquisition_time_stamp		= GC_acq_m1->getObjectPtr()->acquisition_time_stamp;
+//	GC_acq_m1_new->getObjectPtr()->active_channels				= GC_acq_m1->getObjectPtr()->active_channels;
+//	GC_acq_m1_new->getObjectPtr()->available_channels			= GC_acq_m1->getObjectPtr()->available_channels;
+//	GC_acq_m1_new->getObjectPtr()->center_sample				= GC_acq_m1->getObjectPtr()->center_sample;
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[0]				= GC_acq_m1->getObjectPtr()->channel_mask[0];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[1]				= GC_acq_m1->getObjectPtr()->channel_mask[1];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[2]				= GC_acq_m1->getObjectPtr()->channel_mask[2];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[3]				= GC_acq_m1->getObjectPtr()->channel_mask[3];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[4]				= GC_acq_m1->getObjectPtr()->channel_mask[4];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[5]				= GC_acq_m1->getObjectPtr()->channel_mask[5];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[6]				= GC_acq_m1->getObjectPtr()->channel_mask[6];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[7]				= GC_acq_m1->getObjectPtr()->channel_mask[7];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[8]				= GC_acq_m1->getObjectPtr()->channel_mask[8];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[9]				= GC_acq_m1->getObjectPtr()->channel_mask[9];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[10]				= GC_acq_m1->getObjectPtr()->channel_mask[10];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[11]				= GC_acq_m1->getObjectPtr()->channel_mask[11];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[12]				= GC_acq_m1->getObjectPtr()->channel_mask[12];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[13]				= GC_acq_m1->getObjectPtr()->channel_mask[13];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[14]				= GC_acq_m1->getObjectPtr()->channel_mask[14];
+//	GC_acq_m1_new->getObjectPtr()->channel_mask[15]				= GC_acq_m1->getObjectPtr()->channel_mask[15];
+//	GC_acq_m1_new->getObjectPtr()->discard_post					= GC_acq_m1->getObjectPtr()->discard_post;
+//	GC_acq_m1_new->getObjectPtr()->discard_pre					= GC_acq_m1->getObjectPtr()->discard_pre;
+//	GC_acq_m1_new->getObjectPtr()->encoding_space_ref			= GC_acq_m1->getObjectPtr()->encoding_space_ref;
+//	GC_acq_m1_new->getObjectPtr()->flags						= GC_acq_m1->getObjectPtr()->flags;
+//	GC_acq_m1_new->getObjectPtr()->idx.average					= GC_acq_m1->getObjectPtr()->idx.average;
+//	GC_acq_m1_new->getObjectPtr()->idx.contrast					= GC_acq_m1->getObjectPtr()->idx.contrast;
+//	GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_1		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_1;
+//	GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_2		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_2;
+//	GC_acq_m1_new->getObjectPtr()->idx.phase					= GC_acq_m1->getObjectPtr()->idx.phase;
+//	GC_acq_m1_new->getObjectPtr()->idx.repetition				= GC_acq_m1->getObjectPtr()->idx.repetition;
+//	GC_acq_m1_new->getObjectPtr()->idx.segment					= GC_acq_m1->getObjectPtr()->idx.segment;
+//	GC_acq_m1_new->getObjectPtr()->idx.set						= GC_acq_m1->getObjectPtr()->idx.set;
+//	GC_acq_m1_new->getObjectPtr()->idx.slice					= GC_acq_m1->getObjectPtr()->idx.slice;
+//	GC_acq_m1_new->getObjectPtr()->idx.user[0]					= GC_acq_m1->getObjectPtr()->idx.user[0];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[1]					= GC_acq_m1->getObjectPtr()->idx.user[1];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[2]					= GC_acq_m1->getObjectPtr()->idx.user[2];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[3]					= GC_acq_m1->getObjectPtr()->idx.user[3];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[4]					= GC_acq_m1->getObjectPtr()->idx.user[4];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[5]					= GC_acq_m1->getObjectPtr()->idx.user[5];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[6]					= GC_acq_m1->getObjectPtr()->idx.user[6];
+//	GC_acq_m1_new->getObjectPtr()->idx.user[7]					= GC_acq_m1->getObjectPtr()->idx.user[7];
+//	GC_acq_m1_new->getObjectPtr()->measurement_uid				= GC_acq_m1->getObjectPtr()->measurement_uid;
+//	GC_acq_m1_new->getObjectPtr()->number_of_samples			= GC_acq_m1->getObjectPtr()->number_of_samples;
+//	GC_acq_m1_new->getObjectPtr()->patient_table_position[0]	= GC_acq_m1->getObjectPtr()->patient_table_position[0];
+//	GC_acq_m1_new->getObjectPtr()->patient_table_position[1]	= GC_acq_m1->getObjectPtr()->patient_table_position[1];
+//	GC_acq_m1_new->getObjectPtr()->patient_table_position[2]	= GC_acq_m1->getObjectPtr()->patient_table_position[2];
+//	GC_acq_m1_new->getObjectPtr()->phase_dir[0]					= GC_acq_m1->getObjectPtr()->phase_dir[0];
+//	GC_acq_m1_new->getObjectPtr()->phase_dir[1]					= GC_acq_m1->getObjectPtr()->phase_dir[1];
+//	GC_acq_m1_new->getObjectPtr()->phase_dir[2]					= GC_acq_m1->getObjectPtr()->phase_dir[2];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[0]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[0];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[1]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[1];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[2]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[2];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[3]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[3];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[4]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[4];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[5]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[5];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[6]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[6];
+//	GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[7]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[7];
+//	GC_acq_m1_new->getObjectPtr()->position[0]					= GC_acq_m1->getObjectPtr()->position[0];
+//	GC_acq_m1_new->getObjectPtr()->position[1]					= GC_acq_m1->getObjectPtr()->position[1];
+//	GC_acq_m1_new->getObjectPtr()->position[2]					= GC_acq_m1->getObjectPtr()->position[2];
+//	GC_acq_m1_new->getObjectPtr()->read_dir[0]					= GC_acq_m1->getObjectPtr()->read_dir[0];
+//	GC_acq_m1_new->getObjectPtr()->read_dir[1]					= GC_acq_m1->getObjectPtr()->read_dir[1];
+//	GC_acq_m1_new->getObjectPtr()->read_dir[2]					= GC_acq_m1->getObjectPtr()->read_dir[2];
+//	GC_acq_m1_new->getObjectPtr()->sample_time_us				= GC_acq_m1->getObjectPtr()->sample_time_us;
+//	GC_acq_m1_new->getObjectPtr()->scan_counter					= GC_acq_m1->getObjectPtr()->scan_counter;
+//	GC_acq_m1_new->getObjectPtr()->slice_dir[0]					= GC_acq_m1->getObjectPtr()->slice_dir[0];
+//	GC_acq_m1_new->getObjectPtr()->slice_dir[1]					= GC_acq_m1->getObjectPtr()->slice_dir[1];
+//	GC_acq_m1_new->getObjectPtr()->slice_dir[2]					= GC_acq_m1->getObjectPtr()->slice_dir[2];
+//	GC_acq_m1_new->getObjectPtr()->trajectory_dimensions		= GC_acq_m1->getObjectPtr()->trajectory_dimensions;
+//	GC_acq_m1_new->getObjectPtr()->user_float[0]				= GC_acq_m1->getObjectPtr()->user_float[0];
+//	GC_acq_m1_new->getObjectPtr()->user_float[1]				= GC_acq_m1->getObjectPtr()->user_float[1];
+//	GC_acq_m1_new->getObjectPtr()->user_float[2]				= GC_acq_m1->getObjectPtr()->user_float[2];
+//	GC_acq_m1_new->getObjectPtr()->user_float[3]				= GC_acq_m1->getObjectPtr()->user_float[3];
+//	GC_acq_m1_new->getObjectPtr()->user_float[4]				= GC_acq_m1->getObjectPtr()->user_float[4];
+//	GC_acq_m1_new->getObjectPtr()->user_float[5]				= GC_acq_m1->getObjectPtr()->user_float[5];
+//	GC_acq_m1_new->getObjectPtr()->user_float[6]				= GC_acq_m1->getObjectPtr()->user_float[6];
+//	GC_acq_m1_new->getObjectPtr()->user_float[7]				= GC_acq_m1->getObjectPtr()->user_float[7];
+//	GC_acq_m1_new->getObjectPtr()->user_int[0]					= GC_acq_m1->getObjectPtr()->user_int[0];
+//	GC_acq_m1_new->getObjectPtr()->user_int[1]					= GC_acq_m1->getObjectPtr()->user_int[1];
+//	GC_acq_m1_new->getObjectPtr()->user_int[2]					= GC_acq_m1->getObjectPtr()->user_int[2];
+//	GC_acq_m1_new->getObjectPtr()->user_int[3]					= GC_acq_m1->getObjectPtr()->user_int[3];
+//	GC_acq_m1_new->getObjectPtr()->user_int[4]					= GC_acq_m1->getObjectPtr()->user_int[4];
+//	GC_acq_m1_new->getObjectPtr()->user_int[5]					= GC_acq_m1->getObjectPtr()->user_int[5];
+//	GC_acq_m1_new->getObjectPtr()->user_int[6]					= GC_acq_m1->getObjectPtr()->user_int[6];
+//	GC_acq_m1_new->getObjectPtr()->user_int[7]					= GC_acq_m1->getObjectPtr()->user_int[7];
+//	GC_acq_m1_new->getObjectPtr()->version						= GC_acq_m1->getObjectPtr()->version;
+//
+//	return GADGET_OK;
+//}
 
 GADGET_FACTORY_DECLARE(CS_AccumulatorGadget)
 }
-

@@ -39,6 +39,8 @@ references	:	-
 #include "CS_LAB_export.h"
 #include <ismrmrd.h>
 #include <complex>
+#include "GadgetIsmrmrdReadWrite.h"
+#include "GlobalVar.h"
 
 namespace Gadgetron{
   

@@ -1,78 +1,39 @@
 /** \file hoNDFFT.h
-
     \brief Wrappers for FFTW for ndarrays of type std::complex.
-
 */
-
-
-
 // 2015-02-27 M. Schwartz: added fft(..,.., bool scramble) and ifft(..,.., bool scramble) - control scrambling
 
-
-
 #ifndef hoNDFFT_CS_H
-
 #define hoNDFFT_CS_H
 
-
-
-#include "hoNDArray.h"
-
-#include "hoNDArray_blas.h"
-
 #include "CS_LAB_export.h"
-
-
-
+#include "hoNDArray.h"
+#include "hoNDArray_blas.h"
 #include <boost/thread/mutex.hpp>
-
 #include <iostream>
-
 #include <fftw3.h>
-
 #include <complex>
 
-
-
 #ifdef USE_MKL
-
     #include "mkl.h"
-
 #endif // USE_MKL
-
-
 
 namespace Gadgetron{
 
-
-
     /** 
-
     Generic class for Fast Fourier Transforms using FFTW on the hoNDArray class.
-
     This class is a singleton because the planning and memory allocation routines of FFTW are NOT threadsafe.
-
     The class' template type is a REAL, ie. float or double.
 
-
-
     Access using e.g.
-
     FFT<float>::instance()
-
     */
 
     template <typename T> class EXPORTCSLAB hoNDFFT_CS
-
     {
-
     public:
 
-
-
         typedef std::complex<T> ComplexType;
-
-
 
         static hoNDFFT_CS<T>* instance(); 
 

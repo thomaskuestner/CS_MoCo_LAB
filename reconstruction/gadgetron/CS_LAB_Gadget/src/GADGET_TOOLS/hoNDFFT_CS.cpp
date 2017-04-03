@@ -1,14 +1,9 @@
 #include "hoNDFFT_CS.h"
 
 #include "hoMatrix.h"
-
 #include "hoNDArray_math_util.h"
-
 #include "hoNDArray_math.h"
-
 #include <omp.h>
-
-
 
 namespace Gadgetron{
 
@@ -231,151 +226,71 @@ namespace Gadgetron{
 
 
 		if (bScrambling){
-
 			for (idx1 = 0; idx1 < idx1_max; idx1+=chunk_size) //Loop over all chunks
-
 			{
-
 				idx2_limit = idx1+total_dist;
-
 				for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) //Loop over all transformations
-
 				{
-
 					///Copy data to buffer.
-
 					{
-
 						register int j, idx3 = idx2;
-
 						for (j = middle_point; j < length2; idx3+=stride2)
-
 						{
-
 							fft_buffer[j++] = data_ptr[idx3  ];
-
 							fft_buffer[j++] = data_ptr[idx3+1];
-
 						}
 
 						for (j = 0; j < middle_point; idx3+=stride2)
-
 						{
-
 							fft_buffer[j++] = data_ptr[idx3  ];
-
 							fft_buffer[j++] = data_ptr[idx3+1];
-
 						}
-
 					}
-
-
-
 					fftw_execute_ptr_(fft_plan);
-
-
-
 					{
-
 						register int j, idx3 = idx2;
-
-
-
 						for (j = middle_point; j < length2; idx3+=stride2)
-
 						{
-
 							data_ptr[idx3  ] = fft_buffer[j++]*scale;
-
 							data_ptr[idx3+1] = fft_buffer[j++]*scale;
-
 						}
 
 						for (j = 0; j < middle_point; idx3+=stride2)
-
 						{
-
 							data_ptr[idx3  ] = fft_buffer[j++]*scale;
-
 							data_ptr[idx3+1] = fft_buffer[j++]*scale;
-
 						}
-
 					}
-
-
-
 				} //Loop over transformations
-
 			} //Loop over chunks
-
 		}
-
 		else{
-
 			for (idx1 = 0; idx1 < idx1_max; idx1+=chunk_size) //Loop over all chunks
-
 			{
-
 				idx2_limit = idx1+total_dist;
-
 				for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) //Loop over all transformations
-
 				{
-
 					///Copy data to buffer.
-
 					{
-
 						register int j, idx3 = idx2;
-
 						for (j = 0; j < length2; idx3+=stride2){
-
 							fft_buffer[j++] = data_ptr[idx3];
-
 							fft_buffer[j++] = data_ptr[idx3+1];
-
 						}
-
 					}
-
-
-
 					fftw_execute_ptr_(fft_plan);
-
-
-
 					{
-
 						register int j, idx3 = idx2;
-
-
-
 						for (j = 0; j < length2; idx3+=stride2)
-
 						{
-
 							data_ptr[idx3  ] = fft_buffer[j++]*scale;
-
 							data_ptr[idx3+1] = fft_buffer[j++]*scale;
-
 						}
-
 					}
-
-
-
 				} //Loop over transformations
-
 			} //Loop over chunks
-
 		}
-
-
-
         //clean up
-
         {
 
             mutex_.lock();

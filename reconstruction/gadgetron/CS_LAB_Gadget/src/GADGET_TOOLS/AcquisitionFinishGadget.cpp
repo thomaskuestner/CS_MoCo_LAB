@@ -1,7 +1,4 @@
-#include "GadgetIsmrmrdReadWrite.h"
-#include "GadgetMessageInterface.h"
 #include "AcquisitionFinishGadget.h"
-#include "GadgetStreamController.h"
 
 using namespace Gadgetron;
 
