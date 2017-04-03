@@ -41,6 +41,7 @@ references	:	-
 #include <complex>
 #include "GadgetIsmrmrdReadWrite.h"
 #include "GlobalVar.h"
+#include "SomeFunctions.h"
 
 namespace Gadgetron{
   
