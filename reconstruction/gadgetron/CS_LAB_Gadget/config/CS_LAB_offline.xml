@@ -14,7 +14,7 @@
    <writer>
       <slot>1022</slot>
       <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriter</classname>
+      <classname>MRIImageWriterFLOAT</classname>
     </writer>
 	
 	<!-- first try - normal AccumulatorGadget -->
@@ -40,14 +40,15 @@
     <name>FOCUSS</name>
     <dll>CS_LAB</dll>  
 	  <classname>CS_LAB</classname>
-	  <property><name>bXMLControl</name><value>0</value></property>
+	  <property><name>bXMLControl</name><value>1</value></property>
 	  <property><name>lambda</name><value>0.01</value></property>
 	  <property><name>lambdaESPReSSo</name><value>0</value></property>
 	  <property><name>OuterIterations</name><value>2</value></property>
-	  <property><name>InnerIterations</name><value>20</value></property>
+	  <property><name>InnerIterations</name><value>2</value></property>
 	  <property><name>kernelFftDim</name><value>3</value></property>
 	  <property><name>fftSparseDim</name><value>3</value></property>
 	  <property><name>dctSparseDim</name><value>0</value></property>
+	  <property><name>scrambleDim</name><value>3</value></property>
 	  <property><name>transformFftBaDim</name><value>4</value></property>
 	  <property><name>kSpaceOutDim</name><value>0</value></property>
 	  <property><name>CSESPReSSo</name><value>0</value></property>
@@ -71,6 +72,6 @@
 <gadget>
       <name>ImageFinish</name>
       <dll>gadgetron_mricore</dll>
-      <classname>ImageFinishGadget</classname>
+      <classname>ImageFinishGadgetFLOAT</classname>
     </gadget>
 </gadgetronStreamConfiguration>
