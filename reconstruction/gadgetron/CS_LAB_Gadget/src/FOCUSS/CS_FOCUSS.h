@@ -1,18 +1,11 @@
 /*
 file name	: 	CS_FOCUSS.h
-
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
-
 version		: 	1.2
-
 date		: 	17.12.2015
-
 description	: 	abstract class for the member variables and member function prototypes. Base class for the dimension specific FOCUSS algorithm classes. For a detailed description, it is suggested to read ch. 4 of the thesis.
-
 input		:	-
-
 output		:	-
-
 functions	:	process(...)		:	function prototype - reconstruct the Compressed Sensing k-space data with the FOCUSS algorithm and additional constraints for the Conjugate Gradient method (Total Variation, ESPReSSo)
 				process_config(...)	:	read the flexible header information and XML configuration file - this function is the same for all sub-classes
 				fInitVal(...)		:	map CS specific values (ESPReSSo, fully sampled, VDMap,..) between user values in the header fields and respective member variables - this function is the same for all sub-classes
@@ -24,7 +17,6 @@ functions	:	process(...)		:	function prototype - reconstruct the Compressed Sens
 				fGetHanningWindow(...):calculates the Hann filter coefficients for the ESPReSSo filter
 				fGetHammingWindow(...):calculates the Hamming filter coefficients for the ESPReSSo filter
 				fRecon(...)			:	start FOCUSS reconstruction
-
 variables	:	pbPtrN_				:	data pointer for boolean variables
 				bESPReSSoIsLower_	:	upper or lower Partial Fourier data (true: data is lower Partial Fourier sampled)
 				bESPRActiveCS_		:	ESPReSSo constraint is active for purely CS data set without Partial Fourier sampling (true: active)
@@ -51,7 +43,6 @@ variables	:	pbPtrN_				:	data pointer for boolean variables
 				Transform_KernelTransform_: transformation object for the kernel transformation
 				Transform_fftBA_	: 	transformation object, which controls the transformation before all (like the Fourier transformation in x-direction in the "normal" FOCUSS algorithm)
 				Transform_fftAA_	:	transformation object, which controls the transformation after all, e. g. for outputting k-space data instead of image data
-
 references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensing Partial k-Space Acquisition and Reconstruction"
 				FOCUSS:
 					- Algorithm				:	Gorodnitsky, I. and Rao, B. (1997): "Sparse Signal Reconstruction from Limited Data Using FOCUSS: A Re-weighted Minimum Norm Algorithm"
@@ -63,7 +54,6 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 
 #pragma once
 #include "CS_LAB_export.h"
-#include "GlobalVar_FOCUSS.h"
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "hoNDArray_elemwise.h"
@@ -76,11 +66,16 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 #include <complex>
 #include <ctime>
 #include <omp.h>
-#include "Transform.h"
 #include <ismrmrd.h>
 #include <cmath>
 #include "hoMatrix_util.h"
-#include "SomeFunctions.hxx"
+
+#include "SomeFunctions.h"
+#include "GlobalVar.h"
+#include "Transform.h"
+#include "hoNDKLT_CS.h"
+
+#include "GadgetIsmrmrdReadWrite.h"
 
 namespace Gadgetron
 {
@@ -94,7 +89,7 @@ namespace Gadgetron
 		virtual int process( GadgetContainerMessage< ISMRMRD::ImageHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2) = 0;
 
 		// read the flexible data header
-		int process_config(ACE_Message_Block* mb)=0;
+		int process_config(ACE_Message_Block* mb);//MS 17/03/30 =0;
 
 		// read user specific values from header and initialize variables
 		void fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1);
@@ -141,6 +136,9 @@ namespace Gadgetron
 		// PCA Sparse dimension
 		GADGET_PROPERTY(pcaSparseDim, int, "PCA_Sparse", 0);
 
+		// Scrambling dimension
+		GADGET_PROPERTY(scrambleDim, int, "Scrambe_Dim", 0);
+
 		// Kernel_FFT dimension
 		GADGET_PROPERTY(kernelFftDim, int, "Kernel_FFT_dim", 0);
 
@@ -149,6 +147,9 @@ namespace Gadgetron
 
 		// kSpaceOut dimension
 		GADGET_PROPERTY(kSpaceOutDim, int, "kSpaceOut", 0);
+
+		// energy normalization
+		GADGET_PROPERTY(norm, int, "norm", 0);
 
 		// FOCUSS
 		GADGET_PROPERTY(lambda, double, "lambda", 0.01);
@@ -174,7 +175,7 @@ namespace Gadgetron
 		int bXMLControl_;
 
 	// hoNDArray<bool>:
-		// Masking for ESPReSSo
+		// Masks for ESPReSSo
 		hoNDArray<bool> habMaskConj_, habMaskConj2_, habMaskRight_, habMaskLeft_, habKSpaceCenter_;
 
 	// int:
@@ -198,6 +199,9 @@ namespace Gadgetron
 
 		// density map
 		int iVDMap_;
+
+		// channel/k-space normalization
+		int iNorm_;
 
 	// vector int
 		std::vector<int> viCalibrationSize_;
@@ -249,6 +253,7 @@ namespace Gadgetron
 
 		// debug output - MATLAB (true) or Gadgetron (false)
 		bool bMatlab_;
+
 };
 
 // inherited class for a 2D acquisition
@@ -261,7 +266,7 @@ class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
 
 		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
 
-		int process_config(ACE_Message_Block* mb);
+		//int process_config(ACE_Message_Block* mb);
 
 		// 2D FOCUSS CS reconstruction
 		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
@@ -321,7 +326,7 @@ class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
 		// 3D FOCUSS CS reconstruction
 		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
 
-		int process_config(ACE_Message_Block* mb);
+		//int process_config(ACE_Message_Block* mb);
 
 	protected:
 		// calculating gradient of ESPReSSo
@@ -337,8 +342,32 @@ class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
 		void fGetCalibrationSize(const hoNDArray<bool> &habArray);
 };
 
+class EXPORTCSLAB CS_FOCUSS_4D : public CS_FOCUSS
+{
+    public:
+		CS_FOCUSS_4D(){	bControl_ = false; };
+
+		GADGET_DECLARE(CS_FOCUSS_4D)
+		
+		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		// 4D FOCUSS CS reconstruction
+		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);		
+
+		//int process_config(ACE_Message_Block* mb);
+
+	protected:
+		// calculating gradient of ESPReSSo
+		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ);
+
+		// init filter array and sampling masks for ESPReSSo constraint
+		void fInitESPReSSo(hoNDArray<bool>& habFullMask);
+
+		// windowing incoming data for initial estimate
+		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
+
+		// get calibration size
+		void fGetCalibrationSize(hoNDArray<bool> &habArray);
+};
+
 }
-
-
-
 #endif //CS_FOCUSS_H

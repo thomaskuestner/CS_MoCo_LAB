@@ -15,33 +15,6 @@
 //#include "CS_FOCUSS.h"
 //
 //using namespace Gadgetron;
-//int CS_FOCUSS_2Dt::process_config(ACE_Message_Block* mb){
-//
-//	// how to calculate the beta value
-//	iCGResidual_ = this->get_int_value("CG Beta");
-//
-//	// maximum number of FOCUSS iterations
-//	iNOuter_ = this->get_int_value("OuterIterations");
-//	if (iNOuter_ <= 0) iNOuter_ = 2;
-//
-//	// maximum number of CG iterations
-//	iNInner_ = this->get_int_value("InnerIterations");
-//	if (iNInner_ <= 0) iNInner_ = 20;
-//
-//	// p-value for the lp-norm
-//	fP_ = .5;
-//
-//	// use ESPReSSo-constraint for pure CS data
-//	bESPRActiveCS_ = this->get_bool_value("CS - ESPReSSo");
-//
-//	// convergence boundary
-//	fEpsilon_ = (float)1e-6;
-//
-//	// setup of the transformation parameters - sparsity dim, fft dim, ..
-//	fSetupTransformation();
-//
-//	return GADGET_OK;
-//};
 ////--------------------------------------------------------------------------
 ////------------- process - CG-FOCUSS with additional constraints ------------
 ////--------------------------------------------------------------------------
