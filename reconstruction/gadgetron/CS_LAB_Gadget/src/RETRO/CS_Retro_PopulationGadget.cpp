@@ -327,8 +327,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 				}
 			}
 
-			save_array(hacfKSpace_reordered_, "D:/Martin/reK");
-
 			break;
 		 
 		// average
