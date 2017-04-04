@@ -3,23 +3,23 @@
 #define NumElementsUseThreading 64*1024
 
 namespace Gadgetron{
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+	template<class T> void clear( hoNDArray<T>* x )
+	{
+	    if ( x->get_number_of_elements() > 0 )
+	    {
+			memset( x->get_data_ptr(), 0, x->get_number_of_elements()*sizeof(T));
+	    }
+	}
 
-template<class T> void clear( hoNDArray<T>* x )
-{
-    if ( x->get_number_of_elements() > 0 )
-    {
-		memset( x->get_data_ptr(), 0, x->get_number_of_elements()*sizeof(T));
-    }
-}
-
-template<class T> void clear( hoNDArray<T>& x )
-{
-    if ( x.get_number_of_elements() > 0 )
-    {
-        memset( x.get_data_ptr(), 0, x.get_number_of_elements()*sizeof(T));
-    }
-}
-
+	template<class T> void clear( hoNDArray<T>& x )
+	{
+	    if ( x.get_number_of_elements() > 0 )
+	    {
+		memset( x.get_data_ptr(), 0, x.get_number_of_elements()*sizeof(T));
+	    }
+	}
+#endif
 template <typename T> 
 void sum_over_dimension(const hoNDArray<T>& x, hoNDArray<T>& y, size_t dim);
 

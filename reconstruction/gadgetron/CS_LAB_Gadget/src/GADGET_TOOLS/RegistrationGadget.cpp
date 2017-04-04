@@ -188,7 +188,7 @@ int RegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageH
 				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());				
 			}
 			else{
-				GADGET_DEBUG1("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
+				GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
 			}
 		}
 		else {
@@ -332,7 +332,7 @@ int RegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageH
 				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());				
 			}
 			else{
-				GADGET_DEBUG1("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
+				GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
 			}
 		}
 		else {

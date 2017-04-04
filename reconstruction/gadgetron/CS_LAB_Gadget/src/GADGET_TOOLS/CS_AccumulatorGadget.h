@@ -10,7 +10,9 @@
 #endif
 
 #pragma once
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
 #include "ismrmrd.hxx"
+#endif
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "CS_LAB_export.h"
