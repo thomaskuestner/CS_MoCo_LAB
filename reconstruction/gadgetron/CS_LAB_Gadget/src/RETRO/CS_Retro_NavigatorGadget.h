@@ -31,7 +31,7 @@ namespace Gadgetron{
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
 	  
     
-		bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav);
+		bool getNav2D(hoNDArray<std::complex<float>> &aNav);
 
 		// navigator index vector
 		std::vector<float> vNavInd_;

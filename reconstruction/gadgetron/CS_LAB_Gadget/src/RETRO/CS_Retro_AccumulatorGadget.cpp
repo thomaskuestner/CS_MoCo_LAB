@@ -39,14 +39,16 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		field_of_view_.push_back(r_space.fieldOfView_mm.x);
 		field_of_view_.push_back(e_space.fieldOfView_mm.y);
 		field_of_view_.push_back(e_space.fieldOfView_mm.z);
-		GDEBUG("FOV: %f, %f, %f\n", r_space.fieldOfView_mm().x(), e_space.fieldOfView_mm().y(), e_space.fieldOfView_mm().z());
-
+		
 		// get matrix size
 		dimensionsIn_.push_back(r_space.matrixSize.x);
 		dimensionsIn_.push_back(e_space.matrixSize.y);
 		dimensionsIn_.push_back(e_space.matrixSize.z);   
-		GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
+		
+		iEchoLine_ = e_limits.kspace_encoding_step_1.get().center; 
+		iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
 
+		h.sequenceParameters.get().TR.get().at(0);
 	#else	
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -69,12 +71,15 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		field_of_view_.push_back(e_space.fieldOfView_mm().z());
 		GADGET_DEBUG2("FOV: %f, %f, %f\n", r_space.fieldOfView_mm().x(), e_space.fieldOfView_mm().y(), e_space.fieldOfView_mm().z());
 
-	#endif
+		// get echo line and echo partition
+		iEchoLine_ = e_limits.kspace_encoding_step_1().get().center();
+		iEchoPartition_ = e_limits.kspace_encoding_step_2().get().center();
+		GADGET_DEBUG2("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
 
-	// get echo line and echo partition
-	iEchoLine_ = e_limits.kspace_encoding_step_1().get().center();
-	iEchoPartition_ = e_limits.kspace_encoding_step_2().get().center();
-	GADGET_DEBUG2("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
+		// repetition time
+		fTR_ = cfg->sequenceParameters().get().TR().at(0);
+
+	#endif	
 
 	int iESPReSSoY = 0;
 	int iESPReSSoZ = 0;
@@ -179,27 +184,27 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 						GlobalVar::instance()->bESPRActiveCS_ = i->value;
 					}
 
-					if (i->name = "NavPeriod") == 0{
+					if (i->name == "NavPeriod"){
 						GlobalVar::instance()->iNavPeriod_ = i->value;
 					}
 
-					if (i->name = "NavPERes") == 0{
+					if (i->name == "NavPERes") {
 						GlobalVar::instance()->iNavPERes_ = i->value;
 					}
 
-					if (i->name = "MeasurementTime") == 0{
+					if (i->name == "MeasurementTime"){
 						GlobalVar::instance()->iMeasurementTime_ = i->value;
 					}
 
-					if (i->name = "Phases") == 0{
+					if (i->name == "Phases") {
 						GlobalVar::instance()->iNPhases_ = i->value;
 					}		
 
-					if (i->name = "PopulationMode") == 0{
+					if (i->name == "PopulationMode") {
 						GlobalVar::instance()->iPopulationMode_ = i->value;
 					}
 
-					if (i->name = "GatingMode") == 0{
+					if (i->name == "GatingMode") {
 						GlobalVar::instance()->iGatingMode_ = i->value;
 					}	
 				}
@@ -459,7 +464,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	}
 
 	// repetition time
-	fTR_ = cfg->sequenceParameters().get().TR().at(0);
+	//fTR_ = cfg->sequenceParameters().get().TR().at(0);
 
 	// concat higher and lower bytes from total measurement variable
 	lNoScans_ = std::ceil(iMeasurementTime_/fTR_);		
@@ -645,7 +650,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		tmp_m1->getObjectPtr()->image_series_index = (uint16_t)image_series_;
 
 		// set user values, if Compressed Sensing is active
-		if(this->get_bool_value("CS_on") == true){
+		//if(this->get_bool_value("CS_on") == true){
 			tmp_m1->getObjectPtr()->user_float[0] = fCSAcc_;
 			tmp_m1->getObjectPtr()->user_float[1] = fFullySa_/100;
 			tmp_m1->getObjectPtr()->user_float[2] = fPartialFourierVal_;
@@ -656,7 +661,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			tmp_m1->getObjectPtr()->user_int[2] = iSamplingType_;
 			tmp_m1->getObjectPtr()->user_int[3] = iVDMap_;
 			tmp_m1->getObjectPtr()->user_int[4] = iESPReSSoDirection_;
-		}
+		//}
 		tmp_m1->getObjectPtr()->user_int[5] = iNoNav_;
 		// navigator
 		GadgetContainerMessage<hoNDArray<std::complex<float>>>* tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float>>>();

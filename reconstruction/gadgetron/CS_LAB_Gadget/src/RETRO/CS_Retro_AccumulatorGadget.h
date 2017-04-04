@@ -25,6 +25,12 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#include "xml.h"
+#else		
+	#include "ismrmrd/xml.h"
+#endif
+
 namespace Gadgetron{
 	
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
