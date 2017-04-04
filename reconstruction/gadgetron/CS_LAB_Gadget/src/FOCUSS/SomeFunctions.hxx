@@ -1802,7 +1802,11 @@ inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1
 	tmp_m1->getObjectPtr()->field_of_view[0]			= m1->getObjectPtr()->field_of_view[0];
 	tmp_m1->getObjectPtr()->field_of_view[1]			= m1->getObjectPtr()->field_of_view[1];
 	tmp_m1->getObjectPtr()->field_of_view[2]			= m1->getObjectPtr()->field_of_view[2];
-	tmp_m1->getObjectPtr()->image_data_type				= m1->getObjectPtr()->image_data_type;
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		tmp_m1->getObjectPtr()->data_type				= m1->getObjectPtr()->data_type;
+	#else
+		tmp_m1->getObjectPtr()->image_data_type			= m1->getObjectPtr()->image_data_type;
+	#endif	
 	tmp_m1->getObjectPtr()->image_series_index			= m1->getObjectPtr()->image_series_index;
 	tmp_m1->getObjectPtr()->image_index					= m1->getObjectPtr()->image_index;
 	tmp_m1->getObjectPtr()->image_type					= m1->getObjectPtr()->image_type;
