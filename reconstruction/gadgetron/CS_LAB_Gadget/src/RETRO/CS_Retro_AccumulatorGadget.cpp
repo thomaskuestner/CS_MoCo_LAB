@@ -636,7 +636,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		memcpy(tmp_m1->getObjectPtr()->phase_dir,m1->getObjectPtr()->phase_dir,sizeof(float)*3);
 		memcpy(tmp_m1->getObjectPtr()->slice_dir,m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 		memcpy(tmp_m1->getObjectPtr()->patient_table_position,m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
-		tmp_m1->getObjectPtr()->image_data_type = ISMRMRD::DATA_COMPLEX_FLOAT;
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			tmp_m1->getObjectPtr()->data_type      = ISMRMRD::ISMRMRD_CXFLOAT;
+		#else
+			tmp_m1->getObjectPtr()->image_data_type = ISMRMRD::DATA_COMPLEX_FLOAT;
+		#endif		
 		tmp_m1->getObjectPtr()->image_index = (uint16_t)(++image_counter_);
 		tmp_m1->getObjectPtr()->image_series_index = (uint16_t)image_series_;
 
