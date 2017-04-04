@@ -804,6 +804,8 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 //	return GADGET_OK;
 //}
 
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
 // save array
 inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix){
 	std::string file_path_;
@@ -840,6 +842,7 @@ inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file
 
 	return GADGET_OK;
 }
+#endif
 
 // flip array in specified dimension - reference to: hoNDFFT.cpp (cpufft - original Gadgetron)
 template <typename T>

@@ -27,15 +27,15 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "complext.h"
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 0
-  #include "GadgetronCommon.h"
+	#include "GadgetronCommon.h"
+	#include <fstream>
+	#include <ismrmrd_hdf5.h>
+	#include <Shlwapi.h>
 #endif
 #include <complex>
 
 #include "hoNDArray_utils.h"
 #include "Gadget.h"
-#include <fstream>
-#include <ismrmrd_hdf5.h>
-#include <Shlwapi.h>
 #include <ismrmrd.h>
 
 
@@ -107,7 +107,9 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
 
 //inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
 
-inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
+#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
+	inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
+#endif
 
 // flip array in specified dimension
 template <typename T>
