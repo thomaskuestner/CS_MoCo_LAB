@@ -805,7 +805,8 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 //}
 
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+
 // save array
 inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix){
 	std::string file_path_;
