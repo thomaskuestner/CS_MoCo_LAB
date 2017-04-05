@@ -1,6 +1,6 @@
 # add gadgetron flags
-set(__GADGETRON__ 2)
-set(__GADGETRON_MINOR__ 5)
+set(__GADGETRON__ 3)
+set(__GADGETRON_MINOR__ 8)
 set(__GADGETRON_PATCHLEVEL__ 2)
 
 add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
@@ -259,13 +259,15 @@ find_package(Ismrmrd REQUIRED)
 find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
-find_package(ITK REQUIRED)
-INCLUDE( ${ITK_USE_FILE} )
+IF (WIN32)
+	find_package(ITK REQUIRED)
+	INCLUDE( ${ITK_USE_FILE} )
 
 # include elastix files and library
 SET( ELASTIX_BINARY_DIR "" CACHE PATH "Path to elastix binary folder" )
+SET(ELASTIX_BINARY_DIR /home/chris/elastix/src/build)
 SET( ELASTIX_USE_FILE ${ELASTIX_BINARY_DIR}/UseElastix.cmake )
-IF( EXISTS ${ELASTIX_USE_FILE} )
+
 	MESSAGE( STATUS "Including Elastix settings.")
 	INCLUDE( ${ELASTIX_USE_FILE} )
 	link_libraries(param)
@@ -333,7 +335,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
 		src/GADGET_TOOLS/hoNDDCT.h
-		src/GADGET_TOOLS/RegistrationGadget.h
+		#src/GADGET_TOOLS/RegistrationGadget.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h
 		src/RETRO/CS_Retro_AccumulatorGadget.h
@@ -363,7 +365,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-		src/GADGET_TOOLS/RegistrationGadget.cpp
+		#src/GADGET_TOOLS/RegistrationGadget.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp		
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
@@ -474,6 +476,9 @@ IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 							${BOOST_LIBRARIES}
 							${ACE_LIBRARY}
 							${ADDITIONAL_LIBRARIES}
+							#${ITK_LIBRARIES}
+							#${ELASTIX_LIBRARY}
+							#${ELASTIX_ALL_COMPONENT_LIBS}
 	)
 ELSE ()
 	target_link_libraries(	CS_LAB					
