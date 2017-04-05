@@ -428,7 +428,7 @@ ELSE()
 	)
 ENDIF()
 
-set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml)
+set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	add_library(CS_LAB SHARED 
