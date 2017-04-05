@@ -185,6 +185,7 @@ template<class T> void clear( hoNDArray<T>& x )
     {
         memset( x.get_data_ptr(), 0, x.get_number_of_elements()*sizeof(T));
     }
+
 }
 
 // following matrix computation calls MKL functions
@@ -1985,4 +1986,6 @@ template EXPORTCSLAB void getri(hoNDArray< complext<double> >& A);
 
 #endif // defined(USE_MKL) || defined(USE_LAPACK)
 
+
 }
+

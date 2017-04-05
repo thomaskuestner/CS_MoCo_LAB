@@ -44,6 +44,7 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 
 #include "hoNDArray_utils.h"
 #include "Gadget.h"
+
 #include <ismrmrd.h>
 
 
@@ -161,6 +162,7 @@ void circshift(hoNDArray<T> &Array, int shift, int dimension);
 
 // output a linear equally spaced vector
 template <typename T>
+
 std::vector<T>& linspace(T fStart, T fEnd, int iElements);
 
 // interpolation
