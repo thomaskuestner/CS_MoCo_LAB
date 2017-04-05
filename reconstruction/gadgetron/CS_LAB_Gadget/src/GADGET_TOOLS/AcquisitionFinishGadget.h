@@ -1,13 +1,16 @@
 #ifndef ACQUISITIONFINISHGADGET_H
 #define ACQUISITIONFINISHGADGET_H
 
+#include "CS_LAB_export.h"
 #include "Gadget.h"
 #include "NDArray.h"
 #include "GadgetMRIHeaders.h"
-#include "CS_LAB_export.h"
-
+#include "GadgetMessageInterface.h"
+#include "GadgetStreamController.h"
 #include <ismrmrd.h>
 #include <complex>
+
+#include "GadgetIsmrmrdReadWrite.h"
 
 namespace Gadgetron{
 

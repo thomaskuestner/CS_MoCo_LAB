@@ -10,15 +10,17 @@
 #endif
 
 #pragma once
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+#include "ismrmrd.hxx"
+#endif
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "CS_LAB_export.h"
 #include <ismrmrd.h>
 #include <complex>
-#include "CS_GlobalVar.h"
-#include "GlobalVar_FOCUSS.h"
+#include "SomeFunctions.h"
+#include "GlobalVar.h"
 #include "GadgetIsmrmrdReadWrite.h"
-
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	#include "xml.h"
@@ -34,12 +36,12 @@ namespace Gadgetron{
       CS_AccumulatorGadget();
       ~CS_AccumulatorGadget();
       int process_config(ACE_Message_Block* mb);
-	  int process(GadgetContainerMessage< ISMRMRD::AcquisitionHeader >*m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >*m2);
+	  int process(GadgetContainerMessage< ISMRMRD::AcquisitionHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
 	  GADGET_DECLARE(CS_AccumulatorGadget);
 	  
     protected:
-	  int fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*GC_acq_m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*GC_img_m2, std::complex<float>* pcfBuffer);
-	  int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new); 
+	  int fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* GC_img_m2, std::complex<float>* pcfBuffer);
+	  //int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_m1_new); 
       hoNDArray< std::complex<float> >* hacfBuffer_;
 	  std::vector<size_t> vFOV_;
       std::vector<size_t> vDim_;

@@ -1,9 +1,12 @@
 #ifndef CS_COMBINEGADGET_H
 #define CS_COMBINEGADGET_H
 
+#pragma once
+#include "CS_LAB_export.h"
 #include "Gadget.h"
 #include "hoNDArray.h"
-#include "CS_LAB_export.h"
+#include "GadgetIsmrmrdReadWrite.h"
+
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	#include "xml.h"
 #else	

@@ -8,7 +8,8 @@
 #include "CS_LAB_export.h"
 #include <ismrmrd.h>
 #include <complex>
-#include "CS_GlobalVar.h"
+#include "SomeFunctions.h"
+#include "GlobalVar.h"
 #include "GadgetMessageInterface.h"
 #include "GadgetStreamController.h"
 #include "GadgetIsmrmrdReadWrite.h"
@@ -25,8 +26,7 @@ namespace Gadgetron{
 
 		// correct header information (used for Compressed Sensing data - incomplete information)
 		int fCorrectHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1, int iLine, int iPartition, int iPhase);
-		int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new); 
-      
+
 		// array dimension
 		std::vector<size_t> vDims_;
 	};

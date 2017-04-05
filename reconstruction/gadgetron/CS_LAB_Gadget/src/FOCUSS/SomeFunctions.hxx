@@ -804,6 +804,9 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 //	return GADGET_OK;
 //}
 
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+
 // save array
 inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix){
 	std::string file_path_;
@@ -840,6 +843,7 @@ inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file
 
 	return GADGET_OK;
 }
+#endif
 
 // flip array in specified dimension - reference to: hoNDFFT.cpp (cpufft - original Gadgetron)
 template <typename T>
@@ -1534,7 +1538,6 @@ inline bool allTrue(std::vector<bool> &Vector){
 // get sub array of 2D, 3D, 4D array
 template <typename T>
 void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<size_t> vSize, hoNDArray<T> &out){
-	
 	// check vector size
 	if (vStart.size() != vSize.size()){
 		BOOST_THROW_EXCEPTION( runtime_error("SomeFunctions::get_sub_array failed - number of dimensions unequal!\n"));
@@ -1611,10 +1614,6 @@ void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<s
 
 template <typename T>
 bool sum_dim_g(hoNDArray<T> &Array, int dimension){
-
-
-
-
 	/*
 	int stride     = 1;           //Distance between points in transform
     int dist       = 1;           //Distance between vectors
@@ -1799,7 +1798,11 @@ inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1
 	tmp_m1->getObjectPtr()->field_of_view[0]			= m1->getObjectPtr()->field_of_view[0];
 	tmp_m1->getObjectPtr()->field_of_view[1]			= m1->getObjectPtr()->field_of_view[1];
 	tmp_m1->getObjectPtr()->field_of_view[2]			= m1->getObjectPtr()->field_of_view[2];
-	tmp_m1->getObjectPtr()->image_data_type				= m1->getObjectPtr()->image_data_type;
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		tmp_m1->getObjectPtr()->data_type				= m1->getObjectPtr()->data_type;
+	#else
+		tmp_m1->getObjectPtr()->image_data_type			= m1->getObjectPtr()->image_data_type;
+	#endif	
 	tmp_m1->getObjectPtr()->image_series_index			= m1->getObjectPtr()->image_series_index;
 	tmp_m1->getObjectPtr()->image_index					= m1->getObjectPtr()->image_index;
 	tmp_m1->getObjectPtr()->image_type					= m1->getObjectPtr()->image_type;

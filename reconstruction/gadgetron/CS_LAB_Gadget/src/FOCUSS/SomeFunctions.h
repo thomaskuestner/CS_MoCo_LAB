@@ -15,6 +15,14 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #ifndef SOMEFUNCTIONS_H
 #define SOMEFUNCTIONS_H
 
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
+	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
+	#define GADGET_DEBUG1(__VA_ARGS__) GDEBUG(__VA_ARGS__)
+	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
+	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
+#endif
+
 #pragma once
 #include "hoNDArray.h"
 #include "ho2DArray.h"
@@ -27,15 +35,16 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "complext.h"
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 0
-  #include "GadgetronCommon.h"
+	#include "GadgetronCommon.h"
+	#include <fstream>
+	#include <ismrmrd_hdf5.h>
+	#include <Shlwapi.h>
 #endif
 #include <complex>
 
 #include "hoNDArray_utils.h"
 #include "Gadget.h"
-#include <fstream>
-#include <ismrmrd_hdf5.h>
-#include <Shlwapi.h>
+
 #include <ismrmrd.h>
 
 
@@ -107,7 +116,9 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
 
 //inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
 
-inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
+#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
+	inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
+#endif
 
 // flip array in specified dimension
 template <typename T>
@@ -151,6 +162,7 @@ void circshift(hoNDArray<T> &Array, int shift, int dimension);
 
 // output a linear equally spaced vector
 template <typename T>
+
 std::vector<T>& linspace(T fStart, T fEnd, int iElements);
 
 // interpolation

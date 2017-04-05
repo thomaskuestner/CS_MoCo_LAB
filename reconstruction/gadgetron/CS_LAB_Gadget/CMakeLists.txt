@@ -259,7 +259,21 @@ find_package(Ismrmrd REQUIRED)
 find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
+IF (WIN32)
+	find_package(ITK REQUIRED)
+	INCLUDE( ${ITK_USE_FILE} )
 
+# include elastix files and library
+SET( ELASTIX_BINARY_DIR "" CACHE PATH "Path to elastix binary folder" )
+SET(ELASTIX_BINARY_DIR /home/chris/elastix/src/build)
+SET( ELASTIX_USE_FILE ${ELASTIX_BINARY_DIR}/UseElastix.cmake )
+
+	MESSAGE( STATUS "Including Elastix settings.")
+	INCLUDE( ${ELASTIX_USE_FILE} )
+	link_libraries(param)
+	link_libraries(elastix)
+	link_libraries(transformix)
+ENDIF()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	include_directories(
@@ -283,6 +297,7 @@ ELSE()
 	if (WIN32)
 		include_directories(
 			${CMAKE_SOURCE_DIR}/include
+			${CMAKE_SOURCE_DIR}/include/old
 			${HDF5_INCLUDE_DIR}
 			${HDF5_INCLUDE_DIR}/cpp
 			${ARMADILLO_INCLUDE_DIRS}
@@ -304,86 +319,116 @@ ENDIF()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 
-	set( cs_lab_header_files src/FOCUSS/CS_Control.h 
-						 src/FOCUSS/CS_FOCUSS.h 
-						 src/FOCUSS/GlobalVar_FOCUSS.h 
-						 src/FOCUSS/hoNDDCT.h 
-						 src/FOCUSS/SomeFunctions.h 
-						 src/FOCUSS/SomeFunctions.hxx 
-						 src/FOCUSS/Transform.h 
-			 src/FOCUSS/TransformWrapper.h
-			 CS_LAB.h
-			 src/GADGET_TOOLS/AcquisitionFinishGadget.h
-			 src/GADGET_TOOLS/CS_AccumulatorGadget.h
-			 src/GADGET_TOOLS/CS_GlobalVar.h
-			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
-			 src/GADGET_TOOLS/SlicerGadget.h
-			 src/GADGET_TOOLS/CS_CombineGadget.h
-			 src/GADGET_TOOLS/hoNDFFT_CS.h
-			 include/new/hoNDArray_math_util.h
-			 include/new/GadgetronCommon.h
-			 include/new/hoNDArray_operators.h
-			 include/new/hoNDArray_blas.h
-			 include/new/hoMatrix_util.h
+	set(cs_lab_header_files CS_LAB.h
+		src/FOCUSS/CS_Control.h 
+		src/FOCUSS/CS_FOCUSS.h 		
+		src/FOCUSS/Transform.h 
+		src/FOCUSS/TransformWrapper.h
+		src/FOCUSS/GlobalVar.h
+		src/FOCUSS/SomeFunctions.h 
+		src/FOCUSS/SomeFunctions.hxx 		
+		src/GADGET_TOOLS/AcquisitionFinishGadget.h
+		src/GADGET_TOOLS/CS_AccumulatorGadget.h		
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
+		src/GADGET_TOOLS/SlicerGadget.h
+		src/GADGET_TOOLS/CS_CombineGadget.h
+		src/GADGET_TOOLS/hoNDFFT_CS.h
+		src/GADGET_TOOLS/hoNDKLT_CS.h
+		src/GADGET_TOOLS/hoNDDCT.h
+		#src/GADGET_TOOLS/RegistrationGadget.h
+		src/GADGET_TOOLS/ImageAccumulatorGadget.h
+		src/GADGET_TOOLS/ImageSlicerGadget.h
+		src/RETRO/CS_Retro_AccumulatorGadget.h
+		src/RETRO/CS_Retro_NavigatorGadget.h
+		src/RETRO/CS_Retro_PopulationGadget.h
+		include/new/hoNDArray_math_util.h
+		include/new/GadgetronCommon.h
+		include/new/hoNDArray_operators.h
+		include/new/hoNDArray_blas.h
+		include/new/hoMatrix_util.h		
 	)
 
-	set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
-					  src/FOCUSS/CS_FOCUSS.cpp 
-					  src/FOCUSS/CS_FOCUSS_2D.cpp 
-					  src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-			  src/FOCUSS/CS_FOCUSS_3D.cpp
-			  CS_LAB.cpp
-			  src/FOCUSS/GlobalVar_FOCUSS.cpp
-			  src/FOCUSS/hoNDDCT.cpp
-			  src/FOCUSS/Transform.cpp
-				  src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-			  src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
-			  src/GADGET_TOOLS/CS_GlobalVar.cpp
-			  src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
-			  src/GADGET_TOOLS/SlicerGadget.cpp
-			  src/GADGET_TOOLS/CS_CombineGadget.cpp
-			  src/GADGET_TOOLS/hoNDFFT_CS.cpp
-			  include/new/hoNDArray_math_util.cpp
-			  include/new/hoNDArray_operators.cpp
+	set(cs_lab_src_files CS_LAB.cpp
+		src/FOCUSS/CS_Control.cpp 
+		src/FOCUSS/CS_FOCUSS.cpp 
+		src/FOCUSS/CS_FOCUSS_2D.cpp 
+		src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+		src/FOCUSS/CS_FOCUSS_3D.cpp
+		src/FOCUSS/CS_FOCUSS_4D.cpp
+		src/FOCUSS/Transform.cpp
+		src/FOCUSS/GlobalVar.cpp		
+		src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp		
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+		src/GADGET_TOOLS/SlicerGadget.cpp
+		src/GADGET_TOOLS/CS_CombineGadget.cpp
+		src/GADGET_TOOLS/hoNDFFT_CS.cpp
+		src/GADGET_TOOLS/hoNDKLT_CS.cpp
+		src/GADGET_TOOLS/hoNDDCT.cpp
+		#src/GADGET_TOOLS/RegistrationGadget.cpp
+		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
+		src/GADGET_TOOLS/ImageSlicerGadget.cpp		
+		src/RETRO/CS_Retro_AccumulatorGadget.cpp
+		src/RETRO/CS_Retro_NavigatorGadget.cpp
+		src/RETRO/CS_Retro_PopulationGadget.cpp
+		include/new/hoNDArray_math_util.cpp
+		include/new/hoNDArray_operators.cpp
 	)
 
 ELSE()
-	set( cs_lab_header_files src/FOCUSS/CS_Control.h 
-                         src/FOCUSS/CS_FOCUSS.h 
-                         src/FOCUSS/GlobalVar_FOCUSS.h 
-                         src/FOCUSS/hoNDDCT.h 
-                         src/FOCUSS/SomeFunctions.h 
-                         src/FOCUSS/SomeFunctions.hxx 
-                         src/FOCUSS/Transform.h 
-			 src/FOCUSS/TransformWrapper.h
-			 CS_LAB.h
-			 src/GADGET_TOOLS/AcquisitionFinishGadget.h
-			 src/GADGET_TOOLS/CS_AccumulatorGadget.h
-			 src/GADGET_TOOLS/CS_GlobalVar.h
-			 src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
-			 src/GADGET_TOOLS/SlicerGadget.h
-			 src/GADGET_TOOLS/CS_CombineGadget.h
+	set(cs_lab_header_files CS_LAB.h
+		src/FOCUSS/CS_Control.h 
+        src/FOCUSS/CS_FOCUSS.h
+		src/FOCUSS/Transform.h
+		src/FOCUSS/TransformWrapper.h
+		src/FOCUSS/GlobalVar.h
+		src/FOCUSS/SomeFunctions.h 
+        src/FOCUSS/SomeFunctions.hxx 
+		src/GADGET_TOOLS/AcquisitionFinishGadget.h
+		src/GADGET_TOOLS/CS_AccumulatorGadget.h		
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
+		src/GADGET_TOOLS/SlicerGadget.h
+		src/GADGET_TOOLS/CS_CombineGadget.h
+		src/GADGET_TOOLS/hoNDFFT_CS.h
+		src/GADGET_TOOLS/hoNDKLT_CS.h
+        src/GADGET_TOOLS/hoNDDCT.h 
+        src/GADGET_TOOLS/RegistrationGadget.h
+		src/GADGET_TOOLS/ImageAccumulatorGadget.h
+		src/GADGET_TOOLS/ImageSlicerGadget.h		
+		src/RETRO/CS_Retro_AccumulatorGadget.h
+		src/RETRO/CS_Retro_NavigatorGadget.h
+		src/RETRO/CS_Retro_PopulationGadget.h		
+		include/old/hoNDArray_linalg.h		
 	)
 
-	set( cs_lab_src_files src/FOCUSS/CS_Control.cpp 
-						  src/FOCUSS/CS_FOCUSS.cpp 
-						  src/FOCUSS/CS_FOCUSS_2D.cpp 
-						  src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-				  src/FOCUSS/CS_FOCUSS_3D.cpp
-				  CS_LAB.cpp
-				  src/FOCUSS/GlobalVar_FOCUSS.cpp
-				  src/FOCUSS/hoNDDCT.cpp
-				  src/FOCUSS/Transform.cpp
-					  src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-				  src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
-				  src/GADGET_TOOLS/CS_GlobalVar.cpp
-				  src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
-				  src/GADGET_TOOLS/SlicerGadget.cpp
-				  src/GADGET_TOOLS/CS_CombineGadget.cpp
+	set(cs_lab_src_files CS_LAB.cpp
+		src/FOCUSS/CS_Control.cpp 
+		src/FOCUSS/CS_FOCUSS.cpp 
+		src/FOCUSS/CS_FOCUSS_2D.cpp 
+		src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+		src/FOCUSS/CS_FOCUSS_3D.cpp
+		src/FOCUSS/CS_FOCUSS_4D.cpp		
+		src/FOCUSS/Transform.cpp
+		src/FOCUSS/GlobalVar.cpp
+		src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp		
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+		src/GADGET_TOOLS/SlicerGadget.cpp
+		src/GADGET_TOOLS/CS_CombineGadget.cpp
+		src/GADGET_TOOLS/hoNDFFT_CS.cpp
+		src/GADGET_TOOLS/hoNDKLT_CS.cpp
+		src/GADGET_TOOLS/hoNDDCT.cpp
+		src/GADGET_TOOLS/RegistrationGadget.cpp
+		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
+		src/GADGET_TOOLS/ImageSlicerGadget.cpp
+		src/RETRO/CS_Retro_AccumulatorGadget.cpp
+		src/RETRO/CS_Retro_NavigatorGadget.cpp
+		src/RETRO/CS_Retro_PopulationGadget.cpp		
+		include/old/hoNDArray_linalg.cpp		
 	)
 ENDIF()
 
-set(cs_lab_config_files CS_LAB_offline.xml CS_LAB_online.xml)
+set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	add_library(CS_LAB SHARED 
@@ -431,6 +476,9 @@ IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 							${BOOST_LIBRARIES}
 							${ACE_LIBRARY}
 							${ADDITIONAL_LIBRARIES}
+							#${ITK_LIBRARIES}
+							#${ELASTIX_LIBRARY}
+							#${ELASTIX_ALL_COMPONENT_LIBS}
 	)
 ELSE ()
 	target_link_libraries(	CS_LAB					
@@ -440,6 +488,9 @@ ELSE ()
 							${XERCESC_LIBRARIES} 
 							${ACE_LIBRARY}
 							${ADDITIONAL_LIBRARIES}
+							${ITK_LIBRARIES}
+							${ELASTIX_LIBRARY}
+							${ELASTIX_ALL_COMPONENT_LIBS}
 	)
 ENDIF()
 #set_property(TARGET CS_LAB PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)

@@ -1,4 +1,3 @@
-#include "GadgetIsmrmrdReadWrite.h"
 #include "CS_CombineGadget.h"
 
 namespace Gadgetron{

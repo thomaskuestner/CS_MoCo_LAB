@@ -13,8 +13,6 @@ references	:	-
 */
 
 #include "SlicerGadget.h"
-#include "GadgetIsmrmrdReadWrite.h"
-#include "CS_GlobalVar.h"
 
 namespace Gadgetron{
 
@@ -27,99 +25,6 @@ SlicerGadget::~SlicerGadget(){}
 // read ACE message block - flexible data header - (nothing to read)
 int SlicerGadget::process_config(ACE_Message_Block* mb){return GADGET_OK;}
 
-// copy the header information from header "m1" to header "tmp_m1"
-int copy_header(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1){
-	tmp_m1->getObjectPtr()->acquisition_time_stamp		= m1->getObjectPtr()->acquisition_time_stamp;
-	tmp_m1->getObjectPtr()->active_channels				= m1->getObjectPtr()->active_channels;
-	tmp_m1->getObjectPtr()->available_channels			= m1->getObjectPtr()->available_channels;
-	tmp_m1->getObjectPtr()->center_sample				= m1->getObjectPtr()->center_sample;
-	tmp_m1->getObjectPtr()->channel_mask[0]				= m1->getObjectPtr()->channel_mask[0];
-	tmp_m1->getObjectPtr()->channel_mask[1]				= m1->getObjectPtr()->channel_mask[1];
-	tmp_m1->getObjectPtr()->channel_mask[2]				= m1->getObjectPtr()->channel_mask[2];
-	tmp_m1->getObjectPtr()->channel_mask[3]				= m1->getObjectPtr()->channel_mask[3];
-	tmp_m1->getObjectPtr()->channel_mask[4]				= m1->getObjectPtr()->channel_mask[4];
-	tmp_m1->getObjectPtr()->channel_mask[5]				= m1->getObjectPtr()->channel_mask[5];
-	tmp_m1->getObjectPtr()->channel_mask[6]				= m1->getObjectPtr()->channel_mask[6];
-	tmp_m1->getObjectPtr()->channel_mask[7]				= m1->getObjectPtr()->channel_mask[7];
-	tmp_m1->getObjectPtr()->channel_mask[8]				= m1->getObjectPtr()->channel_mask[8];
-	tmp_m1->getObjectPtr()->channel_mask[9]				= m1->getObjectPtr()->channel_mask[9];
-	tmp_m1->getObjectPtr()->channel_mask[10]			= m1->getObjectPtr()->channel_mask[10];
-	tmp_m1->getObjectPtr()->channel_mask[11]			= m1->getObjectPtr()->channel_mask[11];
-	tmp_m1->getObjectPtr()->channel_mask[12]			= m1->getObjectPtr()->channel_mask[12];
-	tmp_m1->getObjectPtr()->channel_mask[13]			= m1->getObjectPtr()->channel_mask[13];
-	tmp_m1->getObjectPtr()->channel_mask[14]			= m1->getObjectPtr()->channel_mask[14];
-	tmp_m1->getObjectPtr()->channel_mask[15]			= m1->getObjectPtr()->channel_mask[15];
-	tmp_m1->getObjectPtr()->discard_post				= m1->getObjectPtr()->discard_post;
-	tmp_m1->getObjectPtr()->discard_pre					= m1->getObjectPtr()->discard_pre;
-	tmp_m1->getObjectPtr()->encoding_space_ref			= m1->getObjectPtr()->encoding_space_ref;
-	tmp_m1->getObjectPtr()->flags						= m1->getObjectPtr()->flags;
-	tmp_m1->getObjectPtr()->idx.average					= m1->getObjectPtr()->idx.average;
-	tmp_m1->getObjectPtr()->idx.contrast				= m1->getObjectPtr()->idx.contrast;
-	tmp_m1->getObjectPtr()->idx.kspace_encode_step_1	= m1->getObjectPtr()->idx.kspace_encode_step_1;
-	tmp_m1->getObjectPtr()->idx.kspace_encode_step_2	= m1->getObjectPtr()->idx.kspace_encode_step_2;
-	tmp_m1->getObjectPtr()->idx.phase					= m1->getObjectPtr()->idx.phase;
-	tmp_m1->getObjectPtr()->idx.repetition				= m1->getObjectPtr()->idx.repetition;
-	tmp_m1->getObjectPtr()->idx.segment					= m1->getObjectPtr()->idx.segment;
-	tmp_m1->getObjectPtr()->idx.set						= m1->getObjectPtr()->idx.set;
-	tmp_m1->getObjectPtr()->idx.slice					= m1->getObjectPtr()->idx.slice;
-	tmp_m1->getObjectPtr()->idx.user[0]					= m1->getObjectPtr()->idx.user[0];
-	tmp_m1->getObjectPtr()->idx.user[1]					= m1->getObjectPtr()->idx.user[1];
-	tmp_m1->getObjectPtr()->idx.user[2]					= m1->getObjectPtr()->idx.user[2];
-	tmp_m1->getObjectPtr()->idx.user[3]					= m1->getObjectPtr()->idx.user[3];
-	tmp_m1->getObjectPtr()->idx.user[4]					= m1->getObjectPtr()->idx.user[4];
-	tmp_m1->getObjectPtr()->idx.user[5]					= m1->getObjectPtr()->idx.user[5];
-	tmp_m1->getObjectPtr()->idx.user[6]					= m1->getObjectPtr()->idx.user[6];
-	tmp_m1->getObjectPtr()->idx.user[7]					= m1->getObjectPtr()->idx.user[7];
-	tmp_m1->getObjectPtr()->measurement_uid				= m1->getObjectPtr()->measurement_uid;
-	tmp_m1->getObjectPtr()->number_of_samples			= m1->getObjectPtr()->number_of_samples;
-	tmp_m1->getObjectPtr()->patient_table_position[0]	= m1->getObjectPtr()->patient_table_position[0];
-	tmp_m1->getObjectPtr()->patient_table_position[1]	= m1->getObjectPtr()->patient_table_position[1];
-	tmp_m1->getObjectPtr()->patient_table_position[2]	= m1->getObjectPtr()->patient_table_position[2];
-	tmp_m1->getObjectPtr()->phase_dir[0]				= m1->getObjectPtr()->phase_dir[0];
-	tmp_m1->getObjectPtr()->phase_dir[1]				= m1->getObjectPtr()->phase_dir[1];
-	tmp_m1->getObjectPtr()->phase_dir[2]				= m1->getObjectPtr()->phase_dir[2];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[0]	= m1->getObjectPtr()->physiology_time_stamp[0];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[1]	= m1->getObjectPtr()->physiology_time_stamp[1];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[2]	= m1->getObjectPtr()->physiology_time_stamp[2];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[3]	= m1->getObjectPtr()->physiology_time_stamp[3];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[4]	= m1->getObjectPtr()->physiology_time_stamp[4];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[5]	= m1->getObjectPtr()->physiology_time_stamp[5];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[6]	= m1->getObjectPtr()->physiology_time_stamp[6];
-	tmp_m1->getObjectPtr()->physiology_time_stamp[7]	= m1->getObjectPtr()->physiology_time_stamp[7];
-	tmp_m1->getObjectPtr()->position[0]					= m1->getObjectPtr()->position[0];
-	tmp_m1->getObjectPtr()->position[1]					= m1->getObjectPtr()->position[1];
-	tmp_m1->getObjectPtr()->position[2]					= m1->getObjectPtr()->position[2];
-	tmp_m1->getObjectPtr()->read_dir[0]					= m1->getObjectPtr()->read_dir[0];
-	tmp_m1->getObjectPtr()->read_dir[1]					= m1->getObjectPtr()->read_dir[1];
-	tmp_m1->getObjectPtr()->read_dir[2]					= m1->getObjectPtr()->read_dir[2];
-	tmp_m1->getObjectPtr()->sample_time_us				= m1->getObjectPtr()->sample_time_us;
-	tmp_m1->getObjectPtr()->scan_counter				= m1->getObjectPtr()->scan_counter;
-	tmp_m1->getObjectPtr()->slice_dir[0]				= m1->getObjectPtr()->slice_dir[0];
-	tmp_m1->getObjectPtr()->slice_dir[1]				= m1->getObjectPtr()->slice_dir[1];
-	tmp_m1->getObjectPtr()->slice_dir[2]				= m1->getObjectPtr()->slice_dir[2];
-	tmp_m1->getObjectPtr()->trajectory_dimensions		= m1->getObjectPtr()->trajectory_dimensions;
-	tmp_m1->getObjectPtr()->user_float[0]				= m1->getObjectPtr()->user_float[0];
-	tmp_m1->getObjectPtr()->user_float[1]				= m1->getObjectPtr()->user_float[1];
-	tmp_m1->getObjectPtr()->user_float[2]				= m1->getObjectPtr()->user_float[2];
-	tmp_m1->getObjectPtr()->user_float[3]				= m1->getObjectPtr()->user_float[3];
-	tmp_m1->getObjectPtr()->user_float[4]				= m1->getObjectPtr()->user_float[4];
-	tmp_m1->getObjectPtr()->user_float[5]				= m1->getObjectPtr()->user_float[5];
-	tmp_m1->getObjectPtr()->user_float[6]				= m1->getObjectPtr()->user_float[6];
-	tmp_m1->getObjectPtr()->user_float[7]				= m1->getObjectPtr()->user_float[7];
-	tmp_m1->getObjectPtr()->user_int[0]					= m1->getObjectPtr()->user_int[0];
-	tmp_m1->getObjectPtr()->user_int[1]					= m1->getObjectPtr()->user_int[1];
-	tmp_m1->getObjectPtr()->user_int[2]					= m1->getObjectPtr()->user_int[2];
-	tmp_m1->getObjectPtr()->user_int[3]					= m1->getObjectPtr()->user_int[3];
-	tmp_m1->getObjectPtr()->user_int[4]					= m1->getObjectPtr()->user_int[4];
-	tmp_m1->getObjectPtr()->user_int[5]					= m1->getObjectPtr()->user_int[5];
-	tmp_m1->getObjectPtr()->user_int[6]					= m1->getObjectPtr()->user_int[6];
-	tmp_m1->getObjectPtr()->user_int[7]					= m1->getObjectPtr()->user_int[7];
-	tmp_m1->getObjectPtr()->version						= m1->getObjectPtr()->version;
-
-	return GADGET_OK;
-}
-
-// process(...): data processing - cuts the data into 2D data sets
 int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< float> >* m2)
 {
 	// check partitions/repetitions - more than one -> 3D/4D data - do "slicing"!!
@@ -128,7 +33,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 	size_t num_rep = 0, num_par = 0;
 	
 	// get dimensions flag
-	if (num_dims == 3){
+	/*if (num_dims == 3){
 		if ((dimension.at(0) > 1)&&(dimension.at(1) > 1)&&(dimension.at(2) == 1 )&&(m1->getObjectPtr()->user_int[0] == 1 || m1->getObjectPtr()->user_int[0] == 3))
 			bIs2D_ = true;
 		else if((dimension.at(0) > 1)&&(dimension.at(1) > 1)&&(dimension.at(2) > 1)&&(m1->getObjectPtr()->user_int[0] == 2 || m1->getObjectPtr()->user_int[0] == 5)){
@@ -141,7 +46,16 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 		bIs4D_ = true;
 		num_rep = dimension.at(3);
 		num_par = dimension.at(2);
+	}*/
+	if (num_dims == 2){
+		bIs2D_ = true;
 	}
+	else if (num_dims == 3){
+		bIs3D_ = true;
+	}
+	else if (num_dims == 4){
+		bIs4D_ = true;
+	}	
 
 	if (bIs2D_){
 		// data is 2D - do nothing
@@ -166,7 +80,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 
 				// copy acquisition header (global variable) - needed for the correct slice position,..
-				copy_header(tmp_m1, CS_GlobalVar::instance()->AcqVec_.at(par));
+				fCopyAcqHeader(tmp_m1, GlobalVar::instance()->AcqVec_.at(par));
 
 				// create empty 2D array
 				GadgetContainerMessage< hoNDArray< float> >* sec_buffer_ = new GadgetContainerMessage<hoNDArray< float > >();
@@ -253,7 +167,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 		}
 
 		// clear AcquisitionHeader vector
-		CS_GlobalVar::instance()->AcqVec_.clear();
+		GlobalVar::instance()->AcqVec_.clear();
 
 		m1->release();
 		return GADGET_OK;
