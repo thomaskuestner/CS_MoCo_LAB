@@ -22,7 +22,7 @@ function varargout = CS_LAB_GUI(varargin)
 
 % Edit the above text to modify the response to help CS_LAB_GUI
 
-% Last Modified by GUIDE v2.5 03-Feb-2016 14:38:09
+% Last Modified by GUIDE v2.5 15-Feb-2016 11:19:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +56,7 @@ currpath = fileparts(mfilename('fullpath'));
 cd(currpath);
 addpath(genpath(currpath));
 addpath(genpath([currpath,filesep,'utils']));
+addpath(genpath([fileparts(currpath),filesep,'CS_LAB']));
 addpath(genpath([fileparts(currpath),filesep,'CS_LAB_matlab']));
 handles.currpath = currpath;
 
@@ -64,7 +65,7 @@ warning('off','MATLAB:DELETE:FileNotFound');
 
 % set default values
 handles.sPathPDexe = 'sampling';
-handles.cCSAlgos = {'FOCUSS', 'sparseMRI', 'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1', 'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig', 'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA', 'Zero'};
+handles.cCSAlgos = {'FOCUSS', 'BART', 'sparseMRI', 'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1', 'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig', 'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA', 'Zero'};
 handles.cSparseTrafos = {'fft', 'pca', 'dct', 'wavelet_mat', 'wavelet_lab', 'mellin', 'surfacelet'};
 sFiles = dir([currpath,filesep,'datasets']);
 handles.cDatasets = cell(0,0);
@@ -82,6 +83,7 @@ handles.cPossible = {true(1,length(handles.cSparseTrafos)), true(1,length(handle
 handles.idnames = {'axInput', 'axMask', 'axOut_1', 'axOut_2', 'axDiff_1', 'axDiff_2'; ...
     'dInput', 'dMask', 'dOut_1', 'dOut_2', 'dDiff_1', 'dDiff_2'};
 handles.dimMask = [];
+handles.iEsp = [1, 0];
 
 % set popup menus
 set(handles.popDatasets,'String', handles.cDatasets(1,:));
@@ -329,10 +331,32 @@ if(dFullySampled * prod(dimMask) > prod(dimMask)/dAccel)
 end
 iVD = get(handles.popVD,'Value');
 iSubAlgo = get(handles.popSubAlgo,'Value');
+iEsp = get(handles.popESPReSSo,'Value');
+switch iEsp
+    case 1
+        iEspIn = [1, 0]; % factor, direction
+    case 2
+        iEspIn = [7/8, 1];
+    case 3
+        iEspIn = [6/8, 1];
+    case 4
+        iEspIn = [5/8, 1];
+    case 5
+        iEspIn = [4/8, 1];
+    case 6
+        iEspIn = [7/8, 0];
+    case 7
+        iEspIn = [6/8, 0];
+    case 8
+        iEspIn = [5/8, 0];
+    case 9
+        iEspIn = [4/8, 0];
+end
+handles.iEsp = iEspIn;
 iEllScanning = get(handles.cbEllScanning,'Value') + 1;
 sTmp = {'false','true'};
 if(ispc), sExt = '.exe'; else sExt = ''; end
-system([handles.sPathPDexe,filesep,'PoissonSampling',sExt,sprintf(' %d %d %f %d %f %s 1 0 %d', dimMask(1), dimMask(2), dAccel, iSubAlgo, dFullySampled, sTmp{iEllScanning}, iVD)]);
+system([handles.sPathPDexe,filesep,'Subsample',sExt,sprintf(' %d %d %f %d %f %s %.3f %s %d', dimMask(1), dimMask(2), dAccel, iSubAlgo, dFullySampled, sTmp{iEllScanning}, iEspIn(1), sTmp{iEspIn(2)+1}, iVD)]);
 handles.dMask = readSamplingMaskFromFile('samplingPattern.txt');
 
 if(size(handles.dMask,2) == 1)
@@ -355,7 +379,7 @@ switch handles.cCSAlgos{iInd}
         handles.cPossible{1} = logical([0 0 0 0 1 0 0]);
     case {'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig'}
         handles.cPossible{1} = logical([1 0 0 0 0 0 0]);
-    case {'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA'}
+    case {'BART', 'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA'}
         handles.cPossible{1} = logical([0 0 0 1 0 0 0]);
     case 'Zero'
         handles.cPossible{1} = logical([1 0 0 0 0 0 0]);
@@ -426,7 +450,7 @@ switch handles.cCSAlgos{iInd}
         handles.cPossible{2} = logical([0 0 0 0 1 0 0]);
     case {'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig'}
         handles.cPossible{2} = logical([1 0 0 0 0 0 0]);
-    case {'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA'}
+    case {'BART', 'FCSA_WaTMRI', 'FCSA_SLEP', 'FCSA_proxA', 'BFCSA_proxA', 'ADMM_proxA', 'SB_proxA'}
         handles.cPossible{2} = logical([0 0 0 1 0 0 0]);
     case 'Zero'
         handles.cPossible{2} = logical([1 0 0 0 0 0 0]);
@@ -726,20 +750,29 @@ load(sPath);
 if(isempty(kSpace))
     return;
 end
+if(strcmp(measPara.dimension, '2D'))
+    fftDims = 1:2;
+else
+    fftDims = 1:3;
+end
 if(isempty(measPara))
     measPara.dim = [size(kSpace{1,1,1,1},1), size(kSpace{1,1,1,1},2), size(kSpace{1,1,1,1},3), size(kSpace{1,1,1,1},4), size(kSpace,2)];
     switch ndims(kSpace{1,1,1,1})
         case 2 % 2D
             measPara.dimension = '2D';
             measPara.dim(3) = size(kSpace,1);
+            fftDims = 1:2;
         case 3 % 3D
             measPara.dimension = '3D';
+            fftDims = 1:3;
         case 4 % 4D
             if(measPara.dim(3) == 1) % 2Dt
                 measPara.dimension = '2D';
                 kSpace = cellfun(@squeeze, kSpace, 'UniformOutput', false);
+                fftDims = 1:2;
             else % 4D
                 measPara.dimension = '4D';
+                fftDims = 1:3;
             end
     end
 end
@@ -759,7 +792,7 @@ switch sparseDim
         sInfoTxt{2} = sprintf('mask dim: %d x 1', measPara.dim(3));
 end
 kSpaceShow = cell2mat(shiftdim(kSpace,-2));
-dImg = squeeze(sqrt(sum(abs(ifftnshift(kSpaceShow,1:3)).^2,4)));
+dImg = squeeze(sqrt(sum(abs(ifftnshift(kSpaceShow,fftDims)).^2,4)));
 kSpaceShow = squeeze(abs(sum(kSpaceShow,4)));
 
 function scaledImg = scaleImg(img,range)
@@ -891,6 +924,14 @@ if(nnz(handles.dRecon_1) > 0)
 end
 
 measPara = handles.measPara;
+if(handles.iEsp(1) == 1)
+    espresso.state = false;
+    espresso.direction = 'off';
+else
+    espresso.state = true;
+    espresso.direction = 'on'; % workaround, actual direction info not needed for recon (will be extracted automatically)
+end
+espresso.pfn = handles.iEsp(1);
 % get sparse dimensions
 sDatadim = handles.measPara.dimension;
 iSparseDim = get(handles.edSparse,'Value');
@@ -916,7 +957,8 @@ if(strcmp(sDatadim,'2D'))
         case 2 % yPhase, xFreq
             iSparsePerm = [1, 3, 2];
             measPara.dimension = '3D'; % faked workaround
-            sTrafodim = [sTrafodim, '1 0 1 0];'];
+            sTrafodim = '[1 0 1 0; 1 0 1 0];';
+%             sTrafodim = [sTrafodim, '1 0 1 0];'];
         case {3,5} % xFreq, zPhase | xFreq => zPhase = 1, same as 5
             iSparsePerm = [2, 1]; 
             measPara.dimension = '2D';
@@ -1067,6 +1109,20 @@ for iI=1:length(cFieldnames)
     end
     fprintf(fid, sFormat, cFieldnames{iI}, measPara.(cFieldnames{iI}));
 end
+% add espresso info
+cFieldnames = fieldnames(espresso);
+sTmp = {'false','true'};
+for iI=1:length(cFieldnames)
+    switch cFieldnames{iI}
+        case 'pfn'
+            sFormat = 'espresso.%s = %f;\n';
+        case 'state'            
+            sFormat = 'espresso.%s = logical(%d);\n';
+        case 'direction'
+            sFormat = 'espresso.%s = ''%s'';\n';
+    end
+    fprintf(fid, sFormat, cFieldnames{iI}, espresso.(cFieldnames{iI}));
+end
 fclose(fid);
 
 handles.dRecon_1 = CS_reconstruction(kSpaceIn, [handles.currpath,filesep,'parameter_currRun_1.m']); 
@@ -1104,6 +1160,14 @@ if(nnz(handles.dRecon_2) > 0)
 end
 
 measPara = handles.measPara;
+if(handles.iEsp(1) == 1)
+    espresso.state = false;
+    espresso.direction = 'off';
+else
+    espresso.state = true;
+    espresso.direction = 'on'; % workaround, actual direction info not needed for recon (will be extracted automatically)
+end
+espresso.pfn = handles.iEsp(1);
 % get sparse dimensions
 sDatadim = handles.measPara.dimension;
 iSparseDim = get(handles.edSparse,'Value');
@@ -1261,7 +1325,7 @@ fReplaceText([handles.currpath,filesep,'parameter_currRun_2.m'], sAlgo, 'cstype'
 contents = cellstr(get(handles.popSparseTrafo_2,'String'));
 sTrafo = contents{get(handles.popSparseTrafo_2,'Value')};
 fReplaceText([handles.currpath,filesep,'parameter_currRun_2.m'], sTrafo, 'transformation');
-fReplaceText([handles.currpath,filesep,'parameter_currRun_1.m'], str2num(sTrafodim), 'trafo.trafodim');
+fReplaceText([handles.currpath,filesep,'parameter_currRun_2.m'], str2num(sTrafodim), 'trafo.trafodim');
 % add measPara struct
 fid = fopen([handles.currpath,filesep,'parameter_currRun_2.m'],'a+');
 fprintf(fid,'\n');
@@ -1278,6 +1342,20 @@ for iI=1:length(cFieldnames)
             continue;
     end
     fprintf(fid, sFormat, cFieldnames{iI}, measPara.(cFieldnames{iI}));
+end
+% add espresso info
+cFieldnames = fieldnames(espresso);
+sTmp = {'false','true'};
+for iI=1:length(cFieldnames)
+    switch cFieldnames{iI}
+        case 'pfn'
+            sFormat = 'espresso.%s = %f;\n';
+        case 'state'            
+            sFormat = 'espresso.%s = sTmp{%d+1};\n';
+        case 'direction'
+            sFormat = 'espresso.%s = %s;\n';
+    end
+    fprintf(fid, sFormat, cFieldnames{iI}, espresso.(cFieldnames{iI}));
 end
 fclose(fid);
 

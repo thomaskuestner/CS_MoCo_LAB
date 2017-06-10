@@ -28,6 +28,9 @@
 % ESPIRiT_L1: conjugate gradient ESPIRiT reconstruction with L1-wavelet
 % thresholding in image domain
 
+% BART 
+% BART: Berkeley Advanced Reconstruction Toolbox  
+
 % L1-Magic
 % L1_Magic_*: reconstruction via l1-magic package from Emmanuel Candes and 
 % Justin Romberg, Caltech: "l1-magic: Recovery of Sparse Signals via 
@@ -314,7 +317,7 @@ postproc.FreqOversamplingCorr = false;
 %%%% sparsifying transformation parameters %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 trafo.trafoType = transformation;
-if(nargin > 1 && exist('para', 'var') && isfield(para, 'transformation')), trafo.trafoType = para.transformation; end;
+if(exist('para', 'var') && isfield(para, 'transformation')), trafo.trafoType = para.transformation; end
 
 %%%% Transform dimensions %%%%
 % transform dimensions during CS recon
