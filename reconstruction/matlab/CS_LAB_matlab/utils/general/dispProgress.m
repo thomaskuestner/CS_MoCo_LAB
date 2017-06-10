@@ -11,16 +11,6 @@ if(nargin < 3)
     maxvalue = 0;
 end
 
-if(verLessThan('matlab','8.4'))
-    if(matlabpool('size') > 0)
-        return; % shortcut for parallel computing
-    end
-else
-    if(~isempty(gcp('nocreate')))
-        return % shortcut for parallel computing
-    end
-end
-
 if(~exist('prop','var') || isempty(prop) || strcmp(name,'InitDispProgress'))
     if(isstruct(value))
         prop = value;
@@ -28,6 +18,18 @@ if(~exist('prop','var') || isempty(prop) || strcmp(name,'InitDispProgress'))
     else
 %         error('dispProgress(): Unknown data structure for property'); 
         return; % shortcut for GA simulation
+    end
+end
+
+if(prop.flagParallel)
+    if(verLessThan('matlab','8.4'))
+        if(matlabpool('size') > 0)
+            return; % shortcut for parallel computing
+        end
+    else
+        if(~isempty(gcp('nocreate')))
+            return % shortcut for parallel computing
+        end
     end
 end
 
@@ -94,7 +96,7 @@ else
     % console
     
     if(ischar(value) && strcmp(value,'Close'))
-        if(any(strcmp(name,{'CG','SENSE - Time','SENSE - Kernel','SENSE - Concatenate','Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton'})))
+        if(any(strcmp(name,{'CG','SENSE - Time','SENSE - Kernel','SENSE - Concatenate','Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton','Proximal Average', 'ADMM'})))
             if(prop.openPool)
                 fprintf([repmat('\b',1,length(name)+1)]);
             else
@@ -118,7 +120,7 @@ else
 %             end
             prop.lastVal = 0;
             fprintf('%s [%s]\n%s [', name, repmat('- ',1,25),repmat(' ',1,length(name)));
-        elseif(any(strcmp(name,{'Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton'})))
+        elseif(any(strcmp(name,{'Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton','Proximal Average', 'ADMM'})))
 %             if(prop.openPool)
 %                 prop.lastOut = sprintf('%s\n',name);
 %             else
@@ -136,7 +138,7 @@ else
                     outstring = sprintf('%s %d/%d\n', name, value*prop.maxvals(strcmp(prop.disp.names,name)), prop.maxvals(strcmp(prop.disp.names,name)));
                     delString = 0;
 
-                case {'Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton','Line Search'}
+                case {'Extracting K-Space','GRAPPA calibration','Partial Fourier','ESPReSSo','Trafo','Log barrier','Newton','Line Search','Proximal Average', 'ADMM'}
 %                     outstring = sprintf('%s %3d%%\n', name, value*100); 
 %                     delString = length(prop.lastOut);
 

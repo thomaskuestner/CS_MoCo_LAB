@@ -5,7 +5,7 @@ function [x_thresh] = groupthresh(x,threshold,nCha,regularizer)
 % M. Fischer, April 2016
 
 %% prelimanary test values
-a = 0.5/(nCha*threshold); % a = 1 was way better
+a = 1/threshold; % a < 1/threshold possible and sometimes better; e.g. a = 0.1/threshold.
 p = -0.5; % p-shrinkage; often used with {-0.5,0,0.5}
 x_thresh = cell(1,nCha);
 %% calculate l2-norm of groups:
@@ -27,32 +27,36 @@ switch regularizer
         x_group_thresh = softthresh_real(x_group,threshold);
         %x_group_thresh = wthresh(x_group,'s',threshold);
     case 'MCP'
-        for l = 1:size(x_group,5)
-            for k = 1:size(x_group,4)
-                for j = 1:size(x_group,3)
-                    if size(x_group,5) == 1 && size(x_group,4) == 1 && size(x_group,3) == 1 % case of 1xN vector
-                        x_group_thresh(:,1,j,k,l) = proximalRegC(permute(x_group,[2 1 3 4 5]), size(x_group(1,:,j,k,l),2), threshold, 2, 4); % from GIST, theta >= 2
-                        x_group_thresh = permute(x_group_thresh,[2 1 3 4 5]);
-                    else
-                        for h = 1:size(x_group,2) % multidimensional case
-                            x_group_thresh(:,h,j,k,l) = proximalRegC(x_group(:,h,j,k,l), size(x_group(:,h,j,k,l),1), threshold, 2, 4); % from GIST, theta >= 2
-                            % x_group_thresh = x_group_thresh';
+        for m = 1:size(x_group,6)
+            for l = 1:size(x_group,5)
+                for k = 1:size(x_group,4)
+                    for j = 1:size(x_group,3)
+                        if size(x_group,6) == 1 && size(x_group,5) == 1 && size(x_group,4) == 1 && size(x_group,3) == 1 && size(x_group,1) == 1  % case of 1xN vector
+                            x_group_thresh(:,1,j,k,l,m) = proximalRegC(permute(x_group,[2 1 3 4 5 6]), size(x_group(1,:,j,k,l,m),2), threshold, 2, 4); % from GIST, theta >= 2
+                            x_group_thresh = permute(x_group_thresh,[2 1 3 4 5 6]);
+                        else
+                            for h = 1:size(x_group,2) % multidimensional case
+                                x_group_thresh(:,h,j,k,l,m) = proximalRegC(x_group(:,h,j,k,l,m), size(x_group(:,h,j,k,l,m),1), threshold, 2, 4); % from GIST, theta >= 2
+                                % x_group_thresh = x_group_thresh';
+                            end;
                         end;
                     end;
                 end;
             end;
         end;
     case 'SCAD'
-        for l = 1:size(x_group,5)
-            for k = 1:size(x_group,4)
-                for j = 1:size(x_group,3)                       
-                    if size(x_group,5) == 1 && size(x_group,4) == 1 && size(x_group,3) == 1 % case of 1xN vector
-                        x_group_thresh(:,1,j,k,l) = proximalRegC(permute(x_group,[2 1 3 4 5]), size(x_group(1,:,j,k,l),2), threshold, 3, 3); % from GIST, theta >= 3
-                        x_group_thresh = permute(x_group_thresh,[2 1 3 4 5]);
-                    else
-                        for h = 1:size(x_group,2) % multidimensional case
-                            x_group_thresh(:,h,j,k,l) = proximalRegC(x_group(:,h,j,k,l), size(x_group(:,h,j,k,l),1), threshold, 3, 3); % from GIST, theta >= 3
-                            % x_group_thresh = x_group_thresh';
+        for m = 1:size(x_group,6)
+            for l = 1:size(x_group,5)
+                for k = 1:size(x_group,4)
+                    for j = 1:size(x_group,3)
+                        if size(x_group,6) == 1 && size(x_group,5) == 1 && size(x_group,4) == 1 && size(x_group,3) == 1 && size(x_group,1) == 1  % case of 1xN vector
+                            x_group_thresh(:,1,j,k,l,m) = proximalRegC(permute(x_group,[2 1 3 4 5 6]), size(x_group(1,:,j,k,l,m),2), threshold, 3, 3); % from GIST, theta >= 3
+                            x_group_thresh = permute(x_group_thresh,[2 1 3 4 5 6]);
+                        else
+                            for h = 1:size(x_group,2) % multidimensional case
+                                x_group_thresh(:,h,j,k,l,m) = proximalRegC(x_group(:,h,j,k,l,m), size(x_group(:,h,j,k,l,m),1), threshold, 3, 3); % from GIST, theta >= 3
+                                % x_group_thresh = x_group_thresh';
+                            end;
                         end;
                     end;
                 end;

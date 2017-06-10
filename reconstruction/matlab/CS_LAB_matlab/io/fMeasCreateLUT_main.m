@@ -120,8 +120,9 @@ if nargin
         if SDrecksMDH.Seq.Is3D
             SPos.dSliceDataPosition = unique(SPos.dSliceDataPosition, 'rows');
         end
-        SPos.dTablePosition     = unique(-((dLCPositions(:,4) +5)/10));
-        SPos.dRotMatrix         = quat2dcm(dLCPositions(1,5:8));
+%         SPos.dTablePosition     = unique(-((dLCPositions(:,4) +5)/10)); % wrong: that is shift
+        SPos.dTablePosition     = unique(-dLCPositions(:,8)/10);
+        SPos.dRotMatrix         = quat2dcm(dLCPositions(1,4:7));
         SPos.dRotMatrix(:,2:3)  = -SPos.dRotMatrix(:,2:3); % due to negative orientation of y and z axis (compared to standard cartesian system)
         [yaw, pitch, roll]      = dcm2angle(SPos.dRotMatrix);
         SPos.dRotAngles         = [yaw, pitch, roll];  

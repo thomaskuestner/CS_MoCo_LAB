@@ -216,7 +216,7 @@ elseif(strcmp(obj.measPara.dimension,'4D'))
         kSpaceL = double(kSpaceL);
     end
     % same undersampling for all coils and fully sampled in k_x direction
-    obj.fullMask = abs(kSpaceL) > 0; % k_y - k_z - k_x - cha - t
+    obj.fullMask = abs(kSpaceL) > 0; % k_x - k_y - k_z - cha - t
     if(obj.measPara.oversampling{2,1})
         kSpaceL = ifftnshift(kSpaceL, 1); 
         kSpaceL = kSpaceL(obj.measPara.oversampling{1,1}, :, :, :, :); % anti-aliasing
@@ -232,11 +232,11 @@ elseif(strcmp(obj.measPara.dimension,'4D'))
     end
     
     lEnsureCenter = false;
+    calibSize = zeros(size(obj.fullMask,5),3);
     for iTime = 1:size(obj.fullMask,5)
-        calibSize = obj.calibrationSize(obj.fullMask(:,:,:,1,iTime));
-        if(any(calibSize <= 2))
+        calibSize(iTime,:) = obj.calibrationSize(obj.fullMask(:,:,:,1,iTime));
+        if(any(calibSize(iTime,:) <= 2))
             lEnsureCenter = true;
-            break;
         end
     end
     
@@ -257,18 +257,168 @@ elseif(strcmp(obj.measPara.dimension,'4D'))
         lMaskNew = lMaskNew & ~obj.fullMask;
         kSpaceL(lMaskNew) = eps; 
     end
-    
-    kSpaceL = permute(kSpaceL,[1 2 3 4 6 7 8 9 10 11 5]);
-    
-    maps = bart(sprintf('ecalib -c0. -m%d',obj.n_maps), kSpaceL);
-    if(obj.lambdaMC > 0)
-        imgOut = bart(sprintf('pics -d5 -R W:7:0:%f -R L:1024:0:%f',obj.lambda,obj.lambdaMC), kSpaceL, maps);
+            
+    if(obj.mc.jointMCCS)
+        % coarse motion estimation (in lowres image)
+%         kSpaceL = squeeze(kSpaceL); % x-y-z-cha-t
+        nTime = size(kSpaceL,5);
+%         % get SENSE map
+%         pos = 'idx{1},idx{2},idx{3},:,t';
+%         m = size(kSpaceL);
+%         kSpaceCenter = false(size(kSpaceL));
+%         for t=1:nTime
+%             s = calibSize(t,:);
+%             idx = cell(1,length(s));
+%             for n=1:length(s)
+%                 if(mod(s(n),2) == 0)
+%                     idx{n} = floor(m(n)/2)+1+ceil(-s(n)/2) : floor(m(n)/2)+ceil(s(n)/2);
+%                 else
+%                     idx{n} = floor(m(n)/2)+ceil(-s(n)/2) : floor(m(n)/2)+ceil(s(n)/2)-1;
+%                 end
+% 
+%                 tmp = [idx{n}(1) <= 0, idx{n}(end) > m(n)];
+%                 if(any(tmp))
+%                     if(all(tmp)), error('crop(): Both index out of bounds'); end;
+%                     hShift = [abs(idx{n}(1)) + 1, idx{n}(end) - m(n)];
+%                     op = {idx{n}(1), idx{n}(end); '+', '-'; '<', '>'; m(n) + 1, 0};
+%                     eval(sprintf('if(op{1,~tmp} %s hShift(tmp) %s %d), idx{n} = idx{n} %s hShift(tmp); else idx{n} = idx{n}(idx{n} %s %d);end;',op{2,tmp}, op{3,tmp}, op{4,tmp}, op{2,tmp}, op{3,~tmp}, op{4,~tmp}));
+%                 end
+%             end
+%             eval(sprintf('kSpaceCenter(%s) = true;',pos));
+%         end
+%         
+%         kSpaceLow = zeros(size(kSpaceL)); kSpaceLow(kSpaceCenter) = kSpaceL(kSpaceCenter);
+%         dImgCenter = ifftnshift(kSpaceLow,1:3); % x-y-z-cha-t
+%         clear 'kSpaceLow';
+%         dImgCenterSOS = sqrt(sum(abs(dImgCenter).^2,4)); % x-y-z-1-t
+%         dSensemap = dImgCenter./(repmat(dImgCenterSOS,[1 1 1 size(dImgCenter,4) 1]));
+%         clear 'dImgCenterSOS' 'dImgCenter';
+%         dWindow = windowND(@hamming, [size(dSensemap,1), size(dSensemap,2), size(dSensemap,3)]);
+%         dSensemap = fftnshift(dSensemap,1:3);
+%         dSensemap = dSensemap .* repmat(dWindow, [1 1 1 size(dSensemap,4) size(dSensemap,5)]);
+%         dSensemap = ifftnshift(dSensemap,1:3);
+%         dSensemapFctr = sqrt(sum(conj(dSensemap).*dSensemap,4)).^(-1);
+%         dSensemapFctr(isinf(dSensemapFctr)) = 0;
+%         dSensemap = conj(repmat(dSensemapFctr,[1 1 1 size(dSensemap,4) 1]) .* dSensemap);
+%         clear 'dSensemapFctr';
+        
+%         dSensemap = complex(zeros(size(kSpaceL),'single'),zeros(size(kSpaceL),'single'));
+%         for t=1:nTime
+%             dSensemap(:,:,:,:,t) = bart('ecalib -c0. -I -S -m1', kSpaceL(:,:,:,:,t)); % y-x-z-cha-t
+%         end
+        
+        lSumMask = logical(sum(obj.fullMask,5));
+%         dImgIn = ifftnshift(kSpaceL,1:3) .* dSensemap;
+        
+        % registration pairs
+%         nPairs = nchoosek(nTime,2);
+        [p, q] = meshgrid(1:nTime,1:nTime);
+        mask   = triu(ones(nTime), 1) > 0.5;
+        pairs = [p(mask) q(mask)];
+        
+        
+        % multiresolution approach
+        nRes = 5;
+        alpha = 0.5;
+        beta = [linspace(0.1,0.65,nRes-1),1];
+        smallestRes = 64; % in readout direction
+        iSize = size(kSpaceL); % y-x-z-cha-t
+        iResolutions = [linspace(smallestRes, iSize(1), nRes).', linspace(round(iSize(2)/iSize(1) * smallestRes), iSize(2), nRes).',  linspace(round(iSize(3)/iSize(1) * smallestRes), iSize(3), nRes).'];
+        % init
+        u = cell(size(pairs,1),2);
+        for iI=1:size(u,1)
+            u{iI,1} = cell(1,3);
+            [u{iI,1}{:}] = deal(zeros(iResolutions(1,:),'single'));
+            u{iI,2} = pairs(iI,:);
+        end
+        matlabpool('open', min([12, size(pairs,1)])); 
+        
+        kSpaceRes = kSpaceL;                
+        for iRes=1:nRes
+            % first iteration -> downsample from full
+            % remaining -> upsample from low_res (with linear interpolation)
+            % last iteration -> no downsampling
+            kSpaceRes = updownsample(kSpaceRes, false, iResolutions(iRes,:));
+            dSenseRes = ones(size(kSpaceRes));
+%             dSenseRes = updownsample(dSensemap, false, iResolutions(iRes,:)); % always downsampling from full
+            lSumMaskRes = updownsample(lSumMask, false, iResolutions(iRes,:), false); % always downsampling from full, no AA filter
+            dImgRes = ifftnshift(kSpaceRes,1:3) .* conj(dSenseRes);
+%             dImgDiff = ifftnshift(fftnshift(dImgRes .* conj(dSenseRes),1:3).*obj.fullMask - kSpaceL,1:3) .* dSensemap;
+            dImgDiff = ifftnshift(updownsample(updownsample(kSpaceRes,false, size(kSpaceL)).*obj.fullMask - kSpaceL,false,iResolutions(iRes,:)),1:3) .* conj(dSenseRes);
+
+            % LAP registration
+            if(iRes > 1) % upsample motion field from last iteration
+                [X,Y,Z] = ndgrid(linspace(1,iResolutions(iRes,1),iResolutions(iRes-1,1)), linspace(1,iResolutions(iRes,2),iResolutions(iRes-1,2)), linspace(1,iResolutions(iRes,3),iResolutions(iRes-1,3)));
+                [Xq,Yq,Zq] = ndgrid(1:iResolutions(iRes,1),1:iResolutions(iRes,2),   1:iResolutions(iRes,3));
+                for iI=1:size(u,1)
+                    for iInner=1:3
+                        u{iI,1}{iInner} = interpn(X,Y,Z,u{iI,1}{iInner},Xq,Yq,Zq);
+                    end
+                end
+            end
+            u = fJointMCCS(squeeze(abs(sum(dImgRes,4))), u, pairs);
+            
+            % image update            
+            for t=1:nTime
+                fprintf('Image %d/%d update', t, nTime);
+                dSumImg = complex(zeros(size(dImgRes,1),size(dImgRes,2),size(dImgRes,3),'single'),zeros(size(dImgRes,1),size(dImgRes,2),size(dImgRes,3),'single'));
+                tmap = 1:nTime; tmap = tmap(~ismember(tmap,t));
+                for tI=1:length(tmap)
+                    fprintf('.');
+                    tInner = tmap(tI);
+                    lInd = [tInner, t];
+                    iRow = find(ismember(pairs,lInd, 'rows'));
+                    if(~isempty(iRow))
+                        uDeform = u{iRow,1};
+                    else
+                        iRow = find(ismember(pairs,lInd(end:-1:1), 'rows'));
+                        uDeform = u{iRow,1}; %#ok<FNDSB>
+                        uDeform = cellfun(@(x) -x, uDeform, 'UniformOutput', false);
+                    end
+                    dSumImg = dSumImg + imshift_3D(sum(dImgRes(:,:,:,:,tInner),4),uDeform, 'cubicOMOMS');
+                end
+                dImgRes(:,:,:,:,t) = dImgRes(:,:,:,:,t) + alpha .* ((1-beta(iRes)) .* dImgDiff(:,:,:,:,t) + beta(iRes)./nTime .* repmat(dSumImg,[1 1 1 size(dSenseRes,4)]) .* dSenseRes(:,:,:,:,t));
+                fprintf('\n');
+            end
+            
+            if(iRes == nRes)
+                % CS recon
+                kSpaceRes = permute(fftnshift(dImgRes,1:3).* repmat(lSumMaskRes,[1 1 1 1 nTime]),[1 2 3 4 6 7 8 9 10 11 5]) ;
+                maps = bart(sprintf('ecalib -c0. -m%d',obj.n_maps), kSpaceRes);
+                bartcmd = sprintf('pics -d5 -S -R W:7:0:%f',obj.lambda);
+                if(obj.lambdaMC > 0)
+                    bartcmd = [bartcmd, sprintf(' -R T:1024:0:%f', obj.lambdaMC)];
+                %         bartcmd = [bartcmd, sprintf(' -R L:1024:0:%f', obj.lambdaMC)];
+                end
+                if(obj.lambdaTV > 0)
+                    bartcmd = [bartcmd, sprintf(' -R T:7:0:%f', obj.lambdaTV)];
+                end
+                imgOut = bart(bartcmd, kSpaceRes, maps);
+%                 kSpaceRes = fftnshift(squeeze(repmat(imgOut,[1 1 1 size(dSenseRes,4) 1 1 1 1 1 1 1])) .* dSenseRes,1:3); % y-x-z-cha-t
+            else
+                kSpaceRes = fftnshift(dImgRes .* dSenseRes,1:3);
+            end
+        end
+        matlabpool('close');
     else
-        imgOut = bart(sprintf('pics -d5 -R W:7:0:%f',obj.lambda), kSpaceL, maps);
+        kSpaceL = permute(kSpaceL,[1 2 3 4 6 7 8 9 10 11 5]);
+    
+        maps = bart(sprintf('ecalib -c0. -m%d',obj.n_maps), kSpaceL);
+        
+        bartcmd = sprintf('pics -d 5 -R W:7:0:%f',obj.lambda);
+        if(obj.lambdaMC > 0)
+            bartcmd = [bartcmd, sprintf(' -R T:1024:1024:%f -u 0.1', obj.lambdaMC)];
+    %         bartcmd = [bartcmd, sprintf(' -R L:1024:1024:%f', obj.lambdaMC)];
+        end
+        if(obj.lambdaTV > 0)
+            bartcmd = [bartcmd, sprintf(' -R T:7:0:%f -u 0.25', obj.lambdaTV)];
+        end
+        imgOut = bart(bartcmd, kSpaceL, maps);
     end
     imgOut = permute(imgOut,[2 1 3 11 5 4 6 7 8 9 10]);
     
-    imageCha = shiftdim(mat2cell(imgOut,size(imgOut,1),size(imgOut,2),size(imgOut,3),size(imgOut,4),ones(1,size(imgOut,5))),3);
+    imageCha{1} = imgOut;
+%     imageCha = shiftdim(mat2cell(imgOut,size(imgOut,1),size(imgOut,2),size(imgOut,3),size(imgOut,4),ones(1,size(imgOut,5))),3);
 end
 
 end

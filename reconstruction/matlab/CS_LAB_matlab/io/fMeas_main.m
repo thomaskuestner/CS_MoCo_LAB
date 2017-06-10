@@ -42,9 +42,9 @@ if(ismember('iLCDrecks', {matfile.name}) && ismember('iLCPositions', {matfile.na
 
 elseif(ismember('SDrecksMDH', {matfile.name}))
     % drecksMDH 2.0
-    load(fullfile(sPath,[sName,'.mat']), 'SDrecksMDH');
+    load(fullfile(sPath,[sName,'.mat']), 'SDrecksMDH', 'SPos');
     drecksMDH = SDrecksMDH;
-    iLCPositions = [];
+    iLCPositions = SPos;
 else
     % no drecksMDH at all
     drecksMDH = [];

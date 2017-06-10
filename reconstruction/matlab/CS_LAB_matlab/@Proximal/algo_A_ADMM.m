@@ -33,13 +33,13 @@ maxitr = obj.iNINNER;
 n1 = input.n1;
 n2 = input.n2;
 if strcmp(obj.reconDIM,'3D')
-    n3 = obj.measPara.dim(3);
+    n3 = obj.measPara.dim(2);
 elseif strcmp(obj.reconDIM,'2D')
     n3 = 1;
 end;
 % nSlices = obj.measPara.dim(3);
 nCha = obj.measPara.dim(5);
-lambdaWave = obj.lambdaWave;
+lambdaWave = obj.lambda;
 tau = obj.mue;
 
 %% operators

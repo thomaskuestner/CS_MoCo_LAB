@@ -53,20 +53,22 @@ if(isfield(drecksMDH,'Wip'))
             case '07', measPara.CSSamplingType = 'Random';
             case '08', measPara.CSSamplingType = 'Gaussian';
         end
-        switch drecksMDH.Wip.Mask(4:5)
-            case '01', measPara.CSVDmap = 'None';
-            case '02', measPara.CSVDmap = 'Point';
-            case '03', measPara.CSVDmap = 'Block';
-            case '04', measPara.CSVDmap = 'Ellipse';
-            case '05', measPara.CSVDmap = 'Ring';
+        if(length(drecksMDH.Wip.Mask) > 3)
+            switch drecksMDH.Wip.Mask(4:5)
+                case '01', measPara.CSVDmap = 'None';
+                case '02', measPara.CSVDmap = 'Point';
+                case '03', measPara.CSVDmap = 'Block';
+                case '04', measPara.CSVDmap = 'Ellipse';
+                case '05', measPara.CSVDmap = 'Ring';
+            end
+    %         switch drecksMDH.Wip.Mask(7:8)
+    %             case '14', measPara.CSBodyRegion = 'None';
+    %             case '15', measPara.CSBodyRegion = 'Head';
+    %             case '16', measPara.CSBodyRegion = 'Thorax';
+    %             case '17', measPara.CSBodyRegion = 'Abdomen';
+    %             case '18', measPara.CSBodyRegion = 'Pelvis';
+    %         end
         end
-%         switch drecksMDH.Wip.Mask(7:8)
-%             case '14', measPara.CSBodyRegion = 'None';
-%             case '15', measPara.CSBodyRegion = 'Head';
-%             case '16', measPara.CSBodyRegion = 'Thorax';
-%             case '17', measPara.CSBodyRegion = 'Abdomen';
-%             case '18', measPara.CSBodyRegion = 'Pelvis';
-%         end
     end
 end
 

@@ -318,6 +318,8 @@ mc.lSenseMC = true;
 % normal: single B-spline registration
 % concatenated: concatenated rigid, affine and B-Spline registration 
 mc.sElastixParams = 'normal';
+% joint CS MoCo
+mc.jointMCCS = false;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
