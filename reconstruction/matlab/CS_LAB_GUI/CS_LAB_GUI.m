@@ -776,7 +776,7 @@ if(isempty(measPara))
             end
     end
 end
-sInfoTxt{1} = sprintf('size (yPhase / Freq / zPhase|slice / time / channel): %d / %d / %d / %d / %d', measPara.dim(1), measPara.dim(2), measPara.dim(3), measPara.dim(4), measPara.dim(5));
+sInfoTxt{1} = sprintf('size (yPhase / xFreq / zPhase|slice / time / channel): %d / %d / %d / %d / %d', measPara.dim(1), measPara.dim(2), measPara.dim(3), measPara.dim(4), measPara.dim(5));
 switch sparseDim
     case 1 % yPhase, zPhase
         sInfoTxt{2} = sprintf('mask dim: %d x %d', measPara.dim(1), measPara.dim(3));
@@ -1048,24 +1048,34 @@ if(~measPara.prospectiveSub) % retrospective datasets
         case 1 % yPhase, zPhase
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(3)];
         case 2 % yPhase, xFreq
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(2)];
         case 3 % xFreq, zPhase
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(2), handles.measPara.dim(3)];
         case 4 % yPhase
             iPermMask = [1 2 3];
             iRepMask = [1 1 size(kSpaceIn{1},3)];
+            iSparseSize = [handles.measPara.dim(1), 1];
         case 5 % xFreq
             iPermMask = [2 1 3];
             iRepMask = [1 1 size(kSpaceIn{1},3)];
+            iSparseSize = [handles.measPara.dim(2), 1];
         case 6 % zPhase
             iPermMask = [1 2 3];
-            iRepMask = [1 1 size(kSpaceIn{1},3)];        
+            iRepMask = [1 1 size(kSpaceIn{1},3)];
+            iSparseSize = [handles.measPara.dim(3), 1];
     end
     
-    lMask = repmat(handles.dMask,iRepMask);
+    lMask = handles.dMask;
+    if(ndims(lMask) ~= length(iSparseSize) || any(size(lMask) ~= iSparseSize))
+        lMask = lMask(1:iSparseSize(1),1:iSparseSize(2));
+    end
+    lMask = repmat(lMask,iRepMask);
     lMask = permute(lMask,iPermMask);
     
 %     if(handles.dimMask(2) == 1) % 1D mask
@@ -1283,24 +1293,34 @@ if(~measPara.prospectiveSub) % retrospective datasets
         case 1 % yPhase, zPhase
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(3)];
         case 2 % yPhase, xFreq
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(2)];
         case 3 % xFreq, zPhase
             iPermMask = [1 3 2];
             iRepMask = [1 1 size(kSpaceIn{1},2)];
+            iSparseSize = [handles.measPara.dim(2), handles.measPara.dim(3)];
         case 4 % yPhase
             iPermMask = [1 2 3];
             iRepMask = [1 1 size(kSpaceIn{1},3)];
+            iSparseSize = [handles.measPara.dim(1), 1];
         case 5 % xFreq
             iPermMask = [2 1 3];
             iRepMask = [1 1 size(kSpaceIn{1},3)];
+            iSparseSize = [handles.measPara.dim(2), 1];
         case 6 % zPhase
             iPermMask = [1 2 3];
-            iRepMask = [1 1 size(kSpaceIn{1},3)];        
+            iRepMask = [1 1 size(kSpaceIn{1},3)];    
+            iSparseSize = [handles.measPara.dim(3), 1];
     end
     
-    lMask = repmat(handles.dMask,iRepMask);
+    lMask = handles.dMask;
+    if(ndims(lMask) ~= length(iSparseSize) || any(size(lMask) ~= iSparseSize))
+        lMask = lMask(1:iSparseSize(1),1:iSparseSize(2));
+    end
+    lMask = repmat(lMask,iRepMask);
     lMask = permute(lMask,iPermMask);
     
 %     if(handles.dimMask(2) == 1) % 1D mask
