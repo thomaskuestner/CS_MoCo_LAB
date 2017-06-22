@@ -373,9 +373,9 @@ function popCSAlgo_1_Callback(hObject, eventdata, handles)
 
 iInd = get(hObject,'Value');
 switch handles.cCSAlgos{iInd}
-    case {'FOCUSS', 'sparseMRI'}
+    case {'FOCUSS'}
         handles.cPossible{1} = true(1,length(handles.cSparseTrafos));
-    case {'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1'}
+    case {'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1', 'sparseMRI'}
         handles.cPossible{1} = logical([0 0 0 0 1 0 0]);
     case {'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig'}
         handles.cPossible{1} = logical([1 0 0 0 0 0 0]);
@@ -444,9 +444,9 @@ function popCSAlgo_2_Callback(hObject, eventdata, handles)
 
 iInd = get(hObject,'Value');
 switch handles.cCSAlgos{iInd}
-    case {'FOCUSS', 'sparseMRI'}
+    case {'FOCUSS'}
         handles.cPossible{2} = true(1,length(handles.cSparseTrafos));
-    case {'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1'}
+    case {'SPIRiT_CG', 'SPIRiT_POCS', 'ESPIRiT_CG', 'ESPIRiT_L1', 'sparseMRI'}
         handles.cPossible{2} = logical([0 0 0 0 1 0 0]);
     case {'L1_Magic_TV', 'L1_Magic_L1', 'L1_Magic_TVDantzig', 'L1_Magic_L1Dantzig'}
         handles.cPossible{2} = logical([1 0 0 0 0 0 0]);
@@ -563,25 +563,37 @@ if(~handles.measPara.prospectiveSub) % retrospective datasets
             case 1 % yPhase, zPhase
                 iPermMask = [1 3 2];
                 iRepMask = [1 1 size(kSpaceIn{1},2)];
+                iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(3)];
             case 2 % yPhase, xFreq
                 iPermMask = [1 3 2];
                 iRepMask = [1 1 size(kSpaceIn{1},2)];
+                iSparseSize = [handles.measPara.dim(1), handles.measPara.dim(2)];
             case 3 % xFreq, zPhase
                 iPermMask = [1 3 2];
                 iRepMask = [1 1 size(kSpaceIn{1},2)];
+                iSparseSize = [handles.measPara.dim(2), handles.measPara.dim(3)];
             case 4 % yPhase
                 iPermMask = [1 2 3];
                 iRepMask = [1 1 size(kSpaceIn{1},3)];
+                iSparseSize = [handles.measPara.dim(1), 1];
             case 5 % xFreq
                 iPermMask = [2 1 3];
                 iRepMask = [1 1 size(kSpaceIn{1},3)];
+                iSparseSize = [handles.measPara.dim(2), 1];
             case 6 % zPhase
                 iPermMask = [1 3 2];
-                iRepMask = [1 1 size(kSpaceIn{1},3)];        
+                iRepMask = [1 1 size(kSpaceIn{1},3)];
+                iSparseSize = [handles.measPara.dim(3), 1];
         end
 
-        lMask = repmat(handles.dMask,iRepMask);
+        lMask = handles.dMask;
+        if(ndims(lMask) ~= length(iSparseSize) || any(size(lMask) ~= iSparseSize))
+            lMask = lMask(1:iSparseSize(1),1:iSparseSize(2));
+        end
+        lMask = repmat(lMask,iRepMask);
         lMask = permute(lMask,iPermMask);
+%         lMask = repmat(handles.dMask,iRepMask);
+%         lMask = permute(lMask,iPermMask);
 %         if(handles.dimMask(2) == 1) % 1D mask
 %             lMask = repmat(handles.dMask, 1, 1, size(kSpaceIn{1},3));
 %         else % 2D mask (just for 3D datasets, and faked 2D y-x)

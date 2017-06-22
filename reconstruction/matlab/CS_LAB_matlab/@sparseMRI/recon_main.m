@@ -53,15 +53,16 @@ if(strcmp(obj.measPara.dimension,'2D'))
         kSpaceL(~mask) = 0;
         
         % set reconstruction parameter
-        SMparam.TVWeight = obj.lambdaTV;
-        SMparam.xfmWeight = obj.lambda;
-        SMparam.Itnlim = obj.iNINNER;
-        SMparam.l1Smooth = obj.l1Smooth;
-        SMparam.pNorm = obj.p;
-        SMparam.lineSearchItnlim = obj.lineSearchItnlim;
-        SMparam.lineSearchAlpha = obj.lineSearchAlpha;
-        SMparam.lineSearchBeta = obj.lineSearchBeta;
-        SMparam.lineSearchT0 = obj.lineSearchT0; 
+        SMParam.TVWeight = obj.lambdaTV;
+        SMParam.xfmWeight = obj.lambda;
+        SMParam.Itnlim = obj.iNINNER;
+        SMParam.l1Smooth = obj.l1Smooth;
+        SMParam.pNorm = obj.p;
+        SMParam.gradToll = obj.gradToll;
+        SMParam.lineSearchItnlim = obj.lineSearchItnlim;
+        SMParam.lineSearchAlpha = obj.lineSearchAlpha;
+        SMParam.lineSearchBeta = obj.lineSearchBeta;
+        SMParam.lineSearchT0 = obj.lineSearchT0; 
         
         if(strcmp(obj.trafo.trafoType,'fft'))
             SMParam.XFM = 1; 
@@ -77,7 +78,7 @@ if(strcmp(obj.measPara.dimension,'2D'))
         dispProgress('Time', 0, nTime);
         fprintf('sparseMRI reconstruction\n');
         for i=1:nTime
-            dispProgrss('Channel',0,nCha);
+            dispProgress('Channel',0,nCha);
             for iCha=1:nCha
                 if(obj.window.windowingOn)
                     window = windowND(obj.window.type,[size(kSpaceL,1), size(kSpaceL,2)],obj.window.windowOpt{1},obj.window.windowOpt{2});
@@ -86,10 +87,10 @@ if(strcmp(obj.measPara.dimension,'2D'))
                 else
                     phaseMap = 1;
                 end
-                param.FT = p2DFT(mask(:,:,iCha,i), [size(kSpaceL,1), size(kSpaceL,2)], phaseMap, 2); 
+                SMParam.FT = p2DFT(mask(:,:,iCha,i), [size(kSpaceL,1), size(kSpaceL,2)], phaseMap, 2); 
                 
                 res = zeros(size(kSpaceL,1),size(kSpaceL,2));
-                for iO=1:iNOUTER
+                for iO=1:obj.iNOUTER
                     res = fnlCg(res, SMParam);
                 end
                 image(:,:,iCha,i) = SMParam.XFM'*res;
