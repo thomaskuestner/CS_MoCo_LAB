@@ -33,7 +33,7 @@ if(strcmp(obj.measPara.dimension,'2D'))
         obj.measPara.dim(2) = size(obj.kSpace{1,1},2);
     end
     
-    if(~isreal(kSpace))
+    if(~isreal(obj.kSpace))
         % boolean variable for complex images
         bComplex = true;
         N = 2*obj.measPara.dim(1)*obj.measPara.dim(2);

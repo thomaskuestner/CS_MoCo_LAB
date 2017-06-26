@@ -66,7 +66,7 @@ if(strcmp(obj.measPara.dimension,'2D'))
         obj.kernel = obj.kCalib;
         obj.kernelImg = obj.kCalib;
         ESP = obj.kCalib;
-        obj.A = obj.kCalib;
+%         obj.A = obj.kCalib;
     
         % convolution with GRAPPA kernel in k-space -> multiplication in image
         % domain
@@ -170,9 +170,9 @@ if(strcmp(obj.measPara.dimension,'2D'))
                     if(strcmp(obj.trafo.trafoType,'fft'))
                         XOP = FT;
                     end
-                    image(:,:,:,i) = obj.cgL1ESPIRiT(kSpaceL(:,:,:,i), zeros(size(kSpaceL(:,:,:,i))), FT, ESP, obj.iNINNER, XOP, obj.trafo.wavWeight, obj.splitWeight, obj.iNIterSplit); % => y-x-cha-t
+                    image(:,:,:,i) = obj.cgL1ESPIRiT(kSpaceL(:,:,:,i), zeros(size(kSpaceL(:,:,:,i))), FT, ESP{i}, obj.iNINNER, XOP, obj.trafo.wavWeight, obj.splitWeight, obj.iNIterSplit); % => y-x-cha-t
                 else
-                    [~,image(:,:,:,i)] = obj.cgESPIRiT(kSpaceL(:,:,:,i),ESP, obj.iNINNER, obj.calibTyk, zeros(size(kSpaceL(:,:,:,i))));
+                    [~,image(:,:,:,i)] = obj.cgESPIRiT(kSpaceL(:,:,:,i),ESP{i}, obj.iNINNER, obj.calibTyk, zeros(size(kSpaceL(:,:,:,i))));
                 end
             else
                 if(ispc)

@@ -101,7 +101,7 @@ if(strcmp(obj.measPara.dimension,'2D'))
 %             end
             
             obj.kernel = calibSPIRiT(obj.kCalib{i}, obj.kernelSize, nCha, obj.calibTyk);
-            allGOPs{i} = SPIRiT(obj.kernel{i}, 'fft',[nPha,nFreq]);
+            allGOPs{i} = SPIRiT(obj.kernel, 'fft',[nPha,nFreq]);
 
         end
 

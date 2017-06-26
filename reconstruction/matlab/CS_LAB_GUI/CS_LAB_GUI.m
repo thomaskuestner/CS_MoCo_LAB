@@ -1383,9 +1383,9 @@ for iI=1:length(cFieldnames)
         case 'pfn'
             sFormat = 'espresso.%s = %f;\n';
         case 'state'            
-            sFormat = 'espresso.%s = sTmp{%d+1};\n';
+            sFormat = 'espresso.%s = logical(%d);\n';
         case 'direction'
-            sFormat = 'espresso.%s = %s;\n';
+            sFormat = 'espresso.%s = ''%s'';\n';
     end
     fprintf(fid, sFormat, cFieldnames{iI}, espresso.(cFieldnames{iI}));
 end
