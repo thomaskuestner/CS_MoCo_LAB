@@ -23,6 +23,8 @@ https://github.com/thomaskuestner/4DMRImaging
 https://sites.google.com/site/kspaceastronauts/motion-correction/pet-mr-motion-correction
 - acquisition: CS_Retro (Siemens, VB20P)
 - reconstruction: CS_LAB in gadgetron + data emitters and injectors
+### Image Registration
+https://sites.google.com/site/kspaceastronauts/motion-correction/mocogui
 
 --------------------------------------------------------
 Please read LICENSE file for licensing details.
