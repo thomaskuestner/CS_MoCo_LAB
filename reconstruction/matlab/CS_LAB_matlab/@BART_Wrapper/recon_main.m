@@ -235,7 +235,7 @@ elseif(strcmp(obj.measPara.dimension,'4D'))
     calibSize = zeros(size(obj.fullMask,5),3);
     for iTime = 1:size(obj.fullMask,5)
         calibSize(iTime,:) = obj.calibrationSize(obj.fullMask(:,:,:,1,iTime));
-        if(any(calibSize(iTime,:) <= 2))
+        if(any(calibSize(iTime,:) <= 4)) % or <= 2
             lEnsureCenter = true;
         end
     end

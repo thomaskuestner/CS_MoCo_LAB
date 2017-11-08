@@ -555,7 +555,7 @@ if(prop.flagPlot && exist('imagine','file'))
     figname = [figname,'_',postproc.type];
     
     % if imagine is already open, add new image in same window
-    hfig = findobj('type','figure','name','IMAGINE 1.4 T�bingen Edition');
+    hfig = findobj('type','figure','name','IMAGINE 2.0 Belly Jeans');
     if(length(hfig) > 1)
         hfig = max(hfig);
     end
