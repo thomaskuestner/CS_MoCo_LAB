@@ -6,7 +6,7 @@
 
 - for parallel computing: compiler with openmp standard (recommended)
 
---- installation instruction ---
+--- (standalone) installation instruction ---
 mkdir /home/LAP
 cd /home/LAP
 cmake /PATH_TO_SRC

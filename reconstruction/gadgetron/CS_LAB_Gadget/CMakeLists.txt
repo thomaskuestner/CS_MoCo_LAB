@@ -392,7 +392,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
         src/GADGET_TOOLS/hoNDDCT.h 
-        src/GADGET_TOOLS/RegistrationGadget.h
+        src/REGISTRATION/RegistrationGadget.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h		
 		src/RETRO/CS_Retro_AccumulatorGadget.h
@@ -418,7 +418,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-		src/GADGET_TOOLS/RegistrationGadget.cpp
+		src/REGISTRATION/RegistrationGadget.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
