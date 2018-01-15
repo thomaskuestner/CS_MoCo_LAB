@@ -335,7 +335,12 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
 		src/GADGET_TOOLS/hoNDDCT.h
-		#src/GADGET_TOOLS/RegistrationGadget.h
+		src/REGISTRATION/RegistrationGadget.h
+		src/LAP_GADGET/LAPRegistrationGadget.h
+		src/LAP_GADGET/lap3d.h
+		src/LAP_GADGET/gaussianfilterbasis.h
+		src/LAP_GADGET/maynamespaces.h
+		src/LAP_GADGET/shiftengine3d.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h
 		src/RETRO/CS_Retro_AccumulatorGadget.h
@@ -365,7 +370,12 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-		#src/GADGET_TOOLS/RegistrationGadget.cpp
+		src/REGISTRATION/RegistrationGadget.cpp
+		src/LAP_GADGET/LAPRegistrationGadget.cpp
+		src/LAP_GADGET/lap3d.cpp
+		src/LAP_GADGET/gaussianfilterbasis.cpp
+		src/LAP_GADGET/maynamespaces.cpp
+		src/LAP_GADGET/shiftengine3d.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp		
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
@@ -393,6 +403,11 @@ ELSE()
 		src/GADGET_TOOLS/hoNDKLT_CS.h
         src/GADGET_TOOLS/hoNDDCT.h 
         src/REGISTRATION/RegistrationGadget.h
+		src/LAP_GADGET/LAPRegistrationGadget.h
+		src/LAP_GADGET/lap3d.h
+		src/LAP_GADGET/gaussianfilterbasis.h
+		src/LAP_GADGET/maynamespaces.h
+		src/LAP_GADGET/shiftengine3d.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h		
 		src/RETRO/CS_Retro_AccumulatorGadget.h
@@ -419,6 +434,11 @@ ELSE()
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
 		src/REGISTRATION/RegistrationGadget.cpp
+		src/LAP_GADGET/LAPRegistrationGadget.cpp
+		src/LAP_GADGET/lap3d.cpp
+		src/LAP_GADGET/gaussianfilterbasis.cpp
+		src/LAP_GADGET/maynamespaces.cpp
+		src/LAP_GADGET/shiftengine3d.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp

@@ -38,6 +38,10 @@ LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_, int levelM
     }
 }
 
+void LAP3D::setMovingImage(const CubeType &I2_){
+	I2 = I2_;
+}
+
 field<CubeType> LAP3D::exec(){
 
     //Prefilter I1

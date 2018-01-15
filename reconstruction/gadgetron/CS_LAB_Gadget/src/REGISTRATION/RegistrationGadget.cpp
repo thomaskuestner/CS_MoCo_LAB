@@ -2,6 +2,7 @@
 file name	: 	RegistrationGadget.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
+				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 
 version		: 	1.1
 

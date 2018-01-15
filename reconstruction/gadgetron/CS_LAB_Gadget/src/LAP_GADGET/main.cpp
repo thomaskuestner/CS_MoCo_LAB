@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
     field<CubeType> flow_estimation = mLAP3D.exec();
 
 
-
     //Shift first image according to estimated optical flow
     ShiftEngine3D shifter(i1, flow_estimation(0), flow_estimation(1), flow_estimation(2));
     CubeType i_hat_fast = shifter.execCubicShift();
