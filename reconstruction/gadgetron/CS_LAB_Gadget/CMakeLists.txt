@@ -339,7 +339,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
-		src/LAP_GADGET/maynamespaces.h
+		src/LAP_GADGET/mynamespaces.h
 		src/LAP_GADGET/shiftengine3d.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h
@@ -374,7 +374,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
-		src/LAP_GADGET/maynamespaces.cpp
+		src/LAP_GADGET/mynamespaces.cpp
 		src/LAP_GADGET/shiftengine3d.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp		
@@ -406,7 +406,7 @@ ELSE()
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
-		src/LAP_GADGET/maynamespaces.h
+		src/LAP_GADGET/mynamespaces.h
 		src/LAP_GADGET/shiftengine3d.h
 		src/GADGET_TOOLS/ImageAccumulatorGadget.h
 		src/GADGET_TOOLS/ImageSlicerGadget.h		
@@ -437,7 +437,7 @@ ELSE()
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
-		src/LAP_GADGET/maynamespaces.cpp
+		src/LAP_GADGET/mynamespaces.cpp
 		src/LAP_GADGET/shiftengine3d.cpp
 		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
