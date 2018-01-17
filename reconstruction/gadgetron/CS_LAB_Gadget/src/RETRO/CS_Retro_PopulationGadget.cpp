@@ -343,7 +343,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 
 		// gauss
 	case 3:
-		double pi = 3.14159265358979323846;
 		hacfKSpace_reordered_.create(dimensionsIn_.at(0)*2, dimensionsIn_.at(1), dimensionsIn_.at(2), iNoGates, iNoChannels_);
 
 		//% CARDIAC PHASES loop
@@ -358,7 +357,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 			// x = vNavInt_; sigma = vTolerance_ µ = cfVentorids_
 			double dWeightAccu = 0;
 			for(long k=0; k < vNavInt_.size(); k++){
-				vWeights.at(k) = 1/(vTolerance_.at(iPh)*sqrt(2*pi)) *  exp(-((vNavInt_.at(k)-vfCentroids_.at(iPh))^2)/(2*((vTolerance_.at(iPh))^2)));
+				vWeights.at(k) = 1/(vTolerance_.at(iPh)*std::sqrt(2*M_PI)) *  exp(-(std::pow(vNavInt_.at(k)-vfCentroids_.at(iPh),2))/(2*(std::pow(vTolerance_.at(iPh),2))));
 				dWeightAccu = dWeightAccu + vWeights.at(k);
 			}
 			if(dWeightAccu ==0){ //don't divide by 0
@@ -416,8 +415,8 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 							}
 						}
 						//dDataAccu = dDataAccu./(dWeightAccu);
-						for(long i = 0; i < KSpace_reordered_.get_number_of_elements(); i++){
-							hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / dWeightAccu;
+						for(long i = 0; i < hacfKSpace_reordered_.get_number_of_elements(); i++){
+							hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / static_cast<float>(dWeightAccu);	// cast dWeightAccu to float in order to match operator /
 						}
 					}
 				}

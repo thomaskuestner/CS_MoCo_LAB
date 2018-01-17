@@ -2,11 +2,11 @@
 #include "shiftengine3d.h"
 #include "gaussianfilterbasis.h"
 
-LAP3D::LAP3D(){
+Gadgetron::LAP3D::LAP3D(){
 
 }
 
-LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_, int levelMax_){
+Gadgetron::LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_, int levelMax_){
 
     //Check if images have same size
     if(I1_.n_rows != I2_.n_rows || I1_.n_rows != I2_.n_rows || I1_.n_rows != I2_.n_rows){
@@ -38,11 +38,11 @@ LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_, int levelM
     }
 }
 
-void LAP3D::setMovingImage(const CubeType &I2_){
+void Gadgetron::LAP3D::setMovingImage(const CubeType &I2_){
 	I2 = I2_;
 }
 
-field<CubeType> LAP3D::exec(){
+field<CubeType> Gadgetron::LAP3D::exec(){
 
     //Prefilter I1
     I1 = I1 - myfilter::conv(I1, hGaussian);
@@ -106,18 +106,18 @@ field<CubeType> LAP3D::exec(){
 return u_holder;
 }
 
-field<CubeType> LAP3D::estimateOpticalFlow3DKSpace(CubeType &I1_k_, CubeType &I2_k_, int sampleStepSize, int K_){
+field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3DKSpace(CubeType &I1_k_, CubeType &I2_k_, int sampleStepSize, int K_){
     int N = 4;
     //Create the GaussianFilterBasis with current Filtersize K
     GaussianFilterBasis mBasis(K_);
-    int K1 = 2*K+1; //Blocksize
+    int K1 = 2*K_+1; //Blocksize
 
 
 }
 
 
 
-field<CubeType> LAP3D::estimateOpticalFlow3D( CubeType &I1_,  CubeType &I2_, int K_){
+field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D( CubeType &I1_,  CubeType &I2_, int K_){
     int N = 4;
     //Create the GaussianFilterBasis with current Filtersize K
     GaussianFilterBasis mBasis(K_);
@@ -217,7 +217,7 @@ field<CubeType> LAP3D::estimateOpticalFlow3D( CubeType &I1_,  CubeType &I2_, int
     return u_est;
 }
 
-field<CubeType> LAP3D::cleanOF3D(field<CubeType> &u_est){
+field<CubeType> Gadgetron::LAP3D::cleanOF3D(field<CubeType> &u_est){
     //find nans in flow and replace with zeros
     for(int i = 0; i < 3; i++){
         u_est(i).elem(find_nonfinite(u_est(i))).zeros();
@@ -228,14 +228,14 @@ field<CubeType> LAP3D::cleanOF3D(field<CubeType> &u_est){
     return u_est;
 }
 
-bool LAP3D::cleaningProcedure(){
+bool Gadgetron::LAP3D::cleaningProcedure(){
     for(int i = 0; i < 3; i++){
 
     }
 }
 
 
-ColType LAP3D::average(const ColType &I_, int K_){
+ColType Gadgetron::LAP3D::average(const ColType &I_, int K_){
     K_=K_*2+1;
     CubeType II(I_.n_elem, 1, 1);
     II.slice(0).col(0) = I_;

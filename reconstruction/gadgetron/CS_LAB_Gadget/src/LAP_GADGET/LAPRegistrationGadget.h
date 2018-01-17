@@ -63,8 +63,8 @@ namespace Gadgetron
 		int iLvlMax_;
 
 		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(LvlMin, std::int, "LvlMin", "");
-			GADGET_PROPERTY(LvlMax, std::int, "LvlMax", "");
+			GADGET_PROPERTY(LvlMin, int, "LvlMin", 0);
+			GADGET_PROPERTY(LvlMax, int, "LvlMax", 4);
 		#endif
 	};
 }

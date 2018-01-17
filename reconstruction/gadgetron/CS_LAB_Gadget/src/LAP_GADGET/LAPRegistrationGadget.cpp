@@ -97,7 +97,7 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 	CubeType cFixedImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
 	CubeType cMovingImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
 	
-	memcpy(cFixedImage, fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));	
+	memcpy(&cFixedImage, fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));	
 	
 	//Construct the LocalAllpass Algorithm Object with Level min and max
     LAP3D mLAP3D(cFixedImage, cMovingImage, iLvlMin_, iLvlMax_);
@@ -113,7 +113,7 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
 		
-		memcpy(cMovingImage, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+		memcpy(&cMovingImage, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 		mLAP3D.setMovingImage(cMovingImage);
 		
 		// image registration
@@ -121,14 +121,14 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 				
 		// get output image
 		//Shift first image according to estimated optical flow
-		ShiftEngine3D shifter(i1, flow_estimation(0), flow_estimation(1), flow_estimation(2));
+		ShiftEngine3D shifter(cFixedImage, flow_estimation(0), flow_estimation(1), flow_estimation(2));
 		CubeType cRegisteredImage = shifter.execCubicShift();
 				
 		// copy image to new registered 4D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, cRegisteredImage, cuiNumberOfPixels*sizeof(float));
+		memcpy(fRegisteredImage.get_data_ptr()+tOffset, &cRegisteredImage, cuiNumberOfPixels*sizeof(float));
 
 		// clean up
-		delete shifter;
+		delete &shifter;
 	}
 	
 	// new GadgetContainer

@@ -1,10 +1,10 @@
 #include "shiftengine3d.h"
 #include "sigpack/sigpack.h"
-ShiftEngine3D::ShiftEngine3D(){
+Gadgetron::ShiftEngine3D::ShiftEngine3D(){
 
 }
 
-ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_, CubeType uz_){
+Gadgetron::ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_, CubeType uz_){
     if(i_.n_rows!=ux_.n_rows ||
             i_.n_rows != uy_.n_rows ||
             i_.n_rows != uz_.n_rows){
@@ -49,12 +49,12 @@ ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_, CubeType u
     } z = myarma::permuteSimple(z, 321);
 }
 
-CubeType ShiftEngine3D::execCubicShift(){
+CubeType Gadgetron::ShiftEngine3D::execCubicShift(){
     return cubicInterp(x-ux, y-uy, z-uz, image);
 
 }
 
-CubeType ShiftEngine3D::execLinShift(){
+CubeType Gadgetron::ShiftEngine3D::execLinShift(){
 
 
     //Parameters for shifted-linear interpolation
@@ -86,7 +86,16 @@ CubeType ShiftEngine3D::execLinShift(){
     int mm0 = std::min(m0,1);
     int mm1 = std::max(m1,c);
 
-    ColType extsize = {1-kk0, kk1-a, 1-ll0, ll1-b, 1-mm0, mm1-c};
+    // Convert entries to float to suppress narrowing conversion warning
+    ColType extsize = {
+        static_cast<float>(1-kk0),
+        static_cast<float>(kk1-a),
+        static_cast<float>(1-ll0),
+        static_cast<float>(ll1-b),
+        static_cast<float>(1-mm0),
+        static_cast<float>(mm1-c)
+    };
+
     //extsize.print("extsize");
     CubeType I0 = ext(image, extsize);
     //I0.subcube(span(0,3),span(0,3),span(0,3)).print("I0");
@@ -193,7 +202,7 @@ CubeType ShiftEngine3D::execLinShift(){
     return out;
 }
 
-CubeType ShiftEngine3D::ext(CubeType i_, ColType extsize_){
+CubeType Gadgetron::ShiftEngine3D::ext(CubeType i_, ColType extsize_){
     int newa = a+extsize_(0)+extsize_(1);
     int newb = b+extsize_(2)+extsize_(3);
     int newc = c+extsize_(4)+extsize_(5);
@@ -229,7 +238,7 @@ CubeType ShiftEngine3D::ext(CubeType i_, ColType extsize_){
     return J;
 }
 
-CubeType ShiftEngine3D::filtering(ColType numerator, ColType denumerator, CubeType i_){
+CubeType Gadgetron::ShiftEngine3D::filtering(ColType numerator, ColType denumerator, CubeType i_){
     CubeType out(i_.n_rows, i_.n_cols, i_.n_slices, fill::zeros);
     //bsxfun minus
     for(int k = 0; k < out.n_slices; k++){
@@ -253,7 +262,7 @@ CubeType ShiftEngine3D::filtering(ColType numerator, ColType denumerator, CubeTy
     return out;
 }
 
-CubeType ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType x){
+CubeType Gadgetron::ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType x){
     int N = x.n_rows;
     int K1 = x.n_cols;
     int K2 = x.n_slices;
@@ -320,9 +329,9 @@ CubeType ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType x){
 
 }
 
-bool ShiftEngine3D::mirt3D_mexinterp(PixelType *Z, PixelType *S, PixelType *T, PixelType *W, PixelType *F, int MN, int nrows, int ncols, int npages, int ndim){
-    int	n, in1, in2, in3, in4, in5, in6, in7, in8;
-    double	t, s,  s1, w, w1, tmp, nan;
+bool Gadgetron::ShiftEngine3D::mirt3D_mexinterp(PixelType *Z, PixelType *S, PixelType *T, PixelType *W, PixelType *F, int MN, int nrows, int ncols, int npages, int ndim){
+    int n, in1, in2, in3, in4, in5, in6, in7, in8;
+    double t, s,  s1, w, w1, tmp, nan;
     double m1, m2, m3, m4, m5, m6, m7, m8;
     int ndx, nw, Zshift, i, nrowsncols, ft, fs, fw;
 
@@ -406,7 +415,7 @@ bool ShiftEngine3D::mirt3D_mexinterp(PixelType *Z, PixelType *S, PixelType *T, P
     return true;
 }
 
-CubeType ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType z, CubeType I){
+CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType z, CubeType I){
     int L1 = -2;
     int L2 = 2;
     int phi;
@@ -419,7 +428,13 @@ CubeType ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType z, CubeType
     int m0 = floor(z.min()-L2+1);
     int m1 = floor(z.max()-L1);
 
-    ColType offset({1-k0, 1-l0, 1-m0});
+    // Convert entries to float to suppress narrowing conversion warning
+    ColType offset({
+        static_cast<float>(1-k0),
+        static_cast<float>(1-l0),
+        static_cast<float>(1-m0)
+    });
+
     //Smallest box enclosing the image and the (x,y) positions
     int kk0 = std::min(k0,1);
     int kk1 = std::max(k1,a);
@@ -433,7 +448,15 @@ CubeType ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType z, CubeType
     CubeType l=arma::floor(y-L2+1);
     CubeType m=arma::floor(z-L2+1);
 
-    ColType extsize = {1-kk0, kk1-a, 1-ll0, ll1-b, 1-mm0, mm1-c};
+    // Convert entries to float to suppress narrowing conversion warning
+    ColType extsize = {
+        static_cast<float>(1-kk0),
+        static_cast<float>(kk1-a),
+        static_cast<float>(1-ll0),
+        static_cast<float>(ll1-b),
+        static_cast<float>(1-mm0),
+        static_cast<float>(mm1-c)
+    };
     CubeType I0 = ext(image, extsize);
     I0 = I0(span(1-kk0+k0-1, 1-kk0+k1-1), span(1-ll0+l0-1, 1-ll0+l1-1), span(1-mm0+m0-1, 1-mm0+m1-1));
 
@@ -455,7 +478,16 @@ CubeType ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType z, CubeType
     J = symfilter((float)13/(float)21,(float)4/(float)21,J);
     J = myarma::permuteSimple(J, 231);
 
-    extsize = {1-kk0, kk1-a, 1-ll0, ll1-b, 1-mm0, mm1-c};
+    // Convert entries to float to suppress narrowing conversion warning
+    extsize = {
+        static_cast<float>(1-kk0),
+        static_cast<float>(kk1-a),
+        static_cast<float>(1-ll0),
+        static_cast<float>(ll1-b),
+        static_cast<float>(1-mm0),
+        static_cast<float>(mm1-c)
+    };
+
     I0 = ext(J, extsize);
     I0 = I0(span(1-kk0+k0-1, 1-kk0+k1-1), span(1-ll0+l0-1, 1-ll0+l1-1), span(1-mm0+m0-1, 1-mm0+m1-1));
 

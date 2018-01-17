@@ -1,10 +1,10 @@
 #include "gaussianfilterbasis.h"
 
-GaussianFilterBasis::GaussianFilterBasis(){
+Gadgetron::GaussianFilterBasis::GaussianFilterBasis(){
 
 }
 
-GaussianFilterBasis::GaussianFilterBasis(int size_){
+Gadgetron::GaussianFilterBasis::GaussianFilterBasis(int size_){
     size = ceil(size_);
 
     k.set_size(2*size+1, 2*size+1, 2*size+1);
