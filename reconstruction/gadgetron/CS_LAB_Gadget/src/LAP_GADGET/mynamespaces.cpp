@@ -14,7 +14,7 @@ ColType myarma::roots(ColType c){
     uvec inz = find(c);
     if (inz.is_empty()){
         // All elements are zero
-        return false;
+        return NULL;
     }
 
     // Strip leading zeros and throw away.
