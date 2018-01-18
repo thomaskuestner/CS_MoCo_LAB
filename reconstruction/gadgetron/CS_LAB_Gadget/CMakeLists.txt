@@ -33,14 +33,14 @@ ENDIF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 find_package(OpenMP)
 option(USE_OPENMP "Use OpenMP" On)
 IF (OPENMP_FOUND)
-    IF(USE_OPENMP) 
+    IF(USE_OPENMP)
         message("OpenMP multithreading enabled")
         set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
         add_definitions(-DUSE_OMP)
     ELSE (USE_OPENMP)
         message("OpenMP multithreading is supported, but disabled")
-    ENDIF(USE_OPENMP) 
+    ENDIF(USE_OPENMP)
 ELSE (OPENMP_FOUND)
   message("OpenMP multithreading not supported")
 ENDIF (OPENMP_FOUND)
@@ -62,8 +62,8 @@ IF (WIN32)
     set (CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     set (CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
     # The two flags below is to fix Windows problems in relation to multiple defined operators new/delete and some constructors that are defined in our headers
-    #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE") 
-    #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE") 
+    #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+    #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
 ELSE (WIN32)
     IF (UNIX)
         IF (APPLE)
@@ -235,12 +235,12 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	IF (ACE_FOUND AND ISMRMRD_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
 	ELSE()
 	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, FFTW3, HDF5).")
-	ENDIF()	
+	ENDIF()
 ELSE()
 	IF (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
 	ELSE()
 	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
-	ENDIF()	
+	ENDIF()
 ENDIF()
 
 add_subdirectory(cmake)
@@ -252,7 +252,7 @@ ENDIF (WIN32)
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	find_package(Gadgetron REQUIRED)
 ELSE()
-	find_package(GadgetronOld REQUIRED)	
+	find_package(GadgetronOld REQUIRED)
 ENDIF()
 
 find_package(Ismrmrd REQUIRED)
@@ -284,7 +284,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		${ARMADILLO_INCLUDE_DIRS}
 		${CMAKE_SOURCE_DIR}/src/FOCUSS
 		${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
-		${ACE_INCLUDE_DIR} 
+		${ACE_INCLUDE_DIR}
 		${Boost_INCLUDE_DIR}
 		${GADGETRON_INCLUDE_DIR}
 		${ISMRMRD_INCLUDE_DIR}
@@ -303,7 +303,7 @@ ELSE()
 			${ARMADILLO_INCLUDE_DIRS}
 			${CMAKE_SOURCE_DIR}/src/FOCUSS
 			${CMAKE_SOURCE_DIR}/src/GADGET_TOOLS
-			${ACE_INCLUDE_DIR} 
+			${ACE_INCLUDE_DIR}
 			${Boost_INCLUDE_DIR}
 			${GADGETRON_INCLUDE_DIR}
 			${ISMRMRD_INCLUDE_DIR}
@@ -313,22 +313,22 @@ ELSE()
 			${FFTW3_INCLUDE_DIR}
 			${XSD_INCLUDE_DIR}
 			${XERCESC_INCLUDE_DIR}
-		)		
-	ENDIF()	
+		)
+	ENDIF()
 ENDIF()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 
 	set(cs_lab_header_files CS_LAB.h
-		src/FOCUSS/CS_Control.h 
-		src/FOCUSS/CS_FOCUSS.h 		
-		src/FOCUSS/Transform.h 
+		src/FOCUSS/CS_Control.h
+		src/FOCUSS/CS_FOCUSS.h
+		src/FOCUSS/Transform.h
 		src/FOCUSS/TransformWrapper.h
 		src/FOCUSS/GlobalVar.h
-		src/FOCUSS/SomeFunctions.h 
-		src/FOCUSS/SomeFunctions.hxx 		
+		src/FOCUSS/SomeFunctions.h
+		src/FOCUSS/SomeFunctions.hxx
 		src/GADGET_TOOLS/AcquisitionFinishGadget.h
-		src/GADGET_TOOLS/CS_AccumulatorGadget.h		
+		src/GADGET_TOOLS/CS_AccumulatorGadget.h
 		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
 		src/GADGET_TOOLS/SlicerGadget.h
 		src/GADGET_TOOLS/CS_CombineGadget.h
@@ -350,83 +350,20 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		include/new/GadgetronCommon.h
 		include/new/hoNDArray_operators.h
 		include/new/hoNDArray_blas.h
-		include/new/hoMatrix_util.h		
+		include/new/hoMatrix_util.h
 	)
 
 	set(cs_lab_src_files CS_LAB.cpp
-		src/FOCUSS/CS_Control.cpp 
-		src/FOCUSS/CS_FOCUSS.cpp 
-		src/FOCUSS/CS_FOCUSS_2D.cpp 
-		src/FOCUSS/CS_FOCUSS_2Dt.cpp 
+		src/FOCUSS/CS_Control.cpp
+		src/FOCUSS/CS_FOCUSS.cpp
+		src/FOCUSS/CS_FOCUSS_2D.cpp
+		src/FOCUSS/CS_FOCUSS_2Dt.cpp
 		src/FOCUSS/CS_FOCUSS_3D.cpp
 		src/FOCUSS/CS_FOCUSS_4D.cpp
 		src/FOCUSS/Transform.cpp
-		src/FOCUSS/GlobalVar.cpp		
-		src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp		
-		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
-		src/GADGET_TOOLS/SlicerGadget.cpp
-		src/GADGET_TOOLS/CS_CombineGadget.cpp
-		src/GADGET_TOOLS/hoNDFFT_CS.cpp
-		src/GADGET_TOOLS/hoNDKLT_CS.cpp
-		src/GADGET_TOOLS/hoNDDCT.cpp
-		src/REGISTRATION/RegistrationGadget.cpp
-		src/LAP_GADGET/LAPRegistrationGadget.cpp
-		src/LAP_GADGET/lap3d.cpp
-		src/LAP_GADGET/gaussianfilterbasis.cpp
-		src/LAP_GADGET/mynamespaces.cpp
-		src/LAP_GADGET/shiftengine3d.cpp
-		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
-		src/GADGET_TOOLS/ImageSlicerGadget.cpp		
-		src/RETRO/CS_Retro_AccumulatorGadget.cpp
-		src/RETRO/CS_Retro_NavigatorGadget.cpp
-		src/RETRO/CS_Retro_PopulationGadget.cpp
-		include/new/hoNDArray_math_util.cpp
-		include/new/hoNDArray_operators.cpp
-	)
-
-ELSE()
-	set(cs_lab_header_files CS_LAB.h
-		src/FOCUSS/CS_Control.h 
-        src/FOCUSS/CS_FOCUSS.h
-		src/FOCUSS/Transform.h
-		src/FOCUSS/TransformWrapper.h
-		src/FOCUSS/GlobalVar.h
-		src/FOCUSS/SomeFunctions.h 
-        src/FOCUSS/SomeFunctions.hxx 
-		src/GADGET_TOOLS/AcquisitionFinishGadget.h
-		src/GADGET_TOOLS/CS_AccumulatorGadget.h		
-		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
-		src/GADGET_TOOLS/SlicerGadget.h
-		src/GADGET_TOOLS/CS_CombineGadget.h
-		src/GADGET_TOOLS/hoNDFFT_CS.h
-		src/GADGET_TOOLS/hoNDKLT_CS.h
-        src/GADGET_TOOLS/hoNDDCT.h 
-        src/REGISTRATION/RegistrationGadget.h
-		src/LAP_GADGET/LAPRegistrationGadget.h
-		src/LAP_GADGET/lap3d.h
-		src/LAP_GADGET/gaussianfilterbasis.h
-		src/LAP_GADGET/mynamespaces.h
-		src/LAP_GADGET/shiftengine3d.h
-		src/GADGET_TOOLS/ImageAccumulatorGadget.h
-		src/GADGET_TOOLS/ImageSlicerGadget.h		
-		src/RETRO/CS_Retro_AccumulatorGadget.h
-		src/RETRO/CS_Retro_NavigatorGadget.h
-		src/RETRO/CS_Retro_PopulationGadget.h		
-		include/old/hoNDArray_linalg.h		
-	)
-
-	set(cs_lab_src_files CS_LAB.cpp
-		src/FOCUSS/CS_Control.cpp 
-		src/FOCUSS/CS_FOCUSS.cpp 
-		src/FOCUSS/CS_FOCUSS_2D.cpp 
-		src/FOCUSS/CS_FOCUSS_2Dt.cpp 
-		src/FOCUSS/CS_FOCUSS_3D.cpp
-		src/FOCUSS/CS_FOCUSS_4D.cpp		
-		src/FOCUSS/Transform.cpp
 		src/FOCUSS/GlobalVar.cpp
 		src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
-		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp		
+		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
 		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
 		src/GADGET_TOOLS/SlicerGadget.cpp
 		src/GADGET_TOOLS/CS_CombineGadget.cpp
@@ -443,34 +380,97 @@ ELSE()
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
 		src/RETRO/CS_Retro_NavigatorGadget.cpp
-		src/RETRO/CS_Retro_PopulationGadget.cpp		
-		include/old/hoNDArray_linalg.cpp		
+		src/RETRO/CS_Retro_PopulationGadget.cpp
+		include/new/hoNDArray_math_util.cpp
+		include/new/hoNDArray_operators.cpp
+	)
+
+ELSE()
+	set(cs_lab_header_files CS_LAB.h
+		src/FOCUSS/CS_Control.h
+        src/FOCUSS/CS_FOCUSS.h
+		src/FOCUSS/Transform.h
+		src/FOCUSS/TransformWrapper.h
+		src/FOCUSS/GlobalVar.h
+		src/FOCUSS/SomeFunctions.h
+        src/FOCUSS/SomeFunctions.hxx
+		src/GADGET_TOOLS/AcquisitionFinishGadget.h
+		src/GADGET_TOOLS/CS_AccumulatorGadget.h
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
+		src/GADGET_TOOLS/SlicerGadget.h
+		src/GADGET_TOOLS/CS_CombineGadget.h
+		src/GADGET_TOOLS/hoNDFFT_CS.h
+		src/GADGET_TOOLS/hoNDKLT_CS.h
+        src/GADGET_TOOLS/hoNDDCT.h
+        src/REGISTRATION/RegistrationGadget.h
+		src/LAP_GADGET/LAPRegistrationGadget.h
+		src/LAP_GADGET/lap3d.h
+		src/LAP_GADGET/gaussianfilterbasis.h
+		src/LAP_GADGET/mynamespaces.h
+		src/LAP_GADGET/shiftengine3d.h
+		src/GADGET_TOOLS/ImageAccumulatorGadget.h
+		src/GADGET_TOOLS/ImageSlicerGadget.h
+		src/RETRO/CS_Retro_AccumulatorGadget.h
+		src/RETRO/CS_Retro_NavigatorGadget.h
+		src/RETRO/CS_Retro_PopulationGadget.h
+		include/old/hoNDArray_linalg.h
+	)
+
+	set(cs_lab_src_files CS_LAB.cpp
+		src/FOCUSS/CS_Control.cpp
+		src/FOCUSS/CS_FOCUSS.cpp
+		src/FOCUSS/CS_FOCUSS_2D.cpp
+		src/FOCUSS/CS_FOCUSS_2Dt.cpp
+		src/FOCUSS/CS_FOCUSS_3D.cpp
+		src/FOCUSS/CS_FOCUSS_4D.cpp
+		src/FOCUSS/Transform.cpp
+		src/FOCUSS/GlobalVar.cpp
+		src/GADGET_TOOLS/AcquisitionFinishGadget.cpp
+		src/GADGET_TOOLS/CS_AccumulatorGadget.cpp
+		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.cpp
+		src/GADGET_TOOLS/SlicerGadget.cpp
+		src/GADGET_TOOLS/CS_CombineGadget.cpp
+		src/GADGET_TOOLS/hoNDFFT_CS.cpp
+		src/GADGET_TOOLS/hoNDKLT_CS.cpp
+		src/GADGET_TOOLS/hoNDDCT.cpp
+		src/REGISTRATION/RegistrationGadget.cpp
+		src/LAP_GADGET/LAPRegistrationGadget.cpp
+		src/LAP_GADGET/lap3d.cpp
+		src/LAP_GADGET/gaussianfilterbasis.cpp
+		src/LAP_GADGET/mynamespaces.cpp
+		src/LAP_GADGET/shiftengine3d.cpp
+		src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
+		src/GADGET_TOOLS/ImageSlicerGadget.cpp
+		src/RETRO/CS_Retro_AccumulatorGadget.cpp
+		src/RETRO/CS_Retro_NavigatorGadget.cpp
+		src/RETRO/CS_Retro_PopulationGadget.cpp
+		include/old/hoNDArray_linalg.cpp
 	)
 ENDIF()
 
 set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-	add_library(CS_LAB SHARED 
-		CS_LAB_export.h 
-		${cs_lab_header_files} 
+	add_library(CS_LAB SHARED
+		CS_LAB_export.h
+		${cs_lab_header_files}
 		${cs_lab_src_files}
 		${cs_lab_config_files}
 	)
 ELSE()
 	IF (WIN32)
-			add_library(CS_LAB SHARED 
-				CS_LAB_export.h 
-				${cs_lab_header_files} 
+			add_library(CS_LAB SHARED
+				CS_LAB_export.h
+				${cs_lab_header_files}
 				${cs_lab_src_files}
 				${cs_lab_config_files}
 				${ISMRMRD_XSD_SOURCE}
 			)
-	ENDIF()	
+	ENDIF()
 ENDIF()
 
 IF (WIN32)
-	set(ADDITIONAL_LIBRARIES  
+	set(ADDITIONAL_LIBRARIES
 		${GADGETRON_HOME}/lib/cpucore.lib
 		${GADGETRON_HOME}/lib/cpufft.lib
 		${GADGETRON_HOME}/lib/cpucore_math.lib
@@ -489,10 +489,10 @@ ELSE()
 	)
 ENDIF()
 
-IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5)) 
-	target_link_libraries(	CS_LAB					
-							${ISMRMRD_LIBRARIES} 
-							${FFTW3_LIBRARIES} 
+IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+	target_link_libraries(	CS_LAB
+							${ISMRMRD_LIBRARIES}
+							${FFTW3_LIBRARIES}
 							${BOOST_LIBRARIES}
 							${ACE_LIBRARY}
 							${ADDITIONAL_LIBRARIES}
@@ -501,11 +501,11 @@ IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 							#${ELASTIX_ALL_COMPONENT_LIBS}
 	)
 ELSE ()
-	target_link_libraries(	CS_LAB					
-							${ISMRMRD_LIBRARIES} 
-							${FFTW3_LIBRARIES} 
+	target_link_libraries(	CS_LAB
+							${ISMRMRD_LIBRARIES}
+							${FFTW3_LIBRARIES}
 							${BOOST_LIBRARIES}
-							${XERCESC_LIBRARIES} 
+							${XERCESC_LIBRARIES}
 							${ACE_LIBRARY}
 							${ADDITIONAL_LIBRARIES}
 							${ITK_LIBRARIES}
