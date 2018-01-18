@@ -14,7 +14,7 @@
    <writer>
       <slot>1022</slot>
       <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriterFLOAT</classname>
+      <classname>MRIImageWriter</classname>
     </writer>
 	
 	<!-- first try - normal AccumulatorGadget -->
@@ -72,6 +72,6 @@
 <gadget>
       <name>ImageFinish</name>
       <dll>gadgetron_mricore</dll>
-      <classname>ImageFinishGadgetFLOAT</classname>
+      <classname>ImageFinishGadget</classname>
     </gadget>
 </gadgetronStreamConfiguration>
