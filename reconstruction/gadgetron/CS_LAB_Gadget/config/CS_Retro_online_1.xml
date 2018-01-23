@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gadgetronStreamConfiguration xsi:schemaLocation="http://gadgetron.sf.net/gadgetron gadgetron.xsd"
+        xmlns="http://gadgetron.sf.net/gadgetron"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- read incoming acquisition data : deserialization -->
+  <reader>
+    <slot>1008</slot>
+    <dll>gadgetron_mricore</dll>
+    <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>
+  </reader>
+
+  <!-- write outgoing data in different formats : serialization -->
+  <writer>
+    <slot>1008</slot>
+    <dll>gadgetron_mricore</dll>
+    <classname>MRIAcquisitionWriterCXFLOAT</classname>
+  </writer>
+	
+	<!-- AccumulatorGadget -->
+  <gadget>
+    <name>Accumulator</name>
+    <dll>CS_LAB</dll>
+    <classname>CS_Retro_AccumulatorGadget</classname>
+	<property><name>NavPeriod</name><value>200</value></property>
+	<property><name>NavPERes</name><value>8</value></property>
+	<property><name>MeasurementTime</name><value>300</value></property>
+	<property><name>Phases</name><value>4</value></property>
+	<property><name>PopulationMode</name><value>0</value></property>
+	<property><name>GatingMode</name><value>0</value></property>
+  </gadget>
+
+  <!-- get navigator -->
+  <gadget>
+    <name>Accumulator</name>
+    <dll>CS_LAB</dll>
+    <classname>CS_Retro_NavigatorGadget</classname>
+  </gadget>
+  
+  <!-- populate k-space -->
+  <gadget>
+    <name>Accumulator</name>
+    <dll>CS_LAB</dll>
+    <classname>CS_Retro_PopulationGadget</classname>
+  </gadget>
+  
+  <!-- CS reconstruction -->
+  <!-- FOCUSS iterations - default: 2 										-->
+  <!-- CG Iterations - default: 20 											-->
+  <!-- Lambda - default: 0.01 												-->
+  <!-- Lambda ESPReSSo - default: 0.02 										-->
+  <!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,.. 						-->
+  <!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y,.. 				-->
+  <!-- Sparsifying Transform for each direction 							-->
+  <!-- KernelTrafo - is kSpace trafo active 								-->
+  <!-- fft in read direction 												-->
+  <!-- FOCUSS output: kSpace = 1, Image = 0 								-->
+  <!-- use ESPReSSo constraint for normal CS acquisitions - default: 0  -->
+  <gadget>
+    <name>FOCUSS</name>
+    <dll>CS_LAB</dll>  
+	  <classname>CS_LAB</classname>
+	  <property><name>bXMLControl</name><value>1</value></property>
+	  <property><name>lambda</name><value>0.01</value></property>
+	  <property><name>lambdaESPReSSo</name><value>0</value></property>
+	  <property><name>OuterIterations</name><value>2</value></property>
+	  <property><name>InnerIterations</name><value>2</value></property>
+	  <property><name>kernelFftDim</name><value>3</value></property>
+	  <property><name>fftSparseDim</name><value>3</value></property>
+	  <property><name>dctSparseDim</name><value>0</value></property>
+	  <property><name>pcaSparseDim</name><value>8</value></property>
+	  <property><name>scrambleDim</name><value>3</value></property>
+	  <property><name>transformFftBaDim</name><value>4</value></property>
+	  <property><name>kSpaceOutDim</name><value>0</value></property>
+	  <property><name>CSESPReSSo</name><value>0</value></property>
+  </gadget>
+
+  
+  <!-- Convert ImageData to AcquisitionData -->
+  <gadget>
+    <name>ConvertImage</name>
+    <dll>CS_LAB</dll>
+    <classname>CS_MRIImageToAcquisitionGadget</classname>
+  </gadget>
+
+  <!-- make ACE message block -->
+  <gadget>
+    <name>AcqFinish</name>
+    <dll>CS_LAB</dll>
+    <classname>AcquisitionFinishGadget</classname>
+  </gadget>
+  
+</gadgetronStreamConfiguration>

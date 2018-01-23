@@ -26,7 +26,7 @@ nv = size(kernel,4);
 kSize = [size(kernel,1), size(kernel,2)];
 
 % "rotate kernel to order by maximum variance"
-k = permute(kernel,[1,2,4,3]);, k =reshape(k,prod([kSize,nv]),nc);
+k = permute(kernel,[1,2,4,3]); k =reshape(k,prod([kSize,nv]),nc);
 
 if size(k,1) < size(k,2)
     [u,s,v] = svd(k);

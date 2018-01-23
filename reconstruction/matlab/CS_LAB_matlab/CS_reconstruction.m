@@ -231,8 +231,10 @@ end
 prop.flagParallel = false;
 prop.openPool = false;
 helper = ver;
+lFound = false;
 for i=1:length(helper)
     if(strcmp(helper(i).Name,'Parallel Computing Toolbox'))
+        lFound = true;
         prop.flagParallel = prop.flagParallel & true;
         if(verLessThan('matlab','8.4'))
             if(matlabpool('size') > 0)
@@ -247,6 +249,8 @@ for i=1:length(helper)
         break;
     end
 end
+if(~lFound), prop.flagParallel = false; end
+    
 
 
 %% load reconstruction parameter
@@ -329,7 +333,7 @@ elseif(strcmp(cstype,'ESPIRiT_CG') || strcmp(cstype,'ESPIRiT_L1'))
     obj = ESPIRiT_Wrapper(cstype(9:length(cstype)), iNINNER, iNIterSplit, measPara, kernelSize, calibTyk, reconTyk, eigThresh_k, eigThresh_im, n_maps, splitWeight, trafo, flagToolbox, path, espresso, FFTwindow, calibSize);
 
 elseif(strcmp(cstype,'BART'))
-    obj = BART_Wrapper(lambda, lambdaCalib, lambdaTV, lambdaMC, measPara, kernelSize, n_maps, trafo, espresso, FFTwindow, currpath, calibSize);
+    obj = BART_Wrapper(lambda, lambdaCalib, lambdaTV, lambdaMC, measPara, kernelSize, n_maps, trafo, espresso, FFTwindow, currpath, mc, calibSize);
     
 elseif(strcmp(cstype,'sparseMRI'))
     obj = sparseMRI(iNOUTER, iNINNER, measPara, lambda, lambdaTV, lambdaESPReSSo, p, trafo, espresso, FFTwindow, l1Smooth, lineSearchItnlim, lineSearchAlpha, lineSearchBeta, lineSearchT0, gradToll);
@@ -551,7 +555,7 @@ if(prop.flagPlot && exist('imagine','file'))
     figname = [figname,'_',postproc.type];
     
     % if imagine is already open, add new image in same window
-    hfig = findobj('type','figure','name','IMAGINE 1.4 T�bingen Edition');
+    hfig = findobj('type','figure','name','IMAGINE 2.0 Belly Jeans');
     if(length(hfig) > 1)
         hfig = max(hfig);
     end

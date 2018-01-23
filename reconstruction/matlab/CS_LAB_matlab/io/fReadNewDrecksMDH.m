@@ -92,24 +92,79 @@ while iPos <= length(dMDH)
             end
         case 14
             sGroup = 'Wip';
-            switch iID
-                case 01, sID = 'RFDuration';
-                case 02, sID = 'TimeBandwidth';
-                case 03, sID = 'NavPeriod';
-                case 04, sID = 'NavRes';
-                case 05, sID = 'SamplingFactor';
-                case 06, sID = 'WFactor';
-                case 07, sID = 'Phases';
-                case 08, sID = 'TotalScanTime';
-                case 09, sID = 'FullySampled';
-                case 10
-                    sID = 'Mask';
-                    dData = sprintf('%02d,%02d', dData(:)');
-                case 11, sID = 'MotionModelTime';
-                case 12, sID = 'NMotionModel';
-                case 13, sID = 'RespPeriod';
-                case 14, sID = 'ECGPeriod';
-                otherwise, sID = sprintf('ID%02d', iID);
+            if(strcmp(SInfo.Seq.Sequence,'CS_Retro') && str2double(SInfo.Seq.Version) < 2.1) % old version, backward compatibility
+                switch iID
+                    case 01, sID = 'RFDuration';
+                    case 02, sID = 'TimeBandwidth';
+                    case 03, sID = 'NavPeriod';
+                    case 04, sID = 'NavRes';
+                    case 05, sID = 'SamplingFactor';
+                    case 06, sID = 'WFactor';
+                    case 07, sID = 'Phases';
+                    case 08, sID = 'TotalScanTime';
+                    case 09, sID = 'MotionModelTime';    
+                    case 10, sID = 'NMotionModel';                                    
+                    case 11, sID = 'RespPeriod'; 
+                    case 12, sID = 'ECGPeriod';                    
+                    otherwise, sID = sprintf('ID%02d', iID);
+                end
+            elseif(strcmp(SInfo.Seq.Sequence,'CS_Retro') && str2double(SInfo.Seq.Version) == 2.1) % old version, backward compatibility
+                switch iID
+                    case 01, sID = 'RFDuration';
+                    case 02, sID = 'TimeBandwidth';
+                    case 03, sID = 'NavPeriod';
+                    case 04, sID = 'NavRes';
+                    case 05, sID = 'SamplingFactor';
+                    case 06, sID = 'WFactor';
+                    case 07, sID = 'Phases';
+                    case 08, sID = 'TotalScanTime';
+                    case 09, sID = 'UNKNOWN';    
+                    case 10, sID = 'Mask';                                    
+                    case 11, sID = 'MotionModelTime';
+                    case 12, sID = 'NMotionModel';          
+                    case 13, sID = 'RespPeriod';
+                    case 14, sID = 'ECGPeriod';
+                    otherwise, sID = sprintf('ID%02d', iID); 
+                end
+            elseif(strcmp(SInfo.Seq.Sequence,'CS_FLASH') && str2double(SInfo.Seq.Version) < 3)
+                switch iID
+                    case 01, sID = 'RFDuration';
+                    case 02, sID = 'TimeBandwidth';
+                    case 03, sID = 'NavPeriod';
+                    case 04, sID = 'NavRes';
+                    case 05, sID = 'SamplingFactor';
+                    case 06, sID = 'WFactor';
+                    case 07, sID = 'Phases';
+                    case 08, sID = 'TotalScanTime';
+                    case 09, sID = 'FullySampled';
+                    case 10
+                        sID = 'Mask';
+                        dData = sprintf('%02d,%02d', dData(:)');
+                    otherwise, sID = sprintf('ID%02d', iID);
+                end
+            else % new (common) version
+                switch iID
+                    case 01, sID = 'RFDuration';
+                    case 02, sID = 'TimeBandwidth';
+                    case 03, sID = 'NavPeriod';
+                    case 04, sID = 'NavRes';
+                    case 05, sID = 'SamplingFactor';
+                    case 06, sID = 'WFactor';
+                    case 07, sID = 'Phases';
+                    case 08, sID = 'TotalScanTime';
+                    case 09, sID = 'MotionModelTime';
+                    case 10, sID = 'NMotionModel';
+                    case 11, sID = 'RespPeriod';
+                    case 12, sID = 'ECGPeriod';
+                    case 13
+                        sID = 'Mask';
+                        dData = sprintf('%02d,%02d', dData(:)');
+                    case 14, sID = 'FullySampled';
+                    case 15, sID = 'ShortTrajAccel';
+                    case 16, sID = 'LongTrajAccel';
+                    case 17, sID = 'NSpiralTurn';
+                    otherwise, sID = sprintf('ID%02d', iID);
+                end
             end
         case 15
             sGroup = 'Misc';

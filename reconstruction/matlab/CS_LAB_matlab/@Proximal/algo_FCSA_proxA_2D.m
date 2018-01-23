@@ -29,7 +29,7 @@ t_old = 1;
 NLTV_struct.kernelratio = 3;
 NLTV_struct.windowratio = 6;
 NLTV_struct.nThreads = 1;  % mind this option if used with -singleCompThread on BWCluster
-itrNLTV = obj.maxitr - 5;
+itrNLTV = obj.iNINNER - 5;
 % chambolle tv:
 parsin.MAXITER=100; parsin.tv='iso'; % 'iso' or 'l1'
 

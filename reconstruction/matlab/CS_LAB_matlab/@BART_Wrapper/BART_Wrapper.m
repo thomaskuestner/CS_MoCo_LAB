@@ -4,13 +4,16 @@ classdef BART_Wrapper < CSMaster
     % (c) Thomas Kuestner 
     % ---------------------------------------------------------------------
     
-    properties              
+    properties  
+        flagToolbox
+        solver
+        mc % Motion Correction parameters
         n_maps % weighting of sensitivity maps with n eigenvalue maps        
         kCalib % from k-space extracted calibration data
     end
     
     methods
-        function obj = BART_Wrapper(lambda, lambdaCalib, lambdaTV, lambdaMC, measPara, kernelSize, n_maps, trafo, espresso, FFTwindow, currpath, calibSize)
+        function obj = BART_Wrapper(lambda, lambdaCalib, lambdaTV, lambdaMC, measPara, kernelSize, n_maps, trafo, espresso, FFTwindow, currpath, mc, calibSize)
             obj = obj@CSMaster(1, 0, 1, lambda, measPara);
             obj.type = 'BART_Wrapper';
             obj.lambdaCalib = lambdaCalib;
@@ -23,8 +26,11 @@ classdef BART_Wrapper < CSMaster
             setenv('TOOLBOX_PATH', [currpath,filesep,'utils',filesep,'utils_BART']);
             obj.espresso = espresso;
             obj.window = FFTwindow;
+            obj.flagToolbox = true;
+            obj.solver = 'L1';
+            obj.mc = mc;
            
-            if(nargin > 11)
+            if(nargin > 12)
                 obj.calibSize = calibSize;
             end
         end

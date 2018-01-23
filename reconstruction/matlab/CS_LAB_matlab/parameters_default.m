@@ -318,6 +318,8 @@ mc.lSenseMC = true;
 % normal: single B-spline registration
 % concatenated: concatenated rigid, affine and B-Spline registration 
 mc.sElastixParams = 'normal';
+% joint CS MoCo
+mc.jointMCCS = false;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -341,7 +343,7 @@ postproc.FreqOversamplingCorr = true;
 %%%% sparsifying transformation parameters %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 trafo.trafoType = transformation;
-if(nargin > 1 && exist('para', 'var') && isfield(para, 'transformation')), trafo.trafoType = para.transformation; end;
+if(exist('para', 'var') && isfield(para, 'transformation')), trafo.trafoType = para.transformation; end
 
 %%%% Transform dimensions %%%%
 % transform dimensions during CS recon

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gadgetronStreamConfiguration xsi:schemaLocation="http://gadgetron.sf.net/gadgetron gadgetron.xsd"
+        xmlns="http://gadgetron.sf.net/gadgetron"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!-- read incoming acquisition data : deserialization --> 
+    <reader>
+      <slot>1010</slot>
+      <dll>gadgetron_mricore</dll>
+      <classname>GadgetIsmrmrdImageMessageReader</classname>
+    </reader>
+	
+	<!-- write outgoing data in different formats : serialization -->
+    <writer>
+      <slot>1010</slot>
+      <dll>gadgetron_mricore</dll>
+      <classname>MRIImageWriterFLOAT</classname>
+    </writer>
+	
+	<!-- stack all incoming 2D images to 3D/4D object -->
+	<gadget>
+		<name>ImageAccumulator</name>
+		<dll>CS_LAB</dll>
+		<classname>ImageAccumulatorGadget</classname>
+	</gadget>
+	
+	<!-- register all images of different resp. states onto first state -->
+	<gadget>
+		<name>ImageRegistrationGadget</name>
+		<dll>CS_LAB</dll>
+		<classname>ImageRegistration</classname>
+	</gadget>
+
+	<!-- convert 3D/4D image volume into 2D slices -->
+	<gadget>
+		<name>ImageSlicerGadget</name>
+		<dll>CS_LAB</dll>
+		<classname>ImageSlicerGadget</classname>
+	</gadget>
+	
+	<!-- create container message -->
+	<gadget>
+      <name>ImageFinishFLOAT</name>
+      <dll>gadgetron_mricore</dll>
+      <classname>ImageFinishGadgetFLOAT</classname>
+    </gadget>
+</gadgetronStreamConfiguration>

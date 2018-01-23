@@ -739,7 +739,7 @@ end
                         end
                         for j=1:size(imgIn,2)
                             if(para.shape == 1)
-                                [img{i}(:,j), recinfo{i}(:,j)] = wavedec(imgIn(:,j,i),para.waveletStages,para.wFilter,'mode',para.extMode);
+                                [img{i}(:,j), recinfo{i}(:,j)] = wavedec(imgIn(:,j,i),para.waveletStages,para.wFilter);
                                 dispProgress('Trafo', ((i-1)*size(imgIn,2) + j)/prod(imgsize(2:end)));
                             end
                         end

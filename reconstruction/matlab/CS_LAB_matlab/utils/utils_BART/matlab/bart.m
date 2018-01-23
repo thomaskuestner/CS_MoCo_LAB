@@ -34,7 +34,15 @@ function [varargout] = bart(cmd, varargin)
 		setenv('LD_LIBRARY_PATH', '');
     end
 
-    datapath = 'D:\tmp';
+    sPathesTmp = {'D:\tmp',tempdir()};
+    datapath = '';
+    for iPath = 1:length(sPathesTmp)
+        if(exist(sPathesTmp{iPath},'dir'))
+            datapath = sPathesTmp{iPath};
+            break;
+        end
+    end
+    if(isempty(datapath)), error('No temporary data storage specified'); end
 	name = tempname;    
     [~,name] = fileparts(name);
     
@@ -61,6 +69,10 @@ function [varargout] = bart(cmd, varargin)
             cygPath = 'C:\cygwin64';
         elseif(exist('C:\cygwin','dir'))
             cygPath = 'C:\cygwin';
+        elseif(exist('D:\cygwin64','dir'))
+            cygPath = 'D:\cygwin64';
+        elseif(exist('D:\cygwin','dir'))
+            cygPath = 'D:\cygwin';
         end
 		ERR = system([cygPath,'\bin\bash.exe --login -c ', ...
 			strrep(bart_path, filesep, '/'), ...

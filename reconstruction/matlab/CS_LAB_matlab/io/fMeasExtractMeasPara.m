@@ -13,9 +13,9 @@ function measPara = fMeasExtractMeasPara( drecksMDH, measPara, iLC, iLCPositions
 % thomas.kuestner@med.uni-tuebingen.de
 
 if(ischar(drecksMDH))
-    [drecksMDH, iLCPositions] = fMeasReadDrecksMDH(drecksMDH);
+    [drecksMDH, iLCPositions] = fMeasReadDrecksMDH(drecksMHD);
 end
-
+drecksMDH = double(drecksMDH); % to ensure correct indexing
 tmp = {'2D', '3D'};
 measPara.dimensionSeq    = tmp{drecksMDH(1,1)+1};
 if(drecksMDH(1,1) == 0) % 2D

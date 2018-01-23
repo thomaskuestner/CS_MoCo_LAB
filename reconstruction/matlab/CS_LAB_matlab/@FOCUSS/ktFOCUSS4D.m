@@ -90,7 +90,7 @@ if(obj.lSense)
     dSensemap = dImgCenter./(repmat(dImg,[1 1 1 1 size(dImgCenter,5)]));
     clear 'dImgCenter' 'dImg';
     dWindow = windowND(@hamming, [size(dSensemap,2), size(dSensemap,3), size(dSensemap,4)]);
-    dSensemap = fftnshift(dSensemap,1:3);
+    dSensemap = fftnshift(dSensemap,2:4);
     dSensemap = dSensemap .* permute(repmat(dWindow, [1 1 1 size(dSensemap,1) size(dSensemap,5)]),[4 1 2 3 5]);
     dSensemap = ifftnshift(dSensemap,2:4);
     dSensemapFctr = sqrt(sum(conj(dSensemap).*dSensemap,5)).^(-1);

@@ -101,7 +101,7 @@ if(strcmp(obj.measPara.dimension,'2D'))
 %             end
             
             obj.kernel = calibSPIRiT(obj.kCalib{i}, obj.kernelSize, nCha, obj.calibTyk);
-            allGOPs{i} = SPIRiT(obj.kernel{i}, 'fft',[nPha,nFreq]);
+            allGOPs{i} = SPIRiT(obj.kernel, 'fft',[nPha,nFreq]);
 
         end
 
@@ -164,7 +164,7 @@ elseif(strcmp(obj.measPara.dimension,'3D'))
     if(isempty(obj.calibSize))
         % automatically determine calibration region
         obj.calibSize = obj.calibrationSize(obj.fullMask(:,:,:,1)); % k_y - k_z - k_x
-        if(length(obj.calibSize) == 2), obj.calibSize = [obj.calibSize(1), obj.calibSize(2), 1]; end;
+        if(length(obj.calibSize) == 2 && ndims(kSpaceL) > 2), obj.calibSize = [obj.calibSize(1), obj.calibSize(2), 1]; end;
         obj.kCalib = crop(kSpaceL, [obj.calibSize, nCha]); % k_y - k_z - k_x - cha
     else
         % fixed calibration region
