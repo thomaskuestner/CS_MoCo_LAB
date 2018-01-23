@@ -46,8 +46,8 @@ namespace Gadgetron
 	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float>>
 	{
 		public:
-		RegistrationGadget();
-		~RegistrationGadget();
+		ElastixRegistrationGadget();
+		~ElastixRegistrationGadget();
 		
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
 		
