@@ -1,3 +1,4 @@
+#include <cstring>
 #include <iostream>
 #include <fstream>
 #include <armadillo>
@@ -36,6 +37,12 @@ int main(int argc, char *argv[])
         std::cerr << std::endl;
         std::cerr << "Run '" << argv[0] << " --help' for more information" << endl;
         std::cerr << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    // Output help string and exit (otherwise segmentation fault!)
+    if (strcmp(argv[1], "--help") == 0) {
+        std::cout << "There are no more information implemented yet." << std::endl;
         return EXIT_FAILURE;
     }
 
