@@ -6,7 +6,7 @@ Generate a Compressed Sensing (CS) accelerated MR sequence and reconstruct the a
 ## Acquistion
 - Generic subsampling class for Compressed Sensing acquisitions
 - CS accelerated gradient echo sequence (2D, 2D+time, 3D, 3D+time): CS_FLASH (Siemens, VB20P)
-- MR motion imaging sequence (4D, 5D): CS_Retro (Siemens, VB20P)
+- MR motion imaging sequence (4D, 5D): CS_Retro (Siemens, VB20P, VE11C, VE11P)
 
 ## Reconstruction
 - CS and motion-resolved reconstruction system for Gadgetron (C++)
@@ -21,7 +21,7 @@ https://sites.google.com/site/kspaceastronauts/motion-correction/4d-mr-imaging <
 https://github.com/thomaskuestner/4DMRImaging
 ### PET/MR motion correction
 https://sites.google.com/site/kspaceastronauts/motion-correction/pet-mr-motion-correction
-- acquisition: CS_Retro (Siemens, VB20P)
+- acquisition: CS_Retro (Siemens, VB20P, VE11C, VE11P)
 - reconstruction: CS_LAB in gadgetron + data emitters and injectors
 ### Image Registration
 https://sites.google.com/site/kspaceastronauts/motion-correction/mocogui
