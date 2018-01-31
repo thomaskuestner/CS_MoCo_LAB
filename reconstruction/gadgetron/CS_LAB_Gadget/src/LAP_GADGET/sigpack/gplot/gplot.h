@@ -3,6 +3,9 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #ifndef SP_GPLOT_H
 #define SP_GPLOT_H
+
+#define unix
+
 namespace sp
 {
     ///
