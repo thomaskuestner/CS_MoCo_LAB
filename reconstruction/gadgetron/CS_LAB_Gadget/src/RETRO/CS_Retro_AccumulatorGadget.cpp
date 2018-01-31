@@ -672,7 +672,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// create output
 		try{ tmp_m2->getObjectPtr()->create(bufferNav_->get_dimensions());}
 		catch (std::runtime_error &err){
-			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\m");
+			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\n");
 			tmp_m1->release();
 			return -1;
 		}
@@ -689,7 +689,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// create output
 		try{ tmp_m3->getObjectPtr()->create(bufferkSpace_->get_dimensions());}
 		catch (std::runtime_error &err){
-			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\m");
+			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\n");
 			tmp_m1->release();
 			return -1;
 		}
