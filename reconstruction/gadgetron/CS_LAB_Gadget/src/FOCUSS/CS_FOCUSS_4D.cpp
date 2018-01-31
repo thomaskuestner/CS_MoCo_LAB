@@ -1083,20 +1083,24 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 						for (int iZ = 0; iZ < vtDim_[1]; iZ++){
 					
 							// get filter coefficients (passed parameter is window width)
-							std::vector<float> HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
+							std::vector<float> *HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
 
 							// place coefficients in the filt1D array - loop over filter "lines"
 							for (int iI = 0, iY = viKSpaceLines_1.at(iZ); iY < viKSpaceLines_2.at(iZ); iY++, iI++)
-								hacfFilt1D(iY, iZ) = std::complex<float>(HanningCoeff.at(iI));
+								hacfFilt1D(iY, iZ) = std::complex<float>(HanningCoeff->at(iI));
+							
+							delete HanningCoeff;
 						}
 					}
 					// partition encoding direction
 					else if (iESPReSSoDirection_ == 2)
 						for (int iY = 0; iY < vtDim_[0]; iY++){
-							std::vector<float> vfHanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iY)-viKSpaceLines_1.at(iY));
+							std::vector<float> *vfHanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iY)-viKSpaceLines_1.at(iY));
 
 							for (int iI = 0, iZ = viKSpaceLines_1.at(iY); iZ < viKSpaceLines_2.at(iY); iZ++, iI++)
-								hacfFilt1D(iY, iZ) = std::complex<float>(vfHanningCoeff.at(iI));
+								hacfFilt1D(iY, iZ) = std::complex<float>(vfHanningCoeff->at(iI));
+							
+							delete vfHanningCoeff;
 						}
 
 					// repetition in x-direction for getting a full 3D array
@@ -1112,32 +1116,38 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				else{	
 					// x-direction
 					if (iDim == 0){
-						std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
+						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
 						for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 							for (int idX = 0; idX < vtDim_[2]; idX++)
 								for (int idY = 0; idY < vtDim_[0]; idY++)
 									for (int idZ = 0; idZ < vtDim_[1]; idZ++)
-										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idX));
+										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idX));
+
+						delete vfHammingCoeff;
 					}
 				
 					// y-direction
 					if (iDim == 1){
-						std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
+						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
 						for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 							for (int idX = 0; idX < vtDim_[2]; idX++)
 								for (int idY = 0; idY < vtDim_[0]; idY++)
 									for (int idZ = 0; idZ < vtDim_[1]; idZ++)
-										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idY));
+										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idY));
+
+						delete vfHammingCoeff;
 					}
 				
 					// z-direction
 					if (iDim == 2){
-						std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
+						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
 						for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 							for (int idX = 0; idX < vtDim_[2]; idX++)
 								for (int idY = 0; idY < vtDim_[0]; idY++)
 									for (int idZ = 0; idZ < vtDim_[1]; idZ++)
-										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idZ));
+										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idZ));
+
+						delete vfHammingCoeff;
 					}
 				}
 				hacfFilter3D *= hacfFilt1DFullArray;

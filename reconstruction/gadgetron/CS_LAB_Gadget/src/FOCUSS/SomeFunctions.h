@@ -105,10 +105,10 @@ bool fAllZero(const hoNDArray<std::complex<float> >  &Array);
 bool fAllOne(const hoNDArray<bool> &Array);
 
 // get hanning window values
-std::vector<float>& fGetHanningWindow(int iElements);
+std::vector<float>* fGetHanningWindow(int iElements);
 
 // get hamming window values
-std::vector<float>& fGetHammingWindow(int iElements);
+std::vector<float>* fGetHammingWindow(int iElements);
 
 // sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 template <typename T>
