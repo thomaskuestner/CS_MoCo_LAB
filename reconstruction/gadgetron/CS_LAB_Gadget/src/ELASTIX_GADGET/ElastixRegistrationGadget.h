@@ -1,19 +1,20 @@
 /*	
-file name	: 	RegistrationGadget.h
+file name	: 	ElastixRegistrationGadget.h
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 
-version		: 	1.1
+version		: 	1.2
 
 date		: 	13.10.2015
 				23.03.2017
+				23.01.2018
 
 description	: 	Elastix-based image registration
 */
 
-#ifndef REGISTRATIONGADGET_H
-#define REGISTRATIONGADGET_H
+#ifndef ELASTIXREGISTRATIONGADGET_H
+#define ELASTIXREGISTRATIONGADGET_H
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
@@ -42,11 +43,11 @@ typedef itk::ImportImageFilter<float, 3> ImportFilterType;
 
 namespace Gadgetron
 {
-	class EXPORTCSLAB RegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float>>
+	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float>>
 	{
 		public:
-		RegistrationGadget();
-		~RegistrationGadget();
+		ElastixRegistrationGadget();
+		~ElastixRegistrationGadget();
 		
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
 		
@@ -70,4 +71,4 @@ namespace Gadgetron
 		#endif
 	};
 }
-#endif //REGISTRATIONGADGET_H
+#endif //ELASTIXREGISTRATIONGADGET_H

@@ -1,26 +1,27 @@
 /*	
-file name	: 	RegistrationGadget.cpp
+file name	: 	ElastixRegistrationGadget.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 
-version		: 	1.1
+version		: 	1.2
 
 date		: 	13.10.2015
 				23.03.2017 - update for Gadgetron v3.8
+				23.01.2018 - renaming
 
-description	: 	implementation of the class RegistrationGadget - only 3D (x,y,t) and 4D data (x,y,z,t) provided
+description	: 	implementation of the class ElastixRegistrationGadget - only 3D (x,y,t) and 4D data (x,y,z,t) provided
 
 */
 
-#include "RegistrationGadget.h"
+#include "ElastixRegistrationGadget.h"
 
 using namespace Gadgetron;
 
-RegistrationGadget::RegistrationGadget():bIs2D_(false), bIs3D_(false), bIs4D_(false){};
-RegistrationGadget::~RegistrationGadget(){};
+ElastixRegistrationGadget::ElastixRegistrationGadget():bIs2D_(false), bIs3D_(false), bIs4D_(false){};
+ElastixRegistrationGadget::~ElastixRegistrationGadget(){};
 
-int RegistrationGadget::process_config(ACE_Message_Block* mb){
+int ElastixRegistrationGadget::process_config(ACE_Message_Block* mb){
 
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		sPathParam_ = PathParam.value();	
@@ -33,7 +34,7 @@ int RegistrationGadget::process_config(ACE_Message_Block* mb){
 	return GADGET_OK;
 };
 
-int RegistrationGadget::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
+int ElastixRegistrationGadget::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
 	
 	/* ------------------------------------------------------------------- */
 	/* --------------- check dimension of incoming dataset --------------- */
@@ -79,7 +80,7 @@ int RegistrationGadget::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* 
 	return GADGET_OK;
 };
 
-int RegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
+int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
 	/* ------------------------------------------------------------------- */
 	/* --------------- create registration parameter data ---------------- */
 	/* ------------------------------------------------------------------- */
@@ -225,7 +226,7 @@ int RegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageH
 	return GADGET_OK;
 };
 
-int RegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
+int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2){
 	/* ------------------------------------------------------------------- */
 	/* --------------- create registration parameter data ---------------- */
 	/* ------------------------------------------------------------------- */
@@ -369,4 +370,4 @@ int RegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageH
 	return GADGET_OK;
 };
 
-GADGET_FACTORY_DECLARE(RegistrationGadget)
+GADGET_FACTORY_DECLARE(ElastixRegistrationGadget)

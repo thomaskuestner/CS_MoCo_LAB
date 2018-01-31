@@ -335,7 +335,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
 		src/GADGET_TOOLS/hoNDDCT.h
-# 		src/REGISTRATION/RegistrationGadget.h
+		src/ELASTIX_GADGET/ElastixRegistrationGadget.h
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
@@ -370,7 +370,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-# 		src/REGISTRATION/RegistrationGadget.cpp
+		src/ELASTIX_GADGET/ElastixRegistrationGadget.cpp
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
@@ -402,7 +402,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
         src/GADGET_TOOLS/hoNDDCT.h
-#         src/REGISTRATION/RegistrationGadget.h
+        src/ELASTIX_GADGET/ElastixRegistrationGadget.h
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
@@ -433,7 +433,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-# 		src/REGISTRATION/RegistrationGadget.cpp
+ 		src/ELASTIX_GADGET/ElastixRegistrationGadget.cpp
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
