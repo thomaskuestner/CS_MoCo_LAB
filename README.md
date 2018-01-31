@@ -1,4 +1,4 @@
-# CS_MoCo_LAB
+# CS_MoCo_LAB [![Build Status](https://semaphoreci.com/api/v1/thomaskuestner/cs_moco_lab/branches/master/badge.svg)](https://semaphoreci.com/thomaskuestner/cs_moco_lab)
 Compressed Sensing and Motion Correction LAB: An MR acquisition and reconstruction system
 
 Generate a Compressed Sensing (CS) accelerated MR sequence and reconstruct the acquired data online on the scanner by means of Gadgetron or offline on an external workstation.
