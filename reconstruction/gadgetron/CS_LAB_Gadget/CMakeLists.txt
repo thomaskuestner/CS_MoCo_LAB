@@ -259,21 +259,22 @@ find_package(Ismrmrd REQUIRED)
 find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
-IF (WIN32)
+#IF (WIN32)
 	find_package(ITK REQUIRED)
 	INCLUDE( ${ITK_USE_FILE} )
+#ENDIF()
 
 # include elastix files and library
 SET( ELASTIX_BINARY_DIR "" CACHE PATH "Path to elastix binary folder" )
-SET(ELASTIX_BINARY_DIR /home/chris/elastix/src/build)
+SET(ELASTIX_BINARY_DIR /opt/code/elastix/build)
 SET( ELASTIX_USE_FILE ${ELASTIX_BINARY_DIR}/UseElastix.cmake )
 
 	MESSAGE( STATUS "Including Elastix settings.")
 	INCLUDE( ${ELASTIX_USE_FILE} )
-	link_libraries(param)
-	link_libraries(elastix)
-	link_libraries(transformix)
-ENDIF()
+# 	link_libraries(param)
+# 	link_libraries(elastix)
+# 	link_libraries(transformix)
+#ENDIF()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	include_directories(
@@ -335,7 +336,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
 		src/GADGET_TOOLS/hoNDDCT.h
-		src/ELASTIX_GADGET/ElastixRegistrationGadget.h
+# 		src/REGISTRATION/RegistrationGadget.h
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
@@ -370,7 +371,7 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
-		src/ELASTIX_GADGET/ElastixRegistrationGadget.cpp
+# 		src/REGISTRATION/RegistrationGadget.cpp
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
@@ -402,7 +403,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
         src/GADGET_TOOLS/hoNDDCT.h
-        src/ELASTIX_GADGET/ElastixRegistrationGadget.h
+        src/REGISTRATION/RegistrationGadget.h
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
@@ -433,7 +434,7 @@ ELSE()
 		src/GADGET_TOOLS/hoNDFFT_CS.cpp
 		src/GADGET_TOOLS/hoNDKLT_CS.cpp
 		src/GADGET_TOOLS/hoNDDCT.cpp
- 		src/ELASTIX_GADGET/ElastixRegistrationGadget.cpp
+		src/REGISTRATION/RegistrationGadget.cpp
 		src/LAP_GADGET/LAPRegistrationGadget.cpp
 		src/LAP_GADGET/lap3d.cpp
 		src/LAP_GADGET/gaussianfilterbasis.cpp
