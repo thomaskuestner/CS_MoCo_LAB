@@ -264,6 +264,9 @@ find_package(FFTW3 REQUIRED)
 	INCLUDE( ${ITK_USE_FILE} )
 #ENDIF()
 
+###############################################################
+# Elastix
+###############################################################
 # include elastix files and library
 SET( ELASTIX_BINARY_DIR "" CACHE PATH "Path to elastix binary folder" )
 SET(ELASTIX_BINARY_DIR /opt/code/elastix/build)
