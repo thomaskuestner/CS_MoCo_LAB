@@ -3,7 +3,7 @@
 
 % set paths
 addpath(genpath(pwd));
-addpath(genpath(['..',filesep,'CS_LAB']));
+addpath(genpath(['..',filesep,'CS_LAB_matlab']));
 
 %% ------------------------------------------
 % 1.) load data: phantom (2 slices, 1 channel)
