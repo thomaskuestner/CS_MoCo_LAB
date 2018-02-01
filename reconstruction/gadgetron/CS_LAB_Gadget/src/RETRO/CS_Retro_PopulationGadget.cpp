@@ -77,7 +77,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	// create
 	try{ tmp_m2->getObjectPtr()->create(hacfKSpace_reordered_.get_dimensions());}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\m");
+		GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}
