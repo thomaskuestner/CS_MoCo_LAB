@@ -24,6 +24,8 @@ namespace Gadgetron{
       virtual ~CS_CombineGadget();
 
 	  int process_config(ACE_Message_Block* mb);
+
+	  GADGET_DECLARE(CS_CombineGadget);
       
     protected:
       virtual int process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,  GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2);   

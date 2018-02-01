@@ -49,7 +49,7 @@ namespace Gadgetron
 		ElastixRegistrationGadget();
 		~ElastixRegistrationGadget();
 		
-		GADGET_DECLARE(CS_Retro_NavigatorGadget);
+		GADGET_DECLARE(ElastixRegistrationGadget);
 		
 		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
 		int process_config(ACE_Message_Block* mb);		

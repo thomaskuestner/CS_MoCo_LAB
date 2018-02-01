@@ -402,5 +402,5 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	return GADGET_OK;
 }
 
-GADGET_FACTORY_DECLARE(CS_Retro_NavigatorGadget)
+GADGET_FACTORY_DECLARE(CS_Retro_PCANavigatorGadget)
 }
