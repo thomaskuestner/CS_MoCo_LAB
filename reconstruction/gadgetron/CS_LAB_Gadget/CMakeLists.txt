@@ -259,25 +259,26 @@ find_package(Ismrmrd REQUIRED)
 find_package(Boost REQUIRED)
 find_package(ACE REQUIRED)
 find_package(FFTW3 REQUIRED)
-#IF (WIN32)
-	find_package(ITK REQUIRED)
-	INCLUDE( ${ITK_USE_FILE} )
-#ENDIF()
+
+find_package(ITK REQUIRED)
+INCLUDE( ${ITK_USE_FILE} )
 
 ###############################################################
 # Elastix
 ###############################################################
 # include elastix files and library
-SET( ELASTIX_BINARY_DIR "" CACHE PATH "Path to elastix binary folder" )
-SET(ELASTIX_BINARY_DIR /opt/code/elastix/build)
+SET(Elastix_DIR /opt/code/elastix/build)	# THIS LINE IS MACHINE DEPENDENT. YOU HAVE TO ADAPT THE DIRECTORY!
 SET( ELASTIX_USE_FILE ${ELASTIX_BINARY_DIR}/UseElastix.cmake )
+find_package(Elastix REQUIRED)
 
-	MESSAGE( STATUS "Including Elastix settings.")
-	INCLUDE( ${ELASTIX_USE_FILE} )
-# 	link_libraries(param)
-# 	link_libraries(elastix)
-# 	link_libraries(transformix)
-#ENDIF()
+MESSAGE( STATUS "Including Elastix settings.")
+INCLUDE( ${ELASTIX_USE_FILE} )
+
+IF (WIN32)
+	link_libraries(param)
+	link_libraries(elastix)
+	link_libraries(transformix)
+ENDIF()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	include_directories(

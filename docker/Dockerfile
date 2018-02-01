@@ -34,8 +34,6 @@ RUN	git clone https://github.com/SuperElastix/elastix.git \
 
 RUN	git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git \
     && cd CS_MoCo_LAB/reconstruction/gadgetron/CS_LAB_Gadget \
-	&& cp -R /tmp/CS_MoCo_LAB/* . \
-	&& rm -rf /tmp/CS_MoCo_LAB \
 	&& mkdir build \
 	&& cd build \
 	&& cmake ../ \
