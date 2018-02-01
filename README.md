@@ -37,9 +37,6 @@ cd build
 cmake ../
 make
 sudo make install
-git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git
-cd CS_MoCo_LAB/gadgetron/CS_LAB_Gadget
-make
 ```
 
 **docker**
