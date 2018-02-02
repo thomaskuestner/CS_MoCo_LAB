@@ -268,18 +268,19 @@ INCLUDE( ${ITK_USE_FILE} )
 # Elastix
 ###############################################################
 # include elastix files and library
-SET(Elastix_DIR /opt/code/elastix/build)	# THIS LINE IS MACHINE DEPENDENT. YOU HAVE TO ADAPT THE DIRECTORY!
-SET( ELASTIX_USE_FILE ${ELASTIX_BINARY_DIR}/UseElastix.cmake )
 find_package(Elastix REQUIRED)
 
-MESSAGE( STATUS "Including Elastix settings.")
-INCLUDE( ${ELASTIX_USE_FILE} )
+if( EXISTS ${ELASTIX_USE_FILE} )
+	include( ${ELASTIX_USE_FILE} )
 
-IF (WIN32)
-	link_libraries(param)
-	link_libraries(elastix)
-	link_libraries(transformix)
-ENDIF()
+	# These libraries are necessary for ElastixRegistrationGadget to find the elastixlib.h!
+	# Please make sure to have elastix compiled as shared library if linking fails.
+	# See CMakeLists.txt in elastix or its documentation for more information.
+	# If these lines are commented out the resulting libCS_LAB.so could not be found by Gadgetron!
+	link_libraries( param )
+	link_libraries( elastix )
+	link_libraries( transformix )
+endif()
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 	include_directories(

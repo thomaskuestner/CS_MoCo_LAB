@@ -30,7 +30,11 @@ RUN	git clone https://github.com/SuperElastix/elastix.git \
 	&& cmake ../ \
 	&& make \
 	&& make install \
-	&& cd ../..
+	&& cd ../.. \
+	&& mkdir /usr/local/lib/cmake/Elastix \
+	&& ln -s /opt/code/elastix/build/ElastixConfig.cmake /usr/local/lib/cmake/Elastix/ElastixConfig.cmake \
+	&& ln -s libelastix-4.8.a /usr/local/lib/libelastix.a \
+	&& ln -s libtransformix-4.8.a /usr/local/lib/libtransformix.a
 
 RUN	git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git \
     && cd CS_MoCo_LAB/reconstruction/gadgetron/CS_LAB_Gadget \
