@@ -64,11 +64,11 @@ namespace Gadgetron{
 		long long image_counter_;
 		long long image_series_;
 		
-		int iNoSamples_;
-		long lNoScans_;
-		int iNoChannels_;
-		int iNoNav_;
-		int iNoNavLine_;
+		unsigned int iNoSamples_;
+		unsigned long lNoScans_;
+		unsigned int iNoChannels_;
+		unsigned int iNoNav_;
+		unsigned int iNoNavLine_;
 		int iEchoLine_;
 		int iEchoPartition_;
 

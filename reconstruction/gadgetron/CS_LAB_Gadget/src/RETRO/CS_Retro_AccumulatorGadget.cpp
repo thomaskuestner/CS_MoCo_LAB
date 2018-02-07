@@ -12,7 +12,7 @@ changes		:
 
 namespace Gadgetron{
 // class constructor
-CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0.0), fFullySa_(.065), fTR_(0.0), iEchoLine_(0.0), iEchoPartition_(0.0), iNavPeriod_(0.0), iNavPERes_(0.0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
+CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), fTR_(0.0), iEchoLine_(0.0), iEchoPartition_(0.0), iNavPeriod_(0.0), iNavPERes_(0.0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
 	GlobalVar::instance()->vPE_.clear();
 	GlobalVar::instance()->vPA_.clear();
 }
@@ -490,7 +490,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// get number of samples in acquisition (equals base resolution)
 		iBaseRes_ = m1->getObjectPtr()->number_of_samples;
 
-		GADGET_DEBUG2("base res.: %f, no. scans: %i, no. channel: %i\n", iBaseRes_, lNoScans_, iNoChannels_);
+		GADGET_DEBUG2("base res.: %d, no. scans: %lu, no. channel: %u\n", iBaseRes_, lNoScans_, iNoChannels_);
 		// dimension vector of k-space array
 		dimkSpace_.push_back(iBaseRes_);
 		dimkSpace_.push_back(lNoScans_);
@@ -530,7 +530,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		dimNav_.push_back(iNoChannels_);
 		iNoNav_ = 0;
 		iNoNavLine_ = 0;
-		GADGET_DEBUG2("navigator dimensions: base res: %i, no. scans: %i, PE resolution: %i, no. channels: %i\n", iBaseRes_, lNoScans_, iNavPERes_, iNoChannels_);
+		GADGET_DEBUG2("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, iNavPERes_, iNoChannels_);
 
 		// create buffer array for incoming navigator data (readout, time, PE, channel)
 		try{bufferNav_->create(&dimNav_);}
