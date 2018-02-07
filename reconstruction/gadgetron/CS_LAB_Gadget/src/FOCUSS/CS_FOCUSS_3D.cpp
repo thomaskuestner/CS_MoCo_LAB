@@ -1465,7 +1465,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 						// get filter coefficients (passed parameter is window width)
 
-						std::vector<float> HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
+						std::vector<float> *HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
 
 
 
@@ -1473,8 +1473,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 						for (int iI = 0, iY = viKSpaceLines_1.at(iZ); iY < viKSpaceLines_2.at(iZ); iY++, iI++)
 
-							hacfFilt1D(iY, iZ) = std::complex<float>(HanningCoeff.at(iI));
-
+							hacfFilt1D(iY, iZ) = std::complex<float>(HanningCoeff->at(iI));
+						
+						delete HanningCoeff;
 					}
 
 				}
@@ -1485,14 +1486,15 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 					for (int iY = 0; iY < vtDim_[0]; iY++){
 
-						std::vector<float> vfHanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iY)-viKSpaceLines_1.at(iY));
+						std::vector<float> *vfHanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iY)-viKSpaceLines_1.at(iY));
 
 
 
 						for (int iI = 0, iZ = viKSpaceLines_1.at(iY); iZ < viKSpaceLines_2.at(iY); iZ++, iI++)
 
-							hacfFilt1D(iY, iZ) = std::complex<float>(vfHanningCoeff.at(iI));
+							hacfFilt1D(iY, iZ) = std::complex<float>(vfHanningCoeff->at(iI));
 
+						delete vfHanningCoeff;
 					}
 
 
@@ -1523,7 +1525,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				if (iDim == 0){
 
-					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
+					std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
 
 					for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 
@@ -1533,8 +1535,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 								for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 
-									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idX));
+									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idX));
 
+					delete vfHammingCoeff;
 				}
 
 
@@ -1543,7 +1546,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				if (iDim == 1){
 
-					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
+					std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
 
 					for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 
@@ -1553,7 +1556,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 								for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 
-									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idY));
+									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idY));
+
+					delete vfHammingCoeff;
 
 				}
 
@@ -1563,7 +1568,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				if (iDim == 2){
 
-					std::vector<float> vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
+					std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
 
 					for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 
@@ -1573,7 +1578,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 								for (int idZ = 0; idZ < vtDim_[1]; idZ++)
 
-									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff.at(idZ));
+									hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idZ));
+
+					delete vfHammingCoeff;
 
 				}
 

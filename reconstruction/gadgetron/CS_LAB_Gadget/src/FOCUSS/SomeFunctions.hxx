@@ -588,18 +588,18 @@ implementation reference:
 
 % implemented by Michael.Voelker@mr-bavaria.de, 2012
 */
-inline std::vector<float>& fGetHanningWindow(int iElements){
+inline std::vector<float>* fGetHanningWindow(int iElements){
 	const float pi = 3.141592653589793238463;
-	std::vector<float> vfHanning(iElements);
+	std::vector<float>* vfHanning = new std::vector<float>(iElements);
 	// L = N - 1
 	float fL = float(iElements-1);
 	// calc n
-	for (std::vector<int>::size_type i = 0; i != vfHanning.size(); i++){
-		vfHanning.at(i) = float(i)-fL/2;
+	for (std::vector<int>::size_type i = 0; i != vfHanning->size(); i++){
+		vfHanning->at(i) = float(i)-fL/2;
 	}
 	// calc w(n)
-	for (std::vector<int>::size_type i = 0; i != vfHanning.size(); i++){
-		vfHanning.at(i) = .5*(1+std::cos(2*pi*vfHanning.at(i)/fL));
+	for (std::vector<int>::size_type i = 0; i != vfHanning->size(); i++){
+		vfHanning->at(i) = .5*(1+std::cos(2*pi*vfHanning->at(i)/fL));
 	}
 
 	return vfHanning;
@@ -632,18 +632,18 @@ implementation reference:
 % --> https://de.wikipedia.org/wiki/Hamming-Fenster
 
 % implemented by Michael.Voelker@mr-bavaria.de, 2012*/
-inline std::vector<float>& fGetHammingWindow(int iElements){
+inline std::vector<float>* fGetHammingWindow(int iElements){
 	const float pi = 3.141592653589793238463;
-	std::vector<float> vfHamming(iElements);
+	std::vector<float> *vfHamming = new std::vector<float>(iElements);
 	// L = N - periodic case
 	float fL = float(iElements);
 	// calc n
-	for (std::vector<int>::size_type i = 0; i != vfHamming.size(); i++){
-		vfHamming.at(i) = float(i)-fL/2;
+	for (std::vector<int>::size_type i = 0; i != vfHamming->size(); i++){
+		vfHamming->at(i) = float(i)-fL/2;
 	}
 	// calc w(n)
-	for (std::vector<int>::size_type i = 0; i != vfHamming.size(); i++){
-		vfHamming.at(i) = 0.54 + 0.46*std::cos(2*pi*vfHamming.at(i)/fL);
+	for (std::vector<int>::size_type i = 0; i != vfHamming->size(); i++){
+		vfHamming->at(i) = 0.54 + 0.46*std::cos(2*pi*vfHamming->at(i)/fL);
 	}
 
 	return vfHamming;

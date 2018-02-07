@@ -18,7 +18,7 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
 	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(__VA_ARGS__) GDEBUG(__VA_ARGS__)
+	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
 	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
 	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
 #endif
@@ -105,10 +105,10 @@ bool fAllZero(const hoNDArray<std::complex<float> >  &Array);
 bool fAllOne(const hoNDArray<bool> &Array);
 
 // get hanning window values
-std::vector<float>& fGetHanningWindow(int iElements);
+std::vector<float>* fGetHanningWindow(int iElements);
 
 // get hamming window values
-std::vector<float>& fGetHammingWindow(int iElements);
+std::vector<float>* fGetHammingWindow(int iElements);
 
 // sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 template <typename T>
