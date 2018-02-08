@@ -12,7 +12,7 @@ changes		:
 
 namespace Gadgetron{
 // class constructor
-CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), fTR_(0.0), iEchoLine_(0.0), iEchoPartition_(0.0), iNavPeriod_(0.0), iNavPERes_(0.0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
+CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), fTR_(0.0), iEchoLine_(0), iEchoPartition_(0), iNavPeriod_(0), iNavPERes_(0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
 	GlobalVar::instance()->vPE_.clear();
 	GlobalVar::instance()->vPA_.clear();
 }
