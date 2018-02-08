@@ -48,7 +48,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		iEchoLine_ = e_limits.kspace_encoding_step_1.get().center; 
 		iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
 
-		h.sequenceParameters.get().TR.get().at(0);
+		fTR_ = h.sequenceParameters.get().TR.get().at(0);
 	#else	
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
