@@ -194,10 +194,22 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	dECGhoNDArray.create(&dECG_dims);
 	hoNDArray< std::complex<float> > realpart;
 	realpart.create(&dECG_dims);
-	realpart = real(&dECGtemp);
+
+	// extract real part, for newer compilers also consider:
+	//realpart = real(&dECGtemp);
+	for(int i = 0; i < iNMeasurment;i++){
+		realpart.at(i) = dECGtemp.at(i).real();
+	}
+
 	hoNDArray< std::complex<float> > imaginarypart;
 	imaginarypart.create(&dECG_dims);
-	imaginarypart = imag(&dECGtemp);
+
+	// extract imaginary part, for newer compilers also consider:
+	//imaginarypart = imag(&dECGtemp);
+	for(int i = 0; i < iNMeasurment;i++){
+		imaginarypart.at(i) = dECGtemp.at(i).imag();
+	}
+
 	subtract(&realpart, &imaginarypart, &dECGhoNDArray);
 	std::vector<float> dECG;
 	for (long i = 0; i < iNMeasurment; i++) dECG.push_back(0);
