@@ -22,7 +22,7 @@ int CS_Retro_PCANavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHe
 	iNoNav_		 = m1->getObjectPtr()->user_int[5];
 	lNoScans_	 = m3->getObjectPtr()->get_size(1);
 
-	if (getNav2D(*m2->getObjectPtr())){
+	if (getNav2DPCA(*m2->getObjectPtr())){
 		if (bMatlab_){
 			//mexPrintf("Error in getNav2D\n");mexEvalString("drawnow;");
 		}
