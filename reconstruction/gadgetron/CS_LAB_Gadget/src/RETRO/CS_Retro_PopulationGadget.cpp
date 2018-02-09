@@ -139,8 +139,12 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates){
 			GADGET_DEBUG1("get inhale/exhale borders by 10th and 90th percentile..\n");
 		}
 
-		fNavMin = vNavInt_.at(std::min_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
-		fNavMax = vNavInt_.at(std::max_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
+		if (vNavInt_.size() > 0) {
+			fNavMin = vNavInt_.at(std::min_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
+			fNavMax = vNavInt_.at(std::max_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
+		} else {
+			fNavMin = fNavMax = 0;
+		}
 
 		if (bMatlab_){
 			//				mexPrintf("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);mexEvalString("drawnow;");
