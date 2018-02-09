@@ -95,6 +95,13 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 bool CS_Retro_PopulationGadget::fDiscard(){
 	float fPreCrop = 5; // [s]
 	int iStartIndex = std::floor(fPreCrop/(fTR_/1000));
+
+	// Set iStartIndex to 0 when it is negative
+	if (iStartIndex < 0) {
+		GADGET_DEBUG2("iStartIndex=%d < 0. It is set to 0, maybe you want to check your code?\n", iStartIndex);
+		iStartIndex = 0;
+	}
+
 	vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
 	vPA_.erase(vPA_.begin(), vPA_.begin() + iStartIndex);
 	vPE_.erase(vPE_.begin(), vPE_.begin() + iStartIndex);	
