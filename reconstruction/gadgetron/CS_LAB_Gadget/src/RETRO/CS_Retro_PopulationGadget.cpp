@@ -102,9 +102,24 @@ bool CS_Retro_PopulationGadget::fDiscard(){
 		iStartIndex = 0;
 	}
 
-	vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
-	vPA_.erase(vPA_.begin(), vPA_.begin() + iStartIndex);
-	vPE_.erase(vPE_.begin(), vPE_.begin() + iStartIndex);	
+	// only erase data when there is enough
+	if (vNavInt_.size() >= iStartIndex) {
+		vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
+	} else {
+		GADGET_DEBUG1("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
+	}
+
+	if (vPA_.size() >= iStartIndex) {
+		vPA_.erase(vPA_.begin(), vPA_.begin() + iStartIndex);
+	} else {
+		GADGET_DEBUG1("more elements should be delete than there were actually in vPA_. Nothing is done!\n");
+	}
+
+	if (vPE_.size() >= iStartIndex) {
+		vPE_.erase(vPE_.begin(), vPE_.begin() + iStartIndex);
+	} else {
+		GADGET_DEBUG1("more elements should be delete than there were actually in vPE_. Nothing is done!\n");
+	}
 
 	GADGET_DEBUG2("first seconds discarded - %i samples erased - TR: %f..\n", iStartIndex, fTR_);
 
