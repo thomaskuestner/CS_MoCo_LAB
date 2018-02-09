@@ -11,8 +11,8 @@ date		: 	21.11.2017: initial file
 description	: 	PCA-based self-navigation signal extraction
 */
 
-#ifndef CS_RETRO_NAVIGATORGADGET_H
-#define CS_RETRO_NAVIGATORGADGET_H
+#ifndef CS_RETRO_PCANAVIGATORGADGET_H
+#define CS_RETRO_PCANAVIGATORGADGET_H
 
 #pragma once
 #include "Gadget.h"
@@ -76,5 +76,4 @@ namespace Gadgetron{
 		bool bMatlab_;
 
     };
-
-#endif /* CS_LAB_GADGET_SRC_RETRO_CS_RETRO_PCANAVIGTORGADGET_H_ */
+#endif /* CS_RETRO_PCANAVIGTORGADGET_H */
