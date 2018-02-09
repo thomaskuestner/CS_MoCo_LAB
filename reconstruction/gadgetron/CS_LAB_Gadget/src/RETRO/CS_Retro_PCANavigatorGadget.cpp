@@ -300,7 +300,8 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//%  normalize so |H(w)| == 1:
 	//%kern = exp(-1i*Wn*(0:2));
 	for(int k = 0; k<3; k++){
-		kern.at(k) = std::exp(-1i*Wn*(k));
+		std::complex<float> i = (0.0,1.0);		// make code compliant to older compiler versions
+		kern.at(k) = std::exp(-i*static_cast<std::complex<float> >(Wn)*static_cast<std::complex<float> >(k));
 	}
 
 	//f = (kern(1)*den(1)+kern(2)*den(2)+kern(3)*den(3))/(kern(1)-kern(3));
