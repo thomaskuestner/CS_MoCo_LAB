@@ -163,10 +163,11 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	//[value, frequency] = max(fy(floor(Fl):floor(Fu),1));
 	//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
-	int maxvalue = 0, frequency = 0, searcharea = std::floor(Fu)-std::floor(Fl), colmnnr =0;
+	std::complex<float> maxvalue = 0;
+	int frequency = 0, searcharea = std::floor(Fu)-std::floor(Fl), colmnnr =0;
 	for(int x = 0; x < inspectednr;x++){
 		for(int i = 0; i < searcharea;i++){
-			if(maxvalue < fy.at(((i+std::floor(Fl)))+(x*iNMeasurment))){
+			if(compare_complex_values(maxvalue, fy.at(((i+std::floor(Fl)))+(x*iNMeasurment))) < 0) {
 				maxvalue = fy.at(((i+std::floor(Fl)))+(x*iNMeasurment));
 				frequency = i+1;
 				colmnnr = x;

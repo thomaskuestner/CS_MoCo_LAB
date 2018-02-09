@@ -1859,4 +1859,33 @@ inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1
 	
 	return GADGET_OK;
 }
+
+template <typename T> inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2) {
+	T abs_c1 = std::abs(c1);
+	T abs_c2 = std::abs(c2);
+
+	if (abs_c1 > abs_c2) {
+		// c1 is larger than c2 -> return +1
+		return 1;
+	} else if (abs_c1 < abs_c2) {
+		// c1 is smaller than c2 -> return -1
+		return -1;
+	} else {
+		// both magnitudes are equal, compare phases
+		T arg_c1 = std::arg(c1);
+		T arg_c2 = std::arg(c2);
+
+		if (arg_c1 > arg_c2) {
+			// c1 is larger than c2 -> return +1
+			return 1;
+		} else if (arg_c1 < arg_c2) {
+			// c1 is smaller than c2 -> return -1
+			return -1;
+		} else {
+			// both are equal -> return 0
+			return 0;
+		}
+	}
+}
+
 }

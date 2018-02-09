@@ -185,6 +185,15 @@ bool sum_dim_g(hoNDArray<T> &Array, int dimension);
 inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);
 
 inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1);
+
+/**
+ * @brief Function to compare two complex values the MATLAB way.
+ *
+ * @param c1 complex value
+ * @param c2 complex value
+ * @return 1 if c1 > c2, -1 if c1 < c2 or 0 if c1 == c2
+ */
+template <typename T> inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2);
 }
 #endif //SOMEFUNCTIONS_H
 
