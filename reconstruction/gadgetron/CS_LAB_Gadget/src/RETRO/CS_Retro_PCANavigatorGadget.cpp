@@ -351,7 +351,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	//Y    = zeros(size(X));
 	std::vector<std::complex<float> > Y;
-	for (long i = 0; i < lNoScans_; i++) Y.push_back(0);
+	for (long i = 0; i < dECG.size(); i++) Y.push_back(0);
 
 	//for m = 1:length(Y)
 	//  Y(m) = num(1) * X(m) + z(1);
@@ -379,7 +379,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	//Y    = zeros(size(X));
 	Y.clear();
-	for (long i = 0; i < lNoScans_; i++) Y.push_back(0);
+	for (long i = 0; i < dECG.size(); i++) Y.push_back(0);
 
 	// second round filtering (backward)
 	//for m = 1:length(Y)
@@ -407,7 +407,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	//dECG = diff(dECG);
 	std::vector<std::complex<float> > dECGdiff;
-	for(int i = 0; i<lNoScans_;i++){
+	for(int i = 0; i<dECG.size()-1;i++){
 		dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
 	}
 
