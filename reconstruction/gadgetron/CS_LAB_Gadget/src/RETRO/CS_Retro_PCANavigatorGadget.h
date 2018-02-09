@@ -76,4 +76,5 @@ namespace Gadgetron{
 		bool bMatlab_;
 
     };
+}
 #endif /* CS_RETRO_PCANAVIGTORGADGET_H */
