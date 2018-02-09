@@ -30,7 +30,6 @@ description	: 	PCA-based self-navigation signal extraction
 #include "hoNDKLT.h"
 #include "hoNDFFT.h"
 #include <cmath>
-#include <math.h>
 
 #include "GadgetIsmrmrdReadWrite.h"
 

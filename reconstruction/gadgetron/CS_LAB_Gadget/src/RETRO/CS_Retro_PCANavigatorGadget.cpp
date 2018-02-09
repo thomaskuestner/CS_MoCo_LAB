@@ -131,7 +131,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	hoNDFFT<float>::instance()->fft1(coeff);
 
 	//nfft2 = 2.^nextpow2(nfft);
-	int nfft2 = pow(2, ceil(log(coeff.get_size(0))/log(2)));
+	int nfft2 = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
 	hoNDArray< std::complex<float> > absresult;
 	absresult.create(&coeff_dims);
 
