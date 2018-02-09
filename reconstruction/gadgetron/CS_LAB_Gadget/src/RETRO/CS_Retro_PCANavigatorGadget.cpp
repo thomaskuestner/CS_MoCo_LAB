@@ -212,7 +212,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	}
 
 	subtract(&realpart, &imaginarypart, &dECGhoNDArray);
-	std::vector<float> dECG;
+	std::vector<std::complex<float> > dECG;
 	for (long i = 0; i < iNMeasurment; i++) dECG.push_back(0);
 
 	//type conversion from complex to float and to vector
@@ -221,11 +221,11 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	}
 	//factor = length(iLC)/size(coeff,1);
 	//dECG = fScale(dECG , factor);
-	std::vector<float> dECGIndtemp;
+	std::vector<std::complex<float> > dECGIndtemp;
 	for (long i = 1; i <= lNoScans_; i++) dECGIndtemp.push_back(i);
-	std::vector<float> dECGInt;
+	std::vector<std::complex<float> > dECGInt;
 	for (long i = 0; i < iNMeasurment; i++) dECGInt.push_back(i*lNoScans_/iNMeasurment);
-	std::vector<float> dECGInd;
+	std::vector<std::complex<float> > dECGInd;
 	dECGInd = interp1<std::complex<float> >(dECGInt, dECG, dECGIndtemp);
 
 
@@ -240,7 +240,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//den = [1 0 0];
 	float ul = 4*tan(pi*(realfrequency-0.1)/Fs/2/2);
 	float uh = 4*tan(pi*(realfrequency+0.1)/Fs/2/2);
-	std::vector<float> den;
+	std::vector<std::complex<float> > den;
 	den.push_back(1);
 	den.push_back(0);
 	den.push_back(0);
@@ -289,7 +289,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	kern_dims.push_back(1);
 	hoNDArray< std::complex<float> > kern;
 	kern.create(&kern_dims);
-	std::vector<float> num;
+	std::vector<std::complex<float> > num;
 	num.push_back(0);
 	num.push_back(0);
 	num.push_back(0);
@@ -338,7 +338,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//z(n) = 0;
 	//num = num / den(1);
 	//den = den / den(1);
-	std::vector<float> z;
+	std::vector<std::complex<float> > z;
 	z.push_back(0);
 	z.push_back(0);
 	z.push_back(0);
@@ -350,7 +350,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	den.at(2) = den.at(2)/den.at(0);
 
 	//Y    = zeros(size(X));
-	std::vector<float> Y;
+	std::vector<std::complex<float> > Y;
 	for (long i = 0; i < lNoScans_; i++) Y.push_back(0);
 
 	//for m = 1:length(Y)
@@ -406,7 +406,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//============================================================
 
 	//dECG = diff(dECG);
-	std::vector<float> dECGdiff;
+	std::vector<std::complex<float> > dECGdiff;
 	for(int i = 0; i<lNoScans_;i++){
 		dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
 	}
