@@ -12,6 +12,19 @@ CS_Retro_PopulationGadget::~CS_Retro_PopulationGadget(){
 // read flexible data header
 int CS_Retro_PopulationGadget::process_config(ACE_Message_Block* mb)
 {
+	// read variables from Header (see also CS_Retro_AccumulatorGadget.cpp)
+	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		ISMRMRD::IsmrmrdHeader h;
+		ISMRMRD::deserialize(mb->rd_ptr(),h);
+		fTR_ = h.sequenceParameters.get().TR.get().at(0);
+	#else
+		// read xml header file
+		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
+
+		// repetition time
+		fTR_ = cfg->sequenceParameters().get().TR().at(0);
+	#endif
+
 	return GADGET_OK;
 }
 

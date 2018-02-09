@@ -32,6 +32,12 @@ description	: 	k-space population/gating
 
 #include "GadgetIsmrmrdReadWrite.h"
 
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#include "xml.h"
+#else
+	#include "ismrmrd/xml.h"
+#endif
+
 namespace Gadgetron{
 	
 	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
