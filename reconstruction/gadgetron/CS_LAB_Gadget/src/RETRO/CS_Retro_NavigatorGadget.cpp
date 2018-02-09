@@ -586,7 +586,7 @@ bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav){
 		GADGET_DEBUG2("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
 	}
 	std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
-	vNavInt_ = interp1(vNavInd, vNav_, vNavIndNew);
+	vNavInt_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
 
 	return GADGET_OK;
 }

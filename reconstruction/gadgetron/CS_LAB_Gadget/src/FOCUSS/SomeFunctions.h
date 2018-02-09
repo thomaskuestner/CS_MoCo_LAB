@@ -166,9 +166,11 @@ template <typename T>
 std::vector<T>& linspace(T fStart, T fEnd, int iElements);
 
 // interpolation
-inline std::vector< float > interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > &x_new );//, int option);
+template <typename T>
+inline std::vector< T > interp1( std::vector< T > &x, std::vector< T > &y, std::vector< T > &x_new );//, int option);
 
-inline int findNearestNeighbourIndex( float value, std::vector< float > &x );
+template <typename T>
+inline int findNearestNeighbourIndex( T value, std::vector< T > &x );
 
 // all elements true
 inline bool allTrue(hoNDArray<bool> &Array);

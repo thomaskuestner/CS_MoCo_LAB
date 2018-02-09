@@ -226,7 +226,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	std::vector<float> dECGInt;
 	for (long i = 0; i < iNMeasurment; i++) dECGInt.push_back(i*lNoScans_/iNMeasurment);
 	std::vector<float> dECGInd;
-	dECGInd = interp1(dECGInt, dECG, dECGIndtemp);
+	dECGInd = interp1<std::complex<float> >(dECGInt, dECG, dECGIndtemp);
 
 
 	// Filter the Signal with a first order butterworth filter

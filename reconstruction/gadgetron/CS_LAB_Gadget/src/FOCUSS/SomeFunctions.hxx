@@ -1369,13 +1369,14 @@ std::vector<T>& linspace(T fStart, T fEnd, int iElements){
 }
 
 // interp1 from http://stackoverflow.com/questions/9394867/c-implementation-of-matlab-interp1-function-linear-interpolation
-inline std::vector< float > interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > &x_new )
+template <typename T>
+inline std::vector< T > interp1( std::vector< T > &x, std::vector< T > &y, std::vector< T > &x_new )
 {
 //	mexPrintf("inside interp1\n");mexEvalString("drawnow;");
-    std::vector< float > y_new;
+    std::vector< T > y_new;
     y_new.reserve( x_new.size() );
 
-    std::vector< float > dx, dy, slope, intercept;
+    std::vector< T > dx, dy, slope, intercept;
     dx.reserve( x.size() );
     dy.reserve( x.size() );
     slope.reserve( x.size() );
@@ -1399,7 +1400,7 @@ inline std::vector< float > interp1( std::vector< float > &x, std::vector< float
 //	mexPrintf("inside interp1 - 2\n");mexEvalString("drawnow;");
     for ( int i = 0; i < x_new.size(); ++i ) 
     {
-        int idx = findNearestNeighbourIndex( x_new[i], x );
+        int idx = findNearestNeighbourIndex<T>( x_new[i], x );
         y_new.push_back( slope[idx] * x_new[i] + intercept[idx] );
 
     }
@@ -1407,13 +1408,13 @@ inline std::vector< float > interp1( std::vector< float > &x, std::vector< float
 	return y_new;
 }
 
-
-inline int findNearestNeighbourIndex( float value, std::vector< float > &x )
+template <typename T>
+inline int findNearestNeighbourIndex( T value, std::vector< T > &x )
 {
     float dist = FLT_MAX;
     int idx = -1;
     for ( int i = 0; i < x.size(); ++i ) {
-        float newDist = value - x[i];
+        float newDist = std::abs(value - x[i]);
         if ( newDist > 0 && newDist < dist ) {
             dist = newDist;
             idx = i;
