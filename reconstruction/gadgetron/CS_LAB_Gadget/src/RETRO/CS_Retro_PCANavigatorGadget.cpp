@@ -318,10 +318,10 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	}
 
 	//f = (kern(1)*den(1)+kern(2)*den(2)+kern(3)*den(3))/(kern(1)-kern(3));
-	std::complex<float> f = (kern.at(1)*den.at(1)+kern.at(2)*den.at(2)+kern.at(3)*den.at(3))/(kern.at(1)-kern.at(3));
+	std::complex<float> f = (kern.at(0)*den.at(0)+kern.at(1)*den.at(1)+kern.at(2)*den.at(2))/(kern.at(0)-kern.at(2));
 	num.at(0) = f.real();
-	num.at(2) = 0;
-	num.at(3) = - f.real();
+	num.at(1) = 0;
+	num.at(2) = - f.real();
 
 	//===========================================================
 	//end of calculating the numerator and denominator of the first order butterworth filter
@@ -361,7 +361,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//end
 
 	for(int m = 0; m < Y.size(); m++){
-		Y.at(m) = num.at(1) * dECG.at(m) + z.at(1);
+		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
 		for(int i = 1; i < den.size(); i++){
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
@@ -389,7 +389,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	//   end
 	//end
 	for(int m = 0; m < Y.size(); m++){
-		Y.at(m) = num.at(1) * dECG.at(m) + z.at(1);
+		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
 		for(int i = 1; i < den.size(); i++){
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
