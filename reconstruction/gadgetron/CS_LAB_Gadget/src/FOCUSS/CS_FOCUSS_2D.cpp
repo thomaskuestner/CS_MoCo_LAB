@@ -207,7 +207,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 
 	// outer loop for FOCUSS
-	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
+	for (int iOuter = 0; iOuter < GlobalVar::instance()->iNOuter_; iOuter++){
 		if (!bMatlab_ && bDebug_)
 			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GDEBUG("FOCUSS loop: %i\n", iOuter);
@@ -222,7 +222,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		hacfRho.fill(cfZero); hacfD.fill(cfZero); hacfQ.fill(cfZero); hacfG_old.fill(std::complex<float>(1.0,1.0));
 
 		// inner loop for CG
-		for (int iInner = 0; iInner < iNInner_; iInner++){
+		for (int iInner = 0; iInner < GlobalVar::instance()->iNInner_; iInner++){
 			try{
 				if (!bMatlab_ && bDebug_)
 					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
@@ -291,7 +291,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 
 				//----------------- gradient -------------------------
 				// G = -conj(W).*IFFT(e)+Lambda.*Q
-				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
+				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 
 				//------------------- cg beta - Polak-Ribiere -------------------------------
 				std::complex<float> fBetaCha (0.0);

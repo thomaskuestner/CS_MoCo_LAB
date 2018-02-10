@@ -19,7 +19,6 @@ functions	:	process(...)		:	function prototype - reconstruct the Compressed Sens
 				fRecon(...)			:	start FOCUSS reconstruction
 variables	:	pbPtrN_				:	data pointer for boolean variables
 				bESPReSSoIsLower_	:	upper or lower Partial Fourier data (true: data is lower Partial Fourier sampled)
-				bESPRActiveCS_		:	ESPReSSo constraint is active for purely CS data set without Partial Fourier sampling (true: active)
 				bControl_			:	flag, which indicates if the class is used as standalone version or in use with the "CS_Control"-class (the data set is put on the stream or passed to the CS_Control-class).
 				habMaskConj_		:	boolean mask for the ESPReSSo algorithm
 				habMaskConj2_		:	boolean mask for the ESPReSSo algorithm
@@ -34,11 +33,7 @@ variables	:	pbPtrN_				:	data pointer for boolean variables
 				fP_					:	p-norm value (default: p = .5 for FOCUSS algorithm)
 				fEpsilon_			:	tolerance - boundary for the CG algorithm
 				fCSAccel_			:	acceleration value of the CS acquisitions
-				fFullySampled_		:	fully sampled region (in percent)
-				fPartialFourierVal_	:	Partial Fourier value (4/8, 5/8, 6/8, 7/8)
 				pcfPtrN_			:	complex float data pointer
-				cfLambda_			:	Lagrangian multiplier for the FOCUSS constraint
-				cfLambdaESPReSSo_	:	Lagrangian multiplier for the ESPReSSo constraint
 				hacfFilter_			:	3D filter for the ESPReSSo algorithm
 				Transform_KernelTransform_: transformation object for the kernel transformation
 				Transform_fftBA_	: 	transformation object, which controls the transformation before all (like the Fourier transformation in x-direction in the "normal" FOCUSS algorithm)
@@ -165,9 +160,6 @@ namespace Gadgetron
 		// data is upper or lower Partial Fourier data
 		bool bESPReSSoIsLower_;
 
-		// using ESPReSSo constraint for non-ESPReSSo acquisitions		
-	    	int bESPRActiveCS_;
-
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
 		bool bControl_;
 
@@ -187,18 +179,6 @@ namespace Gadgetron
 
 		// number of channels
 		int iNChannels_;
-
-		//k-t FOCUSS loops
-		int iNOuter_;
-
-		// CG loops
-		int iNInner_;
-
-		// ESPReSSo direction (y: 1, z: 2)
-		int iESPReSSoDirection_;
-
-		// density map
-		int iVDMap_;
 
 		// channel/k-space normalization
 		int iNorm_;
@@ -220,19 +200,9 @@ namespace Gadgetron
 		// CS acceleration factor
 		float fCSAccel_;
 
-		// sequence parameters
-		float fFullySampled_;
-		float fPartialFourierVal_;
-
 	// complex float
 		// data pointer
 		std::complex<float> *pcfPtr_, *pcfPtr2_, *pcfPtr3_;
-
-		//FOCUSS stability in noisy environment (default:5, max:75)
-		std::complex<float> cfLambda_;
-
-		// lambda for ESPReSSo conjugate similarity
-		std::complex<float> cfLambdaESPReSSo_;
 
 	// hoNDArray<cx_float>:
 		// FilterArray for ESPReSSo filtering

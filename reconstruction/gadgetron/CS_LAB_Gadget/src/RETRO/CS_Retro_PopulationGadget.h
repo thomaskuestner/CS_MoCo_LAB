@@ -65,12 +65,6 @@ namespace Gadgetron{
 
 		// dimensions of incoming array
 		std::vector<size_t> dimensionsIn_;
-		
-		// gating mode
-		int iGatingMode_;
-
-		// population mode
-		int iPopulationMode_;
 
 		// number of channels
 		int iNoChannels_;
@@ -92,13 +86,8 @@ namespace Gadgetron{
 
 		// centroids of gates
 		std::vector<float> vfCentroids_;
-		
-		// TR of sequence
-		float fTR_;
 
 		bool bMatlab_;
-		std::vector<int> vPE_;
-		std::vector<int> vPA_;
     };
 }
 #endif //CS_RETRO_POPULATIONGADGET_H

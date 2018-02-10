@@ -70,16 +70,9 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class
 	//pCS->iCGResidual_				= iCGResidual_;
 	pCS->iNChannels_				= iNChannels_;
-	pCS->iNOuter_					= iNOuter_;
-	pCS->iNInner_					= iNInner_;
 	pCS->fP_						= fP_;
-	pCS->cfLambda_					= cfLambda_;
-	pCS->cfLambdaESPReSSo_			= cfLambdaESPReSSo_;
 	pCS->fEpsilon_					= fEpsilon_;
 	pCS->fCSAccel_					= fCSAccel_;
-	pCS->iESPReSSoDirection_		= iESPReSSoDirection_;
-	pCS->fPartialFourierVal_		= fPartialFourierVal_;
-	pCS->bESPRActiveCS_				= bESPRActiveCS_;
 	pCS->hacfFilter_				= hacfFilter_;
 	pCS->Transform_KernelTransform_ = Transform_KernelTransform_;
 	pCS->Transform_fftBA_			= Transform_fftBA_;

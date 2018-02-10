@@ -47,9 +47,8 @@ namespace Gadgetron{
       std::vector<size_t> vDim_;
       long long image_counter_;
       long long image_series_;
-	  int iNPhases_;
-	  int iVDMap_, iBodyRegion_, iSamplingType_, iESPReSSoDirection_;
-	  float fCSAcc_, fFullySa_, fLESPReSSo_, fLQ_, fPartialFourierVal_;
+	  int iBodyRegion_, iSamplingType_;
+	  float fFullySa_, fLESPReSSo_, fLQ_;
     };
 }
 #endif //CS_ACCUMULATORGADGET_H

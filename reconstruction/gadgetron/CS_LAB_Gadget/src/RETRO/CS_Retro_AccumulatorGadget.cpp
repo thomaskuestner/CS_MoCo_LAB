@@ -12,15 +12,15 @@ changes		:
 
 namespace Gadgetron{
 // class constructor
-CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), fTR_(0.0), iEchoLine_(0), iEchoPartition_(0), iNavPeriod_(0), iNavPERes_(0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
+CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), iEchoLine_(0), iEchoPartition_(0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
 	GlobalVar::instance()->vPE_.clear();
 	GlobalVar::instance()->vPA_.clear();
 }
  
 // class destructor - delete temporal buffer/memory
 CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget(){
-// 	if (bufferkSpace_) delete bufferkSpace_;
-// 	if (bufferNav_) delete bufferNav_;
+	if (bufferkSpace_) delete bufferkSpace_;
+	if (bufferNav_) delete bufferNav_;
 }
 
 // read flexible data header
@@ -48,7 +48,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		iEchoLine_ = e_limits.kspace_encoding_step_1.get().center; 
 		iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
 
-		fTR_ = h.sequenceParameters.get().TR.get().at(0);
+		GlobalVar::instance()->fTR_ = h.sequenceParameters.get().TR.get().at(0);
 	#else	
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -77,16 +77,16 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		GADGET_DEBUG2("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
 
 		// repetition time
-		fTR_ = cfg->sequenceParameters().get().TR().at(0);
+		GlobalVar::instance()->fTR_ = cfg->sequenceParameters().get().TR().at(0);
 
 	#endif	
 
 	int iESPReSSoY = 0;
 	int iESPReSSoZ = 0;
 	iBodyRegion_ = 0;
-	iVDMap_ = 0;
+	GlobalVar::instance()->iVDMap_ = 0;
 	iSamplingType_ = 0;
-	fCSAcc_ = 0;
+	GlobalVar::instance()->fCSAcc_ = 0;
 	fFullySa_ = 0;
 	try{
 
@@ -215,7 +215,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 
 					if (i->name == "CS_Accel") {
 
-						fCSAcc_ = i->value;		
+						GlobalVar::instance()->fCSAcc_ = i->value;
 
 					}
 
@@ -330,7 +330,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 					
 				for (ISMRMRD::trajectoryDescriptionType::userParameterDouble_sequence::iterator i (traj_desc.userParameterDouble().begin ()); i != traj_desc.userParameterDouble().end(); ++i) {
 					if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
-						fCSAcc_ = i->value();
+						GlobalVar::instance()->fCSAcc_ = i->value();
 					}
 
 					if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
@@ -372,7 +372,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 				break;
 		}
 
-		switch (iVDMap_){
+		switch (GlobalVar::instance()->iVDMap_){
 			case 1:
 				GADGET_DEBUG1("VDMap is none\n");
 				break;
@@ -402,61 +402,59 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 				break;
 		}
 
-		iESPReSSoDirection_ = 10;
-		fPartialFourierVal_ = 1.0;
+		GlobalVar::instance()->iESPReSSoDirection_ = 10;
+		GlobalVar::instance()->fPartialFourierVal_ = 1.0;
 
 		if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
 			GADGET_DEBUG1("Partial Fourier data..\n");
 			GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
 			// get Partial Fourier dimension
 			if (iESPReSSoY > 9){
-				iESPReSSoDirection_ = 1;
+				GlobalVar::instance()->iESPReSSoDirection_ = 1;
 				// get Partial Fourier value
 				switch (iESPReSSoY){
 					case 10:
-						fPartialFourierVal_ = 0.5;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.5;
 						break;
 					case 11:
-						fPartialFourierVal_ = 0.625;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.625;
 						break;
 					case 12:
-						fPartialFourierVal_ = 0.75;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.75;
 						break;
 					case 13:
-						fPartialFourierVal_ = 0.875;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.875;
 						break;
 					default:
-						fPartialFourierVal_ = 1.0;
+						GlobalVar::instance()->fPartialFourierVal_ = 1.0;
 						break;
 				}
 			}
 
 			else if (iESPReSSoZ > 9){
-				iESPReSSoDirection_ = 2;
+				GlobalVar::instance()->iESPReSSoDirection_ = 2;
 				// get Partial Fourier value
 				switch (iESPReSSoZ){
 					case 10:
-						fPartialFourierVal_ = 0.5;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.5;
 						break;
 					case 11:
-						fPartialFourierVal_ = 0.625;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.625;
 						break;
 					case 12:
-						fPartialFourierVal_ = 0.75;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.75;
 						break;
 					case 13:
-						fPartialFourierVal_ = 0.875;
+						GlobalVar::instance()->fPartialFourierVal_ = 0.875;
 						break;
 					default:
-						fPartialFourierVal_ = 1.0;
+						GlobalVar::instance()->fPartialFourierVal_ = 1.0;
 						break;
 				}
 			}
 		}
-		GlobalVar::instance()->fPartialFourierVal_ = fPartialFourierVal_;
-		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
 
-		GlobalVar::instance()->iESPReSSoDirection_ = iESPReSSoDirection_;
+		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
 		GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
 	}
 	catch(...){
@@ -467,7 +465,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	//fTR_ = cfg->sequenceParameters().get().TR().at(0);
 
 	// concat higher and lower bytes from total measurement variable
-	lNoScans_ = std::ceil(iMeasurementTime_/fTR_);		
+	lNoScans_ = std::ceil(GlobalVar::instance()->iMeasurementTime_/GlobalVar::instance()->fTR_);
 
 	return GADGET_OK;
 }
@@ -526,11 +524,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// dimension vector of navigator array
 		dimNav_.push_back(iBaseRes_);
 		dimNav_.push_back(lNoScans_);
-		dimNav_.push_back(iNavPERes_);
+		dimNav_.push_back(GlobalVar::instance()->iNavPERes_);
 		dimNav_.push_back(iNoChannels_);
 		iNoNav_ = 0;
 		iNoNavLine_ = 0;
-		GADGET_DEBUG2("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, iNavPERes_, iNoChannels_);
+		GADGET_DEBUG2("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, GlobalVar::instance()->iNavPERes_, iNoChannels_);
 
 		// create buffer array for incoming navigator data (readout, time, PE, channel)
 		try{bufferNav_->create(&dimNav_);}
@@ -579,11 +577,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 	if (bNavigator == true){
 		iNoNavLine_++;
-		if (iNoNavLine_ == iNavPERes_){
+		if (iNoNavLine_ == GlobalVar::instance()->iNavPERes_){
 			iNoNav_++;
 			iNoNavLine_ = 0;
 		}
-		if (iNoNavLine_ == (int)((float)iNavPERes_/2)){
+		if (iNoNavLine_ == (int)((float)GlobalVar::instance()->iNavPERes_/2)){
 			GlobalVar::instance()->vNavInd_.push_back((float)lCurrentScan_);
 		}
 	}
@@ -624,7 +622,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		tmp_m1->getObjectPtr()->flags = 0;
 
 		//tmp_m1->getObjectPtr()->user_int[0] = 7;
-		tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
+		tmp_m1->getObjectPtr()->user_int[0]			= GlobalVar::instance()->iNPhases_;
 		tmp_m1->getObjectPtr()->user_int[1]			= m1->getObjectPtr()->user_int[1];
 		tmp_m1->getObjectPtr()->user_int[2]			= m1->getObjectPtr()->user_int[2];
 		tmp_m1->getObjectPtr()->user_int[3]			= m1->getObjectPtr()->user_int[3];
@@ -651,16 +649,16 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		// set user values, if Compressed Sensing is active
 		//if(this->get_bool_value("CS_on") == true){
-			tmp_m1->getObjectPtr()->user_float[0] = fCSAcc_;
+			tmp_m1->getObjectPtr()->user_float[0] = GlobalVar::instance()->fCSAcc_;
 			tmp_m1->getObjectPtr()->user_float[1] = fFullySa_/100;
-			tmp_m1->getObjectPtr()->user_float[2] = fPartialFourierVal_;
+			tmp_m1->getObjectPtr()->user_float[2] = GlobalVar::instance()->fPartialFourierVal_;
 			tmp_m1->getObjectPtr()->user_float[3] = fLQ_;
 			tmp_m1->getObjectPtr()->user_float[4] = fLESPReSSo_;
 
 			tmp_m1->getObjectPtr()->user_int[1] = iBodyRegion_;
 			tmp_m1->getObjectPtr()->user_int[2] = iSamplingType_;
-			tmp_m1->getObjectPtr()->user_int[3] = iVDMap_;
-			tmp_m1->getObjectPtr()->user_int[4] = iESPReSSoDirection_;
+			tmp_m1->getObjectPtr()->user_int[3] = GlobalVar::instance()->iVDMap_;
+			tmp_m1->getObjectPtr()->user_int[4] = GlobalVar::instance()->iESPReSSoDirection_;
 		//}
 		tmp_m1->getObjectPtr()->user_int[5] = iNoNav_;
 		// navigator

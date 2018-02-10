@@ -4,7 +4,11 @@ author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 version		: 	1.0
 date		: 	03.01.2015
 description	: 	singleton class implementation for global variables				
-variables	:		
+variables	:	bESPRActiveCS_		:	ESPReSSo constraint is active for purely CS data set without Partial Fourier sampling (true: active)
+				cfLambdaESPReSSo_	:	Lagrangian multiplier for the ESPReSSo constraint
+				cfLambda_			:	Lagrangian multiplier for the FOCUSS constraint
+				fFullySampled_		:	fully sampled region (in percent)
+				fPartialFourierVal_	:	Partial Fourier value (4/8, 5/8, 6/8, 7/8)
 references	:	http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Entwurfsmuster:_Singleton
 */
 
@@ -46,11 +50,14 @@ namespace Gadgetron{
 		std::vector< int > vPE_;
 		std::vector< int > vPA_;
 
+		// TR of sequence
+		float fTR_;
+
 		// FOCUSS parameters
-		int iNOuter_;
-		int iNInner_;		
-		int iVDMap_;		
-		int iESPReSSoDirection_;		
+		int iNOuter_;				//k-t FOCUSS loops
+		int iNInner_;				// CG loops
+		int iVDMap_;				// density map
+		int iESPReSSoDirection_;	// ESPReSSo direction (y: 1, z: 2)
 		int iDimFFT_;
 		int iDimDCTSparse_;
 		int iDimPCASparse_;
@@ -61,21 +68,21 @@ namespace Gadgetron{
 		
 		float fPartialFourierVal_;
 		float fCSAcc_;
-		float fFullySampled_;
+		float fFullySampled_;		// sequence parameters
 
-		std::complex< float > cfLambdaESPReSSo_;
-		std::complex< float > cfLambda_;
+		std::complex< float > cfLambdaESPReSSo_;	// lambda for ESPReSSo conjugate similarity
+		std::complex< float > cfLambda_;			//FOCUSS stability in noisy environment (default:5, max:75)
 
-		bool bESPRActiveCS_;
+		bool bESPRActiveCS_;		// using ESPReSSo constraint for non-ESPReSSo acquisitions
 
 		// Retro Vars
 		int iNoGates_;
-		int iGatingMode_;
+		int iGatingMode_;			// Gating mode (0: percentile, 1: kMeans)
 		int iMeasurementTime_;
 		int iNavPERes_;
 		int iNavPeriod_;
 		int iNPhases_;
-		int iPopulationMode_;
+		int iPopulationMode_;		// mode for k-space population (0: closes, 1: average, 2: collect)
 
 		private:
 			static GlobalVar* _instance;

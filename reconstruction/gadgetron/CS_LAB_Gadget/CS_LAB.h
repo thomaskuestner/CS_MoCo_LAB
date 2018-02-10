@@ -62,7 +62,7 @@ namespace Gadgetron
 		int iDataset_;
 
 		// Matlab transformation parameters..
-		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iScrambleDim_, iFFTBA_, kSpaceOut_, iTime_;
+		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iFFTBA_, kSpaceOut_, iTime_;
 };
 
 }

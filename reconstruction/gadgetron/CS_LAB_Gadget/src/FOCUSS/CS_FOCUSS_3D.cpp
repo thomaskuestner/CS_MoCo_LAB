@@ -172,7 +172,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//------------------------------------------------------------------------
 	//------ find symmetrical, conjugate sampled part - build filter ---------
 	//------------------------------------------------------------------------
-	if (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)
+	if (GlobalVar::instance()->bESPRActiveCS_ || GlobalVar::instance()->fPartialFourierVal_ < 1.0)
 		fInitESPReSSo(habFullMask);
 
 	//-------------------------------------------------------------------------
@@ -227,7 +227,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	hoNDArray<std::complex<float> >  hacfRho = hacfQ, hacfG_old = hacfQ, hacfD = hacfQ, hacfRho_fft = hacfQ, hacfE = hacfQ, hacfG = hacfQ, hacfE_ifft = hacfQ, hacfBeta = hacfQ, hacfZ = hacfQ, hacfAlpha = hacfQ, hacfGradient_ESPReSSo = hacfQ;
 	
 	// outer loop - FOCUSS iterations
-	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
+	for (int iOuter = 0; iOuter < GlobalVar::instance()->iNOuter_; iOuter++){
 		if (!bMatlab_ && bDebug_)
 			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 				GDEBUG("FOCUSS loop: %i\n", iOuter);
@@ -242,7 +242,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		hacfRho.fill(cfZero); hacfD.fill(cfZero); hacfQ.fill(cfZero); hacfG_old.fill(std::complex<float>(1.0,1.0));
 
 		// inner loop for CG
-		for (int iInner = 0; iInner < iNInner_; iInner++){
+		for (int iInner = 0; iInner < GlobalVar::instance()->iNInner_; iInner++){
 			try{
 				if (!bMatlab_ && bDebug_)
 					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
@@ -319,7 +319,9 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			//------------------------------------------------------------------------
 			// emphasize conjugate similarity
 			try{
-				if (cfLambdaESPReSSo_ != cfZero && (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)){
+				if (GlobalVar::instance()->cfLambdaESPReSSo_ != cfZero
+					&& (GlobalVar::instance()->bESPRActiveCS_ || GlobalVar::instance()->fPartialFourierVal_ < 1.0)
+				){
 					hacfGradient_ESPReSSo = hacfRho;
 					fGradESPReSSo(hacfGradient_ESPReSSo, hacfFullMask, hacfKSpace, hacfWWindowed, hacfQ);
 				}
@@ -343,7 +345,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			//-------------calculate gradient -------------------------
 			// G = -conj(W).*IFFT(e)+Lambda.*Q + LambdaESPReSSo.*gradESPReSSo
 			try{
-				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
+				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
@@ -511,7 +513,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 
 		pcfPtr2_ = hacfRhoFlipped.get_data_ptr();
 
-		if (iESPReSSoDirection_ == 1)
+		if (GlobalVar::instance()->iESPReSSoDirection_ == 1)
 
 				#pragma omp parallel for
 
@@ -529,7 +531,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 
 		// partition encoding direction
 
-		else if(iESPReSSoDirection_ == 2)
+		else if(GlobalVar::instance()->iESPReSSoDirection_ == 2)
 
 			#pragma omp parallel for
 
@@ -591,7 +593,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 
 		// ESPReSSo direction is phase encoding direction
 
-		if (iESPReSSoDirection_ == 1){
+		if (GlobalVar::instance()->iESPReSSoDirection_ == 1){
 
 			for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 
@@ -613,7 +615,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 
 		// ESPReSSo direction is partition encoding direction
 
-		else if(iESPReSSoDirection_ == 2){
+		else if(GlobalVar::instance()->iESPReSSoDirection_ == 2){
 
 			for (int iCha = 0; iCha < vtDim_[3]; iCha++)
 
@@ -683,10 +685,10 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 	// get center points
 	int iCenterX = (int)(vtDim_[2]/2), iCenterY = (int)(vtDim_[0]/2), iCenterZ = (int)(vtDim_[1]/2);
 
-	if (cfLambdaESPReSSo_ != std::complex<float>(0.0)){		
+	if (GlobalVar::instance()->cfLambdaESPReSSo_ != std::complex<float>(0.0)){
 
 		// ESPReSSo acquisition
-		if (fPartialFourierVal_ < 1.0 && fPartialFourierVal_ > 0.0){
+		if (GlobalVar::instance()->fPartialFourierVal_ < 1.0 && GlobalVar::instance()->fPartialFourierVal_ > 0.0){
 
 			//-------------------------------------------------------------------------
 			//------------------------- Upper / Lower ?  ------------------------------
@@ -702,9 +704,9 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// ESPReSSo direction is phase encoding direction
 
-			if (iESPReSSoDirection_ == 1){
+			if (GlobalVar::instance()->iESPReSSoDirection_ == 1){
 
-				for (int idY = (int)(fPartialFourierVal_*vtDim_[0])-1; idY < vtDim_[0]; idY++){
+				for (int idY = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0])-1; idY < vtDim_[0]; idY++){
 
 					if (pbPtr_[idY + vtDim_[0]*iCenterZ + vtDim_[0]*vtDim_[1]*iCenterX] != false){
 
@@ -714,7 +716,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				}
 
-				for (int idY = (int)(fPartialFourierVal_*vtDim_[0])-1; idY >= 0; idY--){
+				for (int idY = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0])-1; idY >= 0; idY--){
 
 					if (pbPtr_[idY + vtDim_[0]*iCenterZ + vtDim_[0]*vtDim_[1]*iCenterX] != false){
 
@@ -734,7 +736,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			else{
 
-				for (int idZ = (int)(fPartialFourierVal_*vtDim_[1])-1; idZ < vtDim_[1]; idZ++){
+				for (int idZ = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1])-1; idZ < vtDim_[1]; idZ++){
 
 					if (pbPtr_[iCenterY + idZ*vtDim_[0] + iCenterX*vtDim_[0]*vtDim_[1]] != false){
 
@@ -744,7 +746,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				}
 
-				for (int idZ = (int)(fPartialFourierVal_*vtDim_[1])-1; idZ >= 0; idZ--){
+				for (int idZ = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1])-1; idZ >= 0; idZ--){
 
 					if (pbPtr_[iCenterY + idZ*vtDim_[0] + iCenterX*vtDim_[0]*vtDim_[1]] != false){
 
@@ -798,7 +800,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				// ESPReSSo direction is phase encoding direction
 
-				if (iESPReSSoDirection_ == 1)
+				if (GlobalVar::instance()->iESPReSSoDirection_ == 1)
 
 					#pragma omp parallel for
 
@@ -840,7 +842,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				// ESPReSSo direction is phase encoding direction
 
-				if (iESPReSSoDirection_ == 1)
+				if (GlobalVar::instance()->iESPReSSoDirection_ == 1)
 
 					#pragma omp parallel for
 
@@ -1049,7 +1051,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// set values for symmetrical kSpace part / filter
 
-			iESPReSSoDirection_ = 1;
+			GlobalVar::instance()->iESPReSSoDirection_ = 1;
 
 			bESPReSSoIsLower_ = true;
 
@@ -1101,7 +1103,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 		// ESPReSSo is active
 
-		if (fPartialFourierVal_ != 1.0){
+		if (GlobalVar::instance()->fPartialFourierVal_ != 1.0){
 
 			pbPtr_ = habSamplPtrSym.get_data_ptr();
 
@@ -1109,7 +1111,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// phase encoding direction
 
-			if (iESPReSSoDirection_ == 1){
+			if (GlobalVar::instance()->iESPReSSoDirection_ == 1){
 
 				for (int iZ = 0; iZ < vtDim_[1]; iZ++){
 
@@ -1119,11 +1121,11 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 					if (bESPReSSoIsLower_ == true){
 
-						if (fPartialFourierVal_ != .5){
+						if (GlobalVar::instance()->fPartialFourierVal_ != .5){
 
-							viKSpaceLines_1.push_back(fPartialFourierVal_*vtDim_[0]-iCenterY);
+							viKSpaceLines_1.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0]-iCenterY);
 
-							viKSpaceLines_2.push_back(fPartialFourierVal_*vtDim_[0]);
+							viKSpaceLines_2.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0]);
 
 						}
 
@@ -1167,11 +1169,11 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 					else{
 
-						if (fPartialFourierVal_ != .5){
+						if (GlobalVar::instance()->fPartialFourierVal_ != .5){
 
-							viKSpaceLines_1.push_back(fPartialFourierVal_*vtDim_[0]-iCenterY);
+							viKSpaceLines_1.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0]-iCenterY);
 
-							viKSpaceLines_2.push_back(fPartialFourierVal_*vtDim_[0]);
+							viKSpaceLines_2.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0]);
 
 						}
 
@@ -1227,11 +1229,11 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 					if (bESPReSSoIsLower_ == true){
 
-						if (fPartialFourierVal_ != .5){
+						if (GlobalVar::instance()->fPartialFourierVal_ != .5){
 
-							viKSpaceLines_1.push_back(fPartialFourierVal_*vtDim_[1]-iCenterZ);
+							viKSpaceLines_1.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1]-iCenterZ);
 
-							viKSpaceLines_2.push_back(fPartialFourierVal_*vtDim_[1]);
+							viKSpaceLines_2.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1]);
 
 						}
 
@@ -1275,11 +1277,11 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 					else{
 
-						if (fPartialFourierVal_ != .5){
+						if (GlobalVar::instance()->fPartialFourierVal_ != .5){
 
-							viKSpaceLines_1.push_back(fPartialFourierVal_*vtDim_[1]-iCenterZ);
+							viKSpaceLines_1.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1]-iCenterZ);
 
-							viKSpaceLines_2.push_back(fPartialFourierVal_*vtDim_[1]);
+							viKSpaceLines_2.push_back(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1]);
 
 						}
 
@@ -1377,7 +1379,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// phase encoding direction
 
-			if (iESPReSSoDirection_ == 1)
+			if (GlobalVar::instance()->iESPReSSoDirection_ == 1)
 
 				for (int iZ = 0; iZ < vtDim_[1]; iZ++){
 
@@ -1453,11 +1455,11 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			// filter for ESPReSSo direction (Hanning)
 
-			if (iDim == iESPReSSoDirection_){
+			if (iDim == GlobalVar::instance()->iESPReSSoDirection_){
 
 				// phase encoding direction
 
-				if (iESPReSSoDirection_ == 1){
+				if (GlobalVar::instance()->iESPReSSoDirection_ == 1){
 
 					for (int iZ = 0; iZ < vtDim_[1]; iZ++){
 
@@ -1482,7 +1484,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 				// partition encoding direction
 
-				else if (iESPReSSoDirection_ == 2)
+				else if (GlobalVar::instance()->iESPReSSoDirection_ == 2)
 
 					for (int iY = 0; iY < vtDim_[0]; iY++){
 

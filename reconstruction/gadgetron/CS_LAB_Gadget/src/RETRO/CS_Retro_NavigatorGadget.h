@@ -33,9 +33,6 @@ namespace Gadgetron{
     
 		bool getNav2D(hoNDArray<std::complex<float>> &aNav);
 
-		// navigator index vector
-		std::vector<float> vNavInd_;
-
 		// navigator signal interpolated to TRs
 		std::vector<float> vNavInt_;
 
@@ -53,9 +50,6 @@ namespace Gadgetron{
 
 		// number of navigator acquisitions
 		int iNoNav_;
-
-		// navigator period
-		int iNavPeriod_;
 
 		// matlab debug output
 		bool bMatlab_;

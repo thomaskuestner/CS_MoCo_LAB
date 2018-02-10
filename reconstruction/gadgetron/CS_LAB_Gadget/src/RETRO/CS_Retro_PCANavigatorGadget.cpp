@@ -64,7 +64,6 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	if (bMatlab_){
 		//mexPrintf("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");mexEvalString("drawnow;");
-		GlobalVar::instance()->vNavInd_ = vNavInd_;
 	}
 	else{
 		GADGET_DEBUG1("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
@@ -123,8 +122,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 	VT->prepare(A, (size_t) 1, (size_t) 0, true);
 	VT->eigen_vector(coeff);
 
-	int iMeasurementTime_ = GlobalVar::instance()->iMeasurementTime_; // Get the total scan time in seconds
-	double Fs = iMeasurementTime_/(iNMeasurment*1000); // Get the sampling frequency
+	double Fs = GlobalVar::instance()->iMeasurementTime_/(iNMeasurment*1000); // Get the sampling frequency
 
 	//fft(result, ...,1);
 	//fft only 1 dimensional(first dimension)
@@ -179,7 +177,7 @@ bool CS_Retro_PCANavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aN
 
 	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
 	// Fs= 1/dTR  changing sampling rate because signal is going to be interpolated
-	Fs = iMeasurementTime_/(lNoScans_*1000);
+	Fs = GlobalVar::instance()->iMeasurementTime_/(lNoScans_*1000);
 	std::vector<size_t> dECG_dims;
 	dECG_dims.push_back(iNMeasurment);
 	dECG_dims.push_back(1);

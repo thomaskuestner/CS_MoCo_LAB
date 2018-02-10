@@ -12,30 +12,12 @@ CS_Retro_PopulationGadget::~CS_Retro_PopulationGadget(){
 // read flexible data header
 int CS_Retro_PopulationGadget::process_config(ACE_Message_Block* mb)
 {
-	// read variables from Header (see also CS_Retro_AccumulatorGadget.cpp)
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		ISMRMRD::IsmrmrdHeader h;
-		ISMRMRD::deserialize(mb->rd_ptr(),h);
-		fTR_ = h.sequenceParameters.get().TR.get().at(0);
-	#else
-		// read xml header file
-		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
-
-		// repetition time
-		fTR_ = cfg->sequenceParameters().get().TR().at(0);
-	#endif
-
 	return GADGET_OK;
 }
 
 int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< float > >* m2, GadgetContainerMessage< hoNDArray <std::complex<float> > >* m3){
-	int iNoGates = GlobalVar::instance()->iNoGates_;
 	fTolerance_ = 2;
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
-
-	// get number of PE/PA lines
-	vPE_ = GlobalVar::instance()->vPE_;
-	vPA_ = GlobalVar::instance()->vPA_;
 
 	// get navigator and convert to std::vector
 	//hafNav_ = *m2->getObjectPtr();
@@ -58,7 +40,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// get centroids
 	//-------------------------------------------------------------------------
-	if (fCalcCentroids(iNoGates)){
+	if (fCalcCentroids(GlobalVar::instance()->iNoGates_)){
 		GADGET_DEBUG1("Error occured in CS_Retro_Population::fCalcCentroids(..) - process aborted\n");
 		return GADGET_FAIL;
 	}
@@ -71,7 +53,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// populate k-space: mode: closest, gates: 4
 	//-------------------------------------------------------------------------
-	if (fPopulatekSpace(iNoGates)){
+	if (fPopulatekSpace(GlobalVar::instance()->iNoGates_)){
 		GADGET_DEBUG1("Error occured in CS_Retro_Population::fPopulatekSpace() - process aborted\n");
 	}
 
@@ -107,7 +89,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 bool CS_Retro_PopulationGadget::fDiscard(){
 	float fPreCrop = 5; // [s]
-	int iStartIndex = std::floor(fPreCrop/(fTR_/1000));
+	int iStartIndex = std::floor(fPreCrop/(GlobalVar::instance()->fTR_/1000));
 
 	// Set iStartIndex to 0 when it is negative
 	if (iStartIndex < 0) {
@@ -122,19 +104,19 @@ bool CS_Retro_PopulationGadget::fDiscard(){
 		GADGET_DEBUG1("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
 	}
 
-	if (vPA_.size() >= iStartIndex) {
-		vPA_.erase(vPA_.begin(), vPA_.begin() + iStartIndex);
+	if (GlobalVar::instance()->vPA_.size() >= iStartIndex) {
+		GlobalVar::instance()->vPA_.erase(GlobalVar::instance()->vPA_.begin(), GlobalVar::instance()->vPA_.begin() + iStartIndex);
 	} else {
 		GADGET_DEBUG1("more elements should be delete than there were actually in vPA_. Nothing is done!\n");
 	}
 
-	if (vPE_.size() >= iStartIndex) {
-		vPE_.erase(vPE_.begin(), vPE_.begin() + iStartIndex);
+	if (GlobalVar::instance()->vPE_.size() >= iStartIndex) {
+		GlobalVar::instance()->vPE_.erase(GlobalVar::instance()->vPE_.begin(), GlobalVar::instance()->vPE_.begin() + iStartIndex);
 	} else {
 		GADGET_DEBUG1("more elements should be delete than there were actually in vPE_. Nothing is done!\n");
 	}
 
-	GADGET_DEBUG2("first seconds discarded - %i samples erased - TR: %f..\n", iStartIndex, fTR_);
+	GADGET_DEBUG2("first seconds discarded - %i samples erased - TR: %f..\n", iStartIndex, GlobalVar::instance()->fTR_);
 
 	// new array size
 	std::vector<size_t> vtDims_new = *hacfKSpace_unordered_.get_dimensions();
@@ -163,7 +145,7 @@ bool CS_Retro_PopulationGadget::fDiscard(){
 bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates){
 	// get centroids
 	float fNavMin, fNavMax;
-	switch(iGatingMode_){
+	switch(GlobalVar::instance()->iGatingMode_){
 
 	// percentile
 	case 0:
@@ -275,15 +257,15 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 	}	
 
 	// drecks mdh
-	if (vPE_.size()>hacfKSpace_unordered_.get_size(1)){
-		vPE_.pop_back();
-		vPA_.pop_back();
+	if (GlobalVar::instance()->vPE_.size()>hacfKSpace_unordered_.get_size(1)){
+		GlobalVar::instance()->vPE_.pop_back();
+		GlobalVar::instance()->vPA_.pop_back();
 	}
 
 	float fDist = std::sqrt(0.065)/2;
 
 	// distinguish population mode
-	switch(iPopulationMode_){
+	switch(GlobalVar::instance()->iPopulationMode_){
 
 	// closest
 	case 0:
@@ -300,7 +282,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 			//				mexPrintf("global PE: %i, PA: %i\n", vPE_.size(), vPA_.size());mexEvalString("drawnow;");
 		}
 		else{
-			GADGET_DEBUG2("global PE: %i, PA: %i\n", vPE_.size(), vPA_.size());
+			GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 		}
 
 		// loop over phases/gates
@@ -326,14 +308,14 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 
 					// check if iLine was acquired and push Indices on vector
 					std::vector<long> lIndices;
-					for (long  i = 0; i < vPE_.size(); i++)
-						if (vPE_.at(i) == iLine)
+					for (long  i = 0; i < GlobalVar::instance()->vPE_.size(); i++)
+						if (GlobalVar::instance()->vPE_.at(i) == iLine)
 							lIndices.push_back(i);
 
 					// check iPar of the found acquisitions
 					std::vector<long> lIndices2;
 					for (long n = 0; n < lIndices.size(); n++)
-						if (vPA_.at(lIndices.at(n)) == iPar)
+						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar)
 							lIndices2.push_back(lIndices.at(n));
 
 					// if no index is in the vector --> continue
@@ -423,14 +405,14 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates){
 				for (int iPar = 0; iPar < dimensionsIn_.at(2); iPar++){
 
 					std::vector<long> lIndices;
-					for (long  i = 0; i < vPE_.size(); i++){
-						if (vPE_.at(i) == iLine){
+					for (long  i = 0; i < GlobalVar::instance()->vPE_.size(); i++){
+						if (GlobalVar::instance()->vPE_.at(i) == iLine){
 							lIndices.push_back(i);
 						}
 					}
 					std::vector<long> lIndices2;
 					for (long n = 0; n < lIndices.size(); n++)
-						if (vPA_.at(lIndices.at(n)) == iPar)
+						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar)
 							lIndices2.push_back(lIndices.at(n));
 					// if no index is in the vector --> continue
 					if (lIndices2.size() > 0){

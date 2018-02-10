@@ -26,17 +26,9 @@ void CS_LAB::fExternalControl(){
 	
 	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
-	opCS_->iNOuter_						= iNOuter_;
-	opCS_->iNInner_						= iNInner_;
 	opCS_->fP_							= fP_;
-	opCS_->cfLambda_					= cfLambda_;
-	opCS_->cfLambdaESPReSSo_			= cfLambdaESPReSSo_;
 	opCS_->fEpsilon_					= fEpsilon_;		
 	opCS_->fCSAccel_					= fCSAccel_;
-	opCS_->iESPReSSoDirection_			= iESPReSSoDirection_;
-	opCS_->fPartialFourierVal_			= fPartialFourierVal_;
-	opCS_->fFullySampled_				= fFullySampled_;
-	opCS_->bESPRActiveCS_				= bESPRActiveCS_;
 	opCS_->hacfFilter_					= hacfFilter_;
 	opCS_->Transform_KernelTransform_	= Transform_KernelTransform_;
 	opCS_->Transform_fftBA_				= Transform_fftBA_;
@@ -83,7 +75,7 @@ void CS_LAB::fExternalControl(){
 		for(int i = 0; i < 7; i++){
 			int bit = (iKernel_FFT_dim_ & (1 << i)) >> i;
 			if (bit == 1){
-				int bit2 = (iScrambleDim_ & (1 << i)) >> i;
+				int bit2 = (GlobalVar::instance()->iScrambleDim_ & (1 << i)) >> i;
 				if (bit2 == 1){
 					opCS_->Transform_KernelTransform_->set_transformation_fft(i, true);
 				}
@@ -127,22 +119,22 @@ void CS_LAB::fExternalControl(){
 //		GDEBUG("process config..\n");
 //	#else
 //		GADGET_DEBUG1("process config..\n");
-//	#endif	
+//	#endif
 //	//bXMLControl_ = true;
 //	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//		bXMLControl_ = bXMLControl.value();		
+//		bXMLControl_ = bXMLControl.value();
 //	#else
-//		bXMLControl_ = this->get_int_value("bXMLControl");		
-//	#endif	
-//	
+//		bXMLControl_ = this->get_int_value("bXMLControl");
+//	#endif
+//
 //	if (bXMLControl_) {
 //
 //		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//			GDEBUG("XML Control enabled..\n");		
+//			GDEBUG("XML Control enabled..\n");
 //			iNOuter_ = OuterIterations.value();
 //		  	iNInner_ = InnerIterations.value();
 //			bESPRActiveCS_ = CSESPReSSo.value();
-//			cfLambda_ = lambda.value();			
+//			cfLambda_ = lambda.value();
 //			cfLambdaESPReSSo_ = lambdaESPReSSo.value();
 //			int iDimFFT = fftSparseDim.value();
 //			int iDimDCTSparse = dctSparseDim.value();
@@ -153,8 +145,8 @@ void CS_LAB::fExternalControl(){
 //			int ikSpaceOut = kSpaceOutDim.value();
 //		#else
 //			GADGET_DEBUG1("XML Control enabled..\n");
-//		  	iNOuter_ = this->get_int_value("OuterIterations");		  	
-//		  	iNInner_ = this->get_int_value("InnerIterations");		  
+//		  	iNOuter_ = this->get_int_value("OuterIterations");
+//		  	iNInner_ = this->get_int_value("InnerIterations");
 //			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
 //			cfLambda_ = std::complex<float>(this->get_double_value("lambda"),0.0);
 //			cfLambdaESPReSSo_ =  std::complex<float>(this->get_double_value("lambdaESPReSSo"),0.0);
@@ -171,7 +163,7 @@ void CS_LAB::fExternalControl(){
 //		GlobalVar::instance()->iNOuter_ = iNOuter_;
 //		GlobalVar::instance()->iNInner_ = iNInner_;
 //		GlobalVar::instance()->bESPRActiveCS_ = bESPRActiveCS_;
-//		GlobalVar::instance()->cfLambda_ = cfLambda_;	
+//		GlobalVar::instance()->cfLambda_ = cfLambda_;
 //		GlobalVar::instance()->cfLambdaESPReSSo_ = cfLambdaESPReSSo_;
 //		GlobalVar::instance()->iDimFFT_ = iDimFFT;
 //		GlobalVar::instance()->iDimDCTSparse_ = iDimDCTSparse;
@@ -191,9 +183,8 @@ void CS_LAB::fExternalControl(){
 //		cfLambda_ = GlobalVar::instance()->cfLambda_;
 //		iESPReSSoDirection_ = GlobalVar::instance()->iESPReSSoDirection_;
 //		fPartialFourierVal_ = GlobalVar::instance()->fPartialFourierVal_;
-//	
 //	}
-//	
+//
 //	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 //		GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
 //		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
@@ -224,8 +215,8 @@ void CS_LAB::fExternalControl(){
 //		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
 //	#endif
 //
-//	if (iNInner_ <= 0) iNInner_ = 20;
-//	if (iNOuter_ <= 0) iNOuter_ = 2;	
+//	if (GlobalVar::instance()->iNInner_ <= 0) GlobalVar::instance()->iNInner_ = 20;
+//	if (GlobalVar::instance()->iNOuter_ <= 0) GlobalVar::instance()->iNOuter_ = 2;
 //
 //	// p-value for the lp-norm
 //	fP_ = .5;
@@ -292,16 +283,9 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class
 	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
-	opCS_->iNOuter_						= iNOuter_;	
-	opCS_->iNInner_						= iNInner_;
 	opCS_->fP_							= fP_;
-	opCS_->cfLambda_					= cfLambda_;
-	opCS_->cfLambdaESPReSSo_			= cfLambdaESPReSSo_;
 	opCS_->fEpsilon_					= fEpsilon_;
 	opCS_->fCSAccel_					= fCSAccel_;
-	opCS_->iESPReSSoDirection_			= iESPReSSoDirection_;
-	opCS_->fPartialFourierVal_			= fPartialFourierVal_;
-	opCS_->bESPRActiveCS_				= bESPRActiveCS_;
 	opCS_->hacfFilter_					= hacfFilter_;
 	opCS_->Transform_KernelTransform_	= Transform_KernelTransform_;
 	opCS_->Transform_fftBA_				= Transform_fftBA_;

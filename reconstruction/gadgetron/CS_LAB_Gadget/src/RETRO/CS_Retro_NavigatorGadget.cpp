@@ -65,7 +65,6 @@ bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav){
 	
 	if (bMatlab_){
 		//mexPrintf("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");mexEvalString("drawnow;");
-		GlobalVar::instance()->vNavInd_ = vNavInd_;
 	}
 	else{
 		GADGET_DEBUG1("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
@@ -149,7 +148,7 @@ bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav){
 	dIMGres = 1./(double(dNavPeriod)./1000.*double(iNMeasurements)); % The frequency resolution of dIMG in Hz
 	dPower = squeeze(sum(dPower(:, round(1./(5.*dIMGres)):round(1./(3.*dIMGres)), :, :), 2)); % RO x PE x CH
 	*/
-	float fIMGRes = 1.0/(((float)iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
+	float fIMGRes = 1.0/(((float)GlobalVar::instance()->iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
 	hoNDArray<float> aPowerInChan, aPowerAcrossChan;
 	vStart.clear(); vStart.push_back(0); vStart.push_back(std::floor(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
 	vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));
@@ -306,7 +305,7 @@ bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav){
 		afPower[i] = aPower[i].real();
 	}
 
-	fIMGRes = 1.0/(((float)iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
+	fIMGRes = 1.0/(((float)GlobalVar::instance()->iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
 	aPowerInChan.clear(); aPowerAcrossChan.clear();
 	vStart.clear(); vStart.push_back(0); vStart.push_back(std::ceil(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
 	vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));

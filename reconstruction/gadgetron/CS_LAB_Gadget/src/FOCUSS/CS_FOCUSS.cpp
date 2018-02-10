@@ -35,12 +35,12 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 	if (bXMLControl_) {
 
 		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("XML Control enabled..\n");		
-			iNOuter_ = OuterIterations.value();
-		  	iNInner_ = InnerIterations.value();
-			bESPRActiveCS_ = CSESPReSSo.value();
-			cfLambda_ = lambda.value();			
-			cfLambdaESPReSSo_ = lambdaESPReSSo.value();
+			GDEBUG("XML Control enabled..\n");
+			GlobalVar::instance()->iNOuter_ = OuterIterations.value();
+			GlobalVar::instance()->iNInner_ = InnerIterations.value();
+			GlobalVar::instance()->bESPRActiveCS_ = CSESPReSSo.value();
+			GlobalVar::instance()->cfLambda_ = lambda.value();
+			GlobalVar::instance()->cfLambdaESPReSSo_ = lambdaESPReSSo.value();
 			int iDimFFT = fftSparseDim.value();
 			int iDimDCTSparse = dctSparseDim.value();
 			int iDimPCASparse = pcaSparseDim.value();
@@ -51,11 +51,11 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 			int iNorm_ = norm.value();
 		#else
 			GADGET_DEBUG1("XML Control enabled..\n");
-		  	iNOuter_ = this->get_int_value("OuterIterations");		  	
-		  	iNInner_ = this->get_int_value("InnerIterations");		  
-			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
-			cfLambda_ = this->get_double_value("lambda");
-			cfLambdaESPReSSo_ = this->get_double_value("lambdaESPReSSo");
+			GlobalVar::instance()->iNOuter_ = this->get_int_value("OuterIterations");
+			GlobalVar::instance()->iNInner_ = this->get_int_value("InnerIterations");
+			GlobalVar::instance()->bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
+			GlobalVar::instance()->cfLambda_ = this->get_double_value("lambda");
+			GlobalVar::instance()->cfLambdaESPReSSo_ = this->get_double_value("lambdaESPReSSo");
 			int iDimFFT = this->get_int_value("fftSparseDim");
 			int iDimDCTSparse = this->get_int_value("dctSparseDim");
 			int iDimPCASparse = this->get_int_value("pcaSparseDim");
@@ -67,11 +67,6 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 		#endif
 
 		// update global parameters
-		GlobalVar::instance()->iNOuter_ = iNOuter_;
-		GlobalVar::instance()->iNInner_ = iNInner_;
-		GlobalVar::instance()->bESPRActiveCS_ = bESPRActiveCS_;
-		GlobalVar::instance()->cfLambda_ = cfLambda_;	
-		GlobalVar::instance()->cfLambdaESPReSSo_ = cfLambdaESPReSSo_;
 		GlobalVar::instance()->iDimFFT_ = iDimFFT;
 		GlobalVar::instance()->iDimDCTSparse_ = iDimDCTSparse;
 		GlobalVar::instance()->iDimPCASparse_ = iDimPCASparse;
@@ -79,18 +74,6 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 		GlobalVar::instance()->iScrambleDim_ = iScrambleDim;
 		GlobalVar::instance()->iTransformFFTBA_ = iTransformFFTBA;
 		GlobalVar::instance()->ikSpaceOut_ = ikSpaceOut;
-	}
-	else{
-		iNOuter_ = GlobalVar::instance()->iNOuter_;
-		iNInner_ = GlobalVar::instance()->iNInner_;
-		bESPRActiveCS_ = GlobalVar::instance()->bESPRActiveCS_;
-		iVDMap_ = GlobalVar::instance()->iVDMap_;
-		fFullySampled_ = GlobalVar::instance()->fFullySampled_;
-		cfLambdaESPReSSo_ = GlobalVar::instance()->cfLambdaESPReSSo_;
-		cfLambda_ = GlobalVar::instance()->cfLambda_;
-		iESPReSSoDirection_ = GlobalVar::instance()->iESPReSSoDirection_;
-		fPartialFourierVal_ = GlobalVar::instance()->fPartialFourierVal_;
-	
 	}
 	
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
@@ -123,8 +106,8 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
 	#endif
 
-	if (iNInner_ <= 0) iNInner_ = 20;
-	if (iNOuter_ <= 0) iNOuter_ = 2;	
+	if (GlobalVar::instance()->iNInner_ <= 0) GlobalVar::instance()->iNInner_ = 20;
+	if (GlobalVar::instance()->iNOuter_ <= 0) GlobalVar::instance()->iNOuter_ = 2;
 
 	// p-value for the lp-norm
 	fP_ = .5;

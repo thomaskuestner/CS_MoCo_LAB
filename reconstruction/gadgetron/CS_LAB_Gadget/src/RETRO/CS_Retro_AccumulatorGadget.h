@@ -72,12 +72,6 @@ namespace Gadgetron{
 		int iEchoLine_;
 		int iEchoPartition_;
 
-		// Gating mode (0: percentile, 1: kMeans)
-		int iGatingMode_;
-
-		// mode for k-space population (0: closes, 1: average, 2: collect)
-		int iPopulationMode_;
-
 		// vector containing the Gate positions
 		std::vector<float> vGatePos_;
 
@@ -86,26 +80,15 @@ namespace Gadgetron{
 
 		// CS_Retro variables
 		int iBaseRes_;
-		float fTR_;
-		int iNavPeriod_;
-		int iNavPERes_;
-		int iMeasurementTime_;
-
-		// number of phases
-		int iNPhases_;
 
 		// tolerance/blending factor
 		float fTolerance_;
 
 		// Compressed Sensing variables
-		int iESPReSSoDirection_; 
-		float fPartialFourierVal_;
 		float fLESPReSSo_;
 		float fLQ_;
 		int iBodyRegion_; 
-		int iVDMap_;
 		int iSamplingType_;
-		float fCSAcc_;
 		float fFullySa_;
     };
 }
