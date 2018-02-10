@@ -351,6 +351,23 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 			GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
 		}
 
+		// set properties
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
+			GlobalVar::instance()->iNavPERes_			= NavPERes.value();
+			GlobalVar::instance()->iMeasurementTime_	= MeasurementTime.value();
+			GlobalVar::instance()->iNPhases_			= Phases.value();
+			GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
+			GlobalVar::instance()->iGatingMode_			= GatingMode.value();
+		#else
+			GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get();
+			GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get();
+			GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get();
+			GlobalVar::instance()->iNPhases_			= *(get_int_value("Phases").get();
+			GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get();
+			GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get();
+		#endif
+
 		//-------------------------------------------------------------------------
 		//----------------------- Interpret Integer Data  -------------------------
 		//-------------------------------------------------------------------------		

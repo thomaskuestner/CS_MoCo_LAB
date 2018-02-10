@@ -90,6 +90,15 @@ namespace Gadgetron{
 		int iBodyRegion_; 
 		int iSamplingType_;
 		float fFullySa_;
+
+		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+			GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
+			GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
+			GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
+			GADGET_PROPERTY(Phases, int, "Phases", 0);
+			GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
+			GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
+		#endif
     };
 }
 #endif //CS_RETRO_ACCUMULATORGADGET_H
