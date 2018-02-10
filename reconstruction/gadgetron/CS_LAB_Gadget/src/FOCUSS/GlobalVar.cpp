@@ -1,5 +1,5 @@
 /*	
-file name	: 	GlobalVar_FOCUSS.cpp
+file name	: 	GlobalVar.cpp
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 
