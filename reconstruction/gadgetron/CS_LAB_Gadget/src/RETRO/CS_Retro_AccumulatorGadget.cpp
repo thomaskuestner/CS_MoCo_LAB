@@ -465,7 +465,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	//fTR_ = cfg->sequenceParameters().get().TR().at(0);
 
 	// concat higher and lower bytes from total measurement variable
-	lNoScans_ = std::ceil(GlobalVar::instance()->iMeasurementTime_/GlobalVar::instance()->fTR_);
+	lNoScans_ = std::ceil(GlobalVar::instance()->iMeasurementTime_*1000/GlobalVar::instance()->fTR_);
 
 	return GADGET_OK;
 }
