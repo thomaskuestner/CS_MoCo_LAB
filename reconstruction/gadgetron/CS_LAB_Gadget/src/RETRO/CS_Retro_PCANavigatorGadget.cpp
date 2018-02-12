@@ -32,6 +32,9 @@ int CS_Retro_PCANavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHe
 	}
 	GadgetContainerMessage< hoNDArray<float> >* tmp_m2 = new GadgetContainerMessage< hoNDArray<float> >();
 
+	// dumb: set vNavInt_ to GlobalVar::vNavInd_. Maybe this is the same?
+	// TODO: Delete vNavInt_ on success!
+	vNavInt_ = GlobalVar::instance()->vNavInd_;
 	tmp_m2->getObjectPtr()->create(vNavInt_.size());
 
 	// convert vector to array
