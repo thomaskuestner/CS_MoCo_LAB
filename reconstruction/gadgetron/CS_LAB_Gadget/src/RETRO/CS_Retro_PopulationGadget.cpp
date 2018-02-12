@@ -19,6 +19,10 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	fTolerance_ = 2;
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
 
+	// dumb setting of gates
+	// TODO: replace by some intelligence or at least an user input!
+	GlobalVar::instance()->iNoGates_ = 4;
+
 	// get navigator and convert to std::vector
 	//hafNav_ = *m2->getObjectPtr();
 	for (int iI = 0; iI < m2->getObjectPtr()->get_size(0); iI++)
