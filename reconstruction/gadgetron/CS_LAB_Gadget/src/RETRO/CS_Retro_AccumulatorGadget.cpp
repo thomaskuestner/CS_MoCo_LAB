@@ -465,7 +465,7 @@ namespace Gadgetron{
 			if (iNoNavLine_ == GlobalVar::instance()->iNavPERes_) {
 				iNoNav_++;
 				iNoNavLine_ = 0;
-			} else if (iNoNavLine_ == (int)((float)GlobalVar::instance()->iNavPERes_/2)){
+			} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)){
 				GlobalVar::instance()->vNavInd_.push_back((float)lCurrentScan_);
 			}
 		}
