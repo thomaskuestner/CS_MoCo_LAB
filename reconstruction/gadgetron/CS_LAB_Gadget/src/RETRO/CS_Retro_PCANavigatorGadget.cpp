@@ -109,7 +109,7 @@ namespace Gadgetron{
 		coeff.create(&coeff_dims);
 
 		//Compute PCA based on KLT principal components are saved in coeff in descending order
-		VT->prepare(A, (size_t) 1, (size_t) 0, true);
+		VT->prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
 		VT->eigen_vector(coeff);
 
 		double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)*1000.0); // Get the sampling frequency
@@ -296,7 +296,7 @@ namespace Gadgetron{
 		hoNDKLT< std::complex<float> > * Vtemp = new hoNDKLT < std::complex<float> >;
 
 		//get the eigen value
-		Vtemp->prepare(ad, (size_t) 1, (size_t) 0, false);
+		Vtemp->prepare(ad, static_cast<size_t>(1), static_cast<size_t>(0), false);
 		Vtemp->eigen_value(e);
 
 		//% Expand recursion formula
@@ -312,7 +312,7 @@ namespace Gadgetron{
 		//%  normalize so |H(w)| == 1:
 		//%kern = exp(-1i*Wn*(0:2));
 		for(int k = 0; k<3; k++) {
-			std::complex<float> i = (0.0,1.0);		// make code compliant to older compiler versions
+			std::complex<float> i = std::complex<float>(0.0, 1.0);		// define imaginary constant: make code compliant to older compiler versions
 			kern.at(k) = std::exp(-i*static_cast<std::complex<float> >(Wn)*static_cast<std::complex<float> >(k));
 		}
 

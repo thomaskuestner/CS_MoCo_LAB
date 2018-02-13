@@ -466,7 +466,7 @@ namespace Gadgetron{
 				iNoNav_++;
 				iNoNavLine_ = 0;
 			} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)){
-				GlobalVar::instance()->vNavInd_.push_back((float)lCurrentScan_);
+				GlobalVar::instance()->vNavInd_.push_back(static_cast<float>(lCurrentScan_));
 			}
 		}
 
@@ -520,7 +520,7 @@ namespace Gadgetron{
 			tmp_m1->getObjectPtr()->field_of_view[0]	= field_of_view_[0];
 			tmp_m1->getObjectPtr()->field_of_view[1]	= field_of_view_[1];
 			tmp_m1->getObjectPtr()->field_of_view[2]	= field_of_view_[2];
-			tmp_m1->getObjectPtr()->channels			= (uint16_t)m1->getObjectPtr()->active_channels;
+			tmp_m1->getObjectPtr()->channels			= static_cast<uint16_t>(m1->getObjectPtr()->active_channels);
 			tmp_m1->getObjectPtr()->slice				= m1->getObjectPtr()->idx.slice;
 			memcpy(tmp_m1->getObjectPtr()->position,m1->getObjectPtr()->position,sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->read_dir,m1->getObjectPtr()->read_dir,sizeof(float)*3);
@@ -532,8 +532,8 @@ namespace Gadgetron{
 	#else
 			tmp_m1->getObjectPtr()->image_data_type	= ISMRMRD::DATA_COMPLEX_FLOAT;
 	#endif
-			tmp_m1->getObjectPtr()->image_index = (uint16_t)(++image_counter_);
-			tmp_m1->getObjectPtr()->image_series_index = (uint16_t)image_series_;
+			tmp_m1->getObjectPtr()->image_index = static_cast<uint16_t>(++image_counter_);
+			tmp_m1->getObjectPtr()->image_series_index = static_cast<uint16_t>(image_series_);
 
 			// set user values, if Compressed Sensing is active
 			//if(this->get_bool_value("CS_on") == true){

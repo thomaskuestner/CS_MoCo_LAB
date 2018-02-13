@@ -203,7 +203,7 @@ namespace Gadgetron{
 				long long cumsum = 0;
 				size_t counter = 0;
 				while (cumsum < (.90*vNavInt_.size())) {
-					cumsum += (long long)(histogram_.at(counter++));
+					cumsum += static_cast<long long>(histogram_.at(counter++));
 				}
 
 				int   i90p = counter;
@@ -213,7 +213,7 @@ namespace Gadgetron{
 				counter = 0;
 				cumsum = 0;
 				while (cumsum < (.10*vNavInt_.size())) {
-					cumsum += (long long)(histogram_[counter++]);
+					cumsum += static_cast<long long>(histogram_[counter++]);
 				}
 
 				int   i10p = counter;

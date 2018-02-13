@@ -85,7 +85,7 @@ namespace Gadgetron {
 		}
 
 		std::vector<size_t> vStart, vSize;
-		vStart.push_back((size_t)(std::floor(0.25*aNav.get_size(0)))-1);  vStart.push_back(0); vStart.push_back(0); vStart.push_back(0);
+		vStart.push_back(static_cast<size_t>(std::floor(0.25*aNav.get_size(0)))-1);  vStart.push_back(0); vStart.push_back(0); vStart.push_back(0);
 		vSize.push_back(std::floor(0.5*aNav.get_size(0))); vSize.push_back(aNav.get_size(1)); vSize.push_back(aNav.get_size(2)); vSize.push_back(aNav.get_size(3));
 		get_subarray(aImg, vStart, vSize, aImg);
 
@@ -134,7 +134,7 @@ namespace Gadgetron {
 		dIMGres = 1./(double(dNavPeriod)./1000.*double(iNMeasurements)); % The frequency resolution of dIMG in Hz
 		dPower = squeeze(sum(dPower(:, round(1./(5.*dIMGres)):round(1./(3.*dIMGres)), :, :), 2)); % RO x PE x CH
 		*/
-		float fIMGRes = 1.0/(((float)GlobalVar::instance()->iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
+		float fIMGRes = 1.0/((static_cast<float>(GlobalVar::instance()->iNavPeriod_)/1000.0)*static_cast<float>(iNoNav_)); // frequency resolution of aImg in Hz
 		hoNDArray<float> aPowerInChan, aPowerAcrossChan;
 		vStart.clear(); vStart.push_back(0); vStart.push_back(std::floor(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
 		vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));
@@ -299,7 +299,7 @@ namespace Gadgetron {
 			afPower[i] = aPower[i].real();
 		}
 
-		fIMGRes = 1.0/(((float)GlobalVar::instance()->iNavPeriod_/(float)1000)*(float)iNoNav_); // frequency resolution of aImg in Hz
+		fIMGRes = 1.0/((static_cast<float>(GlobalVar::instance()->iNavPeriod_)/1000.0)*static_cast<float>(iNoNav_)); // frequency resolution of aImg in Hz
 		aPowerInChan.clear(); aPowerAcrossChan.clear();
 		vStart.clear(); vStart.push_back(0); vStart.push_back(std::ceil(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
 		vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));
@@ -442,7 +442,7 @@ namespace Gadgetron {
 		//-------------------------------------------------------------------------
 		// get navigator
 		int iDisplacementMax  = 80; // [mm] diaphragm displacement (max. +/- 80mm)
-		int iDisplacement = (int)std::ceil((float)iDisplacementMax/((float)field_of_view_[0]/(float)aImg.get_size(0))-.5);
+		int iDisplacement = static_cast<int>(std::ceil(static_cast<float>(iDisplacementMax)/(static_cast<float>(field_of_view_[0])/static_cast<float>(aImg.get_size(0))) - 0.5));
 
 		// fill last line in ref image
 		hoNDArray<float> aRefImg = aSOSImg; aRefImg.fill(0.0);
@@ -517,7 +517,7 @@ namespace Gadgetron {
 			}
 
 			//MATLAB: sum(dRMSImg(dX-round(dDisplacement/2):dX+round(dDisplacement/2),:))
-			vStart.clear(); vStart.push_back(dX-(int)(((float)iDisplacement/2)+.5)); vStart.push_back(0); vSize.clear(); vSize.push_back(iDisplacement+1); vSize.push_back(aRMSImg.get_size(1));
+			vStart.clear(); vStart.push_back(dX-static_cast<int>((static_cast<float>(iDisplacement)/2)+.5)); vStart.push_back(0); vSize.clear(); vSize.push_back(iDisplacement+1); vSize.push_back(aRMSImg.get_size(1));
 			get_subarray(aRMSImg, vStart, vSize, aRMSImg);
 
 			hoNDArray<std::complex<float>> cfaRMSImgTest(aRMSImg.get_dimensions()); cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
@@ -549,7 +549,7 @@ namespace Gadgetron {
 				if (bMatlab_) {
 	//				mexPrintf("Getting Navigator - %.1f %%\n", (float)(aRefImg.get_size(1)-2-i)/(float)(aRefImg.get_size(1)-2)*100);mexEvalString("drawnow;");
 				} else {
-					GADGET_DEBUG2("Getting Navigator - %.1f %%\n", (float)(aRefImg.get_size(1)-2-i)/(float)(aRefImg.get_size(1)-2)*100);
+					GADGET_DEBUG2("Getting Navigator - %.1f %%\n", static_cast<float>(aRefImg.get_size(1)-2-i)/static_cast<float>(aRefImg.get_size(1)-2)*100);
 				}
 			}
 
