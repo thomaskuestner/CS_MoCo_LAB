@@ -85,8 +85,17 @@ namespace Gadgetron {
 		}
 
 		std::vector<size_t> vStart, vSize;
-		vStart.push_back(static_cast<size_t>(std::floor(0.25*aNav.get_size(0)))-1);  vStart.push_back(0); vStart.push_back(0); vStart.push_back(0);
-		vSize.push_back(std::floor(0.5*aNav.get_size(0))); vSize.push_back(aNav.get_size(1)); vSize.push_back(aNav.get_size(2)); vSize.push_back(aNav.get_size(3));
+
+		vStart.push_back(static_cast<size_t>(std::floor(0.25*aNav.get_size(0)))-1);
+		vStart.push_back(0);
+		vStart.push_back(0);
+		vStart.push_back(0);
+
+		vSize.push_back(std::floor(0.5*aNav.get_size(0)));
+		vSize.push_back(aNav.get_size(1));
+		vSize.push_back(aNav.get_size(2));
+		vSize.push_back(aNav.get_size(3));
+
 		get_subarray(aImg, vStart, vSize, aImg);
 
 		// get channel power and normalize channel images
@@ -97,7 +106,8 @@ namespace Gadgetron {
 		}
 
 		std::vector<float> fPower(iNoChannels_);
-		hoNDArray<std::complex<float>> aPower = aImg; aPower.fill(std::complex<float>(0,0));
+		hoNDArray<std::complex<float>> aPower = aImg;
+		aPower.fill(std::complex<float>(0,0));
 		for (int c = 0; c < iNoChannels_; c++) {
 			size_t offset = aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2)*c;
 			hoNDArray<std::complex<float>> SubArray(aImg.get_size(0), aImg.get_size(1), aImg.get_size(2), aImg.get_data_ptr()+offset, false);
@@ -136,9 +146,21 @@ namespace Gadgetron {
 		*/
 		float fIMGRes = 1.0/((static_cast<float>(GlobalVar::instance()->iNavPeriod_)/1000.0)*static_cast<float>(iNoNav_)); // frequency resolution of aImg in Hz
 		hoNDArray<float> aPowerInChan, aPowerAcrossChan;
-		vStart.clear(); vStart.push_back(0); vStart.push_back(std::floor(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
-		vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));
+
+		vStart.clear();
+		vStart.push_back(0);
+		vStart.push_back(std::floor(1.0/(5*fIMGRes)-.5));
+		vStart.push_back(0);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(afPower.get_size(0));
+		vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1);
+		vSize.push_back(afPower.get_size(2));
+		vSize.push_back(afPower.get_size(3));
+
 		get_subarray(afPower, vStart, vSize, afPower);
+
 		sum_dim(afPower, 1, afPower); // RO x PE x CH
 		sum_dim(afPower, 1, aPowerInChan); // RO x CH
 		sum_dim(aPowerInChan, 1, aPowerAcrossChan); // RO x 1
@@ -180,8 +202,14 @@ namespace Gadgetron {
 			GADGET_DEBUG1("get channels which contain most information..\n");
 		}
 
-		vStart.clear(); vStart.push_back(iMaxIndex-20); vStart.push_back(0);
-		vSize.clear(); vSize.push_back(41); vSize.push_back(iNoChannels_);
+		vStart.clear();
+		vStart.push_back(iMaxIndex-20);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(41);
+		vSize.push_back(iNoChannels_);
+
 		get_subarray(aPowerInChan, vStart, vSize,aPowerInChan);
 
 		if (bMatlab_) {
@@ -232,9 +260,19 @@ namespace Gadgetron {
 			GADGET_DEBUG1("get best PE line..\n afPower:\n");
 		}
 
-		hoNDArray<float> aPowerInPE(41,afPower.get_size(1), iNumGood); aTmp.clear();
-		vStart.clear(); vStart.push_back(iMaxIndex-20); vStart.push_back(0); vStart.push_back(0);
-		vSize.clear(); vSize.push_back(41); vSize.push_back(afPower.get_size(1)); vSize.push_back(1);
+		hoNDArray<float> aPowerInPE(41,afPower.get_size(1), iNumGood);
+
+		aTmp.clear();
+
+		vStart.clear();
+		vStart.push_back(iMaxIndex-20);
+		vStart.push_back(0);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(41);
+		vSize.push_back(afPower.get_size(1));
+		vSize.push_back(1);
 
 		if (bMatlab_) {
 			//mexPrintf("vStart: %i, %i, %i, vSize: %i, %i, %i, afPower size: %i, %i, %i\n",  vStart.at(0), vStart.at(1), vStart.at(2), vSize.at(0), vSize.at(1), vSize.at(2), afPower.get_size(0), afPower.get_size(1), afPower.get_size(2));mexEvalString("drawnow;");
@@ -285,24 +323,48 @@ namespace Gadgetron {
 		}
 
 		// get sub array
-		vStart.clear(); vStart.push_back(0); vStart.push_back(0); vStart.push_back(iMaxIndex); vStart.push_back(0);
-		vSize.clear(); vSize.push_back(aImg.get_size(0)); vSize.push_back(aImg.get_size(1)); vSize.push_back(1); vSize.push_back(aImg.get_size(3));
+		vStart.clear();
+		vStart.push_back(0);
+		vStart.push_back(0);
+		vStart.push_back(iMaxIndex);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(aImg.get_size(0));
+		vSize.push_back(aImg.get_size(1));
+		vSize.push_back(1);
+		vSize.push_back(aImg.get_size(3));
+
 		aFreq.clear();
+
 		get_subarray(aImg, vStart, vSize, aFreq);
 
 		hoNDFFT_CS<float>::instance()->fft(&aFreq, 1, false);
 		multiplyConj(aFreq,aFreq,aPower);
 
 		// conversion from complex float to float
-		afPower.clear(); afPower.create(*aPower.get_dimensions());
+		afPower.clear();
+		afPower.create(*aPower.get_dimensions());
 		for (long i = 0; i < afPower.get_number_of_elements(); i++) {
 			afPower[i] = aPower[i].real();
 		}
 
 		fIMGRes = 1.0/((static_cast<float>(GlobalVar::instance()->iNavPeriod_)/1000.0)*static_cast<float>(iNoNav_)); // frequency resolution of aImg in Hz
-		aPowerInChan.clear(); aPowerAcrossChan.clear();
-		vStart.clear(); vStart.push_back(0); vStart.push_back(std::ceil(1.0/(5*fIMGRes)-.5));vStart.push_back(0);vStart.push_back(0);
-		vSize.clear(); vSize.push_back(afPower.get_size(0)); vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1); vSize.push_back(afPower.get_size(2)); vSize.push_back(afPower.get_size(3));
+
+		aPowerInChan.clear();
+		aPowerAcrossChan.clear();
+
+		vStart.clear();
+		vStart.push_back(0);
+		vStart.push_back(std::ceil(1.0/(5*fIMGRes)-.5));
+		vStart.push_back(0);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(afPower.get_size(0));
+		vSize.push_back(std::ceil(1.0/(3*fIMGRes)-.5)-std::ceil(1.0/(5*fIMGRes)-.5)+1);
+		vSize.push_back(afPower.get_size(2));
+		vSize.push_back(afPower.get_size(3));
 
 		if (bMatlab_) {
 	//		mexPrintf("vSize: %i, %i, %i, %i - fIMGRes: %f\n", vSize.at(0), vSize.at(1), vSize.at(2), vSize.at(3), fIMGRes);mexEvalString("drawnow;");
@@ -342,10 +404,18 @@ namespace Gadgetron {
 		}
 
 		// get good channels
-		vStart.clear(); vStart.push_back(iMaxIndex-20); vStart.push_back(0);
-		vSize.clear(); vSize.push_back(41); vSize.push_back(aPowerInChan.get_size(1));
+		vStart.clear();
+		vStart.push_back(iMaxIndex-20);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(41);
+		vSize.push_back(aPowerInChan.get_size(1));
+
 		get_subarray(aPowerInChan, vStart, vSize,aPowerInChan);
-		vGoodChannels.clear();aTmp.clear();
+
+		vGoodChannels.clear();
+		aTmp.clear();
 
 		// loop over channels
 		for (int c = 0; c < iNoChannels_; c++) {
@@ -377,8 +447,18 @@ namespace Gadgetron {
 		}
 
 		// get relevant image - dRelevantImg = squeeze(dImg(:, :, dPos, lGoodChannels));
-		vStart.clear(); vStart.push_back(0); vStart.push_back(0); vStart.push_back(iMaxChan); vStart.push_back(0);
-		vSize.clear(); vSize.push_back(aImg.get_size(0)); vSize.push_back(aImg.get_size(1)); vSize.push_back(1); vSize.push_back(1);
+		vStart.clear();
+		vStart.push_back(0);
+		vStart.push_back(0);
+		vStart.push_back(iMaxChan);
+		vStart.push_back(0);
+
+		vSize.clear();
+		vSize.push_back(aImg.get_size(0));
+		vSize.push_back(aImg.get_size(1));
+		vSize.push_back(1);
+		vSize.push_back(1);
+
 		hoNDArray<std::complex<float>> acRelevantImg(aImg.get_size(0), aImg.get_size(1), iNumGood);
 
 		o = 0; //helper - only non-zero entries of vGoodChannels are of interest
@@ -433,7 +513,8 @@ namespace Gadgetron {
 		sqrt(aSOSImg, aSOSImg);
 
 		// convert array
-		hoNDArray<std::complex<float>> cfaSOSImgTest(aSOSImg.get_dimensions()); cfaSOSImgTest.fill(std::complex<float>(0.0, 0.0));
+		hoNDArray<std::complex<float>> cfaSOSImgTest(aSOSImg.get_dimensions());
+		cfaSOSImgTest.fill(std::complex<float>(0.0, 0.0));
 		std::complex<float> *cfPointer = cfaSOSImgTest.get_data_ptr();
 		for (long iI = 0; iI < cfaSOSImgTest.get_number_of_elements(); iI++) {
 			cfPointer[iI] = std::complex<float>(aSOSImg.at(iI), 0.0);
@@ -466,28 +547,51 @@ namespace Gadgetron {
 		clock_t b;
 		hoNDArray<float> aRMSImg;
 		for (int i = aRefImg.get_size(1)-2; i >1; i--) {// -1 ; i--){
-			aRMSImg.create(aRefImg.get_size(0), 2*iDisplacement+1); aRMSImg.fill(0.0);
+			aRMSImg.create(aRefImg.get_size(0), 2*iDisplacement+1);
+			aRMSImg.fill(0.0);
 
 			//MATLAB: tmp = dRefImg(:,idx(i+1:end))
 			hoNDArray<float> tmp;
-			vStart.clear(); vStart.push_back(0); vStart.push_back(i+1); vSize.clear(); vSize.push_back(aRefImg.get_size(0)); vSize.push_back(aRefImg.get_size(1)-i-1);
+
+			vStart.clear();
+			vStart.push_back(0);
+			vStart.push_back(i+1);
+
+			vSize.clear();
+			vSize.push_back(aRefImg.get_size(0));
+			vSize.push_back(aRefImg.get_size(1)-i-1);
+
 			get_subarray(aRefImg, vStart, vSize, tmp);
+
 			hoNDArray<float> repTmp(tmp.get_dimensions());
 
 			//MATLAB: dSOSImg(:,idx(i)
 			hoNDArray<float> aTmp;
-			vStart.clear(); vStart.push_back(0); vStart.push_back(vIdx.at(i)); vSize.clear(); vSize.push_back(aSOSImg.get_size(0)); vSize.push_back(1);
+
+			vStart.clear();
+			vStart.push_back(0);
+			vStart.push_back(vIdx.at(i));
+
+			vSize.clear();
+			vSize.push_back(aSOSImg.get_size(0));
+			vSize.push_back(1);
+
 			get_subarray(aSOSImg, vStart, vSize, aTmp);
 
 			hoNDArray<float> aTmp2 = aTmp;
 			circshift(aTmp2, -iDisplacement-1, 0);
+
 			for (int l = -iDisplacement; l <= iDisplacement; l++) {
 				//MATLAB: circshift(dSOSImg(:,idx(i)), iD)
 				circshift(aTmp2, 1, 0);
 
 				//MATLAB: (tmp - repmat(circshift(dSOSImg(:,idx(i)), iD),[1 size(tmp,2)]))
-				hoNDArray<float> tmp2(tmp.get_dimensions());tmp2.fill(0.0); // result of subtraction
-				int N = tmp.get_size(0), LE = tmp.get_size(1); float *pA = tmp.begin(), *pB = aTmp2.begin(), *pR = tmp2.begin();
+				hoNDArray<float> tmp2(tmp.get_dimensions());
+				tmp2.fill(0.0); // result of subtraction
+
+				int N = tmp.get_size(0), LE = tmp.get_size(1);
+				float *pA = tmp.begin(), *pB = aTmp2.begin(), *pR = tmp2.begin();
+
 				#pragma omp parallel for default(none) schedule(static) shared(N, pA, pB, pR, LE)
 				for (int iL = 0; iL < LE; iL++)
 					for (int iE = 0; iE < N; iE++)
@@ -501,7 +605,9 @@ namespace Gadgetron {
 				if (tmp2.get_number_of_dimensions() > 1) {
 					std::vector<size_t> vD = *tmp2.get_dimensions();
 					vD.pop_back();
-					hTmp2.create(&vD); hTmp2.fill(0.0);
+					hTmp2.create(&vD);
+					hTmp2.fill(0.0);
+
 					float *pNewArray = hTmp2.get_data_ptr(), *pOldArray	= tmp2.get_data_ptr();
 					int N = tmp2.get_size(1), L = hTmp2.get_number_of_elements();
 
@@ -517,10 +623,18 @@ namespace Gadgetron {
 			}
 
 			//MATLAB: sum(dRMSImg(dX-round(dDisplacement/2):dX+round(dDisplacement/2),:))
-			vStart.clear(); vStart.push_back(dX-static_cast<int>((static_cast<float>(iDisplacement)/2)+.5)); vStart.push_back(0); vSize.clear(); vSize.push_back(iDisplacement+1); vSize.push_back(aRMSImg.get_size(1));
+			vStart.clear();
+			vStart.push_back(dX-static_cast<int>((static_cast<float>(iDisplacement)/2)+.5));
+			vStart.push_back(0);
+
+			vSize.clear();
+			vSize.push_back(iDisplacement+1);
+			vSize.push_back(aRMSImg.get_size(1));
+
 			get_subarray(aRMSImg, vStart, vSize, aRMSImg);
 
-			hoNDArray<std::complex<float>> cfaRMSImgTest(aRMSImg.get_dimensions()); cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
+			hoNDArray<std::complex<float>> cfaRMSImgTest(aRMSImg.get_dimensions());
+			cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
 			std::complex<float> *cfPointer = cfaRMSImgTest.get_data_ptr();
 			for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++){
 				cfPointer[iI] = std::complex<float>(aRMSImg.at(iI), 0.0);
@@ -529,7 +643,8 @@ namespace Gadgetron {
 			sum_dim(aRMSImg, 0, aRMSImg);
 
 			cfaRMSImgTest.clear();
-			cfaRMSImgTest.create(aRMSImg.get_dimensions()); cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
+			cfaRMSImgTest.create(aRMSImg.get_dimensions());
+			cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
 			cfPointer = cfaRMSImgTest.get_data_ptr();
 			for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
 				cfPointer[iI] = std::complex<float>(aRMSImg.at(iI), 0.0);

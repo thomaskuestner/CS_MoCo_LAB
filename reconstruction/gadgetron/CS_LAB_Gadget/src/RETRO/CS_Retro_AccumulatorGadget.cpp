@@ -18,7 +18,7 @@ namespace Gadgetron{
 	}
 
 	// class destructor - delete temporal buffer/memory
-	CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget(){
+	CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget() {
 		if (bufferkSpace_)
 			delete bufferkSpace_;
 
@@ -27,9 +27,8 @@ namespace Gadgetron{
 	}
 
 	// read flexible data header
-	int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb)
-	{
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb) {
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		ISMRMRD::IsmrmrdHeader h;
 		ISMRMRD::deserialize(mb->rd_ptr(),h);
 
@@ -51,7 +50,7 @@ namespace Gadgetron{
 		iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
 
 		GlobalVar::instance()->fTR_ = h.sequenceParameters.get().TR.get().at(0);
-	#else
+#else
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
 
@@ -80,24 +79,24 @@ namespace Gadgetron{
 
 		// repetition time
 		GlobalVar::instance()->fTR_ = cfg->sequenceParameters().get().TR().at(0);
-	#endif
+#endif
 
 		// set properties
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
 		GlobalVar::instance()->iNavPERes_			= NavPERes.value();
 		GlobalVar::instance()->iMeasurementTime_	= MeasurementTime.value();
 		GlobalVar::instance()->iNPhases_			= Phases.value();
 		GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
 		GlobalVar::instance()->iGatingMode_			= GatingMode.value();
-	#else
+#else
 		GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get();
 		GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get();
 		GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get();
 		GlobalVar::instance()->iNPhases_			= *(get_int_value("Phases").get();
 		GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get();
 		GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get();
-	#endif
+#endif
 
 		int iESPReSSoY = 0;
 		int iESPReSSoZ = 0;
@@ -107,7 +106,7 @@ namespace Gadgetron{
 		GlobalVar::instance()->fCSAcc_ = 0;
 		fFullySa_ = 0;
 		try {
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 			if (h.encoding[0].trajectoryDescription) {
 				GDEBUG("\n\nTrajectory description present!\n\n");
 				ISMRMRD::TrajectoryDescription traj_desc = *h.encoding[0].trajectoryDescription;
@@ -168,7 +167,7 @@ namespace Gadgetron{
 					}
 				}
 			}
-	#else
+#else
 			if ((*e_seq.begin()).trajectoryDescription().present()) {
 				GADGET_DEBUG1("\n\nTrajectory description present!\n\n");
 				ISMRMRD::trajectoryDescriptionType traj_desc = (*e_seq.begin()).trajectoryDescription().get();
@@ -229,15 +228,15 @@ namespace Gadgetron{
 					}
 				}
 			}
-	#endif
-			else{
+#endif
+			else {
 				GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
 			}
 
 			//-------------------------------------------------------------------------
 			//----------------------- Interpret Integer Data  -------------------------
 			//-------------------------------------------------------------------------
-			switch (iBodyRegion_){
+			switch (iBodyRegion_) {
 				case 14:
 					GADGET_DEBUG1("Body region is none\n");
 					break;
@@ -255,7 +254,7 @@ namespace Gadgetron{
 					break;
 			}
 
-			switch (GlobalVar::instance()->iVDMap_){
+			switch (GlobalVar::instance()->iVDMap_) {
 				case 1:
 					GADGET_DEBUG1("VDMap is none\n");
 					break;
@@ -273,7 +272,7 @@ namespace Gadgetron{
 					break;
 			}
 
-			switch (iSamplingType_){
+			switch (iSamplingType_) {
 				case 6:
 					GADGET_DEBUG1("sampling type is poisson\n");
 					break;
@@ -292,10 +291,10 @@ namespace Gadgetron{
 				GADGET_DEBUG1("Partial Fourier data..\n");
 				GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
 				// get Partial Fourier dimension
-				if (iESPReSSoY > 9){
+				if (iESPReSSoY > 9) {
 					GlobalVar::instance()->iESPReSSoDirection_ = 1;
 					// get Partial Fourier value
-					switch (iESPReSSoY){
+					switch (iESPReSSoY) {
 						case 10:
 							GlobalVar::instance()->fPartialFourierVal_ = 0.5;
 							break;
@@ -314,10 +313,10 @@ namespace Gadgetron{
 					}
 				}
 
-				else if (iESPReSSoZ > 9){
+				else if (iESPReSSoZ > 9) {
 					GlobalVar::instance()->iESPReSSoDirection_ = 2;
 					// get Partial Fourier value
-					switch (iESPReSSoZ){
+					switch (iESPReSSoZ) {
 						case 10:
 							GlobalVar::instance()->fPartialFourierVal_ = 0.5;
 							break;
@@ -442,7 +441,8 @@ namespace Gadgetron{
 		int set			= m1->getObjectPtr()->idx.set;
 
 		// push current loop counters on according vector (temporal)
-		GlobalVar::instance()->vPE_.push_back(line); GlobalVar::instance()->vPA_.push_back(partition);
+		GlobalVar::instance()->vPE_.push_back(line);
+		GlobalVar::instance()->vPA_.push_back(partition);
 
 		// get data pointer
 		std::complex<float> *pkSpace	= bufferkSpace_->get_data_ptr();
@@ -488,8 +488,17 @@ namespace Gadgetron{
 			GADGET_DEBUG2("%i navigator data found..\n", iNoNav_);
 
 			std::vector<size_t> vStart, vSize;
-			vStart.push_back(0);  vStart.push_back(0); vStart.push_back(0); vStart.push_back(0);
-			vSize.push_back(bufferNav_->get_size(0)); vSize.push_back(iNoNav_); vSize.push_back(bufferNav_->get_size(2)); vSize.push_back(bufferNav_->get_size(3));
+
+			vStart.push_back(0);
+			vStart.push_back(0);
+			vStart.push_back(0);
+			vStart.push_back(0);
+
+			vSize.push_back(bufferNav_->get_size(0));
+			vSize.push_back(iNoNav_);
+			vSize.push_back(bufferNav_->get_size(2));
+			vSize.push_back(bufferNav_->get_size(3));
+
 			bufferNav_->print(std::cout);
 			get_subarray(*bufferNav_, vStart, vSize, *bufferNav_);
 			bufferNav_->print(std::cout);
@@ -527,11 +536,11 @@ namespace Gadgetron{
 			memcpy(tmp_m1->getObjectPtr()->phase_dir,m1->getObjectPtr()->phase_dir,sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->slice_dir,m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->patient_table_position,m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 			tmp_m1->getObjectPtr()->data_type		= ISMRMRD::ISMRMRD_CXFLOAT;
-	#else
+#else
 			tmp_m1->getObjectPtr()->image_data_type	= ISMRMRD::DATA_COMPLEX_FLOAT;
-	#endif
+#endif
 			tmp_m1->getObjectPtr()->image_index = static_cast<uint16_t>(++image_counter_);
 			tmp_m1->getObjectPtr()->image_series_index = static_cast<uint16_t>(image_series_);
 

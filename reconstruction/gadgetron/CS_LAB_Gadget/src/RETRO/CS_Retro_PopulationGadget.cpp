@@ -75,7 +75,7 @@ namespace Gadgetron{
 		// make new GadgetContainer
 		//-------------------------------------------------------------------------
 		// create container
-		GadgetContainerMessage<hoNDArray<std::complex<float>>>* tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float>>>();
+		GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 
 		// concat
 		m1->cont(tmp_m2);
@@ -444,7 +444,8 @@ namespace Gadgetron{
 						// if no index is in the vector --> continue
 						if (lIndices2.size() > 0) {
 							// get weights (if multiple lines were found)
-							std::vector<float> vThisDist; vThisDist.clear();
+							std::vector<float> vThisDist;
+							vThisDist.clear();
 							for (int i = 0; i < lIndices2.size(); i ++) {
 								vThisDist.push_back(vWeights.at(lIndices2.at(i)));
 								int currentindex = lIndices2.at(i);
