@@ -112,7 +112,7 @@ namespace Gadgetron{
 		VT->prepare(A, (size_t) 1, (size_t) 0, true);
 		VT->eigen_vector(coeff);
 
-		double Fs = GlobalVar::instance()->iMeasurementTime_/(iNMeasurment*1000); // Get the sampling frequency
+		double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)*1000.0); // Get the sampling frequency
 
 		//fft(result, ...,1);
 		//fft only 1 dimensional(first dimension)
@@ -168,7 +168,7 @@ namespace Gadgetron{
 
 		//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
 		// Fs= 1/dTR  changing sampling rate because signal is going to be interpolated
-		Fs = GlobalVar::instance()->iMeasurementTime_/(lNoScans_*1000);
+		Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(lNoScans_)*1000.0);
 		std::vector<size_t> dECG_dims;
 		dECG_dims.push_back(iNMeasurment);
 		dECG_dims.push_back(1);
