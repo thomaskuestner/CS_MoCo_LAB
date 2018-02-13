@@ -504,7 +504,7 @@ namespace Gadgetron{
 			GadgetContainerMessage<ISMRMRD::ImageHeader>* tmp_m1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 
 			// initialize the image header
-			memset(tmp_m1->getObjectPtr(),0,sizeof(ISMRMRD::ImageHeader));
+			memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 
 			// initialize flags
 			tmp_m1->getObjectPtr()->flags = 0;
@@ -514,13 +514,13 @@ namespace Gadgetron{
 			tmp_m1->getObjectPtr()->user_int[1]			= m1->getObjectPtr()->user_int[1];
 			tmp_m1->getObjectPtr()->user_int[2]			= m1->getObjectPtr()->user_int[2];
 			tmp_m1->getObjectPtr()->user_int[3]			= m1->getObjectPtr()->user_int[3];
-			tmp_m1->getObjectPtr()->matrix_size[0]     = dimensionsIn_[0];
-			tmp_m1->getObjectPtr()->matrix_size[1]     = dimensionsIn_[1];
-			tmp_m1->getObjectPtr()->matrix_size[2]     = dimensionsIn_[2];
-			tmp_m1->getObjectPtr()->field_of_view[0]   = field_of_view_[0];
-			tmp_m1->getObjectPtr()->field_of_view[1]   = field_of_view_[1];
-			tmp_m1->getObjectPtr()->field_of_view[2]   = field_of_view_[2];
-			tmp_m1->getObjectPtr()->channels           = (uint16_t)m1->getObjectPtr()->active_channels;
+			tmp_m1->getObjectPtr()->matrix_size[0]		= dimensionsIn_[0];
+			tmp_m1->getObjectPtr()->matrix_size[1]		= dimensionsIn_[1];
+			tmp_m1->getObjectPtr()->matrix_size[2]		= dimensionsIn_[2];
+			tmp_m1->getObjectPtr()->field_of_view[0]	= field_of_view_[0];
+			tmp_m1->getObjectPtr()->field_of_view[1]	= field_of_view_[1];
+			tmp_m1->getObjectPtr()->field_of_view[2]	= field_of_view_[2];
+			tmp_m1->getObjectPtr()->channels			= (uint16_t)m1->getObjectPtr()->active_channels;
 			tmp_m1->getObjectPtr()->slice				= m1->getObjectPtr()->idx.slice;
 			memcpy(tmp_m1->getObjectPtr()->position,m1->getObjectPtr()->position,sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->read_dir,m1->getObjectPtr()->read_dir,sizeof(float)*3);
@@ -572,7 +572,7 @@ namespace Gadgetron{
 			memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), bufferNav_->get_data_ptr(), sizeof(std::complex<float>)*bufferNav_->get_number_of_elements());
 
 			// kSpace
-			GadgetContainerMessage<hoNDArray<std::complex<float>>>* tmp_m3 = new GadgetContainerMessage<hoNDArray<std::complex<float>>>();
+			GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m3 = new GadgetContainerMessage<hoNDArray<std::complex<float>>>();
 
 			// concatenate data
 			tmp_m2->cont(tmp_m3);
