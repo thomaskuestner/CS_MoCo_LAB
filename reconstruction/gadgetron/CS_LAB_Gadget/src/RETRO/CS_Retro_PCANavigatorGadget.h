@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_Retro_PCANavigtorGadget.h
 
 author		: 	Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
@@ -33,8 +33,7 @@ description	: 	PCA-based self-navigation signal extraction
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-namespace Gadgetron{
-
+namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_PCANavigatorGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray< std::complex<float> >, hoNDArray<std::complex<float>> >
     {
     public:
@@ -43,7 +42,6 @@ namespace Gadgetron{
 		int process_config(ACE_Message_Block* mb);
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
 		GADGET_DECLARE(CS_Retro_PCANavigatorGadget);
-
 
 		bool getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
 
@@ -67,7 +65,6 @@ namespace Gadgetron{
 
 		// matlab debug output
 		bool bMatlab_;
-
     };
-}
+} // close namespace Gadgetron
 #endif /* CS_RETRO_PCANAVIGTORGADGET_H */

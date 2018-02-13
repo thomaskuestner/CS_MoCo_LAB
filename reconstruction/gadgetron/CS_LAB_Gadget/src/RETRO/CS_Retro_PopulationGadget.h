@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	CS_Retro_PopulationGadget.h
 
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
@@ -38,17 +38,16 @@ description	: 	k-space population/gating
 	#include "ismrmrd/xml.h"
 #endif
 
-namespace Gadgetron{
-	
+namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
-    {
-    public:      
+	{
+	public:
 		CS_Retro_PopulationGadget();
 		~CS_Retro_PopulationGadget();
 		int process_config(ACE_Message_Block* mb);
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray<float> >* m2, GadgetContainerMessage< hoNDArray<std::complex<float> > >* m3);
 		GADGET_DECLARE(CS_Retro_PopulationGadget);
-	  
+
     //private:
 		bool fDiscard();
 		bool fCalcCentroids(int iNoGates);
@@ -88,6 +87,6 @@ namespace Gadgetron{
 		std::vector<float> vfCentroids_;
 
 		bool bMatlab_;
-    };
-}
+	};
+} // close namespace Gadgetron
 #endif //CS_RETRO_POPULATIONGADGET_H

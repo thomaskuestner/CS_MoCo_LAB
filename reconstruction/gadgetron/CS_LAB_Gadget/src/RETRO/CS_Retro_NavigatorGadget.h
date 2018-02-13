@@ -19,18 +19,16 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-namespace Gadgetron{
-	
+namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_NavigatorGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray< std::complex<float> >, hoNDArray<std::complex<float>> >
-    {
-    public:      
+	{
+	public:
 		CS_Retro_NavigatorGadget();
 		~CS_Retro_NavigatorGadget();
 		int process_config(ACE_Message_Block* mb);
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
-	  
-    
+
 		bool getNav2D(hoNDArray<std::complex<float>> &aNav);
 
 		// navigator signal interpolated to TRs
@@ -41,7 +39,7 @@ namespace Gadgetron{
 
 		// field of view
 		std::vector<float> field_of_view_;
-		
+
 		// number of acquisition
 		long lNoScans_;
 
@@ -53,7 +51,6 @@ namespace Gadgetron{
 
 		// matlab debug output
 		bool bMatlab_;
-
-    };
-}
+	};
+} // close namespace Gadgetron
 #endif //CS_RETRO_NAVIGATORGADGET_H

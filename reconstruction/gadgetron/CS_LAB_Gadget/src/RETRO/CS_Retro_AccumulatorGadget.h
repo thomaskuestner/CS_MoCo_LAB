@@ -27,23 +27,20 @@
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	#include "xml.h"
-#else		
+#else
 	#include "ismrmrd/xml.h"
 #endif
 
-namespace Gadgetron{
-	
+namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
-    {
-    public:      
+	{
+	public:
 		CS_Retro_AccumulatorGadget();
 		~CS_Retro_AccumulatorGadget();
 		int process_config(ACE_Message_Block* mb);
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
 		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
-	  
-    public:
-		
+
 		hoNDArray< std::complex<float> >* bufferkSpace_;
 		hoNDArray< std::complex<float> >* bufferNav_;
 
@@ -63,7 +60,7 @@ namespace Gadgetron{
 		size_t repetitions_;
 		long long image_counter_;
 		long long image_series_;
-		
+
 		unsigned int iNoSamples_;
 		unsigned long lNoScans_;
 		unsigned int iNoChannels_;
@@ -87,18 +84,18 @@ namespace Gadgetron{
 		// Compressed Sensing variables
 		float fLESPReSSo_;
 		float fLQ_;
-		int iBodyRegion_; 
+		int iBodyRegion_;
 		int iSamplingType_;
 		float fFullySa_;
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
-			GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
-			GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
-			GADGET_PROPERTY(Phases, int, "Phases", 0);
-			GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
-			GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
-		#endif
-    };
-}
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
+		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
+		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
+		GADGET_PROPERTY(Phases, int, "Phases", 0);
+		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
+		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
+#endif
+	};
+} // close namespace Gadgetron
 #endif //CS_RETRO_ACCUMULATORGADGET_H
