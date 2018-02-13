@@ -598,12 +598,6 @@ namespace Gadgetron{
 
 			GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
-			// save indices to disk
-			hoNDArray<float> tmp(GlobalVar::instance()->vNavInd_.size());
-			for (int iI = 0; iI < GlobalVar::instance()->vNavInd_.size(); iI++) {
-				tmp(iI) = GlobalVar::instance()->vNavInd_.at(iI);
-			}
-
 			return GADGET_OK;
 		}
 	}
