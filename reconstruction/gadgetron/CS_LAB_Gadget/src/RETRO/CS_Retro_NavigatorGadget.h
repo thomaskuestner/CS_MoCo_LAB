@@ -14,8 +14,9 @@
 #include "hoNDArray_math_util.h"
 #include "hoNDImage_util.h"
 #include "hoNDBSpline.h"
+#include "hoNDKLT.h"
+#include "hoNDFFT.h"
 #include <cmath>
-#include <math.h>
 
 #include "GadgetIsmrmrdReadWrite.h"
 
@@ -30,6 +31,7 @@ namespace Gadgetron {
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
 
 		bool getNav2D(hoNDArray<std::complex<float>> &aNav);
+		bool getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
 
 		// navigator signal interpolated to TRs
 		std::vector<float> vNavInt_;
@@ -51,6 +53,13 @@ namespace Gadgetron {
 
 		// matlab debug output
 		bool bMatlab_;
+		
+		// navigation method (set by gadget property)
+		int iNavMethod_;
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		GADGET_PROPERTY(NavigationMethod, int, "NavigationMethod", 0);
+#endif
 	};
 } // close namespace Gadgetron
 #endif //CS_RETRO_NAVIGATORGADGET_H

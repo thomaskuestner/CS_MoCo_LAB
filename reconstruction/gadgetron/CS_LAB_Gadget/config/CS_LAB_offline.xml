@@ -28,19 +28,16 @@
 		<property><name>Phases</name><value>4</value></property>
 	</gadget>
 
-<!-- Signal extraction - Choose either PCA or image based -->
-<!-- 	CS_Retro_NavigatorGadget -->
-	<!--<gadget>
+<!-- Navigator gadget. Available algorithms: 0=classical, 1=PCA -->
+	<gadget>
 		<name>Navigator</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_NavigatorGadget</classname>
-	</gadget>-->
 
-<!-- 	CS_Retro_PCANavigatorGadget -->
-	<gadget>
-		<name>PCANavigator</name>
-		<dll>CS_LAB</dll>
-		<classname>CS_Retro_PCANavigatorGadget</classname>
+		<property>
+			<name>NavigationMethod</name>
+			<value>0</value>
+		</property>
 	</gadget>
 
 <!-- k-space gating - Choose either centric or gaussian weighted -->

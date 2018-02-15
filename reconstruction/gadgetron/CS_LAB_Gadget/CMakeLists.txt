@@ -352,7 +352,6 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/ImageSlicerGadget.h
 		src/RETRO/CS_Retro_AccumulatorGadget.h
 		src/RETRO/CS_Retro_NavigatorGadget.h
-		src/RETRO/CS_Retro_PCANavigatorGadget.h
 		src/RETRO/CS_Retro_PopulationGadget.h
 		include/new/hoNDArray_math_util.h
 		include/new/GadgetronCommon.h
@@ -388,7 +387,6 @@ IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
 		src/RETRO/CS_Retro_NavigatorGadget.cpp
-		src/RETRO/CS_Retro_PCANavigatorGadget.cpp
 		src/RETRO/CS_Retro_PopulationGadget.cpp
 		include/new/hoNDArray_math_util.cpp
 		include/new/hoNDArray_operators.cpp
@@ -421,7 +419,6 @@ ELSE()
 		src/GADGET_TOOLS/ImageSlicerGadget.h
 		src/RETRO/CS_Retro_AccumulatorGadget.h
 		src/RETRO/CS_Retro_NavigatorGadget.h
-		src/RETRO/CS_Retro_PCANavigatorGadget.h
 		src/RETRO/CS_Retro_PopulationGadget.h
 		include/old/hoNDArray_linalg.h
 	)
@@ -453,7 +450,6 @@ ELSE()
 		src/GADGET_TOOLS/ImageSlicerGadget.cpp
 		src/RETRO/CS_Retro_AccumulatorGadget.cpp
 		src/RETRO/CS_Retro_NavigatorGadget.cpp
-		src/RETRO/CS_Retro_PCANavigatorGadget.cpp
 		src/RETRO/CS_Retro_PopulationGadget.cpp
 		include/old/hoNDArray_linalg.cpp
 	)
