@@ -1,13 +1,7 @@
 #ifndef CS_RETRO_ACCUMULATORGADGET_H
 #define CS_RETRO_ACCUMULATORGADGET_H
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
-	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
-#endif
+#include "gadgetron_messages.h"
 
 #pragma once
 #include "Gadget.h"
