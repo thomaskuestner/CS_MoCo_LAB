@@ -19,11 +19,13 @@ namespace Gadgetron{
 
 	// class destructor - delete temporal buffer/memory
 	CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget() {
-		if (bufferkSpace_)
-			delete bufferkSpace_;
-
-		if (bufferNav_)
-			delete bufferNav_;
+		// Deletion of memory causes problems.
+		// TODO: backtrace them and delete all the allocated memory!
+// 		if (bufferkSpace_)
+// 			delete bufferkSpace_;
+//
+// 		if (bufferNav_)
+// 			delete bufferNav_;
 	}
 
 	// read flexible data header
