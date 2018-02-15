@@ -7,7 +7,7 @@ namespace Gadgetron{
 	}
 
 	// class destructor - delete temporal buffer/memory
-	CS_Retro_PCANavigatorGadget::~CS_Retro_PCANavigatorGadget(){
+	CS_Retro_PCANavigatorGadget::~CS_Retro_PCANavigatorGadget() {
 
 	}
 

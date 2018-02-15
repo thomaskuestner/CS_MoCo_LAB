@@ -144,7 +144,7 @@ namespace Gadgetron{
 						GlobalVar::instance()->iNavPeriod_ = i->value;
 					} else if (i->name == "NavPERes") {
 						GlobalVar::instance()->iNavPERes_ = i->value;
-					} else if (i->name == "MeasurementTime"){
+					} else if (i->name == "MeasurementTime") {
 						GlobalVar::instance()->iMeasurementTime_ = i->value;
 					} else if (i->name == "Phases") {
 						GlobalVar::instance()->iNPhases_ = i->value;
@@ -428,7 +428,7 @@ namespace Gadgetron{
 		/*---------------------------------------------------*/
 		// navigator flag
 		bool  bNavigator = false;
-		if (m1->getObjectPtr()->user_int[1] & 0x1 != 0){
+		if (m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
 			bNavigator = true;
 		}
 
@@ -465,7 +465,7 @@ namespace Gadgetron{
 			if (iNoNavLine_ == GlobalVar::instance()->iNavPERes_) {
 				iNoNav_++;
 				iNoNavLine_ = 0;
-			} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)){
+			} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)) {
 				GlobalVar::instance()->vNavInd_.push_back(static_cast<float>(lCurrentScan_));
 			}
 		}

@@ -180,30 +180,30 @@ namespace Gadgetron{
 				GADGET_DEBUG2("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
 			}
 
-			if (fNavMin == fNavMax){
+			if (fNavMin == fNavMax) {
 				vfCentroids_.push_back(fNavMin);
 			} else {
 				// get histogram
 				int iNumberBins = 256;
-				std::vector<size_t> histogram_ = std::vector<size_t>(iNumberBins);
+				std::vector<size_t> histogram = std::vector<size_t>(iNumberBins);
 
 				// init 0
 				for (size_t i = 0; i < iNumberBins; i++) {
-					histogram_.at(i) = 0;
+					histogram.at(i) = 0;
 				}
 
 				for (unsigned long int i = 0; i < vNavInt_.size(); i++) {
 					size_t bin = static_cast<size_t>(std::floor(vNavInt_.at(i)/((fNavMax-fNavMin)/iNumberBins)));
 					if (bin >= iNumberBins)	bin = iNumberBins - 1;
 					if (bin < 0) bin = 0;
-					histogram_.at(bin)++;
+					histogram.at(bin)++;
 				}
 
 				// find 90th percentile
 				long long cumsum = 0;
 				size_t counter = 0;
 				while (cumsum < (.90*vNavInt_.size())) {
-					cumsum += static_cast<long long>(histogram_.at(counter++));
+					cumsum += static_cast<long long>(histogram.at(counter++));
 				}
 
 				int   i90p = counter;
@@ -213,7 +213,7 @@ namespace Gadgetron{
 				counter = 0;
 				cumsum = 0;
 				while (cumsum < (.10*vNavInt_.size())) {
-					cumsum += static_cast<long long>(histogram_[counter++]);
+					cumsum += static_cast<long long>(histogram[counter++]);
 				}
 
 				int   i10p = counter;
@@ -236,7 +236,7 @@ namespace Gadgetron{
 				}
 
 				// get tolerance of the gate positions
-				float fTolerance = std::abs(vfCentroids_.at(0)-vfCentroids_.at(1))*fTolerance_/2;
+				float fTolerance = std::abs(vfCentroids_.at(0)-vfCentroids_.at(1))*fTolerance_/2.0;
 
 				// fill tolerance vector
 				for (int i = 0; i < iNoGates; i++) {
@@ -259,7 +259,7 @@ namespace Gadgetron{
 		default:
 			if (bMatlab_) {
 				//				mexPrintf("reorder_kSpace: no gating mode specified!\n");mexEvalString("drawnow;");
-			} else{
+			} else {
 				GADGET_DEBUG1("reorder_kSpace: no gating mode specified!\n");
 			}
 

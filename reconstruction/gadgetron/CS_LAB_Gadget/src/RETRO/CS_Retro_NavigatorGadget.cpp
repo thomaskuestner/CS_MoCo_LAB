@@ -7,7 +7,7 @@ namespace Gadgetron {
 	}
 
 	// class destructor - delete temporal buffer/memory
-	CS_Retro_NavigatorGadget::~CS_Retro_NavigatorGadget(){
+	CS_Retro_NavigatorGadget::~CS_Retro_NavigatorGadget() {
 
 	}
 
@@ -115,8 +115,9 @@ namespace Gadgetron {
 
 			// fill part of the 3D array
 			#pragma omp parallel for
-			for (long i = 0; i < aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2); i++)
+			for (long i = 0; i < aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2); i++) {
 				aPower.at(i+offset) = (fPower.at(c), fPower.at(c));
+			}
 		}
 
 		divide(aImg, aPower, aImg);
@@ -136,7 +137,7 @@ namespace Gadgetron {
 
 		// conversion from complex float to float
 		hoNDArray<float> afPower(aPower.get_dimensions());
-		for (long i = 0; i < afPower.get_number_of_elements(); i++){
+		for (long i = 0; i < afPower.get_number_of_elements(); i++) {
 			afPower[i] = aPower[i].real();
 		}
 
@@ -243,10 +244,10 @@ namespace Gadgetron {
 		}
 
 		for (size_t i = 0; i < vGoodChannels.size(); i++) {
-			if (bMatlab_){
+			if (bMatlab_) {
 				//mexPrintf("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));mexEvalString("drawnow;");
 			}
-			else{
+			else {
 				GADGET_DEBUG2("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));
 			}
 		}
@@ -384,7 +385,7 @@ namespace Gadgetron {
 
 		if (bMatlab_) {
 	//		mexPrintf("filter data with Gaussian kernel..\n");mexEvalString("drawnow;");
-		} else{
+		} else {
 			GADGET_DEBUG1("filter data with Gaussian kernel..\n");
 		}
 
@@ -543,7 +544,14 @@ namespace Gadgetron {
 		}
 
 		// performance measurement
-		double fClockSumDim = 0.0, fClockCirc = 0.0, fClockMultiply = 0.0, fClockFirst = 0.0, fClockSec = 0.0, fClockMem = 0.0, fClockSumDim2 = 0.0, fClockTh = 0.0;
+		double fClockSumDim = 0.0;
+		double fClockCirc = 0.0;
+		double fClockMultiply = 0.0;
+		double fClockFirst = 0.0;
+		double fClockSec = 0.0;
+		double fClockMem = 0.0;
+		double fClockSumDim2 = 0.0;
+		double fClockTh = 0.0;
 		clock_t b;
 		hoNDArray<float> aRMSImg;
 		for (int i = aRefImg.get_size(1)-2; i >1; i--) {// -1 ; i--){
@@ -636,7 +644,7 @@ namespace Gadgetron {
 			hoNDArray<std::complex<float>> cfaRMSImgTest(aRMSImg.get_dimensions());
 			cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
 			std::complex<float> *cfPointer = cfaRMSImgTest.get_data_ptr();
-			for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++){
+			for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
 				cfPointer[iI] = std::complex<float>(aRMSImg.at(iI), 0.0);
 			}
 
@@ -685,7 +693,7 @@ namespace Gadgetron {
 		// interpolate navigator data signal to TR intervals
 		if (bMatlab_) {
 	//		mexPrintf("interpolation of navigator data to TR intervals..\n");mexEvalString("drawnow;");
-		} else{
+		} else {
 			GADGET_DEBUG1("interpolation of navigator data to TR intervals..\n");
 		}
 
