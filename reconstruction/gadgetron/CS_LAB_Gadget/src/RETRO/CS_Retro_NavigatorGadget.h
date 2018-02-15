@@ -23,16 +23,7 @@
 namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_NavigatorGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray< std::complex<float> >, hoNDArray<std::complex<float>> >
 	{
-	public:
-		CS_Retro_NavigatorGadget();
-		~CS_Retro_NavigatorGadget();
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
-		GADGET_DECLARE(CS_Retro_NavigatorGadget);
-
-		void getNav2D(hoNDArray<std::complex<float>> &aNav);
-		void getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
-
+	private:
 		// navigator signal interpolated to TRs
 		std::vector<float> vNavInt_;
 
@@ -57,6 +48,21 @@ namespace Gadgetron {
 		// navigation method (set by gadget property)
 		int iNavMethod_;
 
+	public:
+		CS_Retro_NavigatorGadget();
+		~CS_Retro_NavigatorGadget();
+
+		GADGET_DECLARE(CS_Retro_NavigatorGadget);
+
+	protected:
+		int process_config(ACE_Message_Block* mb);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
+
+	private:
+		void getNav2D(hoNDArray<std::complex<float>> &aNav);
+		void getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
+
+	public:
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		GADGET_PROPERTY(NavigationMethod, int, "NavigationMethod", 0);
 #endif

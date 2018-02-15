@@ -34,13 +34,7 @@
 namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
 	{
-	public:
-		CS_Retro_AccumulatorGadget();
-		~CS_Retro_AccumulatorGadget();
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
-		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
-
+	private:
 		hoNDArray< std::complex<float> >* bufferkSpace_;
 		hoNDArray< std::complex<float> >* bufferNav_;
 
@@ -81,9 +75,6 @@ namespace Gadgetron {
 		// number of phases
 		int iNPhases_;
 
-		// tolerance/blending factor
-		float fTolerance_;
-
 		// Compressed Sensing variables
 		int iESPReSSoDirection_;
 		float fPartialFourierVal_;
@@ -95,6 +86,17 @@ namespace Gadgetron {
 		float fCSAcc_;
 		float fFullySa_;
 
+	public:
+		CS_Retro_AccumulatorGadget();
+		~CS_Retro_AccumulatorGadget();
+
+		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
+
+	protected:
+		int process_config(ACE_Message_Block* mb);
+		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
+
+	public:
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);

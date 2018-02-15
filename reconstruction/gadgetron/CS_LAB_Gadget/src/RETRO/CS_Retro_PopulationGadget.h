@@ -41,18 +41,7 @@ description	: 	k-space population/gating
 namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
 	{
-	public:
-		CS_Retro_PopulationGadget();
-		~CS_Retro_PopulationGadget();
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray<float> >* m2, GadgetContainerMessage< hoNDArray<std::complex<float> > >* m3);
-		GADGET_DECLARE(CS_Retro_PopulationGadget);
-
-    //private:
-		bool fDiscard();
-		bool fCalcCentroids(int iNoGates);
-		bool fPopulatekSpace(int iNoGates);
-
+	private:
 		// populated/reordered kspace
 		hoNDArray<std::complex<float>> hacfKSpace_reordered_;
 
@@ -91,6 +80,22 @@ namespace Gadgetron {
 
 		bool bMatlab_;
 
+	public:
+		CS_Retro_PopulationGadget();
+		~CS_Retro_PopulationGadget();
+
+		GADGET_DECLARE(CS_Retro_PopulationGadget);
+
+	protected:
+		int process_config(ACE_Message_Block* mb);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray<float> >* m2, GadgetContainerMessage< hoNDArray<std::complex<float> > >* m3);
+
+	private:
+		bool fDiscard();
+		bool fCalcCentroids(int iNoGates);
+		bool fPopulatekSpace(int iNoGates);
+
+	public:
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		// declare gadget properties
 		GADGET_PROPERTY(Gates, int, "Gates", 4);
