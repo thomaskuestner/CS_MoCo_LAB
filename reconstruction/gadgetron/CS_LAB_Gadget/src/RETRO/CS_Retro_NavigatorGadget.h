@@ -41,9 +41,6 @@ namespace Gadgetron {
 
 		// number of navigator acquisitions
 		int iNoNav_;
-
-		// matlab debug output
-		bool bMatlab_;
 		
 		// navigation method (set by gadget property)
 		int iNavMethod_;

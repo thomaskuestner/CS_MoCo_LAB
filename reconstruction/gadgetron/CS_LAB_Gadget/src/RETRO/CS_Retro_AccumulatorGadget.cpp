@@ -12,7 +12,7 @@ changes		:
 
 namespace Gadgetron{
 	// class constructor
-	CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), iEchoLine_(0), iEchoPartition_(0), lNoScans_(0), iNoSamples_(0), iNoChannels_(0) {
+	CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), iEchoLine_(0), iEchoPartition_(0), lNoScans_(0), iNoChannels_(0) {
 		GlobalVar::instance()->vPE_.clear();
 		GlobalVar::instance()->vPA_.clear();
 	}
@@ -157,7 +157,7 @@ namespace Gadgetron{
 					if (i->name == "CS_Accel") {
 						fCSAcc_ = i->value;
 					} else if (i->name == "FullySampled") {
-						GlobalVar::instance()->fFullySampled_ = i->value;
+						fFullySa_ = i->value;
 					} else if (i->name == "lambdaESPReSSo") {
 						GlobalVar::instance()->cfLambdaESPReSSo_ = i->value;
 					} else if (i->name == "lambda") {
@@ -218,7 +218,7 @@ namespace Gadgetron{
 					if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
 						fCSAcc_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
-						GlobalVar::instance()->fFullySampled_ = i->value();
+						fFullySa_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
 						GlobalVar::instance()->cfLambdaESPReSSo_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"lambda") == 0) {
@@ -547,8 +547,6 @@ namespace Gadgetron{
 			tmp_m1->getObjectPtr()->user_float[0] = fCSAcc_;
 			tmp_m1->getObjectPtr()->user_float[1] = fFullySa_/100;
 			tmp_m1->getObjectPtr()->user_float[2] = fPartialFourierVal_;
-			tmp_m1->getObjectPtr()->user_float[3] = fLQ_;
-			tmp_m1->getObjectPtr()->user_float[4] = fLESPReSSo_;
 
 			tmp_m1->getObjectPtr()->user_int[1] = iBodyRegion_;
 			tmp_m1->getObjectPtr()->user_int[2] = iSamplingType_;

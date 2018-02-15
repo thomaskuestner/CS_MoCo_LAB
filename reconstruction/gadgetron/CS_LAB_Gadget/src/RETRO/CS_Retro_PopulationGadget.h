@@ -78,8 +78,6 @@ namespace Gadgetron {
 		// centroids of gates
 		std::vector<float> vfCentroids_;
 
-		bool bMatlab_;
-
 	public:
 		CS_Retro_PopulationGadget();
 		~CS_Retro_PopulationGadget();

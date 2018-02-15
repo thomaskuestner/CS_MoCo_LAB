@@ -170,11 +170,7 @@ namespace Gadgetron{
 		switch(GlobalVar::instance()->iGatingMode_) {
 		// percentile
 		case 0:
-			if (bMatlab_) {
-				//				mexPrintf("get inhale/exhale borders by 10th and 90th percentile..\n");mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG1("get inhale/exhale borders by 10th and 90th percentile..\n");
-			}
+			GADGET_DEBUG1("get inhale/exhale borders by 10th and 90th percentile..\n");
 
 			if (vNavInt_.size() > 0) {
 				fNavMin = vNavInt_.at(std::min_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
@@ -183,11 +179,7 @@ namespace Gadgetron{
 				fNavMin = fNavMax = 0;
 			}
 
-			if (bMatlab_) {
-				//				mexPrintf("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG2("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
-			}
+			GADGET_DEBUG2("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
 
 			if (fNavMin == fNavMax) {
 				vfCentroids_.push_back(fNavMin);
@@ -228,20 +220,12 @@ namespace Gadgetron{
 				int   i10p = counter;
 				float f10p = counter*((fNavMax-fNavMin)/iNumberBins);
 
-				if (bMatlab_) {
-					//					mexPrintf("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);mexEvalString("drawnow;");
-				} else {
-					GADGET_DEBUG2("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
-				}
+				GADGET_DEBUG2("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
 
 				// eqully spaced gate positions
 				float fDistance = (f90p-f10p)/(iNoGates-1);
 				for (long iI = 0; iI < iNoGates; iI++) {
 					vfCentroids_.push_back(f10p + iI*fDistance);
-
-					if (bMatlab_) {
-						//						mexPrintf("Cent %f: %.5f\n", iI, vfCentroids_.at(iI));mexEvalString("drawnow;");
-					}
 				}
 
 				// get tolerance of the gate positions
@@ -256,21 +240,13 @@ namespace Gadgetron{
 
 		// k-means
 		case 1:
-			if (bMatlab_) {
-				//				mexPrintf("reorder_kSpace: k-means gating is not implemented in this version!\n");mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG1("reorder_kSpace: k-means gating is not implemented in this version!\n");
-			}
+			GADGET_DEBUG1("reorder_kSpace: k-means gating is not implemented in this version!\n");
 
 			return GADGET_FAIL;
 			break;
 
 		default:
-			if (bMatlab_) {
-				//				mexPrintf("reorder_kSpace: no gating mode specified!\n");mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG1("reorder_kSpace: no gating mode specified!\n");
-			}
+			GADGET_DEBUG1("reorder_kSpace: no gating mode specified!\n");
 
 			return GADGET_FAIL;
 			break;
@@ -280,11 +256,7 @@ namespace Gadgetron{
 	}
 
 	bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates) {
-		if (bMatlab_) {
-			//		mexPrintf("--- populate k-space ---");mexEvalString("drawnow;");
-		} else {
-			GADGET_DEBUG1("--- populate k-space ---");
-		}
+		GADGET_DEBUG1("--- populate k-space ---");
 
 		// drecks mdh
 		if (GlobalVar::instance()->vPE_.size() > hacfKSpace_unordered_.get_size(1)) {
@@ -298,20 +270,12 @@ namespace Gadgetron{
 		switch(GlobalVar::instance()->iPopulationMode_) {
 		// closest
 		case 0:
-			if (bMatlab_) {
-				//				mexPrintf("closest mode..\n");mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG1("closest mode..\n");
-			}
+			GADGET_DEBUG1("closest mode..\n");
 
 			// initialize output k-space array
 			hacfKSpace_reordered_.create(dimensionsIn_.at(0)*2, dimensionsIn_.at(1), dimensionsIn_.at(2), iNoGates, iNoChannels_);
 
-			if (bMatlab_) {
-				//				mexPrintf("global PE: %i, PA: %i\n", vPE_.size(), vPA_.size());mexEvalString("drawnow;");
-			} else {
-				GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
-			}
+			GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 			// loop over phases/gates
 			for (int iPh = 0; iPh <  iNoGates; iPh++) {
@@ -321,11 +285,7 @@ namespace Gadgetron{
 					vWeights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(iPh));
 				}
 
-				if (bMatlab_) {
-					//					mexPrintf("weights calculated - phase: %i\n", iPh);mexEvalString("drawnow;");
-				} else {
-					GADGET_DEBUG2("weights calculated - phase: %i\n", iPh);
-				}
+				GADGET_DEBUG2("weights calculated - phase: %i\n", iPh);
 
 				// loop over lines
 				for (int iLine = 0; iLine < dimensionsIn_.at(1); iLine++) {
@@ -373,11 +333,7 @@ namespace Gadgetron{
 					}
 				}
 
-				if (bMatlab_) {
-					//					mexPrintf("kspace populated - phase: %i\n", iPh);mexEvalString("drawnow;");
-				} else {
-					GADGET_DEBUG2("kspace populated - phase: %i\n", iPh);
-				}
+				GADGET_DEBUG2("kspace populated - phase: %i\n", iPh);
 			}
 
 			break;
