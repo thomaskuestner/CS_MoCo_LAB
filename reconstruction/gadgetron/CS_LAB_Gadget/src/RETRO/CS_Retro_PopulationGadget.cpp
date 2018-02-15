@@ -41,9 +41,12 @@ namespace Gadgetron{
 		// get unordered kspace data
 		vtDims_unordered_ = *m3->getObjectPtr()->get_dimensions();
 
-		// try to initialize dimensionsIn_ vector. Possibly it is the same as vtDims_unordered_?
-		// TODO: Delete one variable if successful
-		dimensionsIn_ = vtDims_unordered_;
+		// initialization of dimensionsIn_ (copy of AccumulatorGadget)
+		// TODO: check implementation!
+		dimensionsIn_.clear();
+		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[0]);
+		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[1]);
+		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[2]);
 
 		hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
 		memcpy(hacfKSpace_unordered_.get_data_ptr(), m3->getObjectPtr()->get_data_ptr(), sizeof(std::complex<float>)*m3->getObjectPtr()->get_number_of_elements());
