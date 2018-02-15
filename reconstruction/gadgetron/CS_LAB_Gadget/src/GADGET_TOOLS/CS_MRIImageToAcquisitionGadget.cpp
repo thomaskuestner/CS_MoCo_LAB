@@ -31,11 +31,8 @@ int CS_MRIImageToAcquisitionGadget::process(GadgetContainerMessage<ISMRMRD::Imag
 					GadgetContainerMessage< hoNDArray< std::complex<float> > >* hacfTmp = new GadgetContainerMessage<hoNDArray< std::complex<float> > >();
 					try{hacfTmp->getObjectPtr()->create(vDims_[0]*m1->getObjectPtr()->channels) ;}
 					catch (std::runtime_error &err){
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("Unable to allocate new image array\n");
-#else
-						GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
-#endif
+						GEXCEPTION(err, "Unable to allocate new image array\n");
+
 						hacfTmp->release();
 						return -1;
 					}

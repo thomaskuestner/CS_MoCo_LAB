@@ -53,11 +53,7 @@ bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoND
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-        GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#endif
+        GERROR("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -103,11 +99,7 @@ bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#endif
+		GERROR("Error occurred in AmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -152,11 +144,7 @@ bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#endif
+		GERROR("Error occurred in AplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -191,11 +179,7 @@ bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r)
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
-			#endif
+		GERROR("Error occurred in AplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -221,11 +205,7 @@ bool fAbsPow(hoNDArray<T> &a, float b){
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#endif
+		GERROR("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -258,11 +238,7 @@ bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c){
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#endif
+		GERROR("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -289,11 +265,7 @@ bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b){
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			#endif
+		GERROR("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
         return false;
     }
 
@@ -347,11 +319,7 @@ bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoND
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in calc_gradient(...) .. ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in calc_gradient(...) .. ");
-			#endif
+		GERROR("Error occurred in calc_gradient(...) .. ");
         return false;
     }
 
@@ -413,11 +381,7 @@ bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<
 	}
 	catch(...)
 	{
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GERROR_STREAM("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
-		#else
-			GADGET_ERROR_MSG("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
-		#endif
+		GERROR("Error occurred in ESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out) ... ");
 		return false;
 	}
 
@@ -437,7 +401,7 @@ bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result){
 	int iCenterZ = std::floor((float)(dims[1]-1)/2);
 
 	// get border indices
-	//GADGET_DEBUG2("y: %i, z: %i\n", y,z);
+	//GDEBUG("y: %i, z: %i\n", y,z);
 	int iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower;
 	if (y%2 == 0){
 		iBorderY_Upper = iCenterY+std::ceil((float)y/2);
@@ -456,7 +420,7 @@ bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result){
 		iBorderZ_Lower = iCenterZ-std::floor((float)z/2);
 	}
 
-	//GADGET_DEBUG2("Border: y: %i,%i z: %i,%i\n", iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower);
+	//GDEBUG("Border: y: %i,%i z: %i,%i\n", iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower);
 	// indices out of bounds?
 	if (iBorderY_Upper > dims[0]-1){
 		iBorderY_Upper = dims[0]-1;
@@ -508,11 +472,7 @@ float fCalcEnergy(hoNDArray<T> a){
     }
     catch(...)
     {
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GERROR_STREAM("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#else
-				GADGET_ERROR_MSG("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
-			#endif
+		GERROR("Error occurred in AminusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r) ... ");
         return false;
     }
 
@@ -678,7 +638,7 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 
 			// number of elements of all dimension except the summation dimension
 			long lMax = NewTmpArray.get_number_of_elements()/vDims.at(dimension);
-			//GADGET_DEBUG2("lMax: %i\n", lMax);
+			//GDEBUG("lMax: %i\n", lMax);
 			// create output array
 			std::vector<size_t> vNewDims = *NewTmpArray.get_dimensions();
 			vNewDims.pop_back();
@@ -818,7 +778,7 @@ inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file
 	ismrmrd_dataset_ = boost::shared_ptr<ISMRMRD::IsmrmrdDataset>(new ISMRMRD::IsmrmrdDataset(ismrmrd_file_name_.c_str(), "dataset"));
 
 	std::vector<size_t> dim = *Array.get_dimensions(); 
-	GADGET_DEBUG1("Try to write array on disk..\n");
+	GINFO("Try to write array on disk..\n");
 	try{
 		//ismrmrd_dataset_->appendImageHeader(*m1->getObjectPtr(),"image.head");
 
@@ -832,12 +792,12 @@ inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file
 		}
 
 		if (ismrmrd_dataset_->appendArray(dims, Array.get_data_ptr(), "image_0.img") < 0){
-			GADGET_DEBUG1("Failed to write image data\n");
+			GERROR("Failed to write image data\n");
 			return GADGET_FAIL;
 		}
 	}
 	catch (...) {
-        GADGET_DEBUG1("Error attempting to append images to HDF5 file\n");
+        GERROR("Error attempting to append images to HDF5 file\n");
         return GADGET_FAIL;
     } 
 
@@ -975,7 +935,7 @@ bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result){
 	
 			// number of elements of all dimension except the summation dimension
 			long lMax = NewTmpArray.get_number_of_elements()/vDims.at(dimension);
-			//GADGET_DEBUG2("lMax: %i\n", lMax);
+			//GDEBUG("lMax: %i\n", lMax);
 			// create output array
 			std::vector<size_t> vNewDims = *NewTmpArray.get_dimensions();
 			vNewDims.pop_back();
@@ -1017,7 +977,7 @@ void filter1DGaussian(std::vector<T> &result, int length){
 	int iStart	= -std::floor((float)length/2);
 	int iEnd	=  std::floor((float)length/2);
 
-	//GADGET_DEBUG2("iStart = %i, iEnd = %i\n", iStart, iEnd);
+	//GDEBUG("iStart = %i, iEnd = %i\n", iStart, iEnd);
 
 	// get Gaussian kernel values and push on result vector
 	for (int i = iStart; i <= iEnd; i++)
@@ -1436,7 +1396,7 @@ inline int findNearestNeighbourIndex( T value, std::vector< T > &x )
 //	// create temporal output vector
 //	std::vector<T> vTmpOut(vOutX.size());
 //
-//	GADGET_DEBUG2("inside interpolation 1 - no. elements: %i, %i, %i - option: %i\n", vInX.size(), vInY.size(), vOutX.size(), option);
+//	GINFO("inside interpolation 1 - no. elements: %i, %i, %i - option: %i\n", vInX.size(), vInY.size(), vOutX.size(), option);
 //	// linear interpolation 
 //	if (option == 0){
 //		// helper variables
@@ -1486,7 +1446,7 @@ inline int findNearestNeighbourIndex( T value, std::vector< T > &x )
 //				vTmpOut.at(i) = m*(fCoord - vInX.at(iIndexMin))+vInY.at(iIndexMin);
 //			}
 //			else{
-//				GADGET_DEBUG2("fCoord: %f, vInxAt: %f, iIndexMin: %i\n", fCoord, vInX.at(iIndexMin), iIndexMin);
+//				GDEBUG("fCoord: %f, vInxAt: %f, iIndexMin: %i\n", fCoord, vInX.at(iIndexMin), iIndexMin);
 //				BOOST_THROW_EXCEPTION( runtime_error("interp1: Error occurred - element cannot be found\n"));
 //			}
 //		}
@@ -1494,7 +1454,7 @@ inline int findNearestNeighbourIndex( T value, std::vector< T > &x )
 //	}
 //	// piecewise constant interpolation
 //	else if(option == 1){
-//		GADGET_DEBUG1("interp1: Error occurred - option is not implemented in current version!\n");
+//		GERROR("interp1: Error occurred - option is not implemented in current version!\n");
 //	}
 //	else{
 //		BOOST_THROW_EXCEPTION( runtime_error("interp1: Error occurred - option not specified or unknown!\n"));
@@ -1560,7 +1520,7 @@ void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<s
 	hoNDArray<T> aOut(&vSize);
 	//input.print(std::cout);
 	//aOut.print(std::cout);
-	//for(size_t i = 0; i < aOut.get_number_of_dimensions(); i++) GADGET_DEBUG2("dim %i: %i\n", i, aOut.get_size(i));
+	//for(size_t i = 0; i < aOut.get_number_of_dimensions(); i++) GDEBUG("dim %i: %i\n", i, aOut.get_size(i));
 	try{
 		// get sub array
 		int iDims = vSize.size();
@@ -1569,26 +1529,26 @@ void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<s
 				for (size_t y = vStart.at(1), i = 0; y < vStart.at(1)+vSize.at(1); y++, i++){
 					size_t offset_new = i*vSize.at(0);
 					size_t offset_old = y*input.get_size(0);
-					//GADGET_DEBUG2("off new: %i, off old: %i\n", offset_new, offset_old);
+					//GDEBUG("off new: %i, off old: %i\n", offset_new, offset_old);
 					memcpy(aOut.begin()+offset_new, input.begin()+offset_old+vStart.at(0), sizeof(T)*vSize.at(0));
 				}
 				break;
 
 			case 3:
-				//GADGET_DEBUG1("inside case 3\n");
+				//GDEBUG("inside case 3\n");
 				for (size_t z = vStart.at(2), j = 0; z < vStart.at(2)+vSize.at(2); z++, j++){	
 					for (size_t y = vStart.at(1), i = 0; y < vStart.at(1)+vSize.at(1); y++, i++){
-						//GADGET_DEBUG2("i: %i, j: %i, y: %i, z: %i\n", i,j,y,z);
+						//GDEBUG("i: %i, j: %i, y: %i, z: %i\n", i,j,y,z);
 						size_t offset_new = i*vSize.at(0)+j*vSize.at(0)*vSize.at(1);
 						size_t offset_old = y*input.get_size(0)+z*input.get_size(0)*input.get_size(1);
-						//GADGET_DEBUG2("off new: %i, off old: %i, size: %i\n", offset_new, offset_old+vStart.at(0), vSize.at(0));
+						//GDEBUG("off new: %i, off old: %i, size: %i\n", offset_new, offset_old+vStart.at(0), vSize.at(0));
 						memcpy(aOut.begin()+offset_new, input.begin()+offset_old+vStart.at(0), sizeof(T)*vSize.at(0));
 					}
 				}
 				break;
 	
 			case 4:
-				//GADGET_DEBUG1("inside case 4\n");
+				//GDEBUG("inside case 4\n");
 				for (size_t c = vStart.at(3), k = 0; c < vStart.at(3) + vSize.at(3); c++, k++){
 					for (size_t z = vStart.at(2), j = 0; z < vStart.at(2)+vSize.at(2); z++, j++){	
 						for (size_t y = vStart.at(1), i = 0; y < vStart.at(1)+vSize.at(1); y++, i++){
@@ -1603,7 +1563,7 @@ void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<s
 				BOOST_THROW_EXCEPTION( runtime_error("SomeFunctions::get_sub_array failed - specified dimension not supported!\n"));
 				break;
 		}
-		//GADGET_DEBUG1("after filling\n");
+		//GDEBUG("after filling\n");
 
 		// return output
 		out = aOut;

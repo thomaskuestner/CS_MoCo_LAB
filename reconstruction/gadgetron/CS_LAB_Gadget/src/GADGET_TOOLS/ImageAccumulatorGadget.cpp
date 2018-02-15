@@ -27,23 +27,24 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 		// extend dimensions by number of phases
 		vtDimensions_.push_back(GlobalVar::instance()->iNPhases_);
 		for (int iI = 0; iI < vtDimensions_.size(); iI++){
-			GADGET_DEBUG2("image size - %i: %i\n", iI, vtDimensions_[iI]);
+			GDEBUG("image size - %i: %i\n", iI, vtDimensions_[iI]);
 		}
 		
 		// initialize buffer array for incoming data
 		if (!(hafBuffer_ = new hoNDArray< float >())) {
-			GADGET_DEBUG1("Failed create buffer\n");
+			GERROR("Failed create buffer\n");
+
 			return GADGET_FAIL;
 		}
 
 		// create buffer array for incoming data
 		try {hafBuffer_->create(&vtDimensions_);}
 		catch (std::runtime_error &err){
-			GADGET_DEBUG_EXCEPTION(err,"Failed allocate buffer array\n");
+			GEXCEPTION(err,"Failed allocate buffer array\n");
 			return GADGET_FAIL;
 		}
 
-		GADGET_DEBUG1("receiving data...\n");  
+		GINFO("receiving data...\n");  
 	}
 	
 	// get pointers to the temporal buffer and the incoming data
@@ -54,7 +55,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	// get partition
 	iPartition_++;
 	iImageLoopCounter_++;
-	GADGET_DEBUG2("stack images: %i/%i - %i/%i - %i..\n", iPartition_+1, vtDimensions_[2], iPhs_+1, vtDimensions_[3], iImageLoopCounter_);
+	GDEBUG("stack images: %i/%i - %i/%i - %i..\n", iPartition_+1, vtDimensions_[2], iPhs_+1, vtDimensions_[3], iImageLoopCounter_);
 	// calculate the offset and copy the data into the temporal buffer
 	size_t tOffset = iPartition_*vtDimensions_[1]*vtDimensions_[0] + iPhs_*vtDimensions_[1]*vtDimensions_[0]*vtDimensions_[2];
 	memcpy(b+tOffset, d, sizeof(float)*vtDimensions_[1]*vtDimensions_[0]);
@@ -78,7 +79,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	
 	// end of gadget reached when all images received
 	if(iImageLoopCounter_ == vtDimensions_[2]*vtDimensions_[3]){
-		GADGET_DEBUG1("data received and stacked..\n");
+		GINFO("data received and stacked..\n");
 		
 		// copy data to new container
 		GadgetContainerMessage< hoNDArray< float > >* cm2 = new GadgetContainerMessage<hoNDArray< float > >();
@@ -88,7 +89,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	
 		try{cm2->getObjectPtr()->create(hafBuffer_->get_dimensions());}
 		catch (std::runtime_error &err){
-			GADGET_DEBUG_EXCEPTION(err,"ImageAccumulatorGadget - Unable to allocate new image array\n");
+			GEXCEPTION(err,"ImageAccumulatorGadget - Unable to allocate new image array\n");
 			tmp_m1->release();
 			return -1;
 		}

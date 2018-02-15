@@ -1,7 +1,9 @@
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
-	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
+#if not __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#define GDEBUG(...) GADGET_DEBUG1("DEBUG: " __VA_ARGS__)
+	#define GINFO(...) GADGET_DEBUG1("INFO: " __VA_ARGS__)
+	#define GWARN(...) GADGET_DEBUG1("WARNING: " __VA_ARGS__)
+	#define GERROR(...) GADGET_DEBUG1("ERROR: " __VA_ARGS__)
+	#define GVERBOSE(...) GADGET_DEBUG1("VERBOSE: " __VA_ARGS__)
+
+	#define GEXCEPTION(x,y) GADGET_DEBUG_EXCEPTION(x,y)
 #endif

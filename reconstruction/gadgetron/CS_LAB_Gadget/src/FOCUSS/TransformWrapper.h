@@ -122,11 +122,7 @@ namespace Gadgetron{
 
 				// check if transformation was prepared
 				if (GlobalVar::instance()->vbStatPrinc_.at(dim_to_transform) == false){					
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("KLTWrapper: KLT transformation not prepared!\n");
-					#else
-						GADGET_DEBUG1("KLTWrapper: KLT transformation not prepared!\n");
-					#endif
+					GWARN("KLTWrapper: KLT transformation not prepared!\n");
 					GlobalVar::instance()->KLTVec_.at(dim_to_transform)->prepare(Array, (size_t)dim_to_transform, (size_t)0, true);
 				}
 
@@ -141,11 +137,7 @@ namespace Gadgetron{
 				
 				// check if transformation was prepared
 				if (GlobalVar::instance()->vbStatPrinc_.at(dim_to_transform) == false){					
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("KLTWrapper: KLT transformation not prepared!\n");
-					#else
-						GADGET_DEBUG1("KLTWrapper: KLT transformation not prepared!\n");
-					#endif
+					GWARN("KLTWrapper: KLT transformation not prepared!\n");
 				}
 
 				// transform
@@ -160,20 +152,12 @@ namespace Gadgetron{
 	{
 		public:
 			virtual bool KernelFTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("not implemented in this version...\n");
-				#else
-					GADGET_DEBUG1("not implemented in this version...\n");
-				#endif
+				GERROR("not implemented in this version...\n");
 				return GADGET_OK;
 			};
 
 			virtual bool KernelBTrafo(hoNDArray<std::complex<float> >  &Array, int dim_to_transform){
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("not implemented in this version...\n");
-				#else
-					GADGET_DEBUG1("not implemented in this version...\n");
-				#endif
+				GERROR("not implemented in this version...\n");
 				return GADGET_OK;
 			};
 	};

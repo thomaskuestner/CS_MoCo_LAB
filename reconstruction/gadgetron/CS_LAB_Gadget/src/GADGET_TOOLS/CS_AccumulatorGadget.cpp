@@ -93,24 +93,28 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	try{
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 	if (h.encoding[0].trajectoryDescription) {
-		GDEBUG("\n\nTrajectory description present!\n\n");
+		GINFO("\n\nTrajectory description present!\n\n");
 		ISMRMRD::TrajectoryDescription traj_desc = *h.encoding[0].trajectoryDescription;
 		
 		for (std::vector<ISMRMRD::UserParameterLong>::iterator i (traj_desc.userParameterLong.begin()); i != traj_desc.userParameterLong.end(); ++i) {
 			if (i->name == "WIP_PF_y"){
 				iESPReSSoY = i->value;		
+				GDEBUG("Phase ESPReSSo is %i \n", iESPReSSoY);
 			}
 			if (i->name == "WIP_PF_z"){
 				iESPReSSoZ = i->value;
+				GDEBUG("Slice ESPReSSo is %i \n", iESPReSSoZ);
 			}
 			if (i->name == "SamplingType"){
 				iSamplingType_ = i->value;
+				GDEBUG("Sampling Type is %i \n", iSamplingType_);
 			}
 			if (i->name == "VDMap"){
 				GlobalVar::instance()->iVDMap_ = i->value;
 			}
 			if (i->name == "BodyRegion"){
 				iBodyRegion_ = i->value;
+				GDEBUG("Body Region is %i \n", iBodyRegion_);
 			} 	
 			/*if (i->name == "iCGResidual"){
 				GlobalVar::instance()->iCGResidual_ = i->value;
@@ -161,28 +165,28 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	}
 #else
 		if ((*e_seq.begin()).trajectoryDescription().present()){
-			GADGET_DEBUG1("\n\nTrajectory description present!\n\n");
+			GINFO("\n\nTrajectory description present!\n\n");
 			ISMRMRD::trajectoryDescriptionType traj_desc = (*e_seq.begin()).trajectoryDescription().get();
 
 			for (ISMRMRD::trajectoryDescriptionType::userParameterLong_sequence::iterator i (traj_desc.userParameterLong().begin ()); i != traj_desc.userParameterLong().end(); ++i) {
 				if (std::strcmp(i->name().c_str(),"WIP_PF_y") == 0) {
 					iESPReSSoY = i->value();
-					GADGET_DEBUG2("Phase ESPReSSo is %i \n", iESPReSSoY);
+					GDEBUG("Phase ESPReSSo is %i \n", iESPReSSoY);
 				} 
 				if (std::strcmp(i->name().c_str(),"WIP_PF_z") == 0) {
 					iESPReSSoZ = i->value();
-					GADGET_DEBUG2("Slice ESPReSSo is %i \n", iESPReSSoZ);
+					GDEBUG("Slice ESPReSSo is %i \n", iESPReSSoZ);
 				} 
 				if (std::strcmp(i->name().c_str(),"SamplingType") == 0) {
 					iSamplingType_ = i->value();
-					GADGET_DEBUG2("Sampling Type is %i \n", iSamplingType_);
+					GDEBUG("Sampling Type is %i \n", iSamplingType_);
 				} 
 				if (std::strcmp(i->name().c_str(),"VDMap") == 0) {
 					GlobalVar::instance()->iVDMap_ = i->value();
 				} 
 				if (std::strcmp(i->name().c_str(),"BodyRegion") == 0) {
 					iBodyRegion_ = i->value();
-					GADGET_DEBUG2("Body Region is %i \n", iBodyRegion_);
+					GDEBUG("Body Region is %i \n", iBodyRegion_);
 				} 
 				/*if (std::strcmp(i->name().c_str(), "iCGResidual") == 0) {
 					GlobalVar::instance()->iCGResidual_ = i->value();
@@ -233,7 +237,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		}
 #endif
 		else{
-			GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
+			GINFO("\n\nNo trajectory description present!\n\n");
 		}
 
 		//-------------------------------------------------------------------------
@@ -241,55 +245,55 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 		//-------------------------------------------------------------------------		
 		switch (iBodyRegion_){
 			case 14:
-				GADGET_DEBUG1("Body region is none\n");
+				GDEBUG("Body region is none\n");
 				break;
 			case 15:
-				GADGET_DEBUG1("Body region is head\n");
+				GDEBUG("Body region is head\n");
 				break;
 			case 16:
-				GADGET_DEBUG1("Body region is thorax\n");
+				GDEBUG("Body region is thorax\n");
 				break;
 			case 17:
-				GADGET_DEBUG1("Body region is abdomen\n");
+				GDEBUG("Body region is abdomen\n");
 				break;
 			case 18:
-				GADGET_DEBUG1("Body region is pelvis\n");
+				GDEBUG("Body region is pelvis\n");
 				break;
 		}
 		switch (GlobalVar::instance()->iVDMap_){
 			case 1:
-				GADGET_DEBUG1("VDMap is none\n");
+				GDEBUG("VDMap is none\n");
 				break;
 			case 2:
-				GADGET_DEBUG1("VDMap is point\n");
+				GDEBUG("VDMap is point\n");
 				break;
 			case 3:
-				GADGET_DEBUG1("VDMap is block\n");
+				GDEBUG("VDMap is block\n");
 				break;
 			case 4:
-				GADGET_DEBUG1("VDMap is ellipse\n");
+				GDEBUG("VDMap is ellipse\n");
 				break;
 			case 5:
-				GADGET_DEBUG1("VDMap is ring\n");
+				GDEBUG("VDMap is ring\n");
 				break;
 		}
 		switch (iSamplingType_){
 			case 6:
-				GADGET_DEBUG1("sampling type is poisson\n");
+				GDEBUG("sampling type is poisson\n");
 				break;
 			case 7:
-				GADGET_DEBUG1("sampling type is random\n");
+				GDEBUG("sampling type is random\n");
 				break;
 			case 8:
-				GADGET_DEBUG1("sampling type is proba\n");
+				GDEBUG("sampling type is proba\n");
 				break;
 		}
 
 		GlobalVar::instance()->iESPReSSoDirection_ = 10;
 		GlobalVar::instance()->fPartialFourierVal_ = 1.0;
 		if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
-			GADGET_DEBUG1("Partial Fourier data..\n");
-			GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
+			GINFO("Partial Fourier data..\n");
+			GDEBUG("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
 			// get Partial Fourier dimension
 			if (iESPReSSoY > 9){
 				GlobalVar::instance()->iESPReSSoDirection_ = 1;
@@ -335,11 +339,11 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 			}
 		}
 
-		GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
-		GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
+		GDEBUG("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
+		GDEBUG("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
 	}
 	catch(...){
-		GADGET_DEBUG1("Error occured - cannot find CS entries in trajectory description..\n");
+		GERROR("Cannot find CS entries in trajectory description..\n");
 	}
 
 	return GADGET_OK;
@@ -352,34 +356,34 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	if (!hacfBuffer_){
 
 		// get number of channels
-		vDim_.push_back(m1->getObjectPtr()->active_channels); //GADGET_DEBUG2("Number of receiver channels: %i\n", dimensionsIn_[4]);
+		vDim_.push_back(m1->getObjectPtr()->active_channels); //GDEBUG("Number of receiver channels: %i\n", dimensionsIn_[4]);
 
-		GADGET_DEBUG2("Matrix size: %i, %i, %i, %i, %i\n", vDim_.at(0), vDim_.at(1), vDim_.at(2), vDim_.at(3), vDim_.at(4));
+		GDEBUG("Matrix size: %i, %i, %i, %i, %i\n", vDim_.at(0), vDim_.at(1), vDim_.at(2), vDim_.at(3), vDim_.at(4));
 
 		// initialize buffer array for incoming data
 		if (!(hacfBuffer_ = new hoNDArray< std::complex<float> >())) {
-			GADGET_DEBUG1("Failed create buffer\n");
+			GERROR("Failed create buffer\n");
 			return GADGET_FAIL;
 		}
 
 		// adjust dimension in oversampled readout direction if oversampling was not already removed - only two-fold oversampling!!!
 		int iNSamples =  m1->getObjectPtr()->number_of_samples;
 		if (iNSamples > static_cast<int>(vDim_[0])) {
-			GADGET_DEBUG1("Input data is oversampled..adjust dim[0]..\n");
+			GINFO("Input data is oversampled..adjust dim[0]..\n");
 			vDim_[0] *= 2;
 		}
 
 		// create buffer array for incoming data
 		try {hacfBuffer_->create(&vDim_);}
 		catch (std::runtime_error &err){
-			GADGET_DEBUG_EXCEPTION(err,"Failed allocate buffer array\n");
+			GEXCEPTION(err,"Failed allocate buffer array\n");
 			return GADGET_FAIL;
 		}
 
 		// read value for image_series
 		//image_series_ = this->get_int_value("image_series");
 
-		GADGET_DEBUG1("receiving data...\n");  
+		GINFO("receiving data...\n");  
 	}
 
 	// get pointers to the temporal buffer and the incoming data
@@ -426,7 +430,7 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	
 	// copy data to a new GadgetContainer
 	if (bLast_in_measurement){
-		GADGET_DEBUG1("all data received - writing file and put on q..\n");
+		GINFO("all data received - writing file and put on q..\n");
 		fCopyData(m1, m2, pcfBuffer);
 	}
 	m1->release();
@@ -453,7 +457,7 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	
 	try{GC_img_m2_new->getObjectPtr()->create(&vDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		GC_img_hdr_m1->release();
 		return -1;
 	}

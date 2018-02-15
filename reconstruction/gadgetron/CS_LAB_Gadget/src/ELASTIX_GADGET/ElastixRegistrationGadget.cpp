@@ -58,18 +58,18 @@ int ElastixRegistrationGadget::process( GadgetContainerMessage< ISMRMRD::ImageHe
 	/* ----------------------- call registration ------------------------- */
 	/* ------------------------------------------------------------------- */
 	if (bIs2D_){		
-		GADGET_DEBUG1("2D dataset detected..unable to perform registration - step skipped!\n");
+		GWARN("2D dataset detected..unable to perform registration - step skipped!\n");
 	}
 	else if(bIs3D_){
-		GADGET_DEBUG1("3D dataset detected..perform registration in 3rd dimension!\n");
+		GINFO("3D dataset detected..perform registration in 3rd dimension!\n");
 		fRegistration3D(m1, m2);
 	}
 	else if(bIs4D_){
-		GADGET_DEBUG1("4D dataset detected..perform registration in 4th dimension!\n");
+		GINFO("4D dataset detected..perform registration in 4th dimension!\n");
 		fRegistration4D(m1, m2);
 	}
 	else{
-		GADGET_DEBUG1("unknown dataset detected..unable to perform registration - step skipped!\n");
+		GWARN("unknown dataset detected..unable to perform registration - step skipped!\n");
 	}
 
 	//Now pass on image
@@ -84,11 +84,11 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 	/* ------------------------------------------------------------------- */
 	/* --------------- create registration parameter data ---------------- */
 	/* ------------------------------------------------------------------- */
-	GADGET_DEBUG1("Load elastix parameter file..\n");
+	GINFO("Load elastix parameter file..\n");
 	// Create parser for transform parameters text file.
 	ParserType::Pointer file_parser = ParserType::New();
 	// Try parsing transform parameters text file.
-	GADGET_DEBUG2("search for parameter file - %s..\n", sPathParam_.c_str());
+	GINFO("search for parameter file - %s..\n", sPathParam_.c_str());
 	file_parser->SetParameterFileName( sPathParam_ );
 	try {
 		file_parser->ReadParameterFile();
@@ -97,7 +97,7 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 		std::cout << e.what() << std::endl;
 	};
 	RegistrationParametersType parameters = file_parser->GetParameterMap();
-	GADGET_DEBUG2("parameter file - %s - loaded..\n", sPathParam_.c_str());
+	GDEBUG("parameter file - %s - loaded..\n", sPathParam_.c_str());
 
 	/* ------------------------------------------------------------------- */
 	/* -------------------- init elastix registration -------------------- */
@@ -154,11 +154,11 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 	/* ------------------------------------------------------------------- */
 	/* --------- loop over moving images and perform registration -------- */
 	/* ------------------------------------------------------------------- */
-	GADGET_DEBUG1("Registration of images..\n");
+	GINFO("Registration of images..\n");
 	
 	// loop over respiration 
 	for (int iState = 1; iState < iNoImages; iState++){
-		GADGET_DEBUG2("%i of %i ...\n", iState, iNoImages-1);
+		GINFO("%i of %i ...\n", iState, iNoImages-1);
 		// crop moving image from 4D dataset
 		size_t tOffset = vtDim_[0]*vtDim_[1]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], pfDataset + tOffset, false);
@@ -179,7 +179,7 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 		}
 		catch (itk::ExitEvent &err){
 			// error handling - write message and fill array with zeros
-			GADGET_DEBUG1("\n Error occured in RegistrationGadget::process(..) - error event catched directly from elastix\n");
+			GERROR("Error event catched directly from elastix\n");
 		}
 		
 		// get output image
@@ -190,12 +190,12 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());				
 			}
 			else{
-				GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
+				GERROR("GetResultImage() is NULL \n", error);
 			}
 		}
 		else {
 			// error handling - write message and fill array with zeros
-			GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - array is zero\n", error);
+			GERROR("array is zero\n", error);
 			itkOutputImage->FillBuffer(0.0);
 		}
 		
@@ -215,7 +215,7 @@ int ElastixRegistrationGadget::fRegistration3D( GadgetContainerMessage< ISMRMRD:
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}
@@ -230,11 +230,11 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 	/* ------------------------------------------------------------------- */
 	/* --------------- create registration parameter data ---------------- */
 	/* ------------------------------------------------------------------- */
-	GADGET_DEBUG1("Load elastix parameter file..\n");
+	GINFO("Load elastix parameter file..\n");
 	// Create parser for transform parameters text file.
 	ParserType::Pointer file_parser = ParserType::New();
 	// Try parsing transform parameters text file.
-	GADGET_DEBUG2("search for parameter file - %s..\n", sPathParam_.c_str());
+	GINFO("search for parameter file - %s..\n", sPathParam_.c_str());
 	file_parser->SetParameterFileName( sPathParam_ );
 	try {
 		file_parser->ReadParameterFile();
@@ -243,12 +243,12 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 		std::cout << e.what() << std::endl;
 	};
 	RegistrationParametersType parameters = file_parser->GetParameterMap();
-	GADGET_DEBUG2("parameter file - %s - loaded..\n", sPathParam_.c_str());
+	GINFO("parameter file - %s - loaded..\n", sPathParam_.c_str());
 
 	// first image is fixed image (end-exhale position) all other images declared to be moving images
 	vtDim_ = *m2->getObjectPtr()->get_dimensions();
 
-	GADGET_DEBUG2("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
+	GDEBUG("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
 
 	int iNoImages = vtDim_[3];
 	const unsigned int cuiNumberOfPixels = vtDim_[0]*vtDim_[1]*vtDim_[2];
@@ -299,10 +299,10 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 	/* ------------------------------------------------------------------- */
 	/* --------- loop over moving images and perform registration -------- */
 	/* ------------------------------------------------------------------- */
-	GADGET_DEBUG1("Loop over moving images..\n");
+	GINFO("Loop over moving images..\n");
 	// loop over respiration 
 	for (int iState = 1; iState < iNoImages; iState++){
-		GADGET_DEBUG2("%i of %i ...\n", iState, iNoImages-1);
+		GINFO("%i of %i ...\n", iState, iNoImages-1);
 		// crop moving image from 4D dataset
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
@@ -323,7 +323,7 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 		}
 		catch (itk::ExitEvent &err){
 			// error handling - write message and fill array with zeros
-			GADGET_DEBUG1("\n Error occured in RegistrationGadget::process(..) - error event catched directly from elastix\n");
+			GERROR("Error event catched directly from elastix\n");
 		}
 		
 		// get output image
@@ -334,12 +334,12 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());				
 			}
 			else{
-				GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - GetResultImage() is NULL \n", error);
+				GERROR("GetResultImage() is NULL \n", error);
 			}
 		}
 		else {
 			// error handling - write message and fill array with zeros
-			GADGET_DEBUG2("\n Error occured in RegistrationGadget::process(..) - array is zero\n", error);
+			GERROR("array is zero\n", error);
 			itkOutputImage->FillBuffer(0.0);
 		}
 		
@@ -359,7 +359,7 @@ int ElastixRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD:
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}

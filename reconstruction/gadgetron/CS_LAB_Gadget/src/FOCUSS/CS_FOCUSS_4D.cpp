@@ -7,11 +7,7 @@ using namespace Gadgetron;
 // read config file
 //int CS_FOCUSS_4D::process_config(ACE_Message_Block* mb){
 //
-//	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//		GDEBUG("process config..\n");
-//	#else
-//		GADGET_DEBUG1("process config..\n");
-//	#endif
+//	GINFO("process config..\n");
 //	//bXMLControl_ = true;
 //	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 //		bXMLControl_ = bXMLControl.value();
@@ -20,8 +16,8 @@ using namespace Gadgetron;
 //	#endif
 //
 //	if (bXMLControl_) {
+//		GDEBUG("XML Control enabled..\n");
 //		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//			GDEBUG("XML Control enabled..\n");
 //			iNOuter_ = OuterIterations.value();
 //			iNInner_ = InnerIterations.value();
 //			bESPRActiveCS_ = CSESPReSSo.value();
@@ -36,7 +32,6 @@ using namespace Gadgetron;
 //			int ikSpaceOut = kSpaceOutDim.value();
 //			int iNorm_ = norm.value();
 //		#else
-//			GADGET_DEBUG1("XML Control enabled..\n");
 //			iNOuter_ = this->get_int_value("OuterIterations");
 //			iNInner_ = this->get_int_value("InnerIterations");
 //			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
@@ -78,35 +73,19 @@ using namespace Gadgetron;
 //		fPartialFourierVal_ = GlobalVar::instance()->fPartialFourierVal_;
 //	}
 //
-//	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//		GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
-//		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
-//		GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-//		GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-//		GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-//		GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-//		GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-//		GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-//		GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-//		GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-//		GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-//		GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-//		GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-//	#else
-//		GADGET_DEBUG2("lambda is %f \n", GlobalVar::instance()->cfLambda_);
-//		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_);
-//		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-//		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-//		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-//		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-//		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-//		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-//		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-//		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-//		GADGET_DEBUG2("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-//		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-//		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-//	#endif
+// 	GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
+// 	GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
+// 	GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
+// 	GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
+// 	GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
+// 	GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
+// 	GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
+// 	GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
+// 	GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
+// 	GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
+// 	GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
+// 	GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
+// 	GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
 //
 //	if (GlobalVar::instance()->iNInner_ <= 0) GlobalVar::instance()->iNInner_ = 20;
 //	if (GlobalVar::instance()->iNOuter_ <= 0) GlobalVar::instance()->iNOuter_ = 2;
@@ -134,7 +113,7 @@ int CS_FOCUSS_4D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	//--- set variables - store incoming data - permute incoming data --------
 	//------------------------------------------------------------------------
 	if (bDebug_)
-		GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
+		GINFO("Starting FOCUSS reconstruction\n");
 
 	// init member values based on header information
 	fInitVal(m1);
@@ -154,7 +133,7 @@ int CS_FOCUSS_4D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}
@@ -219,7 +198,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//-------------------------------------------------------------------------
 	if (Transform_fftBA_->get_active()){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("FFT in read direction..\n");
+			GINFO("FFT in read direction..\n");
 		else if(bMatlab_ && bDebug_){
 			//mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 		}
@@ -245,7 +224,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//----------------------- initial estimate --------------------------------
 	//-------------------------------------------------------------------------
 	if (!bMatlab_ && bDebug_)
-		GADGET_DEBUG1("Prepare initial estimate..\n");
+		GINFO("Prepare initial estimate..\n");
 	else if(bMatlab_ && bDebug_){
 		//mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 	}
@@ -272,7 +251,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			fTmp = 1.0;
 		}
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
+			GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
 		else if(bMatlab_ && bDebug_){
 			//mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
@@ -294,7 +273,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	// outer loop - FOCUSS iterations
 	for (int iOuter = 0; iOuter < GlobalVar::instance()->iNOuter_; iOuter++){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
+			GDEBUG("FOCUSS loop: %i\n", iOuter);
 		else if(bMatlab_ && bDebug_){
 			//mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
@@ -306,7 +285,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		for (int iInner = 0; iInner < GlobalVar::instance()->iNInner_; iInner++){
 			try{
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG2("CG Loop: %i\n", iInner);
+					GDEBUG("CG Loop: %i\n", iInner);
 				else if(bMatlab_ && bDebug_){
 					//mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
@@ -326,7 +305,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 					if (!bMatlab_ && bDebug_)
-						GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
+						GDEBUG("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
 					else if(bMatlab_ && bDebug_){
 						//mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
@@ -338,7 +317,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					if (vfVec[iI] > fEpsilon_) iNom++;
 				}
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
+					GDEBUG("number of non converged channels - %i\n", iNom);
 				else if(bMatlab_ && bDebug_){
 					/*mexPrintf("number of non converged channels - %i\n", iNom);
 					mexEvalString("drawnow;");*/
@@ -353,7 +332,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in first part..\n");
+					GERROR("Exception in first part..\n");
 				else if(bMatlab_ && bDebug_){
 					//mexPrintf("Exception in first part..\n");mexEvalString("drawnow;");
 				}
@@ -373,7 +352,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in ESPReSSo constraint\n");
+					GERROR("Exception in ESPReSSo constraint\n");
 				else  if(bMatlab_ && bDebug_){
 					/*mexPrintf("Exception in ESPReSSo constraint\n");
 					mexEvalString("drawnow;");*/
@@ -388,7 +367,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Exception in gradient calculation\n");
+					GERROR("Exception in gradient calculation\n");
 				else if(bMatlab_ && bDebug_){
 					/*mexPrintf("Exception in gradient calculation\n");
 					mexEvalString("drawnow;");*/
@@ -513,11 +492,11 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	hacfRecon = hacfRho;
 
 	if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("FOCUSS done..\n");
-		else if(bMatlab_ && bDebug_){
-			/*mexPrintf("FOCUSS done..\n");
-			mexEvalString("drawnow;");*/
-		}
+		GINFO("FOCUSS done..\n");
+	else if(bMatlab_ && bDebug_){
+		/*mexPrintf("FOCUSS done..\n");
+		mexEvalString("drawnow;");*/
+	}
 
 	return GADGET_OK;
 }
@@ -648,7 +627,7 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 	}
 	catch(...){
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("Error occured in ESPReSSo gradient calculation...return 0\n");
+			GERROR("Error occured in ESPReSSo gradient calculation...return 0\n");
 		else if(bMatlab_ && bDebug_){
 			//mexPrintf("Error occured in ESPReSSo gradient calculation...return 0\n");mexEvalString("drawnow;");
 		}
@@ -725,7 +704,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				//- sampling mask is mirrored at the center line depending on ESPReSSo dir.-
 				//--------------------------------------------------------------------------
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("compute symmetrical sampling pattern\n");
+					GINFO("compute symmetrical sampling pattern\n");
 				else if(bMatlab_ && bDebug_){
 					//mexPrintf("compute symmetrical sampling pattern\n");mexEvalString("drawnow;");
 				}
@@ -779,7 +758,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				//---- conjugation - get only unsampled points for complex conjugation ----
 				//-------------------------------------------------------------------------
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("compute conjugate sampling pattern\n");
+					GINFO("compute conjugate sampling pattern\n");
 				else if(bMatlab_ && bDebug_){
 					//mexPrintf("compute conjugate sampling pattern\n");
 					//mexEvalString("drawnow;");
@@ -870,7 +849,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			//--------------------------------------------------------------------------
 			// get indices of center kSpace lines - find symmetrical kSpace part and calc filter
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG1("find symmetrical kSpace part..\n");
+				GINFO("find symmetrical kSpace part..\n");
 			else if(bMatlab_ && bDebug_){
 				//mexPrintf("find symmetrical kSpace part..\n");mexEvalString("drawnow;");
 			}
@@ -1010,7 +989,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 				viKSpaceLines_1.clear(); viKSpaceLines_2.clear();
 
 				if (!bMatlab_ && bDebug_)
-					GADGET_DEBUG1("Estimate filter size by calculated window");
+					GINFO("Estimate filter size by calculated window");
 				else if(bMatlab_ && bDebug_){
 					//mexPrintf("Estimate filter size by calculated window");	mexEvalString("drawnow;");
 				}
@@ -1034,7 +1013,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 					}
 			}
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG1("calculate filter..\n");
+				GINFO("calculate filter..\n");
 			else if(bMatlab_ && bDebug_){
 				//mexPrintf("calculate filter..\n");mexEvalString("drawnow;");
 			}
@@ -1192,10 +1171,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){
 				pbPtr_[lI] = false;
 
 		if (!bMatlab_ && bDebug_)
-			GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
-		//else if(bMatlab_ && bDebug_){
-			//mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
-		//}
+			GINFO("data windowed for initial estimate and kSpaceCenter found..\n");
 		memcpy(habKSpaceCenter_.get_data_ptr() + lOffset, habKSpaceCenter3D.get_data_ptr(), sizeof(bool)*habKSpaceCenter3D.get_number_of_elements());
 		memcpy(hacfWWindowed.get_data_ptr() + lOffset, hacfWWindowed3D.get_data_ptr(), sizeof( std::complex< float > )*hacfWWindowed3D.get_number_of_elements());
 	}
@@ -1257,7 +1233,7 @@ void CS_FOCUSS_4D::fGetCalibrationSize(hoNDArray<bool> &habArray){
 
 		for (std::vector<int>::size_type i = 0; i != viCalibrationSize_.size(); i++){
 			if (!bMatlab_ && bDebug_)
-				GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
+				GDEBUG("calibration size: %i..\n", viCalibrationSize_.at(i));
 			else if(bMatlab_ && bDebug_){
 				//mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
 			}

@@ -29,19 +29,11 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	// evaluate dimension and create suitable class object
 	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
 		pCS = new CS_FOCUSS_2D();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
 		//pCS = new CS_FOCUSS_2Dt();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
 		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
@@ -50,21 +42,13 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 		//tmp_m2->getObjectPtr()->print(std::cout);
 
 		pCS = new CS_FOCUSS_3D();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
 		
 		pCS = new CS_FOCUSS_4D();
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
 	}
 
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class

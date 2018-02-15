@@ -55,17 +55,17 @@ int LAPRegistrationGadget::process( GadgetContainerMessage< ISMRMRD::ImageHeader
 	/* ----------------------- call registration ------------------------- */
 	/* ------------------------------------------------------------------- */
 	if (bIs2D_){		
-		GADGET_DEBUG1("2D dataset detected..unable to perform registration - step skipped!\n");
+		GWARN("2D dataset detected..unable to perform registration - step skipped!\n");
 	}
 	else if(bIs3D_){
-		GADGET_DEBUG1("3D dataset detected..unable to perform registration - step skipped!\n");
+		GWARN("3D dataset detected..unable to perform registration - step skipped!\n");
 	}
 	else if(bIs4D_){
-		GADGET_DEBUG1("4D dataset detected..perform registration in 4th dimension!\n");
+		GINFO("4D dataset detected..perform registration in 4th dimension!\n");
 		fRegistration4D(m1, m2);
 	}
 	else{
-		GADGET_DEBUG1("unknown dataset detected..unable to perform registration - step skipped!\n");
+		GWARN("unknown dataset detected..unable to perform registration - step skipped!\n");
 	}
 
 	//Now pass on image
@@ -81,7 +81,7 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 	// first image is fixed image (end-exhale position) all other images declared to be moving images
 	vtDim_ = *m2->getObjectPtr()->get_dimensions();
 
-	GADGET_DEBUG2("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
+	GDEBUG("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
 
 	int iNoImages = vtDim_[3];
 	const unsigned int cuiNumberOfPixels = vtDim_[0]*vtDim_[1]*vtDim_[2];
@@ -105,10 +105,10 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 	/* ------------------------------------------------------------------- */
 	/* --------- loop over moving images and perform registration -------- */
 	/* ------------------------------------------------------------------- */
-	GADGET_DEBUG1("Loop over moving images..\n");
+	GINFO("Loop over moving images..\n");
 	// loop over respiration 
 	for (int iState = 1; iState < iNoImages; iState++){
-		GADGET_DEBUG2("%i of %i ...\n", iState, iNoImages-1);
+		GINFO("%i of %i ...\n", iState, iNoImages-1);
 		// crop moving image from 4D dataset
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
@@ -140,7 +140,7 @@ int LAPRegistrationGadget::fRegistration4D( GadgetContainerMessage< ISMRMRD::Ima
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}

@@ -47,7 +47,7 @@ namespace Gadgetron {
 			break;
 
 		default:
-			GADGET_DEBUG2("Navigation method %d unknown! Please specify one via gadget property.\n", iNavMethod_);
+			GERROR("Navigation method %d unknown! Please specify one via gadget property.\n", iNavMethod_);
 			return GADGET_FAIL;
 		}
 
@@ -73,10 +73,10 @@ namespace Gadgetron {
 
 	// get interpolated navigator signal
 	void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav) {
-		GADGET_DEBUG1("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
+		GDEBUG("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
 
 		// reconstruct the 1-D projections for all measurements and all channels
-		GADGET_DEBUG1("domain transformation - k-space to image\n");
+		GINFO("domain transformation - k-space to image\n");
 
 		/* MATLAB
 		% Reconstruct the 1-D projections for all measurements and all channels
@@ -93,7 +93,7 @@ namespace Gadgetron {
 		flip_array(aImg, 0);
 
 		// crop center part due to twofold oversampling
-		GADGET_DEBUG1("crop center part of two-fold oversampled data..\n");
+		GINFO("crop center part of two-fold oversampled data..\n");
 
 		std::vector<size_t> vStart, vSize;
 
@@ -110,7 +110,7 @@ namespace Gadgetron {
 		get_subarray(aImg, vStart, vSize, aImg);
 
 		// get channel power and normalize channel images
-		GADGET_DEBUG1("calculate channel power and normalize channel images..\n");
+		GINFO("calculate channel power and normalize channel images..\n");
 
 		std::vector<float> fPower(iNoChannels_);
 		hoNDArray<std::complex<float>> aPower = aImg;
@@ -129,7 +129,7 @@ namespace Gadgetron {
 
 		divide(aImg, aPower, aImg);
 
-		GADGET_DEBUG1("channel images normalized..\n");
+		GINFO("channel images normalized..\n");
 
 		aPower.clear();
 
@@ -182,17 +182,17 @@ namespace Gadgetron {
 		// find index of maximum
 		int iMaxIndex = amax(&aPowerAcrossChan);
 
-		GADGET_DEBUG2("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
+		GINFO("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
 
 		if ( (iMaxIndex<20) || (iMaxIndex > aPowerInChan.get_size(1)-20)) {
-			GADGET_DEBUG1("Error: iMaxIndex out of bounds..\n");
+			GERROR("Error: iMaxIndex out of bounds..\n");
 
 			return;
 		}
 
 		//-------------------------------------------------------------------------
 		// sort out channels with no relevant information in target area
-		GADGET_DEBUG1("get channels which contain most information..\n");
+		GINFO("get channels which contain most information..\n");
 
 		vStart.clear();
 		vStart.push_back(iMaxIndex-20);
@@ -204,7 +204,7 @@ namespace Gadgetron {
 
 		get_subarray(aPowerInChan, vStart, vSize,aPowerInChan);
 
-		GADGET_DEBUG1("41 elements around maximum cropped..\n");
+		GINFO("41 elements around maximum cropped..\n");
 
 		std::vector<float> vGoodChannels;
 		hoNDArray<float> aTmp;
@@ -231,13 +231,13 @@ namespace Gadgetron {
 		}
 
 		for (size_t i = 0; i < vGoodChannels.size(); i++) {
-			GADGET_DEBUG2("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));
+			GDEBUG("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));
 		}
 
 		//-------------------------------------------------------------------------
 		// get the best PE line
 		// get sub array of good channels
-		GADGET_DEBUG1("get best PE line..\n afPower:\n");
+		GDEBUG("get best PE line..\n");
 
 		hoNDArray<float> aPowerInPE(41,afPower.get_size(1), iNumGood);
 
@@ -253,7 +253,7 @@ namespace Gadgetron {
 		vSize.push_back(afPower.get_size(1));
 		vSize.push_back(1);
 
-		GADGET_DEBUG2("vStart: %i, %i, %i, vSize: %i, %i, %i, afPower size: %i, %i, %i\n",  vStart.at(0), vStart.at(1), vStart.at(2), vSize.at(0), vSize.at(1), vSize.at(2), afPower.get_size(0), afPower.get_size(1), afPower.get_size(2));
+		GDEBUG("vStart: %i, %i, %i, vSize: %i, %i, %i, afPower size: %i, %i, %i\n",  vStart.at(0), vStart.at(1), vStart.at(2), vSize.at(0), vSize.at(1), vSize.at(2), afPower.get_size(0), afPower.get_size(1), afPower.get_size(2));
 
 		size_t o = 0; //helper
 		for (int c = 0; c < iNoChannels_; c++) {
@@ -274,17 +274,17 @@ namespace Gadgetron {
 		sum_dim(aPowerInPE, 2, aPowerInPE);
 		sum_dim(aPowerInPE, 0, aPowerInPE);
 
-		GADGET_DEBUG1("\n aPowerInPE\n");
+		GINFO("\n aPowerInPE\n");
 		aPowerInPE.print(std::cout);
 
 		iMaxIndex = amax(&aPowerInPE);
 		int iMaxChan = iMaxIndex;
 
-		GADGET_DEBUG2("found at %i\n", iMaxIndex);
+		GINFO("found at %i\n", iMaxIndex);
 
 		//-------------------------------------------------------------------------
 		// find best corresponding channels according to best phase encoding position
-		GADGET_DEBUG1("searching for channels according to best PE line..\n");
+		GINFO("searching for channels according to best PE line..\n");
 
 		// get sub array
 		vStart.clear();
@@ -330,7 +330,7 @@ namespace Gadgetron {
 		vSize.push_back(afPower.get_size(2));
 		vSize.push_back(afPower.get_size(3));
 
-		GADGET_DEBUG2("vSize: %i, %i, %i, %i - fIMGRes: %f\n", vSize.at(0), vSize.at(1), vSize.at(2), vSize.at(3), fIMGRes);
+		GDEBUG("vSize: %i, %i, %i, %i - fIMGRes: %f\n", vSize.at(0), vSize.at(1), vSize.at(2), vSize.at(3), fIMGRes);
 
 		get_subarray(afPower, vStart, vSize, afPower);
 		sum_dim(afPower, 1, afPower); // RO x PE x CH
@@ -342,7 +342,7 @@ namespace Gadgetron {
 			aPowerAcrossChan.at(i) = 0;
 		}
 
-		GADGET_DEBUG1("filter data with Gaussian kernel..\n");
+		GINFO("filter data with Gaussian kernel..\n");
 
 		// get Gaussian filter kernel
 		vGaussian.clear();
@@ -353,7 +353,7 @@ namespace Gadgetron {
 		iMaxIndex = amax(&aPowerAcrossChan);
 		int dX = iMaxIndex;
 
-		GADGET_DEBUG2("found at %i\n", iMaxIndex);
+		GINFO("found at %i\n", iMaxIndex);
 
 		// get good channels
 		vStart.clear();
@@ -391,7 +391,7 @@ namespace Gadgetron {
 		}
 
 		for (size_t i = 0; i < vGoodChannels.size(); i++) {
-			GADGET_DEBUG2("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));
+			GDEBUG("vGoodChannels[%i]: %f\n", i,vGoodChannels.at(i));
 		}
 
 		// get relevant image - dRelevantImg = squeeze(dImg(:, :, dPos, lGoodChannels));
@@ -427,7 +427,7 @@ namespace Gadgetron {
 		}
 
 		//-------------------------------------------------------------------------
-		GADGET_DEBUG1("get SOSImg\n");
+		GINFO("get SOSImg\n");
 
 		hoNDArray<float> aRelevantImg(*acRelevantImg.get_dimensions());
 		multiplyConj(acRelevantImg,acRelevantImg,acRelevantImg);
@@ -612,7 +612,7 @@ namespace Gadgetron {
 			circshift(aTmp3, vNav_.at(i), 0);
 
 			if (i%20 == 0) {
-				GADGET_DEBUG2("Getting Navigator - %.1f %%\n", static_cast<float>(aRefImg.get_size(1)-2-i)/static_cast<float>(aRefImg.get_size(1)-2)*100);
+				GDEBUG("Getting Navigator - %.1f %%\n", static_cast<float>(aRefImg.get_size(1)-2-i)/static_cast<float>(aRefImg.get_size(1)-2)*100);
 			}
 
 			//MATLAB: dRefImg(:,idx(i)) = circshift(dSOSImg(:,idx(i)), dNav(i))
@@ -630,7 +630,7 @@ namespace Gadgetron {
 
 		//-------------------------------------------------------------------------
 		// interpolate navigator data signal to TR intervals
-		GADGET_DEBUG1("interpolation of navigator data to TR intervals..\n");
+		GINFO("interpolation of navigator data to TR intervals..\n");
 
 		for (long i = 0; i < vNav_.size(); i++) {
 			vNav_.at(i) = -vNav_.at(i);
@@ -648,7 +648,7 @@ namespace Gadgetron {
 			vNavIndNew.push_back(i);
 		}
 
-		GADGET_DEBUG2("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
+		GDEBUG("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
 
 		std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
 		vNavInt_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
@@ -658,10 +658,10 @@ namespace Gadgetron {
 
 	// get interpolated navigator signal by Principal Component Analysis
 	void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aNav) {
-		GADGET_DEBUG1("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
+		GDEBUG("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");
 
 		// reconstruct the 1-D projections for all measurements and all channels
-		GADGET_DEBUG1("domain transformation - k-space to image\n");
+		GINFO("domain transformation - k-space to image\n");
 
 		/*assumptions:
 		* iMeasurementTime_ is the total scan time in seconds

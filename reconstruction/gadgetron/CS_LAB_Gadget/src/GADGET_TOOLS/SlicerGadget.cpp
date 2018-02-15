@@ -86,11 +86,8 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				GadgetContainerMessage< hoNDArray< float> >* sec_buffer_ = new GadgetContainerMessage<hoNDArray< float > >();
 				try{sec_buffer_->getObjectPtr()->create(dimension[0], dimension[1], 1, 1, 1) ;}
 				catch (std::runtime_error &err){
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				  GDEBUG("Unable to allocate new image array\n");
-#else
-				  GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
-#endif
+				  GEXCEPTION(err, "Unable to allocate new image array\n");
+
 				  sec_buffer_->release();
 				  return -1;
 				}

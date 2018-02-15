@@ -37,7 +37,7 @@ namespace Gadgetron{
 			vNavInt_.push_back(m2->getObjectPtr()->at(iI));//hafNav_(iI));
 		}
 
-		//GADGET_DEBUG2("global PE: %i, PA: %i\n", vPE_.size(), vPA_.size());
+		//GDEBUG("global PE: %i, PA: %i\n", vPE_.size(), vPA_.size());
 		// get unordered kspace data
 		vtDims_unordered_ = *m3->getObjectPtr()->get_dimensions();
 
@@ -55,7 +55,7 @@ namespace Gadgetron{
 		// discard first seconds of the acquisitions and wait for steady-state
 		//-------------------------------------------------------------------------
 		if (fDiscard()) {
-			GADGET_DEBUG1("Error occured in CS_Retro_Population::fDiscard(..) - process aborted\n");
+			GERROR("process aborted\n");
 			return GADGET_FAIL;
 		}
 
@@ -63,11 +63,11 @@ namespace Gadgetron{
 		// get centroids
 		//-------------------------------------------------------------------------
 		if (fCalcCentroids(iNoGates_)) {
-			GADGET_DEBUG1("Error occured in CS_Retro_Population::fCalcCentroids(..) - process aborted\n");
+			GERROR("process aborted\n");
 			return GADGET_FAIL;
 		} else {
 			for (int i = 0; i < vfCentroids_.size(); i++) {
-				GADGET_DEBUG2("Centroid %i: %f\n", i, vfCentroids_.at(i));
+				GDEBUG("Centroid %i: %f\n", i, vfCentroids_.at(i));
 			}
 		}
 
@@ -75,10 +75,10 @@ namespace Gadgetron{
 		// populate k-space: mode: closest, gates: 4
 		//-------------------------------------------------------------------------
 		if (fPopulatekSpace(iNoGates_)) {
-			GADGET_DEBUG1("Error occured in CS_Retro_Population::fPopulatekSpace() - process aborted\n");
+			GERROR("process aborted\n");
 		}
 
-		GADGET_DEBUG1("kSpace populated and ready to stream..\n");
+		GINFO("kSpace populated and ready to stream..\n");
 		hacfKSpace_reordered_.print(std::cout);
 
 		//-------------------------------------------------------------------------
@@ -95,7 +95,7 @@ namespace Gadgetron{
 			tmp_m2->getObjectPtr()->create(hacfKSpace_reordered_.get_dimensions());
 			memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), hacfKSpace_reordered_.get_data_ptr(), sizeof(std::complex<float>)*hacfKSpace_reordered_.get_number_of_elements());
 		} catch (std::runtime_error &err) {
-			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\n");
+			GEXCEPTION(err, "Unable to allocate new image array\n");
 			m1->release();
 			return -1;
 		}
@@ -114,7 +114,7 @@ namespace Gadgetron{
 
 		// Set iStartIndex to 0 when it is negative
 		if (iStartIndex < 0) {
-			GADGET_DEBUG2("iStartIndex=%d < 0. It is set to 0, maybe you want to check your code?\n", iStartIndex);
+			GWARN("iStartIndex=%d < 0. It is set to 0, maybe you want to check your code?\n", iStartIndex);
 			iStartIndex = 0;
 		}
 
@@ -122,28 +122,28 @@ namespace Gadgetron{
 		if (vNavInt_.size() >= iStartIndex) {
 			vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
 		} else {
-			GADGET_DEBUG1("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
+			GWARN("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
 		}
 
 		if (GlobalVar::instance()->vPA_.size() >= iStartIndex) {
 			GlobalVar::instance()->vPA_.erase(GlobalVar::instance()->vPA_.begin(), GlobalVar::instance()->vPA_.begin() + iStartIndex);
 		} else {
-			GADGET_DEBUG1("more elements should be delete than there were actually in vPA_. Nothing is done!\n");
+			GWARN("more elements should be delete than there were actually in vPA_. Nothing is done!\n");
 		}
 
 		if (GlobalVar::instance()->vPE_.size() >= iStartIndex) {
 			GlobalVar::instance()->vPE_.erase(GlobalVar::instance()->vPE_.begin(), GlobalVar::instance()->vPE_.begin() + iStartIndex);
 		} else {
-			GADGET_DEBUG1("more elements should be delete than there were actually in vPE_. Nothing is done!\n");
+			GWARN("more elements should be delete than there were actually in vPE_. Nothing is done!\n");
 		}
 
-		GADGET_DEBUG2("first seconds discarded - %i samples erased - TR: %f..\n", iStartIndex, GlobalVar::instance()->fTR_);
+		GINFO("first seconds discarded - %i samples erased - TR: %f..\n", iStartIndex, GlobalVar::instance()->fTR_);
 
 		// new array size
 		std::vector<size_t> vtDims_new = *hacfKSpace_unordered_.get_dimensions();
 		vtDims_new.at(1) = vtDims_new.at(1) - iStartIndex;
 
-		GADGET_DEBUG1("kSpace before deletion\n");
+		GINFO("kSpace before deletion\n");
 		hacfKSpace_unordered_.print(std::cout);
 
 		// new array
@@ -156,7 +156,7 @@ namespace Gadgetron{
 			}
 		}
 
-		GADGET_DEBUG1("kSpace deleted:\n");
+		GINFO("kSpace deleted:\n");
 		hacfTmp.print(std::cout);
 		hacfKSpace_unordered_ = hacfTmp;
 
@@ -170,7 +170,7 @@ namespace Gadgetron{
 		switch(GlobalVar::instance()->iGatingMode_) {
 		// percentile
 		case 0:
-			GADGET_DEBUG1("get inhale/exhale borders by 10th and 90th percentile..\n");
+			GINFO("get inhale/exhale borders by 10th and 90th percentile..\n");
 
 			if (vNavInt_.size() > 0) {
 				fNavMin = vNavInt_.at(std::min_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
@@ -179,7 +179,7 @@ namespace Gadgetron{
 				fNavMin = fNavMax = 0;
 			}
 
-			GADGET_DEBUG2("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
+			GDEBUG("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
 
 			if (fNavMin == fNavMax) {
 				vfCentroids_.push_back(fNavMin);
@@ -220,7 +220,7 @@ namespace Gadgetron{
 				int   i10p = counter;
 				float f10p = counter*((fNavMax-fNavMin)/iNumberBins);
 
-				GADGET_DEBUG2("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
+				GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
 
 				// eqully spaced gate positions
 				float fDistance = (f90p-f10p)/(iNoGates-1);
@@ -240,13 +240,13 @@ namespace Gadgetron{
 
 		// k-means
 		case 1:
-			GADGET_DEBUG1("reorder_kSpace: k-means gating is not implemented in this version!\n");
+			GERROR("reorder_kSpace: k-means gating is not implemented in this version!\n");
 
 			return GADGET_FAIL;
 			break;
 
 		default:
-			GADGET_DEBUG1("reorder_kSpace: no gating mode specified!\n");
+			GERROR("reorder_kSpace: no gating mode specified!\n");
 
 			return GADGET_FAIL;
 			break;
@@ -256,7 +256,7 @@ namespace Gadgetron{
 	}
 
 	bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates) {
-		GADGET_DEBUG1("--- populate k-space ---");
+		GINFO("--- populate k-space ---");
 
 		// drecks mdh
 		if (GlobalVar::instance()->vPE_.size() > hacfKSpace_unordered_.get_size(1)) {
@@ -270,12 +270,12 @@ namespace Gadgetron{
 		switch(GlobalVar::instance()->iPopulationMode_) {
 		// closest
 		case 0:
-			GADGET_DEBUG1("closest mode..\n");
+			GINFO("closest mode..\n");
 
 			// initialize output k-space array
 			hacfKSpace_reordered_.create(dimensionsIn_.at(0)*2, dimensionsIn_.at(1), dimensionsIn_.at(2), iNoGates, iNoChannels_);
 
-			GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
+			GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 			// loop over phases/gates
 			for (int iPh = 0; iPh <  iNoGates; iPh++) {
@@ -285,7 +285,7 @@ namespace Gadgetron{
 					vWeights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(iPh));
 				}
 
-				GADGET_DEBUG2("weights calculated - phase: %i\n", iPh);
+				GINFO("weights calculated - phase: %i\n", iPh);
 
 				// loop over lines
 				for (int iLine = 0; iLine < dimensionsIn_.at(1); iLine++) {
@@ -333,21 +333,21 @@ namespace Gadgetron{
 					}
 				}
 
-				GADGET_DEBUG2("kspace populated - phase: %i\n", iPh);
+				GINFO("kspace populated - phase: %i\n", iPh);
 			}
 
 			break;
 
 		// average
 		case 1:
-			GADGET_DEBUG1("reorder_kSpace: population mode 'average' not implemented in this version\n");
+			GERROR("reorder_kSpace: population mode 'average' not implemented in this version\n");
 
 			return GADGET_FAIL;
 			break;
 
 		// collect
 		case 2:
-			GADGET_DEBUG1("reorder_kSpace: population mode 'collect' not implemented in this version\n");
+			GERROR("reorder_kSpace: population mode 'collect' not implemented in this version\n");
 
 			return GADGET_FAIL;
 			break;
@@ -441,7 +441,7 @@ namespace Gadgetron{
 			break;
 
 		default:
-			GADGET_DEBUG1("reorder_kSpace: no population mode specified!\n");
+			GERROR("reorder_kSpace: no population mode specified!\n");
 
 			return GADGET_FAIL;
 			break;

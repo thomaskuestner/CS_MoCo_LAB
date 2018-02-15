@@ -20,7 +20,7 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 		// loop over phases
 		for (int iPhs = 0; iPhs < (*m2->getObjectPtr()->get_dimensions())[3]; iPhs){
 
-			GADGET_DEBUG2("SlicerGadget: par: %i phs: %i\n", iPar, iPhs);
+			GDEBUG("SlicerGadget: par: %i phs: %i\n", iPar, iPhs);
 			// new image header
 			GadgetContainerMessage<ISMRMRD::ImageHeader>* new_m1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 
@@ -35,7 +35,7 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 			GadgetContainerMessage< hoNDArray<float> >* hafSecBuf = new GadgetContainerMessage< hoNDArray<float> >();
 			try{hafSecBuf->getObjectPtr()->create((*m2->getObjectPtr()->get_dimensions())[0], (*m2->getObjectPtr()->get_dimensions())[1]) ;}
 			catch (std::runtime_error &err){
-				GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
+				GEXCEPTION(err,"Unable to allocate new image array\n");
 				hafSecBuf->release();
 				return -1;
 			}

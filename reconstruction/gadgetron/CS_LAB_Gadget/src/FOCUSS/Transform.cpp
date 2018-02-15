@@ -37,8 +37,8 @@ namespace Gadgetron{
 		// k-space -> image domain
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_FFT_.size(); i++){
 			hoNDFFT_CS<float>::instance()->ifft(&Array, (unsigned int)dims_to_trans_FFT_.at(i), dims_to_scramble_.at(i));
-			/*GADGET_DEBUG2("ifft %i\n", (unsigned int)dims_to_trans_FFT_.at(i));
-			GADGET_DEBUG2("scamble: %i\n", (unsigned int)dims_to_scramble_.at(i));*/
+			/*GDEBUG("ifft %i\n", (unsigned int)dims_to_trans_FFT_.at(i));
+			GDEBUG("scamble: %i\n", (unsigned int)dims_to_scramble_.at(i));*/
 		}
 
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_sparsity_.size(); i++){
@@ -58,8 +58,8 @@ namespace Gadgetron{
 
 		for (std::vector<int>::size_type i = 0; i != dims_to_trans_FFT_.size(); i++){	
 			hoNDFFT_CS<float>::instance()->fft(&Array, (unsigned int)dims_to_trans_FFT_.at(i), dims_to_scramble_.at(i));
-			/*GADGET_DEBUG2("fft %i\n", (unsigned int)dims_to_trans_FFT_.at(i));
-			GADGET_DEBUG2("scamble: %i\n", (unsigned int)dims_to_scramble_.at(i));*/
+			/*GDEBUG("fft %i\n", (unsigned int)dims_to_trans_FFT_.at(i));
+			GDEBUG("scamble: %i\n", (unsigned int)dims_to_scramble_.at(i));*/
 		}
 
 		return GADGET_OK;

@@ -20,12 +20,12 @@ int ImageSaveHDFGadgetCPLX::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 		}
 
 		if (ismrmrd_dataset_->appendArray(dims, m2->getObjectPtr()->get_data_ptr(), "image_0.img") < 0){
-			GADGET_DEBUG1("Failed to write image data\n");
+			GERROR("Failed to write image data\n");
 			return GADGET_FAIL;
 		}
 	}
 	catch (...) {
-        GADGET_DEBUG1("Error attempting to append images to HDF5 file\n");
+        GERROR("Error attempting to append images to HDF5 file\n");
         return GADGET_FAIL;
     }
 

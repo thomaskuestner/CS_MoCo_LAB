@@ -66,18 +66,18 @@ namespace Gadgetron{
 		dimensionsIn_.push_back(r_space.matrixSize().x());
 		dimensionsIn_.push_back(e_space.matrixSize().y());
 		dimensionsIn_.push_back(e_space.matrixSize().z());
-		GADGET_DEBUG2("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
+		GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
 		// get FOV
 		field_of_view_.push_back(r_space.fieldOfView_mm().x());
 		field_of_view_.push_back(e_space.fieldOfView_mm().y());
 		field_of_view_.push_back(e_space.fieldOfView_mm().z());
-		GADGET_DEBUG2("FOV: %f, %f, %f\n", r_space.fieldOfView_mm().x(), e_space.fieldOfView_mm().y(), e_space.fieldOfView_mm().z());
+		GDEBUG("FOV: %f, %f, %f\n", r_space.fieldOfView_mm().x(), e_space.fieldOfView_mm().y(), e_space.fieldOfView_mm().z());
 
 		// get echo line and echo partition
 		iEchoLine_ = e_limits.kspace_encoding_step_1().get().center();
 		iEchoPartition_ = e_limits.kspace_encoding_step_2().get().center();
-		GADGET_DEBUG2("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
+		GDEBUG("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
 
 		// repetition time
 		GlobalVar::instance()->fTR_ = cfg->sequenceParameters().get().TR().at(0);
@@ -167,7 +167,7 @@ namespace Gadgetron{
 			}
 #else
 			if ((*e_seq.begin()).trajectoryDescription().present()) {
-				GADGET_DEBUG1("\n\nTrajectory description present!\n\n");
+				GINFO("Trajectory description present!");
 				ISMRMRD::trajectoryDescriptionType traj_desc = (*e_seq.begin()).trajectoryDescription().get();
 
 				for (ISMRMRD::trajectoryDescriptionType::userParameterLong_sequence::iterator i (traj_desc.userParameterLong().begin ()); i != traj_desc.userParameterLong().end(); ++i) {
@@ -228,7 +228,7 @@ namespace Gadgetron{
 			}
 #endif
 			else {
-				GADGET_DEBUG1("\n\nNo trajectory description present!\n\n");
+				GWARN("No trajectory description present!");
 			}
 
 			//-------------------------------------------------------------------------
@@ -236,49 +236,49 @@ namespace Gadgetron{
 			//-------------------------------------------------------------------------
 			switch (iBodyRegion_) {
 				case 14:
-					GADGET_DEBUG1("Body region is none\n");
+					GDEBUG("Body region is none\n");
 					break;
 				case 15:
-					GADGET_DEBUG1("Body region is head\n");
+					GDEBUG("Body region is head\n");
 					break;
 				case 16:
-					GADGET_DEBUG1("Body region is thorax\n");
+					GDEBUG("Body region is thorax\n");
 					break;
 				case 17:
-					GADGET_DEBUG1("Body region is abdomen\n");
+					GDEBUG("Body region is abdomen\n");
 					break;
 				case 18:
-					GADGET_DEBUG1("Body region is pelvis\n");
+					GDEBUG("Body region is pelvis\n");
 					break;
 			}
 
 			switch (iVDMap_) {
 				case 1:
-					GADGET_DEBUG1("VDMap is none\n");
+					GDEBUG("VDMap is none\n");
 					break;
 				case 2:
-					GADGET_DEBUG1("VDMap is point\n");
+					GDEBUG("VDMap is point\n");
 					break;
 				case 3:
-					GADGET_DEBUG1("VDMap is block\n");
+					GDEBUG("VDMap is block\n");
 					break;
 				case 4:
-					GADGET_DEBUG1("VDMap is ellipse\n");
+					GDEBUG("VDMap is ellipse\n");
 					break;
 				case 5:
-					GADGET_DEBUG1("VDMap is ring\n");
+					GDEBUG("VDMap is ring\n");
 					break;
 			}
 
 			switch (iSamplingType_) {
 				case 6:
-					GADGET_DEBUG1("sampling type is poisson\n");
+					GDEBUG("sampling type is poisson\n");
 					break;
 				case 7:
-					GADGET_DEBUG1("sampling type is random\n");
+					GDEBUG("sampling type is random\n");
 					break;
 				case 8:
-					GADGET_DEBUG1("sampling type is proba\n");
+					GDEBUG("sampling type is proba\n");
 					break;
 			}
 
@@ -286,8 +286,8 @@ namespace Gadgetron{
 			fPartialFourierVal_ = 1.0;
 
 			if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
-				GADGET_DEBUG1("Partial Fourier data..\n");
-				GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
+				GDEBUG("Partial Fourier data..\n");
+				GDEBUG("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
 				// get Partial Fourier dimension
 				if (iESPReSSoY > 9) {
 					iESPReSSoDirection_ = 1;
@@ -334,10 +334,10 @@ namespace Gadgetron{
 				}
 			}
 
-			GADGET_DEBUG2("Partial Fourier is %f \n", fPartialFourierVal_);
-			GADGET_DEBUG2("ESPReSSo Direction is %i \n", iESPReSSoDirection_);
+			GDEBUG("Partial Fourier is %f \n", fPartialFourierVal_);
+			GDEBUG("ESPReSSo Direction is %i \n", iESPReSSoDirection_);
 		} catch(...) {
-			GADGET_DEBUG1("Error occured - cannot find CS entries in trajectory description..\n");
+			GERROR("Cannot find CS entries in trajectory description..\n");
 		}
 
 		// concat higher and lower bytes from total measurement variable
@@ -356,14 +356,14 @@ namespace Gadgetron{
 
 			// initialize k-space buffer
 			if (!(bufferkSpace_ = new hoNDArray< std::complex<float> >())) {
-				GADGET_DEBUG1("Failed to create k-space buffer\n");
+				GERROR("Failed to create k-space buffer\n");
 				return GADGET_FAIL;
 			}
 
 			// get number of samples in acquisition (equals base resolution)
 			iBaseRes_ = m1->getObjectPtr()->number_of_samples;
 
-			GADGET_DEBUG2("base res.: %d, no. scans: %lu, no. channel: %u\n", iBaseRes_, lNoScans_, iNoChannels_);
+			GDEBUG("base res.: %d, no. scans: %lu, no. channel: %u\n", iBaseRes_, lNoScans_, iNoChannels_);
 
 			// dimension vector of k-space array
 			dimkSpace_.push_back(iBaseRes_);
@@ -374,7 +374,7 @@ namespace Gadgetron{
 			try {
 				bufferkSpace_->create(&dimkSpace_);
 			} catch (std::runtime_error &err) {
-				GADGET_DEBUG_EXCEPTION(err, "Failed to allocate k-space buffer array\n");
+				GEXCEPTION(err, "Failed to allocate k-space buffer array\n");
 				return GADGET_FAIL;
 			}
 
@@ -383,8 +383,7 @@ namespace Gadgetron{
 			memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 			fCopyAcqHeader(tmp_m1, m1);
 			GlobalVar::instance()->AcqVec_.push_back(tmp_m1);
-			GADGET_DEBUG1("Receiving data..\n");
-			GADGET_DEBUG1("\n \n bufferkSpace_ \n \n:");
+			GINFO("Receiving data..\n");
 		}
 
 		/*---------------------------------------------------*/
@@ -393,7 +392,7 @@ namespace Gadgetron{
 		if (!bufferNav_) {
 			// initialize k-space buffer
 			if (!(bufferNav_ = new hoNDArray< std::complex<float> >())) {
-				GADGET_DEBUG1("Failed to create navigator buffer\n");
+				GERROR("Failed to create navigator buffer\n");
 				return GADGET_FAIL;
 			}
 
@@ -405,18 +404,17 @@ namespace Gadgetron{
 			iNoNav_ = 0;
 			iNoNavLine_ = 0;
 
-			GADGET_DEBUG2("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, GlobalVar::instance()->iNavPERes_, iNoChannels_);
+			GDEBUG("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, GlobalVar::instance()->iNavPERes_, iNoChannels_);
 
 			// create buffer array for incoming navigator data (readout, time, PE, channel)
 			try {
 				bufferNav_->create(&dimNav_);
 			} catch (std::runtime_error &err) {
-				GADGET_DEBUG_EXCEPTION(err, "Failed to allocate navigator buffer array\n");
+				GEXCEPTION(err, "Failed to allocate navigator buffer array\n");
 				return GADGET_FAIL;
 			}
 
-			GADGET_DEBUG1("\n \n bufferNav \n \n:");
-
+			GINFO("bufferNav_:");
 			bufferNav_->print(std::cout);
 			lCurrentScan_ = 0;
 		}
@@ -474,7 +472,7 @@ namespace Gadgetron{
 		/*--------------- process sampled data --------------*/
 		/*---------------------------------------------------*/
 		if (lCurrentScan_ == lNoScans_) {
-			GADGET_DEBUG1("data received.. try to process data\n");
+			GINFO("data received.. try to process data\n");
 
 			// crop non-empty data from navigator array
 			// check if last measurement is in between a navigator block
@@ -483,7 +481,7 @@ namespace Gadgetron{
 				GlobalVar::instance()->vNavInd_.pop_back();
 			}
 
-			GADGET_DEBUG2("%i navigator data found..\n", iNoNav_);
+			GINFO("%i navigator data found..\n", iNoNav_);
 
 			std::vector<size_t> vStart, vSize;
 
@@ -501,10 +499,10 @@ namespace Gadgetron{
 			get_subarray(*bufferNav_, vStart, vSize, *bufferNav_);
 			bufferNav_->print(std::cout);
 
-			GADGET_DEBUG1("Flag - last in measurement detected..\n");
-			GADGET_DEBUG1("\n------------- navigator buffer ------------------\n");
+			GINFO("Flag - last in measurement detected..\n");
+			GINFO("\n------------- navigator buffer ------------------\n");
 			bufferNav_->print(std::cout);
-			GADGET_DEBUG1("\n------------- kSpace buffer -----------------\n");
+			GINFO("\n------------- kSpace buffer -----------------\n");
 			bufferkSpace_->print(std::cout);
 
 			// create new ContainerMessages for header, navigator and kSpace data header
@@ -566,7 +564,7 @@ namespace Gadgetron{
 			try {
 				tmp_m2->getObjectPtr()->create(bufferNav_->get_dimensions());
 			} catch (std::runtime_error &err) {
-				GADGET_DEBUG_EXCEPTION(err, "Unable to allocate new image array\n");
+				GEXCEPTION(err, "Unable to allocate new image array\n");
 
 				tmp_m1->release();
 
@@ -586,7 +584,7 @@ namespace Gadgetron{
 			try {
 				tmp_m3->getObjectPtr()->create(bufferkSpace_->get_dimensions());
 			} catch (std::runtime_error &err) {
-				GADGET_DEBUG_EXCEPTION(err, "Unable to allocate new image array\n");
+				GEXCEPTION(err, "Unable to allocate new image array\n");
 
 				tmp_m1->release();
 
@@ -601,7 +599,7 @@ namespace Gadgetron{
 				return GADGET_FAIL;
 			}
 
-			GADGET_DEBUG2("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
+			GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 			return GADGET_OK;
 		}

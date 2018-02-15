@@ -44,11 +44,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	//--- set variables - store incoming data - permute incoming data --------
 	//------------------------------------------------------------------------
 	if (bDebug_)
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Starting FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
-		#endif
+		GINFO("Starting FOCUSS reconstruction\n");
 
 	// init member values based on header information
 	fInitVal(m1);
@@ -68,11 +64,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gad
 	// create output
 	try{cm2->getObjectPtr()->create(&vtDim_);}
 	catch (std::runtime_error &err){
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GEXCEPTION(err,"Unable to allocate new image array\n");
-		#else
-			GADGET_DEBUG_EXCEPTION(err,"Unable to allocate new image array\n");
-		#endif
+		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 		return -1;
 	}
@@ -149,11 +141,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//-------------------------------------------------------------------------
 	if (Transform_fftBA_->get_active()){
 		if (!bMatlab_ && bDebug_)
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GDEBUG("FFT in read direction..\n");
-			#else
-				GADGET_DEBUG1("FFT in read direction..\n");
-			#endif
+			GDEBUG("FFT in read direction..\n");
 		else if(bMatlab_ && bDebug_){
 			// mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 		}
@@ -179,11 +167,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	//----------------------- initial estimate --------------------------------
 	//-------------------------------------------------------------------------
 	if (!bMatlab_ && bDebug_)
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Prepare initial estimate..\n");
-		#else
-			GADGET_DEBUG1("Prepare initial estimate..\n");
-		#endif
+		GINFO("Prepare initial estimate..\n");
 	else if(bMatlab_ && bDebug_){
 		// mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 	}
@@ -203,11 +187,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		hoNDArray<std::complex<float> >  hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
 		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 		if (!bMatlab_ && bDebug_)
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
-			#else
-				GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
-			#endif
+			GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
 		else if(bMatlab_ && bDebug_){
 			// mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 		}
@@ -229,11 +209,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	// outer loop - FOCUSS iterations
 	for (int iOuter = 0; iOuter < GlobalVar::instance()->iNOuter_; iOuter++){
 		if (!bMatlab_ && bDebug_)
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GDEBUG("FOCUSS loop: %i\n", iOuter);
-			#else
-				GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
-			#endif
+			GDEBUG("FOCUSS loop: %i\n", iOuter);
 		else if(bMatlab_ && bDebug_){
 			// mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 		}
@@ -245,11 +221,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 		for (int iInner = 0; iInner < GlobalVar::instance()->iNInner_; iInner++){
 			try{
 				if (!bMatlab_ && bDebug_)
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("CG Loop: %i\n", iInner);
-					#else
-						GADGET_DEBUG2("CG Loop: %i\n", iInner);
-					#endif
+					GDEBUG("CG Loop: %i\n", iInner);
 				else if(bMatlab_ && bDebug_){
 					// mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 				}
@@ -269,11 +241,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 					if (!bMatlab_ && bDebug_)
-						#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-							GDEBUG("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
-						#else
-							GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
-						#endif
+						GDEBUG("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
 					else if(bMatlab_ && bDebug_){
 						// mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 					}
@@ -285,11 +253,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 					if (vfVec[iI] > fEpsilon_) iNom++;
 				}
 				if (!bMatlab_ && bDebug_)
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("number of non converged channels - %i\n", iNom);
-					#else
-						GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
-					#endif
+					GDEBUG("number of non converged channels - %i\n", iNom);
 				else if(bMatlab_ && bDebug_){
 					// mexPrintf("number of non converged channels - %i\n", iNom);
 					// mexEvalString("drawnow;");
@@ -304,11 +268,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("Exception in first part..\n");
-					#else
-						GADGET_DEBUG1("Exception in first part..\n");
-					#endif
+					GERROR("Exception in first part..\n");
 				else if(bMatlab_ && bDebug_){
 					// mexPrintf("Exception in first part..\n");mexEvalString("drawnow;");
 				}
@@ -330,11 +290,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("Exception in ESPReSSo constraint\n");
-					#else
-						GADGET_DEBUG1("Exception in ESPReSSo constraint\n");
-					#endif
+					GERROR("Exception in ESPReSSo constraint\n");
 				else  if(bMatlab_ && bDebug_){
 					// mexPrintf("Exception in ESPReSSo constraint\n");
 					// mexEvalString("drawnow;");
@@ -349,11 +305,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 			}
 			catch(...){
 				if (!bMatlab_ && bDebug_)
-					#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-						GDEBUG("Exception in gradient calculation\n");
-					#else
-						GADGET_DEBUG1("Exception in gradient calculation\n");
-					#endif
+					GERROR("Exception in gradient calculation\n");
 				else if(bMatlab_ && bDebug_){
 					// mexPrintf("Exception in gradient calculation\n");
 					// mexEvalString("drawnow;");
@@ -465,15 +417,11 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<
 	hacfRecon = hacfRho;
 
 	if (!bMatlab_ && bDebug_)
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-				GDEBUG("FOCUSS done..\n");
-			#else
-				GADGET_DEBUG1("FOCUSS done..\n");
-			#endif
-		else if(bMatlab_ && bDebug_){
-			// mexPrintf("FOCUSS done..\n");
-			// mexEvalString("drawnow;");
-		}
+		GINFO("FOCUSS done..\n");
+	else if(bMatlab_ && bDebug_){
+		// mexPrintf("FOCUSS done..\n");
+		// mexEvalString("drawnow;");
+	}
 
 	return GADGET_OK;
 }
@@ -649,16 +597,7 @@ void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoND
 	catch(...){
 
 		if (!bMatlab_ && bDebug_)
-
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-				GDEBUG("Error occured in ESPReSSo gradient calculation...return 0\n");
-
-			#else
-
-				GADGET_DEBUG1("Error occured in ESPReSSo gradient calculation...return 0\n");
-
-			#endif
+			GERROR("Error occured in ESPReSSo gradient calculation...return 0\n");
 
 		else if(bMatlab_ && bDebug_){
 
@@ -767,16 +706,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			//- sampling mask is mirrored at the center line depending on ESPReSSo dir.-
 			//--------------------------------------------------------------------------
 			if (!bMatlab_ && bDebug_)
-
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-					GDEBUG("compute symmetrical sampling pattern\n");
-
-				#else
-
-					GADGET_DEBUG1("compute symmetrical sampling pattern\n");
-
-				#endif
+				GINFO("compute symmetrical sampling pattern\n");
 
 			else if(bMatlab_ && bDebug_){
 
@@ -885,16 +815,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			//---- conjugation - get only unsampled points for complex conjugation ----
 			//-------------------------------------------------------------------------
 			if (!bMatlab_ && bDebug_)
-
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-					GDEBUG("compute conjugate sampling pattern\n");
-
-				#else
-
-					GADGET_DEBUG1("compute conjugate sampling pattern\n");
-
-				#endif
+				GINFO("compute conjugate sampling pattern\n");
 
 			else if(bMatlab_ && bDebug_){
 
@@ -1066,16 +987,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 		// get indices of center kSpace lines - find symmetrical kSpace part and calc filter
 
 		if (!bMatlab_ && bDebug_)
-
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-				GDEBUG("find symmetrical kSpace part..\n");
-
-			#else
-
-				GADGET_DEBUG1("find symmetrical kSpace part..\n");
-
-			#endif
+			GINFO("find symmetrical kSpace part..\n");
 
 		else if(bMatlab_ && bDebug_){
 
@@ -1358,16 +1270,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 
 			if (!bMatlab_ && bDebug_)
-
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-					GDEBUG("Estimate filter size by calculated window");
-
-				#else
-
-					GADGET_DEBUG1("Estimate filter size by calculated window");
-
-				#endif
+				GINFO("Estimate filter size by calculated window");
 
 			else if(bMatlab_ && bDebug_){
 
@@ -1414,16 +1317,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 		}
 
 		if (!bMatlab_ && bDebug_)
-
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-				GDEBUG("calculate filter..\n");
-
-			#else
-
-				GADGET_DEBUG1("calculate filter..\n");
-
-			#endif
+			GINFO("calculate filter..\n");
 
 		else if(bMatlab_ && bDebug_){
 
@@ -1690,16 +1584,7 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray< std::complex< float > > & hacfWWindowed
 
 
 	if (!bMatlab_ && bDebug_)
-
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-			GDEBUG("data windowed for initial estimate and kSpaceCenter found..\n");
-
-		#else
-
-			GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
-
-		#endif
+		GINFO("data windowed for initial estimate and kSpaceCenter found..\n");
 
 	else if(bMatlab_ && bDebug_){
 
@@ -1787,16 +1672,7 @@ void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray){
 	for (std::vector<int>::size_type i = 0; i != viCalibrationSize_.size(); i++){
 
 		if (!bMatlab_ && bDebug_)
-
-			#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-
-				GDEBUG("calibration size: %i..\n", viCalibrationSize_.at(i));
-
-			#else
-
-				GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
-
-			#endif
+			GDEBUG("calibration size: %i..\n", viCalibrationSize_.at(i));
 
 		else if(bMatlab_ && bDebug_){
 

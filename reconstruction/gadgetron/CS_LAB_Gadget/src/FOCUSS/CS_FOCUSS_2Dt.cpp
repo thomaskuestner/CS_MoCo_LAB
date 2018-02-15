@@ -25,7 +25,7 @@
 //	//------------------------------------------------------------------------
 //	//--- set variables - store incoming data - permute incoming data --------
 //	//------------------------------------------------------------------------
-//	GADGET_DEBUG1("Starting FOCUSS reconstruction\n");
+//	GDEBUG("Starting FOCUSS reconstruction\n");
 //
 //	// init member values based on header information
 //	fInitVal(m1);
@@ -91,7 +91,7 @@
 //	//-------------------------------------------------------------------------
 //	if (Transform_fftBA_->get_active()){
 //		if (!bMatlab_ && bDebug_)
-//			GADGET_DEBUG1("FFT in read direction..\n");
+//			GDEBUG("FFT in read direction..\n");
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("FFT in read direction..\n");mexEvalString("drawnow;");
 //		}
@@ -109,7 +109,7 @@
 //	------------------------- initial estimate --------------------------------
 //	--------------------------------------------------------------------------*/
 //	if (!bMatlab_ && bDebug_)
-//		GADGET_DEBUG1("Prepare initial estimate..\n");
+//		GDEBUG("Prepare initial estimate..\n");
 //	else if(bMatlab_ && bDebug_){
 //		mexPrintf("Prepare initial estimate..\n"); mexEvalString("drawnow;");
 //	}
@@ -129,7 +129,7 @@
 //		hoNDArray<std::complex<float> >  hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
 //		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 //		if (!bMatlab_ && bDebug_)
-//			GADGET_DEBUG2("energy in channel[%i]: %e..\n",iCha, fTmp);
+//			GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("energy in channel[%i]: %e..\n",iCha, fTmp); mexEvalString("drawnow;");
 //		}
@@ -140,7 +140,7 @@
 //			pcfPtr2_[i+tOffset] /= fTmp;
 //		}
 //	}
-//	GADGET_DEBUG1("Prepare initial estimate..\n");
+//	GDEBUG("Prepare initial estimate..\n");
 //
 //	/*-------------------------------------------------------------------------
 //	--------------------- iterative calculation -------------------------------
@@ -152,7 +152,7 @@
 //	// outer loop for FOCUSS
 //	for (int iOuter = 0; iOuter < iNOuter_; iOuter++){
 //		if (!bMatlab_ && bDebug_)
-//			GADGET_DEBUG2("FOCUSS loop: %i\n", iOuter);
+//			GDEBUG("FOCUSS loop: %i\n", iOuter);
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("FOCUSS loop: %i\n", iOuter);mexEvalString("drawnow;");
 //		}
@@ -164,7 +164,7 @@
 //		for (int iInner = 0; iInner < iNInner_; iInner++){
 //			try{
 //				if (!bMatlab_ && bDebug_)
-//					GADGET_DEBUG2("CG Loop: %i\n", iInner);
+//					GDEBUG("CG Loop: %i\n", iInner);
 //				else if(bMatlab_ && bDebug_){
 //					mexPrintf("CG Loop: %i\n", iInner);	mexEvalString("drawnow;");
 //				}
@@ -184,7 +184,7 @@
 //					vfVec.push_back(abs(dot(&eCha, &eCha)));
 //					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 //					if (!bMatlab_ && bDebug_)
-//						GADGET_DEBUG2("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
+//						GDEBUG("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);
 //					else if(bMatlab_ && bDebug_){
 //						mexPrintf("||e|| ch. %i  =  %e\n", iCha, vfVec[iCha]);mexEvalString("drawnow;");
 //					}
@@ -196,7 +196,7 @@
 //					if (vfVec[iI] > fEpsilon_) iNom++;
 //				}
 //				if (!bMatlab_ && bDebug_)
-//					GADGET_DEBUG2("number of non converged channels - %i\n", iNom);
+//					GDEBUG("number of non converged channels - %i\n", iNom);
 //				else if(bMatlab_ && bDebug_){
 //					mexPrintf("number of non converged channels - %i\n", iNom);
 //					mexEvalString("drawnow;");
@@ -299,7 +299,7 @@
 //				multiply(hacfWWindowed, hacfQ, hacfRho);
 //			}
 //			catch(...){
-//				GADGET_DEBUG1("exception in inner loop..\n");
+//				GDEBUG("exception in inner loop..\n");
 //			}
 //		}
 //
@@ -323,7 +323,7 @@
 //	hacfRecon = hacfRho;
 //
 //	if (!bMatlab_ && bDebug_)
-//			GADGET_DEBUG1("FOCUSS done..\n");
+//			GDEBUG("FOCUSS done..\n");
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("FOCUSS done..\n");
 //			mexEvalString("drawnow;");
@@ -371,7 +371,7 @@
 //			pbPtr_[lI] = false;
 //
 //	if (!bMatlab_ && bDebug_)
-//		GADGET_DEBUG1("data windowed for initial estimate and kSpaceCenter found..\n");
+//		GDEBUG("data windowed for initial estimate and kSpaceCenter found..\n");
 //	else if(bMatlab_ && bDebug_){
 //		mexPrintf("data windowed for initial estimate and kSpaceCenter found..\n");mexEvalString("drawnow;");
 //	}
@@ -405,7 +405,7 @@
 //
 //	for (std::vector<int>::size_type i = 0; i != viCalibrationSize_.size(); i++){
 //		if (!bMatlab_ && bDebug_)
-//			GADGET_DEBUG2("calibration size: %i..\n", viCalibrationSize_.at(i));
+//			GDEBUG("calibration size: %i..\n", viCalibrationSize_.at(i));
 //		else if(bMatlab_ && bDebug_){
 //			mexPrintf("calibration size: %i..\n", viCalibrationSize_.at(i));mexEvalString("drawnow;");
 //		}

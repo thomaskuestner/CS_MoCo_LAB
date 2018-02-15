@@ -20,11 +20,7 @@ namespace Gadgetron{
 
 // read the XML configuration parameters
 int CS_FOCUSS::process_config(ACE_Message_Block* mb){
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		GDEBUG("process config..\n");
-	#else
-		GADGET_DEBUG1("process config..\n");
-	#endif	
+	GDEBUG("process config..\n");
 	//bXMLControl_ = true;
 	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 		bXMLControl_ = bXMLControl.value();		
@@ -34,8 +30,8 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 	
 	if (bXMLControl_) {
 
+		GDEBUG("XML Control enabled..\n");
 		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("XML Control enabled..\n");
 			GlobalVar::instance()->iNOuter_ = OuterIterations.value();
 			GlobalVar::instance()->iNInner_ = InnerIterations.value();
 			GlobalVar::instance()->bESPRActiveCS_ = CSESPReSSo.value();
@@ -50,7 +46,6 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 			int ikSpaceOut = kSpaceOutDim.value();
 			int iNorm_ = norm.value();
 		#else
-			GADGET_DEBUG1("XML Control enabled..\n");
 			GlobalVar::instance()->iNOuter_ = this->get_int_value("OuterIterations");
 			GlobalVar::instance()->iNInner_ = this->get_int_value("InnerIterations");
 			GlobalVar::instance()->bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
@@ -76,35 +71,19 @@ int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 		GlobalVar::instance()->ikSpaceOut_ = ikSpaceOut;
 	}
 	
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
-		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
-		GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-		GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-		GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-		GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-		GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-		GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-		GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-		GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-		GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-		GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-		GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-	#else
-		GADGET_DEBUG2("lambda is %f \n", GlobalVar::instance()->cfLambda_);
-		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_);
-		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-		GADGET_DEBUG2("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-	#endif
+	GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
+	GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
+	GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
+	GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
+	GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
+	GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
+	GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
+	GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
+	GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
+	GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
+	GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
+	GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
+	GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
 
 	if (GlobalVar::instance()->iNInner_ <= 0) GlobalVar::instance()->iNInner_ = 20;
 	if (GlobalVar::instance()->iNOuter_ <= 0) GlobalVar::instance()->iNOuter_ = 2;
@@ -157,11 +136,7 @@ void CS_FOCUSS::fSetupTransformation(){
 			if (bit == 1) {
 				Transform_KernelTransform_->set_transformation_sparsity(0,i);
 
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("KernelTransform - FFT sparse - dim: %i \n", i);
-				#else
-					GADGET_DEBUG2("KernelTransform - FFT sparse - dim: %i \n", i);
-				#endif
+				GDEBUG("KernelTransform - FFT sparse - dim: %i \n", i);
 			}
 		}
 	}
@@ -173,11 +148,7 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1) {
 				Transform_KernelTransform_->set_transformation_sparsity(1,i);
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("KernelTransform - DCT sparse - dim: %i \n", i);
-				#else
-					GADGET_DEBUG2("KernelTransform - DCT sparse - dim: %i \n", i);
-				#endif
+				GDEBUG("KernelTransform - DCT sparse - dim: %i \n", i);
 			}
 		}
 	}
@@ -190,11 +161,7 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
 				Transform_KernelTransform_->set_transformation_sparsity(2,i);
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("KernelTransform - PCA sparse - dim: %i \n", i);
-				#else
-					GADGET_DEBUG2("KernelTransform - PCA sparse - dim: %i \n", i);
-				#endif				
+				GDEBUG("KernelTransform - PCA sparse - dim: %i \n", i);
 			}
 		}
 	}	
@@ -212,11 +179,7 @@ void CS_FOCUSS::fSetupTransformation(){
 				else{
 					Transform_KernelTransform_->set_transformation_fft(i, false);
 				}	
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("KernelTransform - FFT - dim: %i - scrambling: %i\n", i, bit2);					
-				#else
-					GADGET_DEBUG2("KernelTransform - FFT - dim: %i - scrambling: %i\n", i, bit2);
-				#endif
+				GDEBUG("KernelTransform - FFT - dim: %i - scrambling: %i\n", i, bit2);
 			}
 		}
 	}
@@ -231,11 +194,7 @@ void CS_FOCUSS::fSetupTransformation(){
 			int bit = (dim & (1 << i)) >> i;
 			if (bit == 1){
 				Transform_fftBA_->set_transformation_fft(i, true);
-				#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-					GDEBUG("fftBA - dim: %i \n", i);
-				#else
-					GADGET_DEBUG2("fftBA - dim: %i \n", i);
-				#endif
+				GDEBUG("fftBA - dim: %i \n", i);
 			}
 		}
 		Transform_fftBA_->set_active();
@@ -251,11 +210,7 @@ void CS_FOCUSS::fSetupTransformation(){
 		Transform_fftAA_->set_transformation_fft(1, true);
 		Transform_fftAA_->set_transformation_fft(2, true);
 		Transform_fftAA_->set_active();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
-		#else
-			GADGET_DEBUG2("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
-		#endif
+		GDEBUG("Transform_fftAA_ - active: %i \n", Transform_fftAA_->get_active());
 	}
 }
 }

@@ -115,11 +115,7 @@ void CS_LAB::fExternalControl(){
 }
 
 //int CS_LAB::process_config(ACE_Message_Block* mb){
-//#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//		GDEBUG("process config..\n");
-//	#else
-//		GADGET_DEBUG1("process config..\n");
-//	#endif
+//		GINFO("process config..\n");
 //	//bXMLControl_ = true;
 //	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
 //		bXMLControl_ = bXMLControl.value();
@@ -129,8 +125,8 @@ void CS_LAB::fExternalControl(){
 //
 //	if (bXMLControl_) {
 //
+// 		GDEBUG("XML Control enabled..\n");
 //		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//			GDEBUG("XML Control enabled..\n");
 //			iNOuter_ = OuterIterations.value();
 //		  	iNInner_ = InnerIterations.value();
 //			bESPRActiveCS_ = CSESPReSSo.value();
@@ -144,7 +140,6 @@ void CS_LAB::fExternalControl(){
 //			int iTransformFFTBA = transformFftBaDim.value();
 //			int ikSpaceOut = kSpaceOutDim.value();
 //		#else
-//			GADGET_DEBUG1("XML Control enabled..\n");
 //		  	iNOuter_ = this->get_int_value("OuterIterations");
 //		  	iNInner_ = this->get_int_value("InnerIterations");
 //			bESPRActiveCS_ = this->get_int_value("CSESPReSSo");
@@ -185,35 +180,19 @@ void CS_LAB::fExternalControl(){
 //		fPartialFourierVal_ = GlobalVar::instance()->fPartialFourierVal_;
 //	}
 //
-//	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-//		GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
-//		GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
-//		GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-//		GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-//		GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-//		GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-//		GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-//		GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-//		GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-//		GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-//		GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-//		GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-//		GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-//	#else
-//		GADGET_DEBUG2("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
-//		GADGET_DEBUG2("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
-//		GADGET_DEBUG2("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
-//		GADGET_DEBUG2("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
-//		GADGET_DEBUG2("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
-//		GADGET_DEBUG2("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
-//		GADGET_DEBUG2("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
-//		GADGET_DEBUG2("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
-//		GADGET_DEBUG2("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
-//		GADGET_DEBUG2("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
-//		GADGET_DEBUG2("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
-//		GADGET_DEBUG2("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
-//		GADGET_DEBUG2("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
-//	#endif
+// 	GDEBUG("lambda is %f \n", GlobalVar::instance()->cfLambda_.real());
+// 	GDEBUG("Lambda ESPReSSo is %f \n", GlobalVar::instance()->cfLambdaESPReSSo_.real());
+// 	GDEBUG("Fully Sampled is %f \n", GlobalVar::instance()->fFullySampled_);
+// 	GDEBUG("bESPRActiveCS is %i \n", GlobalVar::instance()->bESPRActiveCS_);
+// 	GDEBUG("kSpaceOutDim is %i \n", GlobalVar::instance()->ikSpaceOut_);
+// 	GDEBUG("transformFftBaDim is %i \n", GlobalVar::instance()->iTransformFFTBA_);
+// 	GDEBUG("kernelFftDim is %i \n", GlobalVar::instance()->iDimKernelFFT_);
+// 	GDEBUG("pcaSparseDim is %i \n", GlobalVar::instance()->iDimPCASparse_);
+// 	GDEBUG("dctSparseDim is %i \n", GlobalVar::instance()->iDimDCTSparse_);
+// 	GDEBUG("fftSparseDim is %i  \n", GlobalVar::instance()->iDimFFT_);
+// 	GDEBUG("scrambleDim is %i \n", GlobalVar::instance()->iScrambleDim_);
+// 	GDEBUG("InnerIterations is %i \n", GlobalVar::instance()->iNInner_);
+// 	GDEBUG("OuterIterations is %i \n", GlobalVar::instance()->iNOuter_);
 //
 //	if (GlobalVar::instance()->iNInner_ <= 0) GlobalVar::instance()->iNInner_ = 20;
 //	if (GlobalVar::instance()->iNOuter_ <= 0) GlobalVar::instance()->iNOuter_ = 2;
@@ -244,40 +223,24 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 	// evaluate dimension and create suitable class object
 	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
 		opCS_ = new CS_FOCUSS_2D();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
 		//opCS_ = new CS_FOCUSS_2Dt();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
 		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
 		sum_dim(*tmp_m2->getObjectPtr(), 3, *tmp_m2->getObjectPtr());
 		
 		opCS_ = new CS_FOCUSS_3D();
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
 	}
 	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
 		
 		opCS_ = new CS_FOCUSS_4D();
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GDEBUG("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
-		#else
-			GADGET_DEBUG1("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
-		#endif
+		GINFO("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
 	}
 
 	// set parameters of the FOCUSS class - required, because the xml config file is read in by CS_CONTROL class and not by FOCUSS class

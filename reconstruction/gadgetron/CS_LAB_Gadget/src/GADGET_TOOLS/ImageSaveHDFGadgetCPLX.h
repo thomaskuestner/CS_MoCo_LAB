@@ -86,7 +86,8 @@ namespace Gadgetron
 
 				if (ismrmrd_dataset_->writeHeader(xml_config) < 0 )
 				{
-					GADGET_DEBUG1("Failed to write XML header to HDF file\n");
+					GERROR("Failed to write XML header to HDF file\n");
+
 					return GADGET_FAIL;
 				}
 				ACE_OS_String::strncpy(ace_file_path, file_path_.c_str(), 4096);
