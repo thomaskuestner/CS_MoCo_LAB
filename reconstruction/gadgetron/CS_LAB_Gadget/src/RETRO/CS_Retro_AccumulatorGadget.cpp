@@ -88,20 +88,20 @@ namespace Gadgetron{
 		GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
 		GlobalVar::instance()->iNavPERes_			= NavPERes.value();
 		GlobalVar::instance()->iMeasurementTime_	= MeasurementTime.value();
-		GlobalVar::instance()->iNPhases_			= Phases.value();
+		iNPhases_									= Phases.value();
 #else
 		GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get();
 		GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get();
 		GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get();
-		GlobalVar::instance()->iNPhases_			= *(get_int_value("Phases").get();
+		iNPhases_									= *(get_int_value("Phases").get();
 #endif
 
 		int iESPReSSoY = 0;
 		int iESPReSSoZ = 0;
 		iBodyRegion_ = 0;
-		GlobalVar::instance()->iVDMap_ = 0;
+		iVDMap_ = 0;
 		iSamplingType_ = 0;
-		GlobalVar::instance()->fCSAcc_ = 0;
+		fCSAcc_ = 0;
 		fFullySa_ = 0;
 		try {
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
@@ -117,7 +117,7 @@ namespace Gadgetron{
 					} else if (i->name == "SamplingType") {
 						iSamplingType_ = i->value;
 					} else if (i->name == "VDMap") {
-						GlobalVar::instance()->iVDMap_ = i->value;
+						iVDMap_ = i->value;
 					} else if (i->name == "BodyRegion") {
 						iBodyRegion_ = i->value;
 					} else if (i->name == "OuterIterations") {
@@ -145,7 +145,7 @@ namespace Gadgetron{
 					} else if (i->name == "MeasurementTime") {
 						GlobalVar::instance()->iMeasurementTime_ = i->value;
 					} else if (i->name == "Phases") {
-						GlobalVar::instance()->iNPhases_ = i->value;
+						iNPhases_ = i->value;
 					} else if (i->name == "PopulationMode") {
 						GlobalVar::instance()->iPopulationMode_ = i->value;
 					} else if (i->name == "GatingMode") {
@@ -155,7 +155,7 @@ namespace Gadgetron{
 
 				for (std::vector<ISMRMRD::UserParameterDouble>::iterator i (traj_desc.userParameterDouble.begin()); i != traj_desc.userParameterDouble.end(); ++i) {
 					if (i->name == "CS_Accel") {
-						GlobalVar::instance()->fCSAcc_ = i->value;
+						fCSAcc_ = i->value;
 					} else if (i->name == "FullySampled") {
 						GlobalVar::instance()->fFullySampled_ = i->value;
 					} else if (i->name == "lambdaESPReSSo") {
@@ -178,7 +178,7 @@ namespace Gadgetron{
 					} else if (std::strcmp(i->name().c_str(),"SamplingType") == 0) {
 						iSamplingType_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"VDMap") == 0) {
-						GlobalVar::instance()->iVDMap_ = i->value();
+						iVDMap_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"BodyRegion") == 0) {
 						iBodyRegion_ = i->value();
 					} else if (std::strcmp(i->name().c_str(), "OuterIterations") == 0) {
@@ -206,7 +206,7 @@ namespace Gadgetron{
 					} else if (std::strcmp(i->name().c_str(),"MeasurementTime") == 0) {
 						GlobalVar::instance()->iMeasurementTime_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"Phases") == 0) {
-						GlobalVar::instance()->iNPhases_ = i->value();
+						iNPhases_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"PopulationMode") == 0) {
 						GlobalVar::instance()->iPopulationMode_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"GatingMode") == 0) {
@@ -216,7 +216,7 @@ namespace Gadgetron{
 
 				for (ISMRMRD::trajectoryDescriptionType::userParameterDouble_sequence::iterator i (traj_desc.userParameterDouble().begin ()); i != traj_desc.userParameterDouble().end(); ++i) {
 					if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
-						GlobalVar::instance()->fCSAcc_ = i->value();
+						fCSAcc_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
 						GlobalVar::instance()->fFullySampled_ = i->value();
 					} else if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
@@ -252,7 +252,7 @@ namespace Gadgetron{
 					break;
 			}
 
-			switch (GlobalVar::instance()->iVDMap_) {
+			switch (iVDMap_) {
 				case 1:
 					GADGET_DEBUG1("VDMap is none\n");
 					break;
@@ -282,60 +282,60 @@ namespace Gadgetron{
 					break;
 			}
 
-			GlobalVar::instance()->iESPReSSoDirection_ = 10;
-			GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+			iESPReSSoDirection_ = 10;
+			fPartialFourierVal_ = 1.0;
 
 			if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
 				GADGET_DEBUG1("Partial Fourier data..\n");
 				GADGET_DEBUG2("ESPReSSo Y: %f, ESPReSSo Z: %f\n", iESPReSSoY, iESPReSSoZ);
 				// get Partial Fourier dimension
 				if (iESPReSSoY > 9) {
-					GlobalVar::instance()->iESPReSSoDirection_ = 1;
+					iESPReSSoDirection_ = 1;
 					// get Partial Fourier value
 					switch (iESPReSSoY) {
 						case 10:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.5;
+							fPartialFourierVal_ = 0.5;
 							break;
 						case 11:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.625;
+							fPartialFourierVal_ = 0.625;
 							break;
 						case 12:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.75;
+							fPartialFourierVal_ = 0.75;
 							break;
 						case 13:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.875;
+							fPartialFourierVal_ = 0.875;
 							break;
 						default:
-							GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+							fPartialFourierVal_ = 1.0;
 							break;
 					}
 				}
 
 				else if (iESPReSSoZ > 9) {
-					GlobalVar::instance()->iESPReSSoDirection_ = 2;
+					iESPReSSoDirection_ = 2;
 					// get Partial Fourier value
 					switch (iESPReSSoZ) {
 						case 10:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.5;
+							fPartialFourierVal_ = 0.5;
 							break;
 						case 11:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.625;
+							fPartialFourierVal_ = 0.625;
 							break;
 						case 12:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.75;
+							fPartialFourierVal_ = 0.75;
 							break;
 						case 13:
-							GlobalVar::instance()->fPartialFourierVal_ = 0.875;
+							fPartialFourierVal_ = 0.875;
 							break;
 						default:
-							GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+							fPartialFourierVal_ = 1.0;
 							break;
 					}
 				}
 			}
 
-			GADGET_DEBUG2("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
-			GADGET_DEBUG2("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
+			GADGET_DEBUG2("Partial Fourier is %f \n", fPartialFourierVal_);
+			GADGET_DEBUG2("ESPReSSo Direction is %i \n", iESPReSSoDirection_);
 		} catch(...) {
 			GADGET_DEBUG1("Error occured - cannot find CS entries in trajectory description..\n");
 		}
@@ -517,7 +517,7 @@ namespace Gadgetron{
 			tmp_m1->getObjectPtr()->flags = 0;
 
 			//tmp_m1->getObjectPtr()->user_int[0] = 7;
-			tmp_m1->getObjectPtr()->user_int[0]			= GlobalVar::instance()->iNPhases_;
+			tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
 			tmp_m1->getObjectPtr()->user_int[1]			= m1->getObjectPtr()->user_int[1];
 			tmp_m1->getObjectPtr()->user_int[2]			= m1->getObjectPtr()->user_int[2];
 			tmp_m1->getObjectPtr()->user_int[3]			= m1->getObjectPtr()->user_int[3];
@@ -544,16 +544,16 @@ namespace Gadgetron{
 
 			// set user values, if Compressed Sensing is active
 			//if(this->get_bool_value("CS_on") == true){
-			tmp_m1->getObjectPtr()->user_float[0] = GlobalVar::instance()->fCSAcc_;
+			tmp_m1->getObjectPtr()->user_float[0] = fCSAcc_;
 			tmp_m1->getObjectPtr()->user_float[1] = fFullySa_/100;
-			tmp_m1->getObjectPtr()->user_float[2] = GlobalVar::instance()->fPartialFourierVal_;
+			tmp_m1->getObjectPtr()->user_float[2] = fPartialFourierVal_;
 			tmp_m1->getObjectPtr()->user_float[3] = fLQ_;
 			tmp_m1->getObjectPtr()->user_float[4] = fLESPReSSo_;
 
 			tmp_m1->getObjectPtr()->user_int[1] = iBodyRegion_;
 			tmp_m1->getObjectPtr()->user_int[2] = iSamplingType_;
-			tmp_m1->getObjectPtr()->user_int[3] = GlobalVar::instance()->iVDMap_;
-			tmp_m1->getObjectPtr()->user_int[4] = GlobalVar::instance()->iESPReSSoDirection_;
+			tmp_m1->getObjectPtr()->user_int[3] = iVDMap_;
+			tmp_m1->getObjectPtr()->user_int[4] = iESPReSSoDirection_;
 			//}
 
 			tmp_m1->getObjectPtr()->user_int[5] = iNoNav_;

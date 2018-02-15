@@ -78,14 +78,21 @@ namespace Gadgetron {
 		// CS_Retro variables
 		int iBaseRes_;
 
+		// number of phases
+		int iNPhases_;
+
 		// tolerance/blending factor
 		float fTolerance_;
 
 		// Compressed Sensing variables
+		int iESPReSSoDirection_;
+		float fPartialFourierVal_;
 		float fLESPReSSo_;
 		float fLQ_;
 		int iBodyRegion_;
+		int iVDMap_;
 		int iSamplingType_;
+		float fCSAcc_;
 		float fFullySa_;
 
 #if __GADGETRON_VERSION_HIGHER_3_6__ == 1
