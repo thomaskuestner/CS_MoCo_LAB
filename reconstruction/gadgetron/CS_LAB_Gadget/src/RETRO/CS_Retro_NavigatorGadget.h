@@ -30,8 +30,8 @@ namespace Gadgetron {
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
 		GADGET_DECLARE(CS_Retro_NavigatorGadget);
 
-		bool getNav2D(hoNDArray<std::complex<float>> &aNav);
-		bool getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
+		void getNav2D(hoNDArray<std::complex<float>> &aNav);
+		void getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
 
 		// navigator signal interpolated to TRs
 		std::vector<float> vNavInt_;

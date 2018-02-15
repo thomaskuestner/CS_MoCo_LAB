@@ -72,7 +72,7 @@ namespace Gadgetron {
 	}
 
 	// get interpolated navigator signal
-	bool CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav) {
+	void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float>> &aNav) {
 		if (bMatlab_) {
 			//mexPrintf("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");mexEvalString("drawnow;");
 		} else {
@@ -215,7 +215,7 @@ namespace Gadgetron {
 				GADGET_DEBUG1("Error: iMaxIndex out of bounds..\n");
 			}
 
-			return GADGET_FAIL;
+			return;
 		}
 
 		//-------------------------------------------------------------------------
@@ -745,11 +745,11 @@ namespace Gadgetron {
 		std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
 		vNavInt_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
 
-		return GADGET_OK;
+		return;
 	}
 
 	// get interpolated navigator signal by Principal Component Analysis
-	bool CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aNav) {
+	void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float>> &aNav) {
 		if (bMatlab_) {
 			//mexPrintf("\n\n**************************************\n********** get navigator 2D **********\n**************************************\n\n");mexEvalString("drawnow;");
 		} else {
@@ -1110,7 +1110,7 @@ namespace Gadgetron {
 			dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
 		}
 
-		return GADGET_OK;
+		return;
 	}
 
 	GADGET_FACTORY_DECLARE(CS_Retro_NavigatorGadget)
