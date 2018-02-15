@@ -217,13 +217,6 @@ namespace Gadgetron
 
 		// Transformation object after all - put k-space or image on stream
 		Transform *Transform_fftAA_;
-
-		// debug output on/off
-		bool bDebug_;
-
-		// debug output - MATLAB (true) or Gadgetron (false)
-		bool bMatlab_;
-
 };
 
 // inherited class for a 2D acquisition

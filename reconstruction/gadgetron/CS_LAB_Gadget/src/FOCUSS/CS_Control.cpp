@@ -64,8 +64,6 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 
 	// disable standalone Gadget behaviour
 	pCS->bControl_	= true;
-	pCS->bDebug_	= true;
-	pCS->bMatlab_	= false;
 
 	// process data in class member function
 	pCS->process(m1, tmp_m2);

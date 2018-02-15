@@ -36,8 +36,6 @@ void CS_LAB::fExternalControl(){
 
 	// disable standalone Gadget behaviour
 	opCS_->bControl_		= false;
-	opCS_->bDebug_			= true;
-	opCS_->bMatlab_			= true;
 	
 	// instantiate transformation objects
 	opCS_->Transform_KernelTransform_	= new Transform();
@@ -256,8 +254,6 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 
 	// disable standalone Gadget behaviour
 	opCS_->bControl_	= true;
-	opCS_->bDebug_		= true;
-	opCS_->bMatlab_		= false;
 
 	// process data in class member function
 	opCS_->process(m1, tmp_m2);
