@@ -21,6 +21,11 @@ namespace Gadgetron {
 		iNoNav_		 = m1->getObjectPtr()->user_int[5];
 		lNoScans_	 = m3->getObjectPtr()->get_size(1);
 
+		field_of_view_.clear();
+		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[0]);
+		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[1]);
+		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[2]);
+
 		if (getNav2D(*m2->getObjectPtr())) {
 			if (bMatlab_) {
 				//mexPrintf("Error in getNav2D\n");mexEvalString("drawnow;");
