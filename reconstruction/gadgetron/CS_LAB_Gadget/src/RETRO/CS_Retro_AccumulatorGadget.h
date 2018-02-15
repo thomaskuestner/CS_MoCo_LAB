@@ -93,8 +93,6 @@ namespace Gadgetron {
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
 		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
 		GADGET_PROPERTY(Phases, int, "Phases", 0);
-		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
-		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
 #endif
 	};
 } // close namespace Gadgetron

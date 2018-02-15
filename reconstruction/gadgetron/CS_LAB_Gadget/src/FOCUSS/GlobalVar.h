@@ -76,7 +76,6 @@ namespace Gadgetron{
 		bool bESPRActiveCS_;		// using ESPReSSo constraint for non-ESPReSSo acquisitions
 
 		// Retro Vars
-		int iNoGates_;
 		int iGatingMode_;			// Gating mode (0: percentile, 1: kMeans)
 		int iMeasurementTime_;
 		int iNavPERes_;

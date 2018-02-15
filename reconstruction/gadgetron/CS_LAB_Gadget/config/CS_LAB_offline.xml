@@ -22,22 +22,26 @@
 		<name>Accumulator</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_AccumulatorGadget</classname>
+		<property><name>NavPeriod</name><value>200</value></property>
+		<property><name>NavPERes</name><value>1</value></property>
+		<property><name>MeasurementTime</name><value>312</value></property>
+		<property><name>Phases</name><value>4</value></property>
 	</gadget>
 
 <!-- Signal extraction - Choose either PCA or image based -->
 <!-- 	CS_Retro_NavigatorGadget -->
-	<gadget>
+	<!--<gadget>
 		<name>Navigator</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_NavigatorGadget</classname>
-	</gadget>
+	</gadget>-->
 
 <!-- 	CS_Retro_PCANavigatorGadget -->
-	<!--<gadget>
+	<gadget>
 		<name>PCANavigator</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_PCANavigatorGadget</classname>
-	</gadget>-->
+	</gadget>
 
 <!-- k-space gating - Choose either centric or gaussian weighted -->
 <!-- 	CS_Retro_PopulationGadget -->
@@ -45,6 +49,19 @@
 		<name>Gating</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_PopulationGadget</classname>
+
+		<property>
+			<name>Gates</name>
+			<value>4</value>
+		</property>
+		<property>
+			<name>PopulationMode</name>
+			<value>0</value>
+		</property>
+		<property>
+			<name>GatingMode</name>
+			<value>0</value>
+		</property>
 	</gadget>
 
 <!-- CS reconstruction - Choose either FOCUSS or BART -->

@@ -83,10 +83,20 @@ namespace Gadgetron {
 		// navigator signal
 		std::vector<float> vNavInt_;
 
+		// number of gates
+		int iNoGates_;
+
 		// centroids of gates
 		std::vector<float> vfCentroids_;
 
 		bool bMatlab_;
+
+#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		// declare gadget properties
+		GADGET_PROPERTY(Gates, int, "Gates", 4);
+		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
+		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
+#endif
 	};
 } // close namespace Gadgetron
 #endif //CS_RETRO_POPULATIONGADGET_H
