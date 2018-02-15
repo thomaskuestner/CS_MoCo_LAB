@@ -83,13 +83,12 @@ namespace Gadgetron{
 		// create
 		try{
 			tmp_m2->getObjectPtr()->create(hacfKSpace_reordered_.get_dimensions());
+			memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), hacfKSpace_reordered_.get_data_ptr(), sizeof(std::complex<float>)*hacfKSpace_reordered_.get_number_of_elements());
 		} catch (std::runtime_error &err) {
 			GADGET_DEBUG_EXCEPTION(err, "CS_Retro: Unable to allocate new image array\n");
 			m1->release();
 			return -1;
 		}
-
-		memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), hacfKSpace_reordered_.get_data_ptr(), sizeof(std::complex<float>)*hacfKSpace_reordered_.get_number_of_elements());
 
 		// put on q
 		if (this->next()->putq(m1) < 0) {
