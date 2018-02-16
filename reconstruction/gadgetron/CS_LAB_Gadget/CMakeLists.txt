@@ -297,7 +297,7 @@ set(cs_lab_header_files CS_LAB.h
 	src/LAP_GADGET/LAPRegistrationGadget.h
 	src/LAP_GADGET/lap3d.h
 	src/LAP_GADGET/gaussianfilterbasis.h
-	src/LAP_GADGET/mynamespaces.h
+	src/LAP_GADGET/cs_lab_lap_namespaces.h
 	src/LAP_GADGET/shiftengine3d.h
 	src/GADGET_TOOLS/ImageAccumulatorGadget.h
 	src/GADGET_TOOLS/ImageSlicerGadget.h
@@ -328,7 +328,7 @@ set(cs_lab_src_files CS_LAB.cpp
 	src/LAP_GADGET/LAPRegistrationGadget.cpp
 	src/LAP_GADGET/lap3d.cpp
 	src/LAP_GADGET/gaussianfilterbasis.cpp
-	src/LAP_GADGET/mynamespaces.cpp
+	src/LAP_GADGET/cs_lab_lap_namespaces.cpp
 	src/LAP_GADGET/shiftengine3d.cpp
 	src/GADGET_TOOLS/ImageAccumulatorGadget.cpp
 	src/GADGET_TOOLS/ImageSlicerGadget.cpp

@@ -45,7 +45,7 @@ void Gadgetron::LAP3D::setMovingImage(const CubeType &I2_){
 field<CubeType> Gadgetron::LAP3D::exec(){
 
     //Prefilter I1
-    I1 = I1 - myfilter::conv(I1, hGaussian);
+    I1 = I1 - cs_lab_lap_filter::conv(I1, hGaussian);
 
 
 
@@ -59,12 +59,12 @@ field<CubeType> Gadgetron::LAP3D::exec(){
         wall_clock warping_time;
         warping_time.tic();
         if(l==0){
-            I2_shifted = I2-myfilter::conv(I2,hGaussian);
+            I2_shifted = I2-cs_lab_lap_filter::conv(I2,hGaussian);
         }else{
             //Create Shiftengine
             ShiftEngine3D shifter(I2, -u_holder(0), -u_holder(1), -u_holder(2));
             I2_shifted = shifter.execLinShift();
-            I2_shifted = I2_shifted - myfilter::conv(I2_shifted, hGaussian);
+            I2_shifted = I2_shifted - cs_lab_lap_filter::conv(I2_shifted, hGaussian);
         }
         cout << "Filter size= " << 2*K+1 << ", Warping time = " << warping_time.toc() << endl;
 
@@ -83,7 +83,7 @@ field<CubeType> Gadgetron::LAP3D::exec(){
 
         //Smoothing Filter for optical Flow
         for(int i = 0; i < 3; i++){
-            u_est(i) = myfilter::gaussian(u_est(i), R, k1);
+            u_est(i) = cs_lab_lap_filter::gaussian(u_est(i), R, k1);
         }
         cout << "Filter size= " << 2*K+1 << ", Post-Processing time = " << post_processing_time.toc() << endl;
 
@@ -128,22 +128,22 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D( CubeType &I1_,  CubeTyp
     for(int i = 0; i < N; i++){
         switch (i) {
         case 0:
-            A = myfilter::conv(I1_, mBasis.getG());
-            B = myfilter::conv(I2_, mBasis.getGi());
+            A = cs_lab_lap_filter::conv(I1_, mBasis.getG());
+            B = cs_lab_lap_filter::conv(I2_, mBasis.getGi());
 
 
             break;
         case 1:
-            A = myfilter::conv(I1_, mBasis.getGd(), mBasis.getG(), mBasis.getG());
-            B = myfilter::conv(I2_, mBasis.getGdi(), mBasis.getGi(), mBasis.getGi());
+            A = cs_lab_lap_filter::conv(I1_, mBasis.getGd(), mBasis.getG(), mBasis.getG());
+            B = cs_lab_lap_filter::conv(I2_, mBasis.getGdi(), mBasis.getGi(), mBasis.getGi());
             break;
         case 2:
-            A = myfilter::conv(I1_, mBasis.getG(), mBasis.getGd(), mBasis.getG());
-            B = myfilter::conv(I2_, mBasis.getGi(), mBasis.getGdi(), mBasis.getGi());
+            A = cs_lab_lap_filter::conv(I1_, mBasis.getG(), mBasis.getGd(), mBasis.getG());
+            B = cs_lab_lap_filter::conv(I2_, mBasis.getGi(), mBasis.getGdi(), mBasis.getGi());
             break;
         case 3:
-            A = myfilter::conv(I1_, mBasis.getG(), mBasis.getG(), mBasis.getGd());
-            B = myfilter::conv(I2_, mBasis.getGi(), mBasis.getGi(), mBasis.getGdi());
+            A = cs_lab_lap_filter::conv(I1_, mBasis.getG(), mBasis.getG(), mBasis.getGd());
+            B = cs_lab_lap_filter::conv(I2_, mBasis.getGi(), mBasis.getGi(), mBasis.getGdi());
             break;
         default:
             break;
@@ -210,9 +210,9 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D( CubeType &I1_,  CubeTyp
     u_hold.col(2) = 2*u3/u33;
     u_hold.rows(find(arma::sqrt(arma::sum(arma::pow(arma::abs(u_hold),2),1))>K_)).fill(datum::nan);
     field<CubeType> u_est(3);
-    u_est(0) = myarma::reshapeSimpleVecToCube(u_hold.col(0), m, n, p);
-    u_est(1) = myarma::reshapeSimpleVecToCube(u_hold.col(1), m, n, p);
-    u_est(2) = myarma::reshapeSimpleVecToCube(u_hold.col(2), m, n, p);
+    u_est(0) = cs_lab_lap_arma::reshapeSimpleVecToCube(u_hold.col(0), m, n, p);
+    u_est(1) = cs_lab_lap_arma::reshapeSimpleVecToCube(u_hold.col(1), m, n, p);
+    u_est(2) = cs_lab_lap_arma::reshapeSimpleVecToCube(u_hold.col(2), m, n, p);
 
     return u_est;
 }
@@ -242,7 +242,7 @@ ColType Gadgetron::LAP3D::average(const ColType &I_, int K_){
     II.reshape(m, n, p);
 
     ColType kernel(K_, fill::ones);
-    CubeType J_2 = myfilter::conv(II, kernel);
+    CubeType J_2 = cs_lab_lap_filter::conv(II, kernel);
     return vectorise(J_2);
 }
 

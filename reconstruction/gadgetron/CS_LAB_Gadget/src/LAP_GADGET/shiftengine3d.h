@@ -13,7 +13,7 @@ description	: 	Image shifting for LAP-based image registration
 #ifndef SHIFTENGINE3D_H
 #define SHIFTENGINE3D_H
 
-#include "mynamespaces.h"
+#include "cs_lab_lap_namespaces.h"
 
 using namespace arma;
 

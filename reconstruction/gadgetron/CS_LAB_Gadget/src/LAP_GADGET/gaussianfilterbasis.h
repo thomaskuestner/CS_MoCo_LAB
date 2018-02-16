@@ -12,7 +12,7 @@ description	: 	filter functions for LAP-based image registration
 
 #ifndef GAUSSIANFILTERBASIS_H
 #define GAUSSIANFILTERBASIS_H
-#include "mynamespaces.h"
+#include "cs_lab_lap_namespaces.h"
 
 using namespace arma;
 

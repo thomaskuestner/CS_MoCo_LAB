@@ -32,21 +32,21 @@ Gadgetron::ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_,
     x.set_size(a,b,c);
     for(int k = 0; k < x.n_slices; k++){
         for(int j = 0; j < x.n_cols; j++){
-            x.slice(k).col(j) = myarma::regspaceSimple(1, a);
+            x.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1, a);
         }
     }
     y.set_size(b,a,c);
     for(int k = 0; k < y.n_slices; k++){
         for(int j = 0; j < y.n_cols; j++){
-            y.slice(k).col(j) = myarma::regspaceSimple(1,b);
+            y.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1,b);
         }
-    } y = myarma::permuteSimple(y, 213);
+    } y = cs_lab_lap_arma::permuteSimple(y, 213);
     z.set_size(c,a,b);
     for(int k = 0; k < z.n_slices; k++){
         for(int j = 0; j < z.n_cols; j++){
-            z.slice(k).col(j) = myarma::regspaceSimple(1,c);
+            z.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1,c);
         }
-    } z = myarma::permuteSimple(z, 321);
+    } z = cs_lab_lap_arma::permuteSimple(z, 321);
 }
 
 CubeType Gadgetron::ShiftEngine3D::execCubicShift(){
@@ -109,25 +109,25 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift(){
     x.resize(a0,b0,c0);
     for(int k = 0; k < x.n_slices; k++){
         for(int j = 0; j < x.n_cols; j++){
-            x.slice(k).col(j) = myarma::regspaceSimple(k0,k1);
+            x.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(k0,k1);
         }
     }
 
     y.resize(b0,a0,c0);
     for(int k = 0; k < y.n_slices; k++){
         for(int j = 0; j < y.n_cols; j++){
-            y.slice(k).col(j) = myarma::regspaceSimple(l0,l1);
+            y.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(l0,l1);
         }
     }
-    y = myarma::permuteSimple(y, 213);
+    y = cs_lab_lap_arma::permuteSimple(y, 213);
 
     z.resize(c0,b0,a0);
     for(int k = 0; k < z.n_slices; k++){
         for(int j = 0; j < z.n_cols; j++){
-            z.slice(k).col(j) = myarma::regspaceSimple(m0,m1);
+            z.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(m0,m1);
         }
     }
-    z = myarma::permuteSimple(z, 321);
+    z = cs_lab_lap_arma::permuteSimple(z, 321);
 
     //Prefiltering image I0 so as to have shifted-linear interpolation
     float z0 = tau/(1-tau);
@@ -136,12 +136,12 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift(){
     I0 = 1/(1-tau)*filtering(ColType{1}, ColType({1, z0}), I0);
     //I0.subcube(span(0,3),span(0,3),span(0,3)).print("I0_after_filtering");
     //then 2nd
-    I0 = myarma::permuteSimple(I0, 213);
+    I0 = cs_lab_lap_arma::permuteSimple(I0, 213);
     I0 = 1/(1-tau)*filtering(ColType{1}, ColType({1, z0}), I0);
     //finally 3rd
-    I0 = myarma::permuteSimple(I0, 321);
+    I0 = cs_lab_lap_arma::permuteSimple(I0, 321);
     I0 = 1/(1-tau)*filtering(ColType{1}, ColType({1, z0}), I0);
-    I0 = myarma::permuteSimple(I0, 231);
+    I0 = cs_lab_lap_arma::permuteSimple(I0, 231);
 
     //Andriy Myronenko's interpolation code:
     y1 = y1 - (min(vectorise(y))-1);
@@ -210,29 +210,29 @@ CubeType Gadgetron::ShiftEngine3D::ext(CubeType i_, ColType extsize_){
     //Extend in x
     CubeType J;
     if(extsize_(0)>extsize_(1)){
-        J = myarma::padarraySymmetricSimple(i_, extsize_(0), 0, 0);
+        J = cs_lab_lap_arma::padarraySymmetricSimple(i_, extsize_(0), 0, 0);
 
         J = J.tube(span(0, newa-1), span::all);
     }else{
-        J = myarma::padarraySymmetricSimple(i_, extsize_(1), 0, 0);
+        J = cs_lab_lap_arma::padarraySymmetricSimple(i_, extsize_(1), 0, 0);
         J = J.tube(span(J.n_rows-newa, J.n_rows-1), span::all);
     }
 
     //Extend in y:
     if (extsize_(2)>extsize_(3)){
-        J = myarma::padarraySymmetricSimple(J, 0, extsize_(2), 0);
+        J = cs_lab_lap_arma::padarraySymmetricSimple(J, 0, extsize_(2), 0);
         J = J.tube(span::all, span(0, newb-1));
     }else{
-        J = myarma::padarraySymmetricSimple(J, 0, extsize_(3), 0);
+        J = cs_lab_lap_arma::padarraySymmetricSimple(J, 0, extsize_(3), 0);
         J = J.tube(span::all, span(J.n_cols-newb, J.n_cols-1));
     }
 
     //Extend in z:
     if(extsize_(4) > extsize_(5)){
-        J = myarma::padarraySymmetricSimple(J, 0, 0, extsize_(4));
+        J = cs_lab_lap_arma::padarraySymmetricSimple(J, 0, 0, extsize_(4));
         J = J.slices(0,newc-1);
     }else{
-        J = myarma::padarraySymmetricSimple(J, 0, 0, extsize_(5));
+        J = cs_lab_lap_arma::padarraySymmetricSimple(J, 0, 0, extsize_(5));
         J = J.slices(J.n_slices-newc, J.n_slices-1);
     }
     return J;
@@ -267,7 +267,7 @@ CubeType Gadgetron::ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType 
     int K1 = x.n_cols;
     int K2 = x.n_slices;
 
-    ColType z0 = myarma::roots(ColType({b, a, b}));
+    ColType z0 = cs_lab_lap_arma::roots(ColType({b, a, b}));
     if(abs(z0(0))<1){
         z0 = z0(0);
     }else{
@@ -290,7 +290,7 @@ CubeType Gadgetron::ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType 
     ColType zeros(2*N, fill::zeros);
     ColType onezeros = join_vert(one, zeros);
     ColType z0n = iir_filt.filter(onezeros);
-    //ColType z0n = myfilter::iir(onezeros, numerator, denumerator);
+    //ColType z0n = cs_lab_lap_filter::iir(onezeros, numerator, denumerator);
     CubeType t(2*N+1, K1, K2);
     for(int k = 0; k < x.n_slices; k++){
         MatType temp = join_vert(x.slice(k), flipud(x.slice(k)));
@@ -470,13 +470,13 @@ CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType 
     CubeType J = symfilter((float)13/(float)21,(float)4/(float)21,image);
 
     //then 2nd
-    J = myarma::permuteSimple(J, 213);
+    J = cs_lab_lap_arma::permuteSimple(J, 213);
     J = symfilter((float)13/(float)21,(float)4/(float)21,J);
 
     //finnaly 3rd
-    J = myarma::permuteSimple(J, 321);
+    J = cs_lab_lap_arma::permuteSimple(J, 321);
     J = symfilter((float)13/(float)21,(float)4/(float)21,J);
-    J = myarma::permuteSimple(J, 231);
+    J = cs_lab_lap_arma::permuteSimple(J, 231);
 
     // Convert entries to float to suppress narrowing conversion warning
     extsize = {
@@ -497,14 +497,14 @@ CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType 
     //%*  The majority of the computation time is here *
 
     CubeType JJ(x.n_rows, x.n_cols, x.n_slices, fill::zeros);
-    ColType h = myarma::regspaceSimple(0, L2-L1-1);
+    ColType h = cs_lab_lap_arma::regspaceSimple(0, L2-L1-1);
     CubeType DK(h.n_elem, h.n_elem, h.n_elem, fill::zeros);
     for(int k = 0; k < DK.n_slices; k++){
         DK.slice(k) = repmat(h, 1, DK.n_cols);
     }
 
-    CubeType DL = myarma::permuteSimple(DK, 213);
-    CubeType DM = myarma::permuteSimple(DK, 321);
+    CubeType DL = cs_lab_lap_arma::permuteSimple(DK, 213);
+    CubeType DM = cs_lab_lap_arma::permuteSimple(DK, 321);
 
     for(int i = 0; i < DK.n_elem; i++){
         int dk = DK(i);

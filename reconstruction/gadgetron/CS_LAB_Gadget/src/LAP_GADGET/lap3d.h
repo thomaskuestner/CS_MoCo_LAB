@@ -13,7 +13,7 @@ description	: 	LAP-based image registration
 #ifndef LAP3D_H
 #define LAP3D_H
 #include <armadillo>
-#include "mynamespaces.h"
+#include "cs_lab_lap_namespaces.h"
 using namespace arma;
 
 namespace Gadgetron

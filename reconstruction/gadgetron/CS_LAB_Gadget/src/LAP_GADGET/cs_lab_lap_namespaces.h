@@ -10,7 +10,7 @@ typedef arma::Col<Cx_PixelType> CxColType;
 typedef arma::Row<PixelType> RowType;
 typedef arma::uword SizeType;
 using namespace arma;
-namespace myarma {
+namespace cs_lab_lap_arma {
 ColType roots(ColType c);
 CubeType permuteSimple(CubeType &in, int order);
 //cube repmatSimple(mat &m, int r, int c, int s);
@@ -21,7 +21,7 @@ ColType padarrayConstantPost(const ColType &in_, int rows, float padval);
 ColType padarraySymmetricSimple(const ColType &in_, int rows);
 CubeType padarraySymmetricSimple(const CubeType &in_, int rows, int cols, int slices);
 }
-namespace myfilterITK {
+namespace cs_lab_lap_filterITK {
 bool x(CubeType &m, ColType kernel);
 bool y(CubeType &m, ColType kernel);
 bool z(CubeType &m, ColType kernel);
@@ -30,7 +30,7 @@ CubeType filter(CubeType &m, ColType kernelX, ColType kernelY, ColType kernelZ);
 CubeType filterGaussian(CubeType &m, float sigma, ColType kernel);
 CubeType filterGaussian(CubeType &m, float sigma, ColType kernelX, ColType kernelY, ColType kernelZ);
 }
-namespace myfilter {
+namespace cs_lab_lap_filter {
 bool xConv(CubeType &m, ColType kernel);
 bool yConv(CubeType &m, ColType kernel);
 bool zConv(CubeType &m, ColType kernel);
@@ -45,7 +45,7 @@ CubeType gaussian(const CubeType &m, float sigma, ColType kernelX, ColType kerne
 //bool zIir(CubeType &m, ColType numerator, ColType denumerator);
 //CubeType iir(const CubeType &m, ColType numerator, ColType denumerator);
 }
-namespace myfunctions {
+namespace cs_lab_lap_functions {
 ColType g(ColType &v, float K);
 MatType g(MatType &v, float K);
 CubeType g(CubeType &c, float K);

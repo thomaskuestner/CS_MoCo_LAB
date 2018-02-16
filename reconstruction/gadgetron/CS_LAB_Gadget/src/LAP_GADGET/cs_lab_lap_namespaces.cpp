@@ -1,12 +1,12 @@
-#include "mynamespaces.h"
+#include "cs_lab_lap_namespaces.h"
 //#include "sigpack/sigpack.h"
 
-ColType myarma::regspaceSimple(int start, int end){
+ColType cs_lab_lap_arma::regspaceSimple(int start, int end){
     return linspace<ColType>(start, end, fabs(start-end)+1);
 }
 
 //Own roots method (copied from matlab)
-ColType myarma::roots(ColType c){
+ColType cs_lab_lap_arma::roots(ColType c){
 
     //c = c.t();
     int n = c.n_elem;
@@ -48,7 +48,7 @@ ColType myarma::roots(ColType c){
 }
 
 //Permute the Matrix dimension, very slow
-CubeType myarma::permuteSimple(CubeType &m, int order){
+CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order){
     CubeType temp;
     switch (order) {
     case 123:{
@@ -116,21 +116,21 @@ CubeType myarma::permuteSimple(CubeType &m, int order){
     return temp;
 }
 
-CubeType myarma::reshapeSimpleVecToCube(ColType v, int r, int c, int s){
+CubeType cs_lab_lap_arma::reshapeSimpleVecToCube(ColType v, int r, int c, int s){
     CubeType ret(v.n_elem, 1, 1);
     ret.slice(0).col(0) = v;
     ret.reshape(r, c, s);
     return ret;
 }
 
-ColType myarma::padarraySymmetricSimple(const ColType &in_, int rows){
+ColType cs_lab_lap_arma::padarraySymmetricSimple(const ColType &in_, int rows){
     CubeType temp(in_.n_rows, 1, 1);
     temp.slice(0).col(0) = in_;
     temp = padarraySymmetricSimple(temp, rows, 0, 0);
     return temp.slice(0).col(0);
 }
 
-ColType myarma::padarrayConstantPost(const ColType &in_, int elems, float padval){
+ColType cs_lab_lap_arma::padarrayConstantPost(const ColType &in_, int elems, float padval){
     ColType ret(in_.n_elem+elems);
     ret(span(0, in_.n_elem-1)) = in_;
     ret(span(in_.n_elem, ret.n_elem-1)).fill(padval);
@@ -138,7 +138,7 @@ ColType myarma::padarrayConstantPost(const ColType &in_, int elems, float padval
 }
 
 //Symmetric Array Padding
-CubeType myarma::padarraySymmetricSimple(const CubeType &in_, int rows, int cols, int slices){
+CubeType cs_lab_lap_arma::padarraySymmetricSimple(const CubeType &in_, int rows, int cols, int slices){
     int oldrows = in_.n_rows;
     int oldcols = in_.n_cols;
     int oldslices = in_.n_slices;
@@ -174,10 +174,10 @@ CubeType myarma::padarraySymmetricSimple(const CubeType &in_, int rows, int cols
 }
 
 //Slow filter. 1D Kernel x Dimension (col)
-bool myfilter::xConv(CubeType &m, ColType kernel){
+bool cs_lab_lap_filter::xConv(CubeType &m, ColType kernel){
     int orig_rows = m.n_rows;
     int u = floor(kernel.n_elem/2);
-    CubeType m_ = myarma::padarraySymmetricSimple(m, u, 0, 0);
+    CubeType m_ = cs_lab_lap_arma::padarraySymmetricSimple(m, u, 0, 0);
 
 //    m_.each_slice([kernel](MatType &slice){slice.each_col([kernel](ColType &c){c = conv(c, kernel, "same");});});
 
@@ -196,10 +196,10 @@ bool myfilter::xConv(CubeType &m, ColType kernel){
 }
 
 //Slow filter. 1D Kernel y Dimension (row)
-bool myfilter::yConv(CubeType &m, ColType kernel){
+bool cs_lab_lap_filter::yConv(CubeType &m, ColType kernel){
     int orig_cols = m.n_cols;
     int u = floor(kernel.n_elem/2);
-    CubeType m_ = myarma::padarraySymmetricSimple(m, 0, u, 0);
+    CubeType m_ = cs_lab_lap_arma::padarraySymmetricSimple(m, 0, u, 0);
 
 //   m_.each_slice([kernel](MatType &slice){slice.each_row([kernel](RowType &c){c = conv(c, kernel, "same");});});
 
@@ -218,11 +218,11 @@ bool myfilter::yConv(CubeType &m, ColType kernel){
 }
 
 //Slow filter. 1D Kernel z Dimension (tube)
-bool myfilter::zConv(CubeType &m, ColType kernel){
+bool cs_lab_lap_filter::zConv(CubeType &m, ColType kernel){
     int orig_slices = m.n_slices;
 
     int u = floor(kernel.n_elem/2);
-    CubeType m_ = myarma::padarraySymmetricSimple(m, 0, 0, u);
+    CubeType m_ = cs_lab_lap_arma::padarraySymmetricSimple(m, 0, 0, u);
     #pragma omp parallel for
     for(unsigned int i = 0; i < m_.n_rows; i++){
         for(unsigned int j = 0; j < m_.n_cols; j++){
@@ -237,45 +237,45 @@ bool myfilter::zConv(CubeType &m, ColType kernel){
 }
 
 //Slow filter combines all 3 Dims
-CubeType myfilter::conv(const CubeType &m, ColType kernel){
-    return myfilter::conv(m, kernel, kernel, kernel);
+CubeType cs_lab_lap_filter::conv(const CubeType &m, ColType kernel){
+    return cs_lab_lap_filter::conv(m, kernel, kernel, kernel);
 }
 
 //Slow filter combines all 3 Dims
-CubeType myfilter::conv(const CubeType &m, ColType kernelX, ColType kernelY, ColType kernelZ){
+CubeType cs_lab_lap_filter::conv(const CubeType &m, ColType kernelX, ColType kernelY, ColType kernelZ){
     CubeType ret = m;
-    myfilter::xConv(ret, kernelX);
-    myfilter::yConv(ret, kernelY);
-    myfilter::zConv(ret, kernelZ);
+    cs_lab_lap_filter::xConv(ret, kernelX);
+    cs_lab_lap_filter::yConv(ret, kernelY);
+    cs_lab_lap_filter::zConv(ret, kernelZ);
     return ret;
 }
 
 //Slow filter all Dimension with linear Gaussian Kernel
-CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernel){
+CubeType cs_lab_lap_filter::gaussian(const CubeType &m, float sigma, ColType kernel){
     ColType F = exp(-kernel % kernel / 2/ pow(sigma,2));
     F = F / accu(F);
-    CubeType ret = myfilter::conv(m, F);
+    CubeType ret = cs_lab_lap_filter::conv(m, F);
     return ret;
 }
 
 
-CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernelX, ColType kernelY, ColType kernelZ){
+CubeType cs_lab_lap_filter::gaussian(const CubeType &m, float sigma, ColType kernelX, ColType kernelY, ColType kernelZ){
     ColType Fx = exp(-kernelX % kernelX / 2/ pow(sigma,2));
     Fx = Fx / accu(Fx);
     ColType Fy = exp(-kernelY % kernelY / 2/ pow(sigma,2));
     Fy = Fy / accu(Fy);
     ColType Fz = exp(-kernelZ % kernelZ / 2/ pow(sigma,2));
     Fz = Fz / accu(Fz);
-    return myfilter::conv(m, Fx, Fy, Fz);
+    return cs_lab_lap_filter::conv(m, Fx, Fy, Fz);
 }
 
-//ColType myfilter::iir(const ColType &c, ColType numerator, ColType denumerator){
+//ColType cs_lab_lap_filter::iir(const ColType &c, ColType numerator, ColType denumerator){
 //    sp::IIR_filt<PixelType, PixelType, PixelType> iir_filt;
 //    iir_filt.set_coeffs(numerator, denumerator);
 //    return iir_filt.filter(c);
 //}
 
-//bool myfilter::xIir(CubeType &m, ColType numerator, ColType denumerator){
+//bool cs_lab_lap_filter::xIir(CubeType &m, ColType numerator, ColType denumerator){
 
 
 //    for(arma::uword k = 0; k < m.n_slices; k++){
@@ -289,7 +289,7 @@ CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernelX, Col
 //    }
 //}
 
-//bool myfilter::yIir(CubeType &m, ColType numerator, ColType denumerator){
+//bool cs_lab_lap_filter::yIir(CubeType &m, ColType numerator, ColType denumerator){
 
 
 //    for(arma::uword k = 0; k < m.n_slices; k++){
@@ -305,7 +305,7 @@ CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernelX, Col
 //    }
 //}
 
-//bool myfilter::zIir(CubeType &m, ColType numerator, ColType denumerator){
+//bool cs_lab_lap_filter::zIir(CubeType &m, ColType numerator, ColType denumerator){
 
 
 //    for(arma::uword i = 0; i < m.n_rows; i++){
@@ -322,11 +322,11 @@ CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernelX, Col
 
 //}
 
-//CubeType myfilter::iir(const CubeType &m, ColType numerator, ColType denumerator){
+//CubeType cs_lab_lap_filter::iir(const CubeType &m, ColType numerator, ColType denumerator){
 //    CubeType ret = m;
-//    myfilter::xIir(ret, numerator, denumerator);
-//    myfilter::yIir(ret, numerator, denumerator);
-//    myfilter::zIir(ret, numerator, denumerator);
+//    cs_lab_lap_filter::xIir(ret, numerator, denumerator);
+//    cs_lab_lap_filter::yIir(ret, numerator, denumerator);
+//    cs_lab_lap_filter::zIir(ret, numerator, denumerator);
 //    return ret;
 //}
 
@@ -334,19 +334,19 @@ CubeType myfilter::gaussian(const CubeType &m, float sigma, ColType kernelX, Col
 
 
 //g Functions for Filter Basis
-ColType myfunctions::g(ColType &v, float K){
+ColType cs_lab_lap_functions::g(ColType &v, float K){
     float s = (K+2)/4;
     ColType e = -v % v / 2 / pow(s, 2);
     return arma::exp(e);
 }
 
-MatType myfunctions::g(MatType &m, float K){
+MatType cs_lab_lap_functions::g(MatType &m, float K){
     float s = (K+2)/4;
     MatType e = -m % m / 2 / pow(s, 2);
     return arma::exp(e);
 }
 
-CubeType myfunctions::g(CubeType &c, float K){
+CubeType cs_lab_lap_functions::g(CubeType &c, float K){
     float s = (K+2)/4;
     CubeType e = -c % c / 2 / pow(s, 2);
     return arma::exp(e);
