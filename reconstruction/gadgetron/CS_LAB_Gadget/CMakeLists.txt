@@ -364,14 +364,14 @@ endif()
 set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
-	add_library(CS_LAB SHARED
+	add_library(CS_LAB ${LIBTYPE}
 		CS_LAB_export.h
 		${cs_lab_header_files}
 		${cs_lab_src_files}
 		${cs_lab_config_files}
 	)
 else()
-	add_library(CS_LAB SHARED
+	add_library(CS_LAB ${LIBTYPE}
 		CS_LAB_export.h
 		${cs_lab_header_files}
 		${cs_lab_src_files}
