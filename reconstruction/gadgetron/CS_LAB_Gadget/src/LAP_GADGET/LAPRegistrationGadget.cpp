@@ -20,13 +20,13 @@ LAPRegistrationGadget::~LAPRegistrationGadget(){};
 
 int LAPRegistrationGadget::process_config(ACE_Message_Block* mb){
 
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		iLvlMin_ = LvlMin.value();	
-		iLvlMax_ = LvlMax.value();
-	#else
-		iLvlMin_ = *(get_int_value("LvlMin").get());
-		iLvlMax_ = *(get_int_value("LvlMax").get());
-	#endif	
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	iLvlMin_ = LvlMin.value();
+	iLvlMax_ = LvlMax.value();
+#else
+	iLvlMin_ = *(get_int_value("LvlMin").get());
+	iLvlMax_ = *(get_int_value("LvlMax").get());
+#endif
 
 	return GADGET_OK;
 };

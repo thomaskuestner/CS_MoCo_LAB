@@ -7,7 +7,7 @@
 #include "hoNDArray.h"
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
 #else	
 	#include "ismrmrd/xml.h"

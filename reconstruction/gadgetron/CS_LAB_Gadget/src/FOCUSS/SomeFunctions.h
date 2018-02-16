@@ -28,7 +28,7 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "hoNDImage.h"
 #include "complext.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+#ifndef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "GadgetronCommon.h"
 	#include <fstream>
 	#include <ismrmrd_hdf5.h>

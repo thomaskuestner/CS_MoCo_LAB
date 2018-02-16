@@ -105,7 +105,7 @@ namespace Gadgetron
 		void fSetupTransformation();
 
 	// properties
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 			
 		// ESPReSSo active?
 		GADGET_PROPERTY(CSESPReSSo, int, "CSESPReSSo", 0);

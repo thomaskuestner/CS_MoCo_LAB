@@ -23,13 +23,13 @@ ElastixRegistrationGadget::~ElastixRegistrationGadget(){};
 
 int ElastixRegistrationGadget::process_config(ACE_Message_Block* mb){
 
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		sPathParam_ = PathParam.value();	
-		sPathLog_   = PathLog.value();
-	#else
-		sPathParam_ = *(get_string_value("PathParam").get());
-		sPathLog_   = *(get_string_value("PathLog").get());
-	#endif	
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	sPathParam_ = PathParam.value();
+	sPathLog_   = PathLog.value();
+#else
+	sPathParam_ = *(get_string_value("PathParam").get());
+	sPathLog_   = *(get_string_value("PathLog").get());
+#endif
 
 	return GADGET_OK;
 };

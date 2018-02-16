@@ -9,7 +9,7 @@ using namespace Gadgetron;
 //
 //	GINFO("process config..\n");
 //	//bXMLControl_ = true;
-//	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+//	#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 //		bXMLControl_ = bXMLControl.value();
 //	#else
 //		bXMLControl_ = this->get_int_value("bXMLControl");
@@ -17,7 +17,7 @@ using namespace Gadgetron;
 //
 //	if (bXMLControl_) {
 //		GDEBUG("XML Control enabled..\n");
-//		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+//		#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 //			iNOuter_ = OuterIterations.value();
 //			iNInner_ = InnerIterations.value();
 //			bESPRActiveCS_ = CSESPReSSo.value();

@@ -4,9 +4,7 @@ set(__GADGETRON_MINOR__ 8)
 set(__GADGETRON_PATCHLEVEL__ 2)
 
 IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=1)
-ELSE()
-  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__=0)
+  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__)
 ENDIF()
 
 cmake_minimum_required(VERSION 2.6)

@@ -80,7 +80,7 @@ int CS_MRIImageToAcquisitionGadget::fCorrectHeader(GadgetContainerMessage<ISMRMR
 	// -------------------------- set several flags ------------------------------------
 	// ---------------------------------------------------------------------------------
 	// first scan in partition encoding
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	if (iPartition == 0)
 		GC_acq_hdr_m1->getObjectPtr()->flags = GC_acq_hdr_m1->getObjectPtr()->flags | 1<<(ISMRMRD::ISMRMRD_ACQ_FIRST_IN_ENCODE_STEP2-1);
 

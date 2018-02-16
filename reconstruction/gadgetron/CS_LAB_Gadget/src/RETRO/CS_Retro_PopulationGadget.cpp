@@ -14,7 +14,7 @@ namespace Gadgetron{
 	// read flexible data header
 	int CS_Retro_PopulationGadget::process_config(ACE_Message_Block* mb) {
 		// set properties
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		iNoGates_									= Gates.value();
 		GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
 		GlobalVar::instance()->iGatingMode_			= GatingMode.value();

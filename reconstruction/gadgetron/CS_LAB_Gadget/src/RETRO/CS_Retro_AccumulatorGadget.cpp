@@ -30,7 +30,7 @@ namespace Gadgetron{
 
 	// read flexible data header
 	int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block* mb) {
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		ISMRMRD::IsmrmrdHeader h;
 		ISMRMRD::deserialize(mb->rd_ptr(),h);
 
@@ -84,7 +84,7 @@ namespace Gadgetron{
 #endif
 
 		// set properties
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
 		GlobalVar::instance()->iNavPERes_			= NavPERes.value();
 		GlobalVar::instance()->iMeasurementTime_	= MeasurementTime.value();
@@ -104,7 +104,7 @@ namespace Gadgetron{
 		fCSAcc_ = 0;
 		fFullySa_ = 0;
 		try {
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 			if (h.encoding[0].trajectoryDescription) {
 				GDEBUG("\n\nTrajectory description present!\n\n");
 				ISMRMRD::TrajectoryDescription traj_desc = *h.encoding[0].trajectoryDescription;
@@ -532,7 +532,7 @@ namespace Gadgetron{
 			memcpy(tmp_m1->getObjectPtr()->phase_dir,m1->getObjectPtr()->phase_dir,sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->slice_dir,m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 			memcpy(tmp_m1->getObjectPtr()->patient_table_position,m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 			tmp_m1->getObjectPtr()->data_type		= ISMRMRD::ISMRMRD_CXFLOAT;
 #else
 			tmp_m1->getObjectPtr()->image_data_type	= ISMRMRD::DATA_COMPLEX_FLOAT;

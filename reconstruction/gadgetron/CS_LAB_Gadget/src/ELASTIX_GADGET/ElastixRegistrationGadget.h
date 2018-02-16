@@ -59,10 +59,10 @@ namespace Gadgetron
 		std::string sPathParam_;
 		std::string sPathLog_;
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
-			GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
-		#endif
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
+		GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
+#endif
 	};
 }
 #endif //ELASTIXREGISTRATIONGADGET_H

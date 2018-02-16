@@ -37,7 +37,7 @@ CS_AccumulatorGadget::~CS_AccumulatorGadget(){
 // read flexible data header
 int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 {
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+	#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		ISMRMRD::IsmrmrdHeader h;
 		ISMRMRD::deserialize(mb->rd_ptr(),h);
 
@@ -91,7 +91,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block* mb)
 	GlobalVar::instance()->fCSAcc_ = 0;
 	fFullySa_ = 0;
 	try{
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	if (h.encoding[0].trajectoryDescription) {
 		GINFO("\n\nTrajectory description present!\n\n");
 		ISMRMRD::TrajectoryDescription traj_desc = *h.encoding[0].trajectoryDescription;
@@ -406,7 +406,7 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	}
 
 	// get dimension indicating flags
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	bool bLast_encoding_step1 = ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_LAST_IN_ENCODE_STEP1).isSet(m1->getObjectPtr()->flags);
 	bool bLast_in_measurement = ISMRMRD::FlagBit(ISMRMRD::ISMRMRD_ACQ_LAST_IN_MEASUREMENT).isSet(m1->getObjectPtr()->flags);
 #else
@@ -477,7 +477,7 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	GC_img_hdr_m1->getObjectPtr()->field_of_view[2]		= vFOV_[2];
 	GC_img_hdr_m1->getObjectPtr()->channels				= (uint16_t)GC_acq_hdr_m1->getObjectPtr()->active_channels;
 	GC_img_hdr_m1->getObjectPtr()->slice				= GC_acq_hdr_m1->getObjectPtr()->idx.slice;
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	GC_img_hdr_m1->getObjectPtr()->data_type		= ISMRMRD::ISMRMRD_CXFLOAT;
 #else
 	GC_img_hdr_m1->getObjectPtr()->image_data_type		= ISMRMRD::DATA_COMPLEX_FLOAT;

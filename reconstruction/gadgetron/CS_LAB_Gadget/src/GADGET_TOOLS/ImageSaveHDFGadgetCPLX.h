@@ -9,15 +9,16 @@
 #include <ismrmrd.h>
 #include <fstream>
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include <dataset.h>
 #else
 	#include <ismrmrd_hdf5.h>
 #endif
 
-#if __WIN32__
+#ifdef __WIN32__
 	#include <Shlwapi.h>
 #endif
+
 #include <CS_LAB_export.h>
 
 namespace Gadgetron
@@ -55,7 +56,7 @@ namespace Gadgetron
 					ACE_OS_String::strncpy(ace_file_path, file_path_.c_str(), 4096);
 					ACE_DEBUG((LM_INFO, ACE_TEXT("\n -- no directory in xml config file - assume default path - file path changed to: %s\n"), ace_file_path));
 				}
-#if __WIN32__
+#ifdef __WIN32__
 				if (!dirExists(file_path_)){
 					// create directory
 					if (!CreateDirectory((LPCSTR)file_path_.c_str(), NULL)){
@@ -136,7 +137,7 @@ namespace Gadgetron
 			std::string file_prefix_;
 			std::string file_path_;
 			std::string ismrmrd_file_name_;
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 			boost::shared_ptr<ISMRMRD::ISMRMRD_Dataset> ismrmrd_dataset_;
 #else
 			boost::shared_ptr<ISMRMRD::IsmrmrdDataset>  ismrmrd_dataset_;

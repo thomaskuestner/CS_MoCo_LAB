@@ -3,7 +3,7 @@
 #define NumElementsUseThreading 64*1024
 
 namespace Gadgetron{
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+#ifndef __GADGETRON_VERSION_HIGHER_3_6__
 	template<class T> void clear( hoNDArray<T>* x )
 	{
 	    if ( x->get_number_of_elements() > 0 )

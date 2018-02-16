@@ -19,7 +19,7 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
 #else
 	#include "ismrmrd/xml.h"
@@ -74,7 +74,7 @@ namespace Gadgetron {
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
 
 	public:
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
 		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);

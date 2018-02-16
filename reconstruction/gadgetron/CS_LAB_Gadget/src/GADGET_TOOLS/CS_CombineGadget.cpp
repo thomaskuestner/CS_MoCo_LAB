@@ -9,7 +9,7 @@ int CS_CombineGadget::process_config(ACE_Message_Block* mb)
 {
 	// get property values
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	ISMRMRD::IsmrmrdHeader h;
 	ISMRMRD::deserialize(mb->rd_ptr(),h);
 

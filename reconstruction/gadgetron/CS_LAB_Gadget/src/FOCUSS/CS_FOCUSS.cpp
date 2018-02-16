@@ -22,16 +22,16 @@ namespace Gadgetron{
 int CS_FOCUSS::process_config(ACE_Message_Block* mb){
 	GDEBUG("process config..\n");
 	//bXMLControl_ = true;
-	#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-		bXMLControl_ = bXMLControl.value();		
-	#else
-		bXMLControl_ = this->get_int_value("bXMLControl");		
-	#endif	
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	bXMLControl_ = bXMLControl.value();
+#else
+	bXMLControl_ = this->get_int_value("bXMLControl");
+#endif
 	
 	if (bXMLControl_) {
 
 		GDEBUG("XML Control enabled..\n");
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+		#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 			GlobalVar::instance()->iNOuter_ = OuterIterations.value();
 			GlobalVar::instance()->iNInner_ = InnerIterations.value();
 			GlobalVar::instance()->bESPRActiveCS_ = CSESPReSSo.value();

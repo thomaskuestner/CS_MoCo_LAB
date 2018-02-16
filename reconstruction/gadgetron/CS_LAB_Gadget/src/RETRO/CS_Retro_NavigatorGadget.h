@@ -60,7 +60,7 @@ namespace Gadgetron {
 		void getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
 
 	public:
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavigationMethod, int, "NavigationMethod", 0);
 #endif
 	};

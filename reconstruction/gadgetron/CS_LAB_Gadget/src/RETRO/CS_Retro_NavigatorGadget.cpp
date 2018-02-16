@@ -18,7 +18,7 @@ namespace Gadgetron {
 
 	int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2, GadgetContainerMessage< hoNDArray <std::complex<float> > >* m3) {
 		// get gadget property
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		iNavMethod_ = NavigationMethod.value();
 #else
 		iNavMethod_ = *(get_int_value("NavigationMethod").get();

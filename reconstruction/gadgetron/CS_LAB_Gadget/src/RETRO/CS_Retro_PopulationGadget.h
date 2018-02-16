@@ -32,7 +32,7 @@ description	: 	k-space population/gating
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
 #else
 	#include "ismrmrd/xml.h"
@@ -94,7 +94,7 @@ namespace Gadgetron {
 		bool fPopulatekSpace(int iNoGates);
 
 	public:
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		// declare gadget properties
 		GADGET_PROPERTY(Gates, int, "Gates", 4);
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);

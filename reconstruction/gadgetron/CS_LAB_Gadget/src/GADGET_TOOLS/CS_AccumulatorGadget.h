@@ -4,9 +4,10 @@
 #include "gadgetron_messages.h"
 
 #pragma once
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
-#include "ismrmrd.hxx"
+#ifndef __GADGETRON_VERSION_HIGHER_3_6__
+	#include "ismrmrd.hxx"
 #endif
+
 #include "Gadget.h"
 #include "hoNDArray.h"
 #include "CS_LAB_export.h"
@@ -16,7 +17,7 @@
 #include "GlobalVar.h"
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
 #else	
 	#include "ismrmrd/xml.h"

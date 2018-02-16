@@ -56,10 +56,10 @@ namespace Gadgetron
 		int iLvlMin_;
 		int iLvlMax_;
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(LvlMin, int, "LvlMin", 0);
-			GADGET_PROPERTY(LvlMax, int, "LvlMax", 4);
-		#endif
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(LvlMin, int, "LvlMin", 0);
+		GADGET_PROPERTY(LvlMax, int, "LvlMax", 4);
+#endif
 	};
 }
 #endif //LAPREGISTRATIONGADGET_H

@@ -124,7 +124,7 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,Gadge
 				cm1_sec_buffer_->getObjectPtr()->channels = 1;
 				cm1_sec_buffer_->getObjectPtr()->slice = tmp_m1->getObjectPtr()->idx.slice;
 				cm1_sec_buffer_->getObjectPtr()->repetition = tmp_m1->getObjectPtr()->idx.repetition;
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 				cm1_sec_buffer_->getObjectPtr()->data_type = ISMRMRD::ISMRMRD_FLOAT;
 				cm1_sec_buffer_->getObjectPtr()->image_type = ISMRMRD::ISMRMRD_IMTYPE_MAGNITUDE;
 #else
