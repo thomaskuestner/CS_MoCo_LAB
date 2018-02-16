@@ -1,14 +1,23 @@
 cmake_minimum_required(VERSION 2.6)
 project(CS_LAB)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-
+###############################################################
+# Choose some options
+###############################################################
+# build static library? (Off=dynamic library)
+option(BUILD_TOOLBOX_STATIC "Build static library for toolboxes" Off)
+# Use OpenMP?
+option(USE_OPENMP "Use OpenMP" On)
+# Supress compilation warnings?
+option(BUILD_SUPPRESS_WARNINGS "Build package while suppressing warnings" Off)
 #Set the build type to Release if not specified
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release CACHE STRING
 		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
 		FORCE)
 endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 # build options for 64 bits system
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -21,7 +30,6 @@ endif()
 
 # build options for OpenMP support
 find_package(OpenMP)
-option(USE_OPENMP "Use OpenMP" On)
 if (OPENMP_FOUND)
 	if (USE_OPENMP)
 		message("OpenMP multithreading enabled")
@@ -67,7 +75,6 @@ set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/CS_LAB)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # whether to suppress compilation warnings
-option(BUILD_SUPPRESS_WARNINGS "Build package while suppressing warnings" Off)
 if (BUILD_SUPPRESS_WARNINGS)
 	if (WIN32)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
@@ -77,8 +84,6 @@ if (BUILD_SUPPRESS_WARNINGS)
 endif()
 
 # whether to compile toolboxes as static library
-option(BUILD_TOOLBOX_STATIC "Build static library for toolboxes" Off)
-
 if (BUILD_TOOLBOX_STATIC)
 	message("Building static toolbox libray")
 	add_definitions(-DBUILD_TOOLBOX_STATIC)
@@ -193,7 +198,6 @@ if (NOT ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} 
 		find_package(XercesC)
 	endif()
 endif()
-
 
 ###############################################################
 # MATLAB
@@ -359,8 +363,6 @@ endif()
 
 set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
-
-
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	add_library(CS_LAB SHARED
 		CS_LAB_export.h
@@ -422,6 +424,7 @@ else ()
 		${ELASTIX_ALL_COMPONENT_LIBS}
 	)
 endif()
+
 #set_property(TARGET CS_LAB PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 install (FILES CS_LAB_export.h ${cs_lab_header_files} DESTINATION ${GADGETRON_HOME}/include)
 install(TARGETS CS_LAB DESTINATION ${GADGETRON_HOME}/lib)
