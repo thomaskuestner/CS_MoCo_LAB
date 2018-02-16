@@ -1,4 +1,10 @@
 #include "shiftengine3d.h"
+
+// define unix flag for gplot.h to work (bug workaround)
+#if defined (__unix__) || defined (__unix)
+	#define unix
+#endif
+
 #include "sigpack/sigpack.h"
 Gadgetron::ShiftEngine3D::ShiftEngine3D(){
 
