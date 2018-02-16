@@ -1,12 +1,3 @@
-# add gadgetron flags
-set(__GADGETRON__ 3)
-set(__GADGETRON_MINOR__ 8)
-set(__GADGETRON_PATCHLEVEL__ 2)
-
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-  add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__)
-ENDIF()
-
 cmake_minimum_required(VERSION 2.6)
 project(CS_LAB)
 
@@ -115,11 +106,6 @@ IF(WIN32)
   add_definitions( -DBOOST_ALL_DYN_LINK )
 ENDIF(WIN32)
 
-IF(WIN32)
-  add_definitions( -DBOOST_ALL_NO_LIB )
-  add_definitions( -DBOOST_ALL_DYN_LINK )
-ENDIF(WIN32)
-
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
 IF (WIN32)
   find_package(Boost COMPONENTS system thread date_time chrono program_options filesystem REQUIRED)
@@ -130,10 +116,7 @@ ENDIF(WIN32)
 ###############################################################
 # ACE
 ###############################################################
-find_package(ACE)
-IF(NOT ACE_FOUND)
-  message("ACE not found.")
-ENDIF(NOT ACE_FOUND)
+find_package(ACE REQUIRED)
 
 ###############################################################
 # CUDA
@@ -141,7 +124,6 @@ ENDIF(NOT ACE_FOUND)
 find_package(CUDA_advanced)
 IF (CUDA_FOUND)
   add_definitions(-DUSE_CUDA)
-  message("CUDA found, GPU components are compiled if CULA is also found")
   set( GADGETRON_CUDA_FOUND_BOOL 1 )
   include_directories( ${CUDA_INCLUDE_DIRS} )
   #set(CUDA_VERBOSE_BUILD ON)
@@ -183,38 +165,31 @@ ENDIF()
 # HDF
 ###############################################################
 find_package(HDF5 1.8 COMPONENTS C CXX HL)
-IF (HDF5_FOUND)
-message("HDF5 Found")
-ELSE()
-message("HDF5 not found")
-ENDIF()
 
 ###############################################################
 # FFTW
 ###############################################################
-find_package(FFTW3 COMPONENTS single double)
-IF (FFTW3_FOUND)
-message("FFTW3 Found")
-ELSE()
-message("FFTW3 not found")
-ENDIF()
+find_package(FFTW3 COMPONENTS single double REQUIRED)
 
 ###############################################################
 # ISMRMRD
 ###############################################################
-find_package(Ismrmrd)
-IF (ISMRMRD_FOUND)
-message("ISMRMRD Found")
-ELSE()
-message("ISMRMRD not found")
-ENDIF()
+find_package(Ismrmrd REQUIRED)
+
+###############################################################
+# GADGETRON
+###############################################################
+find_package(Gadgetron REQUIRED)
+if (Gadgetron_FOUND)
+	if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
+		add_definitions(-D__GADGETRON_VERSION_HIGHER_3_6__)
+	endif()
+endif()
 
 ###############################################################
 # XSD/XersesC
 ###############################################################
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-	
-ELSE()
+if (NOT ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5))))
 	IF (WIN32)
 		find_package(XSD)
 		find_package(XercesC)
@@ -230,7 +205,7 @@ IF (MATLAB_FOUND)
     add_definitions(-DUSE_MATLAB)
 ENDIF (MATLAB_FOUND)
 
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	IF (ACE_FOUND AND ISMRMRD_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
 	ELSE()
 	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, FFTW3, HDF5).")
@@ -247,17 +222,6 @@ add_subdirectory(cmake)
 IF (WIN32)
     add_definitions(-D__BUILD_CS_LAB__)
 ENDIF (WIN32)
-
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
-	find_package(Gadgetron REQUIRED)
-ELSE()
-	find_package(GadgetronOld REQUIRED)
-ENDIF()
-
-find_package(Ismrmrd REQUIRED)
-find_package(Boost REQUIRED)
-find_package(ACE REQUIRED)
-find_package(FFTW3 REQUIRED)
 
 find_package(ITK REQUIRED)
 INCLUDE( ${ITK_USE_FILE} )
@@ -280,7 +244,7 @@ if( EXISTS ${ELASTIX_USE_FILE} )
 	link_libraries( transformix )
 endif()
 
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	include_directories(
 		${CMAKE_SOURCE_DIR}/include
 		${CMAKE_SOURCE_DIR}/include/new
@@ -324,7 +288,7 @@ ELSE()
 	ENDIF()
 ENDIF()
 
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 
 	set(cs_lab_header_files CS_LAB.h
 		src/FOCUSS/CS_Control.h
@@ -457,7 +421,7 @@ ENDIF()
 
 set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
-IF((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	add_library(CS_LAB SHARED
 		CS_LAB_export.h
 		${cs_lab_header_files}
@@ -496,7 +460,7 @@ ELSE()
 	)
 ENDIF()
 
-IF ((${__GADGETRON__} GREATER 2) AND (${__GADGETRON_MINOR__} GREATER 5))
+if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	target_link_libraries(	CS_LAB
 							${ISMRMRD_LIBRARIES}
 							${FFTW3_LIBRARIES}
