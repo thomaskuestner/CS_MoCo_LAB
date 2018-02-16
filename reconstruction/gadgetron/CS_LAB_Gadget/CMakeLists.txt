@@ -4,93 +4,92 @@ project(CS_LAB)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 #Set the build type to Release if not specified
-IF(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release CACHE STRING
-      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-      FORCE)
-ENDIF(NOT CMAKE_BUILD_TYPE)
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release CACHE STRING
+		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+		FORCE)
+endif()
 
 # build options for 64 bits system
-IF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  message("64bit system is found")
-  set( HAS_64_BIT On CACHE BOOL "64bit build")
-ELSE( CMAKE_SIZEOF_VOID_P EQUAL 8 )
-  message("32bit system is found")
-  set( HAS_64_BIT Off CACHE BOOL "64bit build")
-ENDIF( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	message("64bit system is found")
+	set(HAS_64_BIT On CACHE BOOL "64bit build")
+else()
+	message("32bit system is found")
+	set(HAS_64_BIT Off CACHE BOOL "64bit build")
+endif()
 
 # build options for OpenMP support
 find_package(OpenMP)
 option(USE_OPENMP "Use OpenMP" On)
-IF (OPENMP_FOUND)
-    IF(USE_OPENMP)
-        message("OpenMP multithreading enabled")
-        set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-        add_definitions(-DUSE_OMP)
-    ELSE (USE_OPENMP)
-        message("OpenMP multithreading is supported, but disabled")
-    ENDIF(USE_OPENMP)
-ELSE (OPENMP_FOUND)
-  message("OpenMP multithreading not supported")
-ENDIF (OPENMP_FOUND)
+if (OPENMP_FOUND)
+	if (USE_OPENMP)
+		message("OpenMP multithreading enabled")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+		add_definitions(-DUSE_OMP)
+	else()
+		message("OpenMP multithreading is supported, but disabled")
+	endif()
+else()
+	message("OpenMP multithreading not supported")
+endif()
 
-IF (WIN32)
-    add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
-#    ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
-    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    add_definitions(-D_VARIADIC_MAX=10) #to fix compiler limitations in Visual Studio Express
-    IF ( HAS_64_BIT )
-        add_definitions(-DWIN64 -D_WIN64)
-    ENDIF ( HAS_64_BIT )
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
-    set (CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} /INCREMENTAL:NO")
-    set (CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} /INCREMENTAL:NO")
-    set (CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set (CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set (CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    set (CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
-    # The two flags below is to fix Windows problems in relation to multiple defined operators new/delete and some constructors that are defined in our headers
-    #SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
-    #SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
-ELSE (WIN32)
-    IF (UNIX)
-        IF (APPLE)
-        ELSE (APPLE)
-            set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-            set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libgfortran")
-        ENDIF (APPLE)
-    ENDIF (UNIX)
-ENDIF (WIN32)
+if (WIN32)
+	add_definitions(-DWIN32 -D_WIN32 -D_WINDOWS)
+# 	ADD_DEFINITIONS(-DUNICODE -D_UNICODE)
+	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(-D_VARIADIC_MAX=10) #to fix compiler limitations in Visual Studio Express
+	if (HAS_64_BIT)
+		add_definitions(-DWIN64 -D_WIN64)
+	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc /MP")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3")
+	set(CMAKE_CXX_LINK_FLAGS "${CMAKE_CXX_LINK_FLAGS} /INCREMENTAL:NO")
+	set(CMAKE_C_LINK_FLAGS "${CMAKE_C_LINK_FLAGS} /INCREMENTAL:NO")
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+	set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+	set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+	set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "/debug /INCREMENTAL:NO")
+	# The two flags below is to fix Windows problems in relation to multiple defined operators new/delete and some constructors that are defined in our headers
+# 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
+# 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
+else()
+	if (UNIX)
+		if (NOT APPLE)
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+			set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libgfortran")
+		endif()
+	endif()
+endif()
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/CS_LAB)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # whether to suppress compilation warnings
 option(BUILD_SUPPRESS_WARNINGS "Build package while suppressing warnings" Off)
-IF (BUILD_SUPPRESS_WARNINGS)
-    IF (WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
-    ELSEIF (WIN32)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
-    ENDIF (WIN32)
-ENDIF (BUILD_SUPPRESS_WARNINGS)
+if (BUILD_SUPPRESS_WARNINGS)
+	if (WIN32)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W0")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -w")
+	endif()
+endif()
 
 # whether to compile toolboxes as static library
 option(BUILD_TOOLBOX_STATIC "Build static library for toolboxes" Off)
 
-IF ( BUILD_TOOLBOX_STATIC )
-    message("Building static toolbox libray")
-    add_definitions(-DBUILD_TOOLBOX_STATIC)
-    set(LIBTYPE STATIC)
-    IF ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
-        SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
-    ENDIF ( CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX )
-ELSE ( BUILD_TOOLBOX_STATIC )
-    message("Building dynamic toolbox libray")
-    set(LIBTYPE SHARED)
-ENDIF ( BUILD_TOOLBOX_STATIC )
+if (BUILD_TOOLBOX_STATIC)
+	message("Building static toolbox libray")
+	add_definitions(-DBUILD_TOOLBOX_STATIC)
+	set(LIBTYPE STATIC)
+	if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpic")
+	endif()
+else()
+	message("Building dynamic toolbox libray")
+	set(LIBTYPE SHARED)
+endif()
 
 ###############################################################
 # BOOST
@@ -101,17 +100,17 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 # necessary for Windows and RHEL <=6 systems
 set(Boost_NO_BOOST_CMAKE ON)
 
-IF(WIN32)
-  add_definitions( -DBOOST_ALL_NO_LIB )
-  add_definitions( -DBOOST_ALL_DYN_LINK )
-ENDIF(WIN32)
+if (WIN32)
+	add_definitions(-DBOOST_ALL_NO_LIB)
+	add_definitions(-DBOOST_ALL_DYN_LINK)
+endif()
 
 # We actually only use system and thread explicitly, but they require linking in date_time and chrono
-IF (WIN32)
-  find_package(Boost COMPONENTS system thread date_time chrono program_options filesystem REQUIRED)
-ELSE(WIN32)
-  find_package(Boost COMPONENTS system thread program_options filesystem REQUIRED)
-ENDIF(WIN32)
+if (WIN32)
+	find_package(Boost COMPONENTS system thread date_time chrono program_options filesystem REQUIRED)
+else()
+	find_package(Boost COMPONENTS system thread program_options filesystem REQUIRED)
+endif()
 
 ###############################################################
 # ACE
@@ -122,44 +121,43 @@ find_package(ACE REQUIRED)
 # CUDA
 ###############################################################
 find_package(CUDA_advanced)
-IF (CUDA_FOUND)
-  add_definitions(-DUSE_CUDA)
-  set( GADGETRON_CUDA_FOUND_BOOL 1 )
-  include_directories( ${CUDA_INCLUDE_DIRS} )
-  #set(CUDA_VERBOSE_BUILD ON)
+if (CUDA_FOUND)
+	add_definitions(-DUSE_CUDA)
+	set(GADGETRON_CUDA_FOUND_BOOL 1)
+	include_directories(${CUDA_INCLUDE_DIRS})
+	#set(CUDA_VERBOSE_BUILD ON)
 
-  # Compile kernels for compute models 1.0 and 2.0 as default for Cuda 4.1
-  # Support compute model 3.0 from Cuda 4.2 and up
-  # Support compute model 3.5 from Cuda 5 and up
-  message("Compiling with ${CUDA_NVCC_FLAGS}")
-
-ELSE (CUDA_FOUND)
-  message("CUDA not found. CUDA components will not be compiled.")
-  set( GADGETRON_CUDA_FOUND_BOOL 0 )
-ENDIF (CUDA_FOUND)
+	# Compile kernels for compute models 1.0 and 2.0 as default for Cuda 4.1
+	# Support compute model 3.0 from Cuda 4.2 and up
+	# Support compute model 3.5 from Cuda 5 and up
+	message("Compiling with ${CUDA_NVCC_FLAGS}")
+else()
+	message("CUDA not found. CUDA components will not be compiled.")
+	set(GADGETRON_CUDA_FOUND_BOOL 0)
+endif()
 
 ###############################################################
 # Armadillo
 ###############################################################
 find_package(Armadillo)
 # check whether ILP64 MKL should is used
-IF(ARMADILLO_FOUND)
-    add_definitions(-DUSE_ARMADILLO)
-    set(ARMADILLO_BLAS_LONG_LONG FALSE)
-    IF(EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp")
-        # Read and parse armadillo config.hpp to find out whether BLAS uses long long
-        file(STRINGS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp" _armadillo_blas_long_long REGEX "// #define ARMA_BLAS_LONG_LONG")
-        IF ( NOT _armadillo_blas_long_long )
-            set(ARMADILLO_BLAS_LONG_LONG TRUE)
-            message("Armadillo is found to use long long for BLAS calls")
-        ELSE ( NOT _armadillo_blas_long_long )
-            message("Armadillo found. Note that ARMADILLO_BLAS_LONG_LONG _must_ be defined in ${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp to link against the MKL ILP64 interface.")
-        ENDIF ( NOT _armadillo_blas_long_long )
-        unset(_armadillo_blas_long_long)
-    ENDIF()
-ELSE()
-  message("Armadillo not found. This will disable many toolboxes and gadgets.")
-ENDIF()
+if (ARMADILLO_FOUND)
+	add_definitions(-DUSE_ARMADILLO)
+	set(ARMADILLO_BLAS_LONG_LONG FALSE)
+	if (EXISTS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp")
+		# Read and parse armadillo config.hpp to find out whether BLAS uses long long
+		file(STRINGS "${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp" _armadillo_blas_long_long REGEX "// #define ARMA_BLAS_LONG_LONG")
+		if (NOT _armadillo_blas_long_long)
+			set(ARMADILLO_BLAS_LONG_LONG TRUE)
+			message("Armadillo is found to use long long for BLAS calls")
+		else()
+			message("Armadillo found. Note that ARMADILLO_BLAS_LONG_LONG _must_ be defined in ${ARMADILLO_INCLUDE_DIR}/armadillo_bits/config.hpp to link against the MKL ILP64 interface.")
+		endif()
+		unset(_armadillo_blas_long_long)
+	endif()
+else()
+	message("Armadillo not found. This will disable many toolboxes and gadgets.")
+endif()
 
 ###############################################################
 # HDF
@@ -190,41 +188,39 @@ endif()
 # XSD/XersesC
 ###############################################################
 if (NOT ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5))))
-	IF (WIN32)
+	if (WIN32)
 		find_package(XSD)
 		find_package(XercesC)
-	ENDIF()	
-ENDIF()
+	endif()
+endif()
 
 
 ###############################################################
 # MATLAB
 ###############################################################
 find_package(GMatlab)
-IF (MATLAB_FOUND)
-    add_definitions(-DUSE_MATLAB)
-ENDIF (MATLAB_FOUND)
+if (MATLAB_FOUND)
+	add_definitions(-DUSE_MATLAB)
+endif()
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
-	IF (ACE_FOUND AND ISMRMRD_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
-	ELSE()
-	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, FFTW3, HDF5).")
-	ENDIF()
-ELSE()
-	IF (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND)
-	ELSE()
-	  message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
-	ENDIF()
-ENDIF()
+	if (NOT (ACE_FOUND AND ISMRMRD_FOUND AND FFTW3_FOUND AND HDF5_FOUND))
+		message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, FFTW3, HDF5).")
+	endif()
+else()
+	if (NOT (ACE_FOUND AND ISMRMRD_FOUND AND XSD_FOUND AND XERCESC_FOUND AND FFTW3_FOUND AND HDF5_FOUND))
+		message("Required dependencies for gadget compilation not found (ACE, ISMRMRD, XSD, XERCESC, FFTW3, HDF5).")
+	endif()
+endif()
 
 add_subdirectory(cmake)
 
-IF (WIN32)
-    add_definitions(-D__BUILD_CS_LAB__)
-ENDIF (WIN32)
+if (WIN32)
+	add_definitions(-D__BUILD_CS_LAB__)
+endif()
 
 find_package(ITK REQUIRED)
-INCLUDE( ${ITK_USE_FILE} )
+include(${ITK_USE_FILE})
 
 ###############################################################
 # Elastix
@@ -232,16 +228,16 @@ INCLUDE( ${ITK_USE_FILE} )
 # include elastix files and library
 find_package(Elastix REQUIRED)
 
-if( EXISTS ${ELASTIX_USE_FILE} )
-	include( ${ELASTIX_USE_FILE} )
+if (EXISTS ${ELASTIX_USE_FILE})
+	include(${ELASTIX_USE_FILE})
 
 	# These libraries are necessary for ElastixRegistrationGadget to find the elastixlib.h!
 	# Please make sure to have elastix compiled as shared library if linking fails.
 	# See CMakeLists.txt in elastix or its documentation for more information.
 	# If these lines are commented out the resulting libCS_LAB.so could not be found by Gadgetron!
-	link_libraries( param )
-	link_libraries( elastix )
-	link_libraries( transformix )
+	link_libraries(param)
+	link_libraries(elastix)
+	link_libraries(transformix)
 endif()
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
@@ -263,7 +259,7 @@ if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL
 		${ISMRMRD_XSD_INCLUDE_DIR}
 		${FFTW3_INCLUDE_DIR}
 	)
-ELSE()
+else()
 	if (WIN32)
 		include_directories(
 			${CMAKE_SOURCE_DIR}/include
@@ -285,11 +281,10 @@ ELSE()
 			${XSD_INCLUDE_DIR}
 			${XERCESC_INCLUDE_DIR}
 		)
-	ENDIF()
-ENDIF()
+	endif()
+endif()
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
-
 	set(cs_lab_header_files CS_LAB.h
 		src/FOCUSS/CS_Control.h
 		src/FOCUSS/CS_FOCUSS.h
@@ -355,16 +350,15 @@ if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL
 		include/new/hoNDArray_math_util.cpp
 		include/new/hoNDArray_operators.cpp
 	)
-
-ELSE()
+else()
 	set(cs_lab_header_files CS_LAB.h
 		src/FOCUSS/CS_Control.h
-        src/FOCUSS/CS_FOCUSS.h
+		src/FOCUSS/CS_FOCUSS.h
 		src/FOCUSS/Transform.h
 		src/FOCUSS/TransformWrapper.h
 		src/FOCUSS/GlobalVar.h
 		src/FOCUSS/SomeFunctions.h
-        src/FOCUSS/SomeFunctions.hxx
+		src/FOCUSS/SomeFunctions.hxx
 		src/GADGET_TOOLS/AcquisitionFinishGadget.h
 		src/GADGET_TOOLS/CS_AccumulatorGadget.h
 		src/GADGET_TOOLS/CS_MRIImageToAcquisitionGadget.h
@@ -372,8 +366,8 @@ ELSE()
 		src/GADGET_TOOLS/CS_CombineGadget.h
 		src/GADGET_TOOLS/hoNDFFT_CS.h
 		src/GADGET_TOOLS/hoNDKLT_CS.h
-        src/GADGET_TOOLS/hoNDDCT.h
-        src/ELASTIX_GADGET/ElastixRegistrationGadget.h
+		src/GADGET_TOOLS/hoNDDCT.h
+		src/ELASTIX_GADGET/ElastixRegistrationGadget.h
 		src/LAP_GADGET/LAPRegistrationGadget.h
 		src/LAP_GADGET/lap3d.h
 		src/LAP_GADGET/gaussianfilterbasis.h
@@ -417,7 +411,7 @@ ELSE()
 		src/RETRO/CS_Retro_PopulationGadget.cpp
 		include/old/hoNDArray_linalg.cpp
 	)
-ENDIF()
+endif()
 
 set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml config/CS_Retro_offline.xml config/CS_Retro_online_1.xml config/CS_Retro_online_2.xml)
 
@@ -428,8 +422,8 @@ if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL
 		${cs_lab_src_files}
 		${cs_lab_config_files}
 	)
-ELSE()
-	IF (WIN32)
+else()
+	if (WIN32)
 			add_library(CS_LAB SHARED
 				CS_LAB_export.h
 				${cs_lab_header_files}
@@ -437,10 +431,10 @@ ELSE()
 				${cs_lab_config_files}
 				${ISMRMRD_XSD_SOURCE}
 			)
-	ENDIF()
-ENDIF()
+	endif()
+endif()
 
-IF (WIN32)
+if (WIN32)
 	set(ADDITIONAL_LIBRARIES
 		${GADGETRON_HOME}/lib/cpucore.lib
 		${GADGETRON_HOME}/lib/cpufft.lib
@@ -452,13 +446,13 @@ IF (WIN32)
 		${Boost_LIBRARY_DIR}/boost_program_options-vc100-mt-1_55.lib
 		${Boost_LIBRARY_DIR}/boost_filesystem-vc100-mt-1_55.lib
 		)
-ELSE()
+else()
 	set(ADDITIONAL_LIBRARIES
 		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpucore.so
 		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpufft.so
 		${GADGETRON_HOME}/lib/libgadgetron_toolbox_cpucore_math.so
 	)
-ENDIF()
+endif()
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	target_link_libraries(	CS_LAB
@@ -471,7 +465,7 @@ if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL
 							#${ELASTIX_LIBRARY}
 							#${ELASTIX_ALL_COMPONENT_LIBS}
 	)
-ELSE ()
+else ()
 	target_link_libraries(	CS_LAB
 							${ISMRMRD_LIBRARIES}
 							${FFTW3_LIBRARIES}
@@ -483,16 +477,16 @@ ELSE ()
 							${ELASTIX_LIBRARY}
 							${ELASTIX_ALL_COMPONENT_LIBS}
 	)
-ENDIF()
+endif()
 #set_property(TARGET CS_LAB PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
 install (FILES CS_LAB_export.h ${cs_lab_header_files} DESTINATION ${GADGETRON_HOME}/include)
 install(TARGETS CS_LAB DESTINATION ${GADGETRON_HOME}/lib)
 
-IF (WIN32)
+if (WIN32)
 	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/config)
-ELSE()
+else()
 	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/share/gadgetron/config)
-ENDIF()
+endif()
 
 link_directories(${GADGETRON_LIB_DIR})
 
