@@ -19,9 +19,9 @@ namespace Gadgetron{
 		GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
 		GlobalVar::instance()->iGatingMode_			= GatingMode.value();
 #else
-		iNoGates_									= *(get_int_value("Gates").get();
-		GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get();
-		GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get();
+		iNoGates_									= *(get_int_value("Gates").get());
+		GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get());
+		GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get());
 #endif
 
 		return GADGET_OK;

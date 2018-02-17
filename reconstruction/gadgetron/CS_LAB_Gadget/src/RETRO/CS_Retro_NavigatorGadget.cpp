@@ -21,7 +21,7 @@ namespace Gadgetron {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		iNavMethod_ = NavigationMethod.value();
 #else
-		iNavMethod_ = *(get_int_value("NavigationMethod").get();
+		iNavMethod_ = *(get_int_value("NavigationMethod").get());
 #endif
 
 		// fetch attribute values from header

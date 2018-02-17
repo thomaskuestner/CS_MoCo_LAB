@@ -90,10 +90,10 @@ namespace Gadgetron{
 		GlobalVar::instance()->iMeasurementTime_	= MeasurementTime.value();
 		iNPhases_									= Phases.value();
 #else
-		GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get();
-		GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get();
-		GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get();
-		iNPhases_									= *(get_int_value("Phases").get();
+		GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get());
+		GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get());
+		GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get());
+		iNPhases_									= *(get_int_value("Phases").get());
 #endif
 
 		int iESPReSSoY = 0;
