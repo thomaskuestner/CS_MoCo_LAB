@@ -707,6 +707,10 @@ namespace Gadgetron {
 		VT->prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
 		VT->eigen_vector(coeff);
 
+		// delete VT
+		// TODO: Check why VT is needed - maybe it should be appear somewhere below?
+		delete VT;
+
 		double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)*1000.0); // Get the sampling frequency
 
 		//fft(result, ...,1);
@@ -893,6 +897,10 @@ namespace Gadgetron {
 		//get the eigen value
 		Vtemp->prepare(ad, static_cast<size_t>(1), static_cast<size_t>(0), false);
 		Vtemp->eigen_value(e);
+		
+		// delete Vtemp
+		// TODO: Check why Vtemp is needed - maybe it should be appear somewhere below?
+		delete Vtemp;
 
 		//% Expand recursion formula
 		//den(2) = den(2) - e(1)*den(1);
