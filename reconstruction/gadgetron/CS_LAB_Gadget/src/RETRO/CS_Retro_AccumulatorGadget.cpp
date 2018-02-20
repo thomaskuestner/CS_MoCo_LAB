@@ -587,9 +587,6 @@ namespace Gadgetron{
 		int samples		= m1->getObjectPtr()->number_of_samples;
 		int line		= m1->getObjectPtr()->idx.kspace_encode_step_1;
 		int partition	= m1->getObjectPtr()->idx.kspace_encode_step_2;
-		int slice		= m1->getObjectPtr()->idx.slice;
-		int repetition	= m1->getObjectPtr()->idx.repetition;
-		int set			= m1->getObjectPtr()->idx.set;
 
 		// push current loop counters on according vector (temporal)
 		GlobalVar::instance()->vPE_.push_back(line);
