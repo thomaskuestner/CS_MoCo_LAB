@@ -579,7 +579,7 @@ namespace Gadgetron{
 		/*---------------------------------------------------*/
 		// navigator flag
 		bool  bNavigator = false;
-		if (m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
+		if (m1->getObjectPtr()->idx.set == 1) {		//m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
 			bNavigator = true;
 		}
 
