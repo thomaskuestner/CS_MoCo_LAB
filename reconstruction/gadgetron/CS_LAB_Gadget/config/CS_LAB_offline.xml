@@ -23,8 +23,8 @@
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_AccumulatorGadget</classname>
 		<property><name>NavPeriod</name><value>200</value></property>
-		<property><name>NavPERes</name><value>1</value></property>
-		<property><name>MeasurementTime</name><value>312</value></property>
+		<property><name>NavPERes</name><value>8</value></property>
+		<property><name>MeasurementTime</name><value>383</value></property>
 		<property><name>Phases</name><value>4</value></property>
 	</gadget>
 
