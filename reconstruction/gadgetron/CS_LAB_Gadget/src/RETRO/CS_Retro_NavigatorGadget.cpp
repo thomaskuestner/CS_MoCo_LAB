@@ -207,10 +207,10 @@ namespace Gadgetron {
 		GINFO("41 elements around maximum cropped..\n");
 
 		std::vector<float> vGoodChannels;
-		hoNDArray<float> aTmp;
 
 		// loop over channels
 		for (int c = 0; c < iNoChannels_; c++) {
+			hoNDArray<float> aTmp;
 			size_t offset = aPowerInChan.get_size(0)*c;
 			aTmp.create(aPowerInChan.get_size(0), aPowerInChan.get_data_ptr()+offset, false);
 			int iTmpInd = amax(&aTmp);
@@ -241,8 +241,6 @@ namespace Gadgetron {
 
 		hoNDArray<float> aPowerInPE(41,afPower.get_size(1), iNumGood);
 
-		aTmp.clear();
-
 		vStart.clear();
 		vStart.push_back(iMaxIndex-20);
 		vStart.push_back(0);
@@ -258,6 +256,8 @@ namespace Gadgetron {
 		size_t o = 0; //helper
 		for (int c = 0; c < iNoChannels_; c++) {
 			if (vGoodChannels.at(c) == 1) {
+				hoNDArray<float> aTmp;
+				aTmp.create(&vSize);
 				vStart.at(2) = c;
 				get_subarray(afPower, vStart, vSize, aTmp);
 
@@ -367,11 +367,11 @@ namespace Gadgetron {
 		get_subarray(aPowerInChan, vStart, vSize,aPowerInChan);
 
 		vGoodChannels.clear();
-		aTmp.clear();
 
 		// loop over channels
 		for (int c = 0; c < iNoChannels_; c++) {
 			size_t offset = aPowerInChan.get_size(0)*c;
+			hoNDArray<float> aTmp;
 			aTmp.create(aPowerInChan.get_size(0), aPowerInChan.get_data_ptr()+offset, false);
 			int iTmpInd = amax(&aTmp);
 			vGoodChannels.push_back(aTmp.at(iTmpInd));
