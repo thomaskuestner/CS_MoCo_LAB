@@ -569,6 +569,11 @@ namespace Gadgetron{
 			lCurrentScan_ = 0;
 		}
 
+		// protect Gadget from more inputs than expected
+		if (lCurrentScan_ >= lNoScans_) {
+			return GADGET_OK;
+		}
+
 		/*---------------------------------------------------*/
 		/*----------- store incoming k-space data -----------*/
 		/*---------------------------------------------------*/
