@@ -375,6 +375,8 @@ namespace Gadgetron{
 					dWeightAccu = 1;
 				}
 
+				GINFO("weights calculated - phase: %i\n", iPh);
+
 				//	                dKSpace = complex(zeros(iNLines, iBaseRes.*2, iNPartitions, length(iNPhasesLoop), 1, iNChannels,sPrecision), ...
 				//	                      zeros(iNLines, iBaseRes.*2, iNPartitions, length(iNPhasesLoop), 1, iNChannels,sPrecision));
 
@@ -437,6 +439,8 @@ namespace Gadgetron{
 						}
 					}
 				}
+
+				GINFO("kspace populated - phase: %i\n", iPh);
 			}
 			break;
 
