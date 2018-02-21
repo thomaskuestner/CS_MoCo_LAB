@@ -523,6 +523,10 @@ namespace Gadgetron{
 			// create buffer array for incoming k-space data (readout, time, channel)
 			try {
 				bufferkSpace_->create(&dimkSpace_);
+			} catch (Gadgetron::bad_alloc) {
+				print_not_enough_ram_msg<size_t>(dimkSpace_, sizeof(std::complex<float>));
+
+				return GADGET_FAIL;
 			} catch (std::runtime_error &err) {
 				GEXCEPTION(err, "Failed to allocate k-space buffer array\n");
 				return GADGET_FAIL;
@@ -559,6 +563,10 @@ namespace Gadgetron{
 			// create buffer array for incoming navigator data (readout, time, PE, channel)
 			try {
 				bufferNav_->create(&dimNav_);
+			} catch (Gadgetron::bad_alloc) {
+				print_not_enough_ram_msg<size_t>(dimNav_, sizeof(std::complex<float>));
+
+				return GADGET_FAIL;
 			} catch (std::runtime_error &err) {
 				GEXCEPTION(err, "Failed to allocate navigator buffer array\n");
 				return GADGET_FAIL;

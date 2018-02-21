@@ -190,6 +190,14 @@ inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1
  * @return 1 if c1 > c2, -1 if c1 < c2 or 0 if c1 == c2
  */
 template <typename T> inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2);
+
+/**
+ * @brief Prints message of too few RAM storage available.
+ *
+ * @param sizes a vector containing all element sizes to multiplicate
+ * @param bytes_per_element amount of bytes each element is using
+ */
+template <typename T> void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
 }
 #endif //SOMEFUNCTIONS_H
 

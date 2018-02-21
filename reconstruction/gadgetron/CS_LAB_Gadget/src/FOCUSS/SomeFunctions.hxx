@@ -1849,4 +1849,16 @@ template <typename T> inline int compare_complex_values(std::complex<T> c1, std:
 	}
 }
 
+template<typename T> void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element) {
+	// multiply all element values of dimkSpace_ vector
+	long m = 1;
+	for (const auto& e: sizes) {
+		m *= e;
+	}
+
+	// calculate needed RAM in GiB
+	int needed_ram = (m * bytes_per_element)/std::pow(1024, 3);
+	GERROR("Not enough RAM to calculate! You need at least %dGiB of RAM.\n", needed_ram);
+}
+
 }
