@@ -28,19 +28,20 @@
 		<property><name>Phases</name><value>4</value></property>
 	</gadget>
 
-<!-- Navigator gadget. Available algorithms: 0=classical, 1=PCA -->
+<!-- Calculate navigator signal - Choose either classical or PCA algorithm -->
 	<gadget>
 		<name>Navigator</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_NavigatorGadget</classname>
 
 		<property>
+			<!-- 0: classical, 1: PCA -->
 			<name>NavigationMethod</name>
 			<value>0</value>
 		</property>
 	</gadget>
 
-<!-- k-space gating - Choose either centric or gaussian weighted -->
+<!-- k-space gating - Choose either closest or gaussian weighted -->
 <!-- 	CS_Retro_PopulationGadget -->
 	<gadget>
 		<name>Gating</name>
@@ -52,10 +53,12 @@
 			<value>4</value>
 		</property>
 		<property>
+			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
 			<name>PopulationMode</name>
 			<value>0</value>
 		</property>
 		<property>
+			<!-- 0: percentile, 1: k-means (not impl.) -->
 			<name>GatingMode</name>
 			<value>0</value>
 		</property>
