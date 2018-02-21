@@ -256,7 +256,7 @@ namespace Gadgetron{
 	}
 
 	bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates) {
-		GINFO("--- populate k-space ---");
+		GINFO("--- populate k-space ---\n");
 
 		// drecks mdh
 		if (GlobalVar::instance()->vPE_.size() > hacfKSpace_unordered_.get_size(1)) {

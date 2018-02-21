@@ -1186,7 +1186,7 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 
 			viKSpaceLines_1.clear(); viKSpaceLines_2.clear();
 
-			GINFO("Estimate filter size by calculated window");
+			GINFO("Estimate filter size by calculated window\n");
 
 
 

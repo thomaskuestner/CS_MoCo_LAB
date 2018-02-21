@@ -924,7 +924,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask){
 			if (viKSpaceLines_1.size() == 0 || viKSpaceLines_2.size()==0){
 				viKSpaceLines_1.clear(); viKSpaceLines_2.clear();
 
-				GINFO("Estimate filter size by calculated window");
+				GINFO("Estimate filter size by calculated window\n");
 
 				// phase encoding direction
 				if (GlobalVar::instance()->iESPReSSoDirection_ == 1)

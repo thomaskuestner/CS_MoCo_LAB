@@ -564,7 +564,7 @@ namespace Gadgetron{
 				return GADGET_FAIL;
 			}
 
-			GINFO("bufferNav_:");
+			GINFO("bufferNav_:\n");
 			bufferNav_->print(std::cout);
 			lCurrentScan_ = 0;
 		}
