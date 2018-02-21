@@ -251,7 +251,7 @@ namespace Gadgetron {
 		vSize.push_back(afPower.get_size(1));
 		vSize.push_back(1);
 
-		GDEBUG("vStart: %i, %i, %i, vSize: %i, %i, %i, afPower size: %i, %i, %i\n",  vStart.at(0), vStart.at(1), vStart.at(2), vSize.at(0), vSize.at(1), vSize.at(2), afPower.get_size(0), afPower.get_size(1), afPower.get_size(2));
+		GDEBUG("vStart: %i, %i, %i, vSize: %i, %i, %i, afPower size: %i, %i, %i\n", vStart.at(0), vStart.at(1), vStart.at(2), vSize.at(0), vSize.at(1), vSize.at(2), afPower.get_size(0), afPower.get_size(1), afPower.get_size(2));
 
 		size_t o = 0; //helper
 		for (int c = 0; c < iNoChannels_; c++) {
@@ -466,7 +466,7 @@ namespace Gadgetron {
 
 		//-------------------------------------------------------------------------
 		// get navigator
-		int iDisplacementMax  = 80; // [mm] diaphragm displacement (max. +/- 80mm)
+		int iDisplacementMax = 80; // [mm] diaphragm displacement (max. +/- 80mm)
 		int iDisplacement = static_cast<int>(std::ceil(static_cast<float>(iDisplacementMax)/(static_cast<float>(field_of_view_[0])/static_cast<float>(aImg.get_size(0))) - 0.5));
 
 		// fill last line in ref image
@@ -764,11 +764,11 @@ namespace Gadgetron {
 			}
 		}
 
-		//frequency =  ((Fl)+frequency-2)*Fs/nfft2;
-		float realfrequency =  (Fl + frequency - 2) * Fs / nfft2;
+		//frequency = ((Fl)+frequency-2)*Fs/nfft2;
+		float realfrequency = (Fl + frequency - 2) * Fs / nfft2;
 
 		//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
-		// Fs= 1/dTR  changing sampling rate because signal is going to be interpolated
+		// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
 		Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(lNoScans_)*1000.0);
 		std::vector<size_t> dECG_dims;
 		dECG_dims.push_back(iNMeasurment);

@@ -586,7 +586,7 @@ namespace Gadgetron{
 		/*----------- store incoming k-space data -----------*/
 		/*---------------------------------------------------*/
 		// navigator flag
-		bool  bNavigator = false;
+		bool bNavigator = false;
 		if (m1->getObjectPtr()->idx.set == 1) {		//m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
 			bNavigator = true;
 		}

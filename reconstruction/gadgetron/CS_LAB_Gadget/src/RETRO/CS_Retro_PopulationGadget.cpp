@@ -149,7 +149,7 @@ namespace Gadgetron{
 		// new array
 		hoNDArray<std::complex<float>> hacfTmp(vtDims_new); hacfTmp.fill((0.0,0.0));
 		for (int iR = 0; iR < hacfKSpace_unordered_.get_size(0); iR++) {
-			for (int iL = iStartIndex; iL <  hacfKSpace_unordered_.get_size(1); iL++) {
+			for (int iL = iStartIndex; iL < hacfKSpace_unordered_.get_size(1); iL++) {
 				for (int iC = 0; iC < hacfKSpace_unordered_.get_size(2); iC++) {
 					hacfTmp(iR, iL-iStartIndex, iC) = hacfKSpace_unordered_(iR, iL, iC);
 				}
@@ -207,8 +207,8 @@ namespace Gadgetron{
 					cumsum += static_cast<long long>(histogram.at(counter++));
 				}
 
-				int   i90p = counter;
-				float f90p = counter*((fNavMax-fNavMin)/iNumberBins);
+				int		i90p = counter;
+				float	f90p = counter*((fNavMax-fNavMin)/iNumberBins);
 
 				// find 10th percentile
 				counter = 0;
@@ -217,8 +217,8 @@ namespace Gadgetron{
 					cumsum += static_cast<long long>(histogram[counter++]);
 				}
 
-				int   i10p = counter;
-				float f10p = counter*((fNavMax-fNavMin)/iNumberBins);
+				int		i10p = counter;
+				float	f10p = counter*((fNavMax-fNavMin)/iNumberBins);
 
 				GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
 
@@ -278,7 +278,7 @@ namespace Gadgetron{
 			GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 			// loop over phases/gates
-			for (int iPh = 0; iPh <  iNoGates; iPh++) {
+			for (int iPh = 0; iPh < iNoGates; iPh++) {
 				// get weights
 				std::vector<float> vWeights(vNavInt_.size());
 				for (long i = 0; i < vWeights.size(); i++) {
@@ -293,7 +293,7 @@ namespace Gadgetron{
 					for (int iPar = 0; iPar < dimensionsIn_.at(2); iPar++) {
 						// check if iLine was acquired and push Indices on vector
 						std::vector<long> lIndices;
-						for (long  i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
+						for (long i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 							if (GlobalVar::instance()->vPE_.at(i) == iLine) {
 								lIndices.push_back(i);
 							}
@@ -359,7 +359,7 @@ namespace Gadgetron{
 			//% CARDIAC PHASES loop
 			//for icPh = iNPhasesCardLoop
 			// loop over phases/gates
-			for (int iPh = 0; iPh <  iNoGates; iPh++) {
+			for (int iPh = 0; iPh < iNoGates; iPh++) {
 				//initialize the weighting vector
 				std::vector<float> vWeights(vNavInt_.size());
 
@@ -367,7 +367,7 @@ namespace Gadgetron{
 				// x = vNavInt_; sigma = vTolerance_ µ = cfVentorids_
 				double dWeightAccu = 0;
 				for(long k=0; k < vNavInt_.size(); k++) {
-					vWeights.at(k) = 1/(vTolerance_.at(iPh)*std::sqrt(2*M_PI)) *  exp(-(std::pow(vNavInt_.at(k)-vfCentroids_.at(iPh),2))/(2*(std::pow(vTolerance_.at(iPh),2))));
+					vWeights.at(k) = 1/(vTolerance_.at(iPh)*std::sqrt(2*M_PI)) * exp(-(std::pow(vNavInt_.at(k)-vfCentroids_.at(iPh),2))/(2*(std::pow(vTolerance_.at(iPh),2))));
 					dWeightAccu = dWeightAccu + vWeights.at(k);
 				}
 
@@ -395,7 +395,7 @@ namespace Gadgetron{
 					// loop over partitions
 					for (int iPar = 0; iPar < dimensionsIn_.at(2); iPar++) {
 						std::vector<long> lIndices;
-						for (long  i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
+						for (long i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 							if (GlobalVar::instance()->vPE_.at(i) == iLine) {
 								lIndices.push_back(i);
 							}
