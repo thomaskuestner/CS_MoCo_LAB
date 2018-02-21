@@ -754,8 +754,10 @@ namespace Gadgetron {
 		int frequency = 0, searcharea = std::floor(Fu)-std::floor(Fl), colmnnr =0;
 		for(int x = 0; x < inspectednr; x++) {
 			for(int i = 0; i < searcharea; i++) {
-				if(compare_complex_values<float>(maxvalue, fy.at((i+std::floor(Fl))+(x*iNMeasurment))) < 0) {
-					maxvalue = fy.at(((i+std::floor(Fl)))+(x*iNMeasurment));
+				int pos = i+std::floor(Fl)+(x*iNMeasurment);
+
+				if(compare_complex_values<float>(maxvalue, fy.at(pos)) < 0) {
+					maxvalue = fy.at(pos);
 					frequency = i+1;
 					colmnnr = x;
 				}
