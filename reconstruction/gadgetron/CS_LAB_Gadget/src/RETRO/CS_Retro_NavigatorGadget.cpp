@@ -752,9 +752,9 @@ namespace Gadgetron {
 		//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
 		std::complex<float> maxvalue = 0;
 		int frequency = 0, searcharea = std::floor(Fu)-std::floor(Fl), colmnnr =0;
-		for(int x = 0; x < inspectednr; x++) {
+		for(int x = 0; x < fy.get_size(0); x++) {
 			for(int i = 0; i < searcharea; i++) {
-				int pos = i+std::floor(Fl)+(x*iNMeasurment);
+				int pos = i+std::floor(Fl)+(x*fy.get_size(1));
 
 				if(compare_complex_values<float>(maxvalue, fy.at(pos)) < 0) {
 					maxvalue = fy.at(pos);
