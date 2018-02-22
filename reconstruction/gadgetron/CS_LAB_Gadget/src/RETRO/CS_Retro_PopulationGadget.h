@@ -73,7 +73,7 @@ namespace Gadgetron {
 		std::vector<float> vNavInt_;
 
 		// number of gates
-		int iNoGates_;
+		int iNPhases_;
 
 		// centroids of gates
 		std::vector<float> vfCentroids_;

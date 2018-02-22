@@ -49,10 +49,6 @@
 		<classname>CS_Retro_PopulationGadget</classname>
 
 		<property>
-			<name>Gates</name>
-			<value>4</value>
-		</property>
-		<property>
 			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
 			<name>PopulationMode</name>
 			<value>0</value>

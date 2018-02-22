@@ -15,11 +15,9 @@ namespace Gadgetron{
 	int CS_Retro_PopulationGadget::process_config(ACE_Message_Block* mb) {
 		// set properties
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
-		iNoGates_									= Gates.value();
 		GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
 		GlobalVar::instance()->iGatingMode_			= GatingMode.value();
 #else
-		iNoGates_									= *(get_int_value("Gates").get());
 		GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get());
 		GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get());
 #endif
@@ -30,6 +28,7 @@ namespace Gadgetron{
 	int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< float > >* m2, GadgetContainerMessage< hoNDArray <std::complex<float> > >* m3) {
 		fTolerance_ = 2;
 		iNoChannels_ = m3->getObjectPtr()->get_size(2);
+		iNPhases_ = m1->getObjectPtr()->user_int[0];
 
 		// get navigator and convert to std::vector
 		//hafNav_ = *m2->getObjectPtr();
@@ -62,7 +61,7 @@ namespace Gadgetron{
 		//-------------------------------------------------------------------------
 		// get centroids
 		//-------------------------------------------------------------------------
-		if (fCalcCentroids(iNoGates_)) {
+		if (fCalcCentroids(iNPhases_)) {
 			GERROR("process aborted\n");
 			return GADGET_FAIL;
 		} else {
@@ -74,7 +73,7 @@ namespace Gadgetron{
 		//-------------------------------------------------------------------------
 		// populate k-space: mode: closest, gates: 4
 		//-------------------------------------------------------------------------
-		if (fPopulatekSpace(iNoGates_)) {
+		if (fPopulatekSpace(iNPhases_)) {
 			GERROR("process aborted\n");
 		}
 
