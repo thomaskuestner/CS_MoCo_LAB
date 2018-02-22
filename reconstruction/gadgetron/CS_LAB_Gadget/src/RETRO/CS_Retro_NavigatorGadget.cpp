@@ -711,7 +711,7 @@ namespace Gadgetron {
 		// TODO: Check why VT is needed - maybe it should be appear somewhere below?
 		delete VT;
 
-		double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)*1000.0); // Get the sampling frequency
+		double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)); // Get the sampling frequency
 
 		//fft(result, ...,1);
 		//fft only 1 dimensional(first dimension)
