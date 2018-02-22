@@ -427,17 +427,24 @@ namespace Gadgetron{
 									memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_.at(0)*2);
 
 									for(int x = 0; x < (dimensionsIn_.at(0)*2); x++) {
-										hacfKSpace_reordered_.at(tOffset_ordered + x) = hacfKSpace_reordered_.at(tOffset_ordered + x) * vWeights.at(lIndices2.at(i));
+										// /dWeightAccu added (see loop below)
+										// TODO: Error check here!
+										hacfKSpace_reordered_.at(tOffset_ordered + x) = hacfKSpace_reordered_.at(tOffset_ordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);
 									}
 								}
 							}
-
-							//dDataAccu = dDataAccu./(dWeightAccu);
-							for(long i = 0; i < hacfKSpace_reordered_.get_number_of_elements(); i++) {
-								hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / static_cast<float>(dWeightAccu);	// cast dWeightAccu to float in order to match operator /
-							}
 						}
 					}
+
+					//dDataAccu = dDataAccu./(dWeightAccu);
+					// brought out to outer loop due to performance reasons.
+					// correct equivalent formulation would be:
+					// 		hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / std::pow(static_cast<float>(dWeightAccu), (dimensionsIn_.at(1)*dimensionsIn_.at(2)));
+					// Guess there's an error in that algorithm!
+					// TODO: Error check here!
+// 					for(long i = 0; i < hacfKSpace_reordered_.get_number_of_elements(); i++) {
+// 						hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / static_cast<float>(dWeightAccu);	// cast dWeightAccu to float in order to match operator /
+// 					}
 				}
 
 				GINFO("kspace populated - phase: %i\n", iPh);
