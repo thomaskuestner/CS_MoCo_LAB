@@ -738,7 +738,7 @@ namespace Gadgetron {
 		//fy = fy(1:nfft2/2);
 		for(int x = 0; x < fy.get_size(0); x++) {
 			for(int i = 0; i < fy.get_size(1); i++) {
-				fy.at((i)+(x*fy.get_size(1))) = absresult.at((i)+(x*fy.get_size(1)));
+				fy.at(i+(x*fy.get_size(1))) = absresult.at(i+(x*fy.get_size(1)));
 			}
 		}
 
