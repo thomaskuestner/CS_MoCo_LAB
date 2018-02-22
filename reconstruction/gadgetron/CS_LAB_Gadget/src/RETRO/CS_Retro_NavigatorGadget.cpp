@@ -756,6 +756,12 @@ namespace Gadgetron {
 			for(int i = 0; i < searcharea; i++) {
 				int pos = i+std::floor(Fl)+(x*fy.get_size(1));
 
+				// break loop if index position is exceeding the limits of fy
+				if (pos > (fy.get_number_of_elements() - 1)) {
+					GWARN("Maximum index position exceeded!\n");
+					break;
+				}
+
 				if(compare_complex_values<float>(maxvalue, fy.at(pos)) < 0) {
 					maxvalue = fy.at(pos);
 					frequency = i+1;
