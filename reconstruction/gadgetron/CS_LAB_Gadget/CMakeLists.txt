@@ -431,8 +431,10 @@ install(TARGETS CS_LAB DESTINATION ${GADGETRON_HOME}/lib)
 
 if (WIN32)
 	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/config)
+	install(FILES config/CS_LAB_BART_Recon.sh DESTINATION ${GADGETRON_HOME}/bart)
 else()
 	install(FILES ${cs_lab_config_files} DESTINATION ${GADGETRON_HOME}/share/gadgetron/config)
+	install(FILES config/CS_LAB_BART_Recon.sh DESTINATION ${GADGETRON_HOME}/share/gadgetron/bart)
 endif()
 
 link_directories(${GADGETRON_LIB_DIR})
