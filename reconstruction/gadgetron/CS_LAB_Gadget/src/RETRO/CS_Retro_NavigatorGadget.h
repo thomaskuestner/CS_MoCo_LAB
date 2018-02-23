@@ -31,7 +31,7 @@ namespace Gadgetron {
 		std::vector<float> vNav_;
 
 		// field of view
-		std::vector<float> field_of_view_;
+		float field_of_view_[3];
 
 		// number of acquisition
 		long lNoScans_;

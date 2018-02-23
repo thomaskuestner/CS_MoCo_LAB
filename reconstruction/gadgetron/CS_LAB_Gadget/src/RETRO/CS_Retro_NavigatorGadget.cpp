@@ -29,10 +29,9 @@ namespace Gadgetron {
 		iNoNav_		 = m1->getObjectPtr()->user_int[5];
 		lNoScans_	 = m3->getObjectPtr()->get_size(1);
 
-		field_of_view_.clear();
-		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[0]);
-		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[1]);
-		field_of_view_.push_back(m1->getObjectPtr()->field_of_view[2]);
+		field_of_view_[0] = m1->getObjectPtr()->field_of_view[0];
+		field_of_view_[1] = m1->getObjectPtr()->field_of_view[1];
+		field_of_view_[2] = m1->getObjectPtr()->field_of_view[2];
 
 		// get navigator signal according to selected method
 		// 0: classical

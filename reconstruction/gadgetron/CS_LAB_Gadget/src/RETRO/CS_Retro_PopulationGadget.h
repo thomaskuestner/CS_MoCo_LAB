@@ -52,7 +52,7 @@ namespace Gadgetron {
 		std::vector<size_t> vtDims_unordered_;
 
 		// dimensions of incoming array
-		std::vector<size_t> dimensionsIn_;
+		size_t dimensionsIn_[3];
 
 		// number of channels
 		int iNoChannels_;

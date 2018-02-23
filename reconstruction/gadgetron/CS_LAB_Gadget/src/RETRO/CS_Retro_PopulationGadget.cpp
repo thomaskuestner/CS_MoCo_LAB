@@ -42,10 +42,9 @@ namespace Gadgetron{
 
 		// initialization of dimensionsIn_ (copy of AccumulatorGadget)
 		// TODO: check implementation!
-		dimensionsIn_.clear();
-		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[0]);
-		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[1]);
-		dimensionsIn_.push_back(m1->getObjectPtr()->matrix_size[2]);
+		dimensionsIn_[0] = m1->getObjectPtr()->matrix_size[0];
+		dimensionsIn_[1] = m1->getObjectPtr()->matrix_size[1];
+		dimensionsIn_[2] = m1->getObjectPtr()->matrix_size[2];
 
 		hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
 		memcpy(hacfKSpace_unordered_.get_data_ptr(), m3->getObjectPtr()->get_data_ptr(), sizeof(std::complex<float>)*m3->getObjectPtr()->get_number_of_elements());
@@ -272,7 +271,7 @@ namespace Gadgetron{
 			GINFO("closest mode..\n");
 
 			// initialize output k-space array
-			hacfKSpace_reordered_.create(dimensionsIn_.at(0)*2, dimensionsIn_.at(1), dimensionsIn_.at(2), iNoGates, iNoChannels_);
+			hacfKSpace_reordered_.create(dimensionsIn_[0]*2, dimensionsIn_[1], dimensionsIn_[2], iNoGates, iNoChannels_);
 
 			GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
@@ -287,9 +286,9 @@ namespace Gadgetron{
 				GINFO("weights calculated - phase: %i\n", iPh);
 
 				// loop over lines
-				for (int iLine = 0; iLine < dimensionsIn_.at(1); iLine++) {
+				for (int iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
 					// loop over partitions
-					for (int iPar = 0; iPar < dimensionsIn_.at(2); iPar++) {
+					for (int iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
 						// check if iLine was acquired and push Indices on vector
 						std::vector<long> lIndices;
 						for (long i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
@@ -324,9 +323,9 @@ namespace Gadgetron{
 
 							// save acquisition into k-space - loop over channels
 							for (int c = 0; c < iNoChannels_; c++) {
-								size_t tOffset_ordered = iLine*dimensionsIn_.at(0)*2+iPar*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2+iPh*dimensionsIn_.at(2)*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2+c*iNoGates*dimensionsIn_.at(2)*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2;
+								size_t tOffset_ordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
 								size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + iIndexMinDist*vtDims_unordered_.at(0);
-								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_.at(0)*2);
+								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
 							}
 						}
 					}
@@ -353,7 +352,7 @@ namespace Gadgetron{
 
 		// gauss
 		case 3:
-			hacfKSpace_reordered_.create(dimensionsIn_.at(0)*2, dimensionsIn_.at(1), dimensionsIn_.at(2), iNoGates, iNoChannels_);
+			hacfKSpace_reordered_.create(dimensionsIn_[0]*2, dimensionsIn_[1], dimensionsIn_[2], iNoGates, iNoChannels_);
 
 			//% CARDIAC PHASES loop
 			//for icPh = iNPhasesCardLoop
@@ -390,9 +389,9 @@ namespace Gadgetron{
 				//	                for iL = 1:iNLines
 				//	                    lLineMask = iLine == (iL - 1);
 				// loop over lines
-				for (int iLine = 0; iLine < dimensionsIn_.at(1); iLine++) {
+				for (int iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
 					// loop over partitions
-					for (int iPar = 0; iPar < dimensionsIn_.at(2); iPar++) {
+					for (int iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
 						std::vector<long> lIndices;
 						for (long i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 							if (GlobalVar::instance()->vPE_.at(i) == iLine) {
@@ -421,11 +420,11 @@ namespace Gadgetron{
 
 								// save acquisition into k-space - loop over channels
 								for (int c = 0; c < iNoChannels_; c++) {
-									size_t tOffset_ordered = iLine*dimensionsIn_.at(0)*2+iPar*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2+iPh*dimensionsIn_.at(2)*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2+c*iNoGates*dimensionsIn_.at(2)*dimensionsIn_.at(1)*dimensionsIn_.at(0)*2;
+									size_t tOffset_ordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
 									size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + currentindex*vtDims_unordered_.at(0);
-									memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_.at(0)*2);
+									memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
 
-									for(int x = 0; x < (dimensionsIn_.at(0)*2); x++) {
+									for(int x = 0; x < (dimensionsIn_[0]*2); x++) {
 										// /dWeightAccu added (see loop below)
 										// TODO: Error check here!
 										hacfKSpace_reordered_.at(tOffset_ordered + x) = hacfKSpace_reordered_.at(tOffset_ordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);

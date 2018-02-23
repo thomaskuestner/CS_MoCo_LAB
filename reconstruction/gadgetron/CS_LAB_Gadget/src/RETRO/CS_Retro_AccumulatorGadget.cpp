@@ -189,15 +189,15 @@ namespace Gadgetron{
 		ISMRMRD::EncodingLimits e_limits = h.encoding[0].encodingLimits;
 
 		// get matrix size
-		dimensionsIn_.push_back(r_space.matrixSize.x);
-		dimensionsIn_.push_back(e_space.matrixSize.y);
-		dimensionsIn_.push_back(e_space.matrixSize.z);
+		dimensionsIn_[0] = r_space.matrixSize.x;
+		dimensionsIn_[1] = e_space.matrixSize.y;
+		dimensionsIn_[2] = e_space.matrixSize.z;
 		GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
 		// get FOV
-		field_of_view_.push_back(r_space.fieldOfView_mm.x);
-		field_of_view_.push_back(e_space.fieldOfView_mm.y);
-		field_of_view_.push_back(e_space.fieldOfView_mm.z);
+		field_of_view_[0] = r_space.fieldOfView_mm.x;
+		field_of_view_[1] = e_space.fieldOfView_mm.y;
+		field_of_view_[2] = e_space.fieldOfView_mm.z;
 		GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
 
 		// get echo line and echo partition
@@ -219,15 +219,15 @@ namespace Gadgetron{
 		ISMRMRD::encodingLimitsType e_limits = (*e_seq.begin()).encodingLimits();
 
 		// get matrix size
-		dimensionsIn_.push_back(r_space.matrixSize().x());
-		dimensionsIn_.push_back(e_space.matrixSize().y());
-		dimensionsIn_.push_back(e_space.matrixSize().z());
+		dimensionsIn_[0] = r_space.matrixSize().x();
+		dimensionsIn_[1] = e_space.matrixSize().y();
+		dimensionsIn_[2] = e_space.matrixSize().z();
 		GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
 		// get FOV
-		field_of_view_.push_back(r_space.fieldOfView_mm().x());
-		field_of_view_.push_back(e_space.fieldOfView_mm().y());
-		field_of_view_.push_back(e_space.fieldOfView_mm().z());
+		field_of_view_[0] = r_space.fieldOfView_mm().x();
+		field_of_view_[1] = e_space.fieldOfView_mm().y();
+		field_of_view_[2] = e_space.fieldOfView_mm().z();
 		GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
 
 		// get echo line and echo partition
