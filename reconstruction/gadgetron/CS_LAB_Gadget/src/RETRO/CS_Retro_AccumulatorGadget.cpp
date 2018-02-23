@@ -188,20 +188,26 @@ namespace Gadgetron{
 		ISMRMRD::EncodingSpace r_space = h.encoding[0].reconSpace;
 		ISMRMRD::EncodingLimits e_limits = h.encoding[0].encodingLimits;
 
-		// get FOV
-		field_of_view_.push_back(r_space.fieldOfView_mm.x);
-		field_of_view_.push_back(e_space.fieldOfView_mm.y);
-		field_of_view_.push_back(e_space.fieldOfView_mm.z);
-
 		// get matrix size
 		dimensionsIn_.push_back(r_space.matrixSize.x);
 		dimensionsIn_.push_back(e_space.matrixSize.y);
 		dimensionsIn_.push_back(e_space.matrixSize.z);
+		GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
+		// get FOV
+		field_of_view_.push_back(r_space.fieldOfView_mm.x);
+		field_of_view_.push_back(e_space.fieldOfView_mm.y);
+		field_of_view_.push_back(e_space.fieldOfView_mm.z);
+		GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
+
+		// get echo line and echo partition
 		iEchoLine_ = e_limits.kspace_encoding_step_1.get().center;
 		iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
+		GDEBUG("echo line: %i, echo partition: %i\n", iEchoLine_, iEchoPartition_);
 
+		// repetition time
 		GlobalVar::instance()->fTR_ = h.sequenceParameters.get().TR.get().at(0);
+		GDEBUG("TR: %f\n", GlobalVar::instance()->fTR_);
 #else
 		// read xml header file
 		boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -222,15 +228,16 @@ namespace Gadgetron{
 		field_of_view_.push_back(r_space.fieldOfView_mm().x());
 		field_of_view_.push_back(e_space.fieldOfView_mm().y());
 		field_of_view_.push_back(e_space.fieldOfView_mm().z());
-		GDEBUG("FOV: %f, %f, %f\n", r_space.fieldOfView_mm().x(), e_space.fieldOfView_mm().y(), e_space.fieldOfView_mm().z());
+		GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
 
 		// get echo line and echo partition
 		iEchoLine_ = e_limits.kspace_encoding_step_1().get().center();
 		iEchoPartition_ = e_limits.kspace_encoding_step_2().get().center();
-		GDEBUG("echo line: %i, echo partition: %i", iEchoLine_, iEchoPartition_);
+		GDEBUG("echo line: %i, echo partition: %i\n", iEchoLine_, iEchoPartition_);
 
 		// repetition time
 		GlobalVar::instance()->fTR_ = cfg->sequenceParameters().get().TR().at(0);
+		GDEBUG("TR: %f\n", GlobalVar::instance()->fTR_);
 #endif
 
 		// set properties
