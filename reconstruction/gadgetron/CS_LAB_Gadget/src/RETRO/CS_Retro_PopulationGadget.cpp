@@ -322,10 +322,24 @@ namespace Gadgetron{
 								continue;
 
 							// save acquisition into k-space - loop over channels
+							size_t max_offset_reordered, max_offset_unordered;
+							max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
+							max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
 							for (int c = 0; c < iNoChannels_; c++) {
-								size_t tOffset_ordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
+								size_t tOffset_reordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
 								size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + iIndexMinDist*vtDims_unordered_.at(0);
-								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
+
+								// protection against unallowed memory access
+								if (tOffset_reordered > max_offset_reordered) {
+									GWARN("Ordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_reordered, max_offset_reordered);
+									break;
+								}
+								if (tOffset_unordered > max_offset_unordered) {
+									GWARN("Unordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_unordered, max_offset_unordered);
+									break;
+								}
+
+								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
 							}
 						}
 					}
@@ -419,15 +433,29 @@ namespace Gadgetron{
 								//float fValMinDist = vWeights.at(iIndexMinDist);
 
 								// save acquisition into k-space - loop over channels
+								size_t max_offset_reordered, max_offset_unordered;
+								max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
+								max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
 								for (int c = 0; c < iNoChannels_; c++) {
-									size_t tOffset_ordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
+									size_t tOffset_reordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
 									size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + currentindex*vtDims_unordered_.at(0);
-									memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_ordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
+
+									// protection against unallowed memory access
+									if (tOffset_reordered > max_offset_reordered) {
+										GWARN("Ordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_reordered, max_offset_reordered);
+										break;
+									}
+									if (tOffset_unordered > max_offset_unordered) {
+										GWARN("Unordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_unordered, max_offset_unordered);
+										break;
+									}
+
+									memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
 
 									for(int x = 0; x < (dimensionsIn_[0]*2); x++) {
 										// /dWeightAccu added (see loop below)
 										// TODO: Error check here!
-										hacfKSpace_reordered_.at(tOffset_ordered + x) = hacfKSpace_reordered_.at(tOffset_ordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);
+										hacfKSpace_reordered_.at(tOffset_reordered + x) = hacfKSpace_reordered_.at(tOffset_reordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);
 									}
 								}
 							}
