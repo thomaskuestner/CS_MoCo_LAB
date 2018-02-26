@@ -838,11 +838,11 @@ namespace Gadgetron
 
 		total_dist = trafos*dist;
 
-		register int idx1_max = chunks*chunk_size;
-		register int idx1, idx2;       //Index variables
-		register int idx2_limit;
-		register int length2 = length;
-		register int stride2 = stride;
+		int idx1_max = chunks*chunk_size;
+		int idx1, idx2;       //Index variables
+		int idx2_limit;
+		int length2 = length;
+		int stride2 = stride;
 
 		//Loop over all chunks
 		for (idx1 = 0; idx1 < idx1_max; idx1+=chunk_size) {
@@ -851,8 +851,8 @@ namespace Gadgetron
 			//Loop over all transformations
 			for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 				///Copy data to buffer.
-				register int j, idx3 = idx2;
-				for (j = 0; j < length2; idx3+=stride2) {
+				int idx3 = idx2;
+				for (int j = 0; j < length2; idx3+=stride2) {
 					buffer_ptr[idx3] = data_ptr[idx2 + stride2*(length2 - j - 1)];
 					j++;
 				}
@@ -1101,11 +1101,11 @@ namespace Gadgetron
 
 		total_dist = trafos*dist;
 
-		register int idx1_max = chunks*chunk_size;
-		register int idx1, idx2;       //Index variables
-		register int idx2_limit;
-		register int length2 = length;
-		register int stride2 = stride;
+		int idx1_max = chunks*chunk_size;
+		int idx1, idx2;       //Index variables
+		int idx2_limit;
+		int length2 = length;
+		int stride2 = stride;
 
 		std::vector<T> vTmp;
 
@@ -1116,7 +1116,7 @@ namespace Gadgetron
 			//Loop over all transformations
 			for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 				///Copy data to buffer.
-				register int idx3 = idx2;
+				int idx3 = idx2;
 				for (int j = 0; j < length2; idx3+=stride2) {
 					vTmp.push_back(data_ptr[idx3]);
 					j++;
@@ -1232,11 +1232,11 @@ namespace Gadgetron
 
 		total_dist = trafos*dist;
 
-		register int idx1_max = chunks*chunk_size;
-		register int idx1, idx2;       //Index variables
-		register int idx2_limit;
-		register int length2 = length;
-		register int stride2 = stride;
+		int idx1_max = chunks*chunk_size;
+		int idx1, idx2;       //Index variables
+		int idx2_limit;
+		int length2 = length;
+		int stride2 = stride;
 
 		std::vector<T> vTmp;
 
@@ -1247,7 +1247,7 @@ namespace Gadgetron
 			//Loop over all transformations
 			for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 				///Copy data to buffer.
-				register int idx3 = idx2;
+				int idx3 = idx2;
 				for (int j = 0; j < length2; idx3+=stride2) {
 					vTmp.push_back(data_ptr[idx3]);
 					j++;
@@ -1582,11 +1582,11 @@ namespace Gadgetron
 		}
 		total_dist = trafos*dist;
 
-		register int idx1_max = chunks*chunk_size;
-		register int idx1, idx2;       //Index variables
-		register int idx2_limit;
-		register int length2 = length;
-		register int stride2 = stride;
+		int idx1_max = chunks*chunk_size;
+		int idx1, idx2;       //Index variables
+		int idx2_limit;
+		int length2 = length;
+		int stride2 = stride;
 
 		std::vector<T> vTmp;
 
@@ -1597,7 +1597,7 @@ namespace Gadgetron
 			{
 				///Copy data to buffer.
 				{
-					register int j, idx3 = idx2;
+					int j, idx3 = idx2;
 					for (j = 0; j < length2; idx3+=stride2)
 					{
 						vTmp.push_back(data_ptr[idx3]);

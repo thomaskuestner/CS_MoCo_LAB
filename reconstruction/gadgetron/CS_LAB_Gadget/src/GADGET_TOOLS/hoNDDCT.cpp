@@ -125,9 +125,9 @@ template<class T> void hoNDDCT<T>::dct_int(hoNDArray<T> *input, size_t dim_to_tr
 	//Grab address of data
 	data_ptr = reinterpret_cast<T*>(input->get_data_ptr());
 
-	register int idx1_max = chunks*chunk_size;
-	register int idx1, idx2;	   //Index variables
-	register int idx2_limit;
+	int idx1_max = chunks*chunk_size;
+	int idx1, idx2;	   //Index variables
+	int idx2_limit;
 
 	//Loop over all chunks
 	for (idx1 = 0; idx1 < idx1_max; idx1+=chunk_size) {
@@ -136,7 +136,7 @@ template<class T> void hoNDDCT<T>::dct_int(hoNDArray<T> *input, size_t dim_to_tr
 		//Loop over all transformations
 		for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 			///Copy data to buffer.
-			register int idx3 = idx2;
+			int idx3 = idx2;
 			for (int j = 0; j < length; idx3+=stride) {
 				fft_buffer[j++] = data_ptr[idx3];
 			}

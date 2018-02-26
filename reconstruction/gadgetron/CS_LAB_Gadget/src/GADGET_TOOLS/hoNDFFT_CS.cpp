@@ -103,12 +103,12 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 	//Grab address of data
 	data_ptr = reinterpret_cast<T*>(input->get_data_ptr());
 
-	register int idx1_max = chunks*chunk_size;
-	register int idx1, idx2;		//Index variables
-	register int idx2_limit;
-	register int middle_point = ((length+1)>>1)<<1;
-	register int length2 = length<<1;
-	register int stride2 = stride<<1;
+	int idx1_max = chunks*chunk_size;
+	int idx1, idx2;		//Index variables
+	int idx2_limit;
+	int middle_point = ((length+1)>>1)<<1;
+	int length2 = length<<1;
+	int stride2 = stride<<1;
 
 	if (bScrambling) {
 		//Loop over all chunks
@@ -118,7 +118,7 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 			//Loop over all transformations
 			for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 				///Copy data to buffer.
-				register int idx3 = idx2;
+				int idx3 = idx2;
 				for (int j = middle_point; j < length2; idx3+=stride2) {
 					fft_buffer[j++] = data_ptr[idx3];
 					fft_buffer[j++] = data_ptr[idx3+1];
@@ -153,7 +153,7 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 			//Loop over all transformations
 			for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 				///Copy data to buffer.
-					register int idx3 = idx2;
+					int idx3 = idx2;
 					for (int j = 0; j < length2; idx3+=stride2) {
 						fft_buffer[j++] = data_ptr[idx3];
 						fft_buffer[j++] = data_ptr[idx3+1];
@@ -270,12 +270,12 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 	//Grab address of data
 	data_ptr = reinterpret_cast<T*>(input->get_data_ptr());
 
-	register int idx1_max = chunks*chunk_size;
-	register int idx1, idx2;			//Index variables
-	register int idx2_limit;
-	register int middle_point = ((length+1)>>1)<<1;
-	register int length2 = length<<1;
-	register int stride2 = stride<<1;
+	int idx1_max = chunks*chunk_size;
+	int idx1, idx2;			//Index variables
+	int idx2_limit;
+	int middle_point = ((length+1)>>1)<<1;
+	int length2 = length<<1;
+	int stride2 = stride<<1;
 
 	//Loop over all chunks
 	for (idx1 = 0; idx1 < idx1_max; idx1+=chunk_size) {
@@ -284,7 +284,7 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 		//Loop over all transformations
 		for (idx2 = idx1; idx2 < idx2_limit; idx2+=dist) {
 			///Copy data to buffer.
-			register int idx3 = idx2;
+			int idx3 = idx2;
 
 			for (int j = middle_point; j < length2; idx3+=stride2) {
 				fft_buffer[j++] = data_ptr[idx3];
