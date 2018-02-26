@@ -44,7 +44,7 @@ namespace Gadgetron {
 			int iScrambleDim = scrambleDim.value();
 			int iTransformFFTBA = transformFftBaDim.value();
 			int ikSpaceOut = kSpaceOutDim.value();
-			int iNorm_ = norm.value();
+			iNorm_ = norm.value();
 #else
 			GlobalVar::instance()->iNOuter_ = this->get_int_value("OuterIterations");
 			GlobalVar::instance()->iNInner_ = this->get_int_value("InnerIterations");

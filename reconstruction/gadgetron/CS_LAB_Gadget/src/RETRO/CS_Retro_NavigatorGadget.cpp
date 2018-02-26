@@ -59,7 +59,7 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 
 	// convert vector to array
 	float *fPtr = tmp_m2->getObjectPtr()->get_data_ptr();
-	for (long iI = 0; iI < vNavInt_.size(); iI++) {
+	for (size_t iI = 0; iI < vNavInt_.size(); iI++) {
 		fPtr[iI] = vNavInt_.at(iI);
 	}
 
@@ -125,7 +125,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 		// fill part of the 3D array
 		#pragma omp parallel for
-		for (long i = 0; i < aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2); i++) {
+		for (size_t i = 0; i < aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2); i++) {
 			aPower.at(i+offset) = std::complex<float>(fPower.at(c), fPower.at(c));
 		}
 	}
@@ -143,7 +143,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 	// conversion from complex float to float
 	hoNDArray<float> afPower(aPower.get_dimensions());
-	for (long i = 0; i < afPower.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < afPower.get_number_of_elements(); i++) {
 		afPower[i] = aPower[i].real();
 	}
 
@@ -187,7 +187,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 	GINFO("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
 
-	if ( (iMaxIndex<20) || (iMaxIndex > aPowerInChan.get_size(1)-20)) {
+	if ( (iMaxIndex < 20) || (iMaxIndex > static_cast<int>(aPowerInChan.get_size(1))-20)) {
 		GERROR("Error: iMaxIndex out of bounds..\n");
 
 		return;
@@ -224,7 +224,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	float fMax = vGoodChannels.at(iIndex);
 	int iNumGood = 0;
 
-	for (int i = 0; i < vGoodChannels.size(); i++) {
+	for (size_t i = 0; i < vGoodChannels.size(); i++) {
 		if (vGoodChannels.at(i) > .2*fMax) {
 			vGoodChannels.at(i) = 1;
 			iNumGood++;
@@ -266,7 +266,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 			// fill array
 			size_t offset = aPowerInPE.get_size(0)*aPowerInPE.get_size(1)*o;
-			for (long i = 0; i < aTmp.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < aTmp.get_number_of_elements(); i++) {
 				aPowerInPE.at(i + offset) = aTmp.at(i);
 			}
 
@@ -312,7 +312,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	// conversion from complex float to float
 	afPower.clear();
 	afPower.create(*aPower.get_dimensions());
-	for (long i = 0; i < afPower.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < afPower.get_number_of_elements(); i++) {
 		afPower[i] = aPower[i].real();
 	}
 
@@ -386,7 +386,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	fMax =vGoodChannels.at(iIndex);
 	iNumGood = 0;
 
-	for (int i = 0; i < vGoodChannels.size(); i++) {
+	for (size_t i = 0; i < vGoodChannels.size(); i++) {
 		if (vGoodChannels.at(i) > .2*fMax) {
 			vGoodChannels.at(i) = 1;
 			iNumGood++;
@@ -423,7 +423,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 			// fill array
 			size_t offset = acRelevantImg.get_size(0)*acRelevantImg.get_size(1)*o;
-			for (long i = 0; i < afTmp.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < afTmp.get_number_of_elements(); i++) {
 				acRelevantImg.at(i + offset) = afTmp.at(i);
 			}
 
@@ -437,7 +437,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	hoNDArray<float> aRelevantImg(*acRelevantImg.get_dimensions());
 	multiplyConj(acRelevantImg,acRelevantImg,acRelevantImg);
 	// complex float to float datatype
-	for (long i = 0; i < aRelevantImg.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < aRelevantImg.get_number_of_elements(); i++) {
 		aRelevantImg[i] = acRelevantImg[i].real();
 	}
 
@@ -445,12 +445,12 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	size_t tOffset = aRelevantImg.get_size(0)*aRelevantImg.get_size(1);
 	hoNDArray<float> hafMax(aRelevantImg.get_dimensions());
 	float *fPtr = hafMax.get_data_ptr();
-	for (int iI = 0; iI < aRelevantImg.get_size(2); iI++) {
+	for (size_t iI = 0; iI < aRelevantImg.get_size(2); iI++) {
 		hoNDArray<float> tmp(aRelevantImg.get_size(0), aRelevantImg.get_size(1), aRelevantImg.get_data_ptr()+tOffset*iI);
 		iMaxIndex = amax(&tmp);
 		fMax = tmp.at(iMaxIndex);
 
-		for (int iL = 0; iL < tOffset; iL++) {
+		for (size_t iL = 0; iL < tOffset; iL++) {
 			fPtr[iL+tOffset*iI] = fMax;
 		}
 	}
@@ -465,7 +465,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	hoNDArray<std::complex<float> > cfaSOSImgTest(aSOSImg.get_dimensions());
 	cfaSOSImgTest.fill(std::complex<float>(0.0, 0.0));
 	std::complex<float> *cfPointer = cfaSOSImgTest.get_data_ptr();
-	for (long iI = 0; iI < cfaSOSImgTest.get_number_of_elements(); iI++) {
+	for (size_t iI = 0; iI < cfaSOSImgTest.get_number_of_elements(); iI++) {
 		cfPointer[iI] = std::complex<float>(aSOSImg.at(iI), 0.0);
 	}
 
@@ -476,33 +476,23 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 	// fill last line in ref image
 	hoNDArray<float> aRefImg = aSOSImg; aRefImg.fill(0.0);
-	for (int iI = 0; iI < aSOSImg.get_size(0); iI++) {
+	for (size_t iI = 0; iI < aSOSImg.get_size(0); iI++) {
 		aRefImg.at(iI + aSOSImg.get_size(0)*(aSOSImg.get_size(1)-1)) = aSOSImg.at(iI + aSOSImg.get_size(0)*(aSOSImg.get_size(1)-1));
 	}
 
 	// create index vector and navigator vector (filled with zeros)
 	std::vector<int> vIdx;
-	for (int i = 0; i < aRefImg.get_size(1); i++) {
+	for (size_t i = 0; i < aRefImg.get_size(1); i++) {
 		vIdx.push_back(i);
 	}
 
 	vNav_.clear();
-	for (int i = 0; i < aRefImg.get_size(1); i++) {
+	for (size_t i = 0; i < aRefImg.get_size(1); i++) {
 		vNav_.push_back(0);
 	}
 
-	// performance measurement
-	double fClockSumDim = 0.0;
-	double fClockCirc = 0.0;
-	double fClockMultiply = 0.0;
-	double fClockFirst = 0.0;
-	double fClockSec = 0.0;
-	double fClockMem = 0.0;
-	double fClockSumDim2 = 0.0;
-	double fClockTh = 0.0;
-	clock_t b;
 	hoNDArray<float> aRMSImg;
-	for (int i = aRefImg.get_size(1)-2; i >1; i--) {// -1 ; i--){
+	for (int i = aRefImg.get_size(1)-2; i > 1; i--) {// -1 ; i--){
 		aRMSImg.create(aRefImg.get_size(0), 2*iDisplacement+1);
 		aRMSImg.fill(0.0);
 
@@ -598,7 +588,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		hoNDArray<std::complex<float>> cfaRMSImgTest(aRMSImg.get_dimensions());
 		cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
 		std::complex<float> *cfPointer = cfaRMSImgTest.get_data_ptr();
-		for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
+		for (size_t iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
 			cfPointer[iI] = std::complex<float>(aRMSImg.at(iI), 0.0);
 		}
 
@@ -608,7 +598,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		cfaRMSImgTest.create(aRMSImg.get_dimensions());
 		cfaRMSImgTest.fill(std::complex<float>(0.0, 0.0));
 		cfPointer = cfaRMSImgTest.get_data_ptr();
-		for (long iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
+		for (size_t iI = 0; iI < cfaRMSImgTest.get_number_of_elements(); iI++) {
 			cfPointer[iI] = std::complex<float>(aRMSImg.at(iI), 0.0);
 		}
 
@@ -630,7 +620,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		memcpy(aRefImg.get_data_ptr()+vIdx.at(i)*aRefImg.get_size(0), aTmp3.get_data_ptr(), sizeof(float)*aTmp3.get_size(0));
 	}
 
-	for (long i = 0; i < vNav_.size(); i++) {
+	for (size_t i = 0; i < vNav_.size(); i++) {
 		vNav_.at(i) *= -1;
 	}
 
@@ -643,13 +633,13 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	// interpolate navigator data signal to TR intervals
 	GINFO("interpolation of navigator data to TR intervals..\n");
 
-	for (long i = 0; i < vNav_.size(); i++) {
+	for (size_t i = 0; i < vNav_.size(); i++) {
 		vNav_.at(i) = -vNav_.at(i);
 	}
 
 	int iMin = std::min_element(vNav_.begin(), vNav_.end())-vNav_.begin();
 	float fMin = vNav_.at(iMin);
-	for (long i = 0; i < vNav_.size(); i++) {
+	for (size_t i = 0; i < vNav_.size(); i++) {
 		vNav_.at(i) -= fMin;
 	}
 
@@ -680,10 +670,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	* lNoScans_ is the same as length(iLC(:,15)) in Matlab
 	* */
 
-	int iNSamples		= aNav.get_size(0);
-	int iNMeasurment	= aNav.get_size(1);
-	int iNavRes	 		= aNav.get_size(2);
-	int iNChannels		= aNav.get_size(3);
+	size_t iNSamples	= aNav.get_size(0);
+	size_t iNMeasurment	= aNav.get_size(1);
+	size_t iNavRes	 	= aNav.get_size(2);
+	size_t iNChannels	= aNav.get_size(3);
 	double pi = 3.14159265358979323846;
 
 	/* MATLAB
@@ -703,7 +693,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDArray<std::complex<float> > A;
 	A.create(&A_dims);
 
-	for (unsigned long int i = 0; i < (iNSamples*iNavRes*iNChannels*iNMeasurment); i++) {
+	for (size_t i = 0; i < (iNSamples*iNavRes*iNChannels*iNMeasurment); i++) {
 		A.at(i) = aImg.at(i);
 	}
 
@@ -736,7 +726,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//fy = fft(y, nfft2);
 	//fy = abs(fy);
-	for(int i =0; i < coeff.get_number_of_elements(); i++) {
+	for(size_t i = 0; i < coeff.get_number_of_elements(); i++) {
 		absresult.at(i) = abs(coeff.at(i));
 	}
 
@@ -748,8 +738,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	fy.create(&fy_dims);
 
 	//fy = fy(1:nfft2/2);
-	for(int x = 0; x < fy.get_size(0); x++) {
-		for(int i = 0; i < fy.get_size(1); i++) {
+	for(size_t x = 0; x < fy.get_size(0); x++) {
+		for(size_t i = 0; i < fy.get_size(1); i++) {
 			fy.at(i+(x*fy.get_size(1))) = absresult.at(i+(x*fy.get_size(1)));
 		}
 	}
@@ -763,10 +753,12 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//[value, frequency] = max(fy(floor(Fl):floor(Fu),1));
 	//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
 	std::complex<float> maxvalue = 0;
-	int frequency = 0, searcharea = std::floor(Fu)-std::floor(Fl), colmnnr =0;
-	for(int x = 0; x < fy.get_size(0); x++) {
+	int frequency = 0;
+	int searcharea = std::floor(Fu) - std::floor(Fl);
+	size_t colmnnr = 0;
+	for(size_t x = 0; x < fy.get_size(0); x++) {
 		for(int i = 0; i < searcharea; i++) {
-			int pos = i+std::floor(Fl)+(x*fy.get_size(1));
+			size_t pos = i+std::floor(Fl)+(x*fy.get_size(1));
 
 			// break loop if index position is exceeding the limits of fy
 			if (pos > (fy.get_number_of_elements() - 1)) {
@@ -795,7 +787,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDArray<std::complex<float> > dECGtemp;
 	dECGtemp.create(&dECG_dims);
 
-	for(int i = 0; i < iNMeasurment; i++) {
+	for(size_t i = 0; i < iNMeasurment; i++) {
 		dECGtemp.at(i) = coeff.at(i+(colmnnr * iNMeasurment));
 	}
 
@@ -807,7 +799,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract real part, for newer compilers also consider:
 	//realpart = real(&dECGtemp);
-	for(int i = 0; i < iNMeasurment; i++) {
+	for(size_t i = 0; i < iNMeasurment; i++) {
 		realpart.at(i) = dECGtemp.at(i).real();
 	}
 
@@ -816,18 +808,18 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract imaginary part, for newer compilers also consider:
 	//imaginarypart = imag(&dECGtemp);
-	for(int i = 0; i < iNMeasurment; i++) {
+	for(size_t i = 0; i < iNMeasurment; i++) {
 		imaginarypart.at(i) = dECGtemp.at(i).imag();
 	}
 
 	subtract(&realpart, &imaginarypart, &dECGhoNDArray);
 	std::vector<std::complex<float> > dECG;
-	for (long i = 0; i < iNMeasurment; i++) {
+	for (size_t i = 0; i < iNMeasurment; i++) {
 		dECG.push_back(0);
 	}
 
 	//type conversion from complex to float and to vector
-	for(int i = 0; i<iNMeasurment; i++) {
+	for(size_t i = 0; i<iNMeasurment; i++) {
 		dECG.at(i) = real(dECGhoNDArray.at(i));
 	}
 
@@ -839,7 +831,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	}
 
 	std::vector<std::complex<float> > dECGInt;
-	for (long i = 0; i < iNMeasurment; i++) {
+	for (size_t i = 0; i < iNMeasurment; i++) {
 		dECGInt.push_back(i*lNoScans_/iNMeasurment);
 	}
 
@@ -972,7 +964,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//Y    = zeros(size(X));
 	std::vector<std::complex<float> > Y;
-	for (long i = 0; i < dECG.size(); i++) {
+	for (size_t i = 0; i < dECG.size(); i++) {
 		Y.push_back(0);
 	}
 
@@ -982,10 +974,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//      z(i - 1) = num(i) * X(m) + z(i) - den(i) * Y(m);
 	//   end
 	//end
-	for(int m = 0; m < Y.size(); m++) {
+	for(size_t m = 0; m < Y.size(); m++) {
 		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
 
-		for(int i = 1; i < den.size(); i++) {
+		for(size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
 	}
@@ -1003,7 +995,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//Y    = zeros(size(X));
 	Y.clear();
-	for (long i = 0; i < dECG.size(); i++) {
+	for (size_t i = 0; i < dECG.size(); i++) {
 		Y.push_back(0);
 	}
 
@@ -1014,10 +1006,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//      z(i - 1) = b(i) * X(m) + z(i) - a(i) * Y(m);
 	//   end
 	//end
-	for(int m = 0; m < Y.size(); m++) {
+	for(size_t m = 0; m < Y.size(); m++) {
 		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
 
-		for(int i = 1; i < den.size(); i++) {
+		for(size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
 	}
@@ -1033,7 +1025,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//dECG = diff(dECG);
 	std::vector<std::complex<float> > dECGdiff;
-	for(int i = 0; i<dECG.size()-1; i++) {
+	for(size_t i = 0; i < dECG.size()-1; i++) {
 		dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
 	}
 

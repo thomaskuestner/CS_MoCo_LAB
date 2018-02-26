@@ -2,7 +2,7 @@
 
 using namespace Gadgetron;
 
-ImageAccumulatorGadget::ImageAccumulatorGadget() : hafBuffer_(0), iPartition_(0), iImageLoopCounter_(0)
+ImageAccumulatorGadget::ImageAccumulatorGadget()
 {
 }
 
@@ -32,8 +32,8 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 
 		// extend dimensions by number of phases
 		vtDimensions_.push_back(GlobalVar::instance()->iNPhases_);
-		for (int iI = 0; iI < vtDimensions_.size(); iI++) {
-			GDEBUG("image size - %i: %i\n", iI, vtDimensions_[iI]);
+		for (size_t iI = 0; iI < vtDimensions_.size(); iI++) {
+			GDEBUG("image size - %i: %i\n", iI, vtDimensions_.at(iI));
 		}
 		
 		// initialize buffer array for incoming data
@@ -57,7 +57,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	// get pointers to the temporal buffer and the incoming data
 	float* b = hafBuffer_->get_data_ptr();
 	float* d = m2->getObjectPtr()->get_data_ptr();
-	iPhs_ = m1->getObjectPtr()->phase;
+	iPhs_ = static_cast<size_t>(m1->getObjectPtr()->phase);
 
 	// get partition
 	iPartition_++;
@@ -116,7 +116,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 		return GADGET_OK;
 	}
 
-	// TODO: Return something by default
+	return GADGET_OK;
 }
 
 //int ImageAccumulatorGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1) {

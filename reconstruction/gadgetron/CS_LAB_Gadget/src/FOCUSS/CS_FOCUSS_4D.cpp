@@ -196,7 +196,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	pcfPtr2_ = hacfFullMask.get_data_ptr();
 	pbPtr_ = habFullMask.get_data_ptr();
 
-	for (int i = 0; i < hacfKSpace.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < hacfKSpace.get_number_of_elements(); i++) {
 		if (pcfPtr_[i] != cfZero) {
 			pcfPtr2_[i] = cfOne;
 			pbPtr_[i] = true;
@@ -257,7 +257,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 		// fill channel
 		#pragma omp parallel for
-		for (long i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
+		for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
 			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(fTmp);
 			hacfWWindowed.get_data_ptr()[i+tOffset] /= fTmp;
 		}
@@ -305,7 +305,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// how many channels are converged
 				int iNom = 0;
-				for (int iI = 0; iI < vfVec.size(); iI++) {
+				for (size_t iI = 0; iI < vfVec.size(); iI++) {
 					if (vfVec[iI] > fEpsilon_) {
 						iNom++;
 					}
@@ -366,13 +366,13 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// calculate nominator
 				pcfPtr2_ = hacfSubArrayG.get_data_ptr();
-				for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
+				for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
 					fNumerator += pcfPtr2_[iI]*pcfPtr2_[iI];
 				}
 
 				// calculate denominator
 				pcfPtr2_ = hacfSubArrayG_old.get_data_ptr();
-				for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
+				for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
 					fDenominator += pcfPtr2_[iI]*pcfPtr2_[iI];
 				}
 
@@ -382,7 +382,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// fill sub-array of the 4D array
 				#pragma omp parallel for
-				for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; lI++) {
+				for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; lI++) {
 					pcfPtr_[lI+tOffset] = fBetaCha;
 				}
 			}
@@ -413,12 +413,12 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				pcfPtr2_ = hacfSubArrayE.get_data_ptr();
 				pcfPtr3_ = hacfSubArrayZ.get_data_ptr();
 
-				for (long iI = 0; iI < hacfSubArrayE.get_number_of_elements(); iI++) {
+				for (size_t iI = 0; iI < hacfSubArrayE.get_number_of_elements(); iI++) {
 					fNumerator += std::conj(pcfPtr3_[iI])*pcfPtr2_[iI];
 				}
 
 				// calculate denominator
-				for (long iI = 0; iI < hacfSubArrayZ.get_number_of_elements(); iI++) {
+				for (size_t iI = 0; iI < hacfSubArrayZ.get_number_of_elements(); iI++) {
 					fDenominator += std::conj(pcfPtr3_[iI])*pcfPtr3_[iI];
 				}
 
@@ -428,7 +428,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// fill 3D alpha array
 				#pragma omp parallel for
-				for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; lI++) {
+				for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; lI++) {
 					pcfPtr_[lI+tOffset] = fAlphaCha;
 				}
 			}
@@ -453,7 +453,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// fill channel
 				#pragma omp parallel for
-				for (long i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
+				for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
 					hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(fTmp);
 				}
 			}
@@ -538,13 +538,13 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 	// if error catched - return zero for non-affecting the reconstruction result with false calculations
 	try {
 		// loop over time states/gates
-		for (int idT = 0; idT < vtDim_[0]; idT++) {
+		for (size_t idT = 0; idT < vtDim_[0]; idT++) {
 			// get 3D+c sub-array
-			long lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
+			size_t lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
 			hoNDArray<std::complex<float> > hacfSub3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfRhoTmp.get_data_ptr()+lOffset, false);
 			hoNDArray<std::complex<float> > hacfSubKSpace(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfKSpace.get_data_ptr()+lOffset, false);
 			hoNDArray<std::complex<float> > hacfFilter3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfFilter_.get_data_ptr()+lOffset, false);
-			hoNDArray< bool > habMaskConj3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habMaskConj_.get_data_ptr()+lOffset, false);
+			hoNDArray<bool> habMaskConj3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habMaskConj_.get_data_ptr()+lOffset, false);
 
 			// flip in espresso direction
 			hoNDArray<std::complex<float> > hacfRhoFlipped3D = hacfSub3D;
@@ -552,10 +552,10 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 			pcfPtr2_ = hacfRhoFlipped3D.get_data_ptr();
 			if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {//ESPReSSo direction - y
 					#pragma omp parallel for
-					for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-						for (int idX = 0; idX < vtDim_[2]; idX++) {
-							for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
+					for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+						for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+							for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
 									pcfPtr2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pcfPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 								}
 							}
@@ -564,10 +564,10 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 			} else if (GlobalVar::instance()->iESPReSSoDirection_ == 2) {//ESPReSSo directon - z
 				// partition encoding direction
 				#pragma omp parallel for
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idY = 0; idY < vtDim_[0]; idY++) {
-							for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+							for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 								pcfPtr2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pcfPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 							}
 						}
@@ -586,7 +586,7 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 			hoNDArray<std::complex<float> > hacfPhase3D = hacfRhoFlipped3D;
 			pcfPtr_ = hacfPhase3D.get_data_ptr();
 			#pragma omp parallel for
-			for (int iI = 0; iI < hacfPhase3D.get_number_of_elements(); iI++) {
+			for (size_t iI = 0; iI < hacfPhase3D.get_number_of_elements(); iI++) {
 				pcfPtr_[iI] = std::polar(1.0, 2.0*std::arg(pcfPtr_[iI]));
 			}
 
@@ -603,10 +603,10 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 			// ESPReSSo direction is phase encoding direction
 			// ESPReSSo direction is phase encoding direction
 			if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
-							for (int idY = 0; idY < vtDim_[0]; idY++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
+							for (size_t idY = 0; idY < vtDim_[0]; idY++) {
 								if (habMaskConj_(idY, idZ, idX, iCha)==true) {
 									pcfPtr2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = std::conj(pcfPtr2_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]]);
 								}
@@ -616,10 +616,10 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 				}
 			} else if (GlobalVar::instance()->iESPReSSoDirection_ == 2) {
 				// ESPReSSo direction is partition encoding direction
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idY = 0; idY < vtDim_[0]; idY++) {
-							for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+							for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 								if (habMaskConj_(idY, idZ, idX, iCha)==true) {
 									pcfPtr2_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = std::conj(pcfPtr2_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]]);
 								}
@@ -629,9 +629,10 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 				}
 			}
 
-			memcpy(hacfKSpaceCombi.get_data_ptr() + lOffset, hacfKSpaceCombi3D.get_data_ptr(), sizeof( std::complex< float > )*hacfKSpaceCombi3D.get_number_of_elements());
-			memcpy(hacfPhase.get_data_ptr() + lOffset, hacfPhase3D.get_data_ptr(), sizeof( std::complex< float > )*hacfPhase3D.get_number_of_elements());
+			memcpy(hacfKSpaceCombi.get_data_ptr() + lOffset, hacfKSpaceCombi3D.get_data_ptr(), sizeof(std::complex<float>)*hacfKSpaceCombi3D.get_number_of_elements());
+			memcpy(hacfPhase.get_data_ptr() + lOffset, hacfPhase3D.get_data_ptr(), sizeof(std::complex<float>)*hacfPhase3D.get_number_of_elements());
 		}
+
 		// permute array: y-z-x-c-t -> t-y-z-x-c
 		vtDimOrder.clear();
 		vtDimOrder.push_back(4);
@@ -674,11 +675,11 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 	vtDim_ = *habFullMask.get_dimensions();
 
 	// loop over states/gates
-	for (int idT = 0; idT < vtDim_[4]; idT++) {
+	for (size_t idT = 0; idT < vtDim_[4]; idT++) {
 		// get 3D+c sub-array
-		long lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
-		hoNDArray< bool > habFullMask3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habFullMask.get_data_ptr()+lOffset, false);
-		hoNDArray< bool > habKSpaceCenter3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habKSpaceCenter_.get_data_ptr()+lOffset, false);
+		size_t lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
+		hoNDArray<bool> habFullMask3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habFullMask.get_data_ptr()+lOffset, false);
+		hoNDArray<bool> habKSpaceCenter3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habKSpaceCenter_.get_data_ptr()+lOffset, false);
 
 		// temporal array
 		hoNDArray<bool> habSamplPtrSym;
@@ -703,7 +704,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// ESPReSSo direction is phase encoding direction
 				if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
-					for (int idY = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0])-1; idY < vtDim_[0]; idY++) {
+					for (int idY = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[0])-1; static_cast<unsigned int>(idY) < vtDim_[0]; idY++) {
 						if (pbPtr_[idY + vtDim_[0]*iCenterZ + vtDim_[0]*vtDim_[1]*iCenterX] != false) {
 							iNumFoundUpper++;
 						}
@@ -716,11 +717,12 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					}
 				} else {
 					// ESPReSSo direction is partition encoding direction
-					for (int idZ = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1])-1; idZ < vtDim_[1]; idZ++) {
+					for (int idZ = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1])-1; static_cast<unsigned int>(idZ) < vtDim_[1]; idZ++) {
 						if (pbPtr_[iCenterY + idZ*vtDim_[0] + iCenterX*vtDim_[0]*vtDim_[1]] != false) {
 							iNumFoundUpper++;
 						}
 					}
+
 					for (int idZ = (int)(GlobalVar::instance()->fPartialFourierVal_*vtDim_[1])-1; idZ >= 0; idZ--) {
 						if (pbPtr_[iCenterY + idZ*vtDim_[0] + iCenterX*vtDim_[0]*vtDim_[1]] != false) {
 							iNumFoundLower++;
@@ -744,10 +746,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					// ESPReSSo direction is phase encoding direction
 					if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
 						#pragma omp parallel for
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
-									for (int idY = vtDim_[0]-1; idY > vtDim_[0]/2; idY--) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
+									for (size_t idY = vtDim_[0]-1; idY > vtDim_[0]/2; idY--) {
 										pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 									}
 								}
@@ -756,10 +758,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					} else {
 						// ESPReSSo direction is partition encoding direction
 						#pragma omp parallel for
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
-									for (int idZ = vtDim_[1]-1; idZ > vtDim_[1]/2; idZ--) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+									for (size_t idZ = vtDim_[1]-1; idZ > vtDim_[1]/2; idZ--) {
 										pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 									}
 								}
@@ -772,10 +774,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					// ESPReSSo direction is phase encoding direction
 					if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
 						#pragma omp parallel for
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
-									for (int idY = 0; idY < vtDim_[0]/2; idY++) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
+									for (size_t idY = 0; idY < vtDim_[0]/2; idY++) {
 										pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 									}
 								}
@@ -784,10 +786,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					} else {
 						// ESPReSSo direction is partition encoding direction
 						#pragma omp parallel for
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
-									for (int idZ = 0; idZ < vtDim_[1]/2; idZ++) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+									for (size_t idZ = 0; idZ < vtDim_[1]/2; idZ++) {
 										pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[idY + (vtDim_[1]-1 - idZ)*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 									}
 								}
@@ -809,7 +811,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// get unsampled points - XOR gating
 				#pragma omp parallel for
-				for (int i = 0; i < habMaskConj3D.get_number_of_elements(); i++) {
+				for (size_t i = 0; i < habMaskConj3D.get_number_of_elements(); i++) {
 					pbPtr_[i] = pbPtr2_[i]^pbPtr3_[i];
 				}
 			} else {
@@ -823,10 +825,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// set upper half zero
 				#pragma omp parallel for
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idY = 0; idY < vtDim_[0]/2; idY++) {
-							for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idY = 0; idY < vtDim_[0]/2; idY++) {
+							for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 								pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = false;
 							}
 						}
@@ -838,10 +840,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 				pbPtr_ = habMaskLeft3D.get_data_ptr();
 
 				#pragma omp parallel for
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idY = vtDim_[0]/2; idY < vtDim_[0]; idY++) {
-							for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idY = vtDim_[0]/2; idY < vtDim_[0]; idY++) {
+							for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 								pbPtr_[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = false;
 							}
 						}
@@ -854,7 +856,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 				pbPtr3_ = habMaskLeft3D.get_data_ptr();
 
 				#pragma omp parallel for
-				for (long i = 0; i < habMaskRight3D.get_number_of_elements(); i++) {
+				for (size_t i = 0; i < habMaskRight3D.get_number_of_elements(); i++) {
 					if (pbPtr2_[i] == true) {
 						pbPtr_[i] = true;
 						pbPtr3_[i] = true;
@@ -864,14 +866,14 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 				// flip both masks (lmaskRight and lmaskLeft) and write to habMaskConj_ and habMaskConj2_
 				hoNDArray<bool> habMaskConj3D(habMaskRight3D.get_dimensions());
 				hoNDArray<bool> habMaskConj2_3D(habMaskRight3D.get_dimensions());
-				bool* pcfPtr_habMaskConj3D = habMaskConj3D.get_data_ptr();
-				bool* pcfPtr_habMaskConj2_3D= habMaskConj2_3D.get_data_ptr();
+				bool *pcfPtr_habMaskConj3D = habMaskConj3D.get_data_ptr();
+				bool *pcfPtr_habMaskConj2_3D= habMaskConj2_3D.get_data_ptr();
 
 				#pragma omp parallel for
-				for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-					for (int idX = 0; idX < vtDim_[2]; idX++) {
-						for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
-							for (int idY = 0; idY < vtDim_[0]; idY++) {
+				for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+					for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+						for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
+							for (size_t idY = 0; idY < vtDim_[0]; idY++) {
 								pcfPtr_habMaskConj3D[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 								pcfPtr_habMaskConj2_3D[idY + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]] = pbPtr3_[(vtDim_[0]-1 - idY) + idZ*vtDim_[0] + idX*vtDim_[0]*vtDim_[1] + iCha*vtDim_[0]*vtDim_[1]*vtDim_[2]];
 							}
@@ -885,7 +887,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// get unsampled points - XOR gating
 				#pragma omp parallel for
-				for (int i = 0; i < habMaskConj3D.get_number_of_elements(); i++) {
+				for (size_t i = 0; i < habMaskConj3D.get_number_of_elements(); i++) {
 					pbPtr2_[i] = pbPtr_[i]^pbPtr2_[i] || pbPtr_[i]^pbPtr3_[i];
 				}
 
@@ -917,7 +919,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// phase encoding direction
 				if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
-					for (int iZ = 0; iZ < vtDim_[1]; iZ++) {
+					for (size_t iZ = 0; iZ < vtDim_[1]; iZ++) {
 						// lower region is sampled
 						if (bESPReSSoIsLower_ == true) {
 							if (GlobalVar::instance()->fPartialFourierVal_ != .5) {
@@ -970,7 +972,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					}
 				} else {
 					// partition encoding direction
-					for (int iY = 0; iY < vtDim_[0]; iY++) {
+					for (size_t iY = 0; iY < vtDim_[0]; iY++) {
 						// lower region is sampled
 						if (bESPReSSoIsLower_ == true) {
 							if (GlobalVar::instance()->fPartialFourierVal_ != .5) {
@@ -1027,7 +1029,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 				int iLine1 = .75*vtDim_[0]-iCenterY;
 				int iLine2 = .75*vtDim_[0];
 
-				for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+				for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 					viKSpaceLines_1.push_back(iLine1);
 					viKSpaceLines_2.push_back(iLine2);
 				}
@@ -1041,7 +1043,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 				// phase encoding direction
 				if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
-					for (int iZ = 0; iZ < vtDim_[1]; iZ++) {
+					for (size_t iZ = 0; iZ < vtDim_[1]; iZ++) {
 						int iLine1 = .75*vtDim_[0]-iCenterY;
 						int iLine2 = .75*vtDim_[0];
 						viKSpaceLines_1.push_back(iLine1);
@@ -1049,7 +1051,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					}
 				} else {
 					// partition encoding direction
-					for (int iY = 0; iY < vtDim_[0]; iY++) {
+					for (size_t iY = 0; iY < vtDim_[0]; iY++) {
 						int iLine1 = .75*vtDim_[1]-iCenterZ;
 						int iLine2 = .75*vtDim_[1];
 						viKSpaceLines_1.push_back(iLine1);
@@ -1074,12 +1076,14 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 				if (iDim == GlobalVar::instance()->iESPReSSoDirection_) {
 					// phase encoding direction
 					if (GlobalVar::instance()->iESPReSSoDirection_ == 1) {
-						for (int iZ = 0; iZ < vtDim_[1]; iZ++) {
+						for (size_t iZ = 0; iZ < vtDim_[1]; iZ++) {
 							// get filter coefficients (passed parameter is window width)
 							std::vector<float> *HanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iZ)-viKSpaceLines_1.at(iZ));
 
 							// place coefficients in the filt1D array - loop over filter "lines"
-							for (int iI = 0, iY = viKSpaceLines_1.at(iZ); iY < viKSpaceLines_2.at(iZ); iY++, iI++) {
+							size_t iI;
+							int iY;
+							for (iI = 0, iY = viKSpaceLines_1.at(iZ); iY < viKSpaceLines_2.at(iZ); iY++, iI++) {
 								hacfFilt1D(iY, iZ) = std::complex<float>(HanningCoeff->at(iI));
 							}
 
@@ -1087,10 +1091,12 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 						}
 					} else if (GlobalVar::instance()->iESPReSSoDirection_ == 2)
 						// partition encoding direction
-						for (int iY = 0; iY < vtDim_[0]; iY++) {
+						for (size_t iY = 0; iY < vtDim_[0]; iY++) {
 							std::vector<float> *vfHanningCoeff = fGetHanningWindow(viKSpaceLines_2.at(iY)-viKSpaceLines_1.at(iY));
 
-							for (int iI = 0, iZ = viKSpaceLines_1.at(iY); iZ < viKSpaceLines_2.at(iY); iZ++, iI++) {
+							size_t iI;
+							int iZ;
+							for (iI = 0, iZ = viKSpaceLines_1.at(iY); iZ < viKSpaceLines_2.at(iY); iZ++, iI++) {
 								hacfFilt1D(iY, iZ) = std::complex<float>(vfHanningCoeff->at(iI));
 							}
 
@@ -1098,10 +1104,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 						}
 
 					// repetition in x-direction for getting a full 3D array
-					for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-						for (int iX = 0; iX < vtDim_[2]; iX++) {
-							for (int iY = 0; iY < vtDim_[0]; iY++) {
-								for (int iZ = 0; iZ < vtDim_[1]; iZ++) {
+					for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+						for (size_t iX = 0; iX < vtDim_[2]; iX++) {
+							for (size_t iY = 0; iY < vtDim_[0]; iY++) {
+								for (size_t iZ = 0; iZ < vtDim_[1]; iZ++) {
 									hacfFilt1DFullArray(iY, iZ, iX, iCha) = hacfFilt1D(iY, iZ);
 								}
 							}
@@ -1113,10 +1119,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					// x-direction
 					if (iDim == 0) {
 						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[2]);
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
-									for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+									for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idX));
 									}
 								}
@@ -1127,10 +1133,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					} else if (iDim == 1) {
 						// y-direction
 						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
-									for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+									for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idY));
 									}
 								}
@@ -1141,10 +1147,10 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 					} else if (iDim == 2) {
 						// z-direction
 						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
-						for (int iCha = 0; iCha < vtDim_[3]; iCha++) {
-							for (int idX = 0; idX < vtDim_[2]; idX++) {
-								for (int idY = 0; idY < vtDim_[0]; idY++) {
-									for (int idZ = 0; idZ < vtDim_[1]; idZ++) {
+						for (size_t iCha = 0; iCha < vtDim_[3]; iCha++) {
+							for (size_t idX = 0; idX < vtDim_[2]; idX++) {
+								for (size_t idY = 0; idY < vtDim_[0]; idY++) {
+									for (size_t idZ = 0; idZ < vtDim_[1]; idZ++) {
 										hacfFilt1DFullArray(idY, idZ, idX, iCha) = std::complex<float>(vfHammingCoeff->at(idZ));
 									}
 								}
@@ -1160,13 +1166,13 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 
 			// check maximum value in filter array
 			pcfPtr_ = hacfFilter3D.get_data_ptr();
-			for (long iI = 0; iI < hacfFilter3D.get_number_of_elements(); iI++) {
+			for (size_t iI = 0; iI < hacfFilter3D.get_number_of_elements(); iI++) {
 				if (abs(pcfPtr_[iI]) > 1.0) {
 					pcfPtr_[iI] = std::complex<float>(0.0);
 				}
 			}
 
-			memcpy(hacfFilter_.get_data_ptr() + lOffset, hacfFilter3D.get_data_ptr(), sizeof( std::complex< float > )*hacfFilter3D.get_number_of_elements());
+			memcpy(hacfFilter_.get_data_ptr() + lOffset, hacfFilter3D.get_data_ptr(), sizeof(std::complex<float>)*hacfFilter3D.get_number_of_elements());
 		}
 
 		// permute array: y-z-x-c-t -> t-y-z-x-c
@@ -1183,7 +1189,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 //--------------------------------------------------------------------------
 //---------------------------- windowing -----------------------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
+void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 {
 	// permute array: t-y-z-x-c -> y-z-x-c-t
 	std::vector<size_t> vtDimOrder;
@@ -1200,7 +1206,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
 	habKSpaceCenter_.fill(true);
 
 	// loop over t
-	for (int idT = 0; idT < vtDim_[4]; idT++) {
+	for (size_t idT = 0; idT < vtDim_[4]; idT++) {
 		// get 3D+c sub-array
 		long lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
 		hoNDArray<std::complex<float> > hacfWWindowed3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+lOffset, false);
@@ -1211,7 +1217,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
 
 		// get calibration mask
 		std::vector<size_t> vStart, vSize;
-		for (int iI = 0; iI < 2; iI++) {
+		for (size_t iI = 0; iI < 2; iI++) {
 			if (viCalibrationSize_.at(iI + idT*4) % 2) {
 				vStart.push_back(std::floor((float)vtDim_[iI]/2)+std::ceil(-(float)viCalibrationSize_.at(iI + idT*4)/2));
 			} else {
@@ -1221,10 +1227,10 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
 
 		vStart.push_back(0);
 		vStart.push_back(0);
-		for (int iY = vStart.at(0); iY < vStart.at(0)+viCalibrationSize_.at(0 + idT*4); iY++) {
-			for (int iZ = vStart.at(1); iZ < vStart.at(1)+viCalibrationSize_.at(1 + idT*4); iZ++) {
-				for (int iX = vStart.at(2); iX < vStart.at(2)+viCalibrationSize_.at(2 + idT*4); iX++) {
-					for (int iC = vStart.at(3); iC < vStart.at(3)+viCalibrationSize_.at(3 + idT*4); iC++) {
+		for (size_t iY = vStart.at(0); iY < vStart.at(0)+viCalibrationSize_.at(0 + idT*4); iY++) {
+			for (size_t iZ = vStart.at(1); iZ < vStart.at(1)+viCalibrationSize_.at(1 + idT*4); iZ++) {
+				for (size_t iX = vStart.at(2); iX < vStart.at(2)+viCalibrationSize_.at(2 + idT*4); iX++) {
+					for (size_t iC = vStart.at(3); iC < vStart.at(3)+viCalibrationSize_.at(3 + idT*4); iC++) {
 						hacfMask3D(iY, iZ, iX, iC) = std::complex<float>(1.0);
 					}
 				}
@@ -1235,13 +1241,13 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
 		hacfWWindowed3D *= hacfMask3D;
 
 		// get kSpaceCenter
-		hoNDArray< bool > habKSpaceCenter3D(hacfWWindowed3D.get_dimensions());
+		hoNDArray<bool> habKSpaceCenter3D(hacfWWindowed3D.get_dimensions());
 		habKSpaceCenter3D.fill(true);
 		pbPtr_ = habKSpaceCenter3D.get_data_ptr();
 		pcfPtr_ = hacfMask3D.get_data_ptr();
 
 		#pragma omp parallel for
-		for (long lI = 0; lI < hacfMask3D.get_number_of_elements(); lI++) {
+		for (size_t lI = 0; lI < hacfMask3D.get_number_of_elements(); lI++) {
 			if (pcfPtr_[lI] == std::complex<float>(0.0)) {
 				pbPtr_[lI] = false;
 			}
@@ -1250,7 +1256,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed)
 		GINFO("data windowed for initial estimate and kSpaceCenter found..\n");
 
 		memcpy(habKSpaceCenter_.get_data_ptr() + lOffset, habKSpaceCenter3D.get_data_ptr(), sizeof(bool)*habKSpaceCenter3D.get_number_of_elements());
-		memcpy(hacfWWindowed.get_data_ptr() + lOffset, hacfWWindowed3D.get_data_ptr(), sizeof( std::complex< float > )*hacfWWindowed3D.get_number_of_elements());
+		memcpy(hacfWWindowed.get_data_ptr() + lOffset, hacfWWindowed3D.get_data_ptr(), sizeof(std::complex<float>)*hacfWWindowed3D.get_number_of_elements());
 	}
 
 	// permute array: y-z-x-c-t -> t-y-z-x-c
@@ -1282,12 +1288,12 @@ void CS_FOCUSS_4D::fGetCalibrationSize(hoNDArray<bool> &habArray)
 	vtDim_ = *habArray.get_dimensions();
 
 	// loop over t
-	for (int idT = 0; idT < vtDim_[4]; idT++) {
-		long lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
+	for (size_t idT = 0; idT < vtDim_[4]; idT++) {
+		size_t lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
 		hoNDArray< bool > hoNDArray3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habArray.get_data_ptr() + lOffset, false);
 
-		int iSY = 2;
-		int iSZ = 2;
+		unsigned int iSY = 2;
+		unsigned int iSZ = 2;
 		bool bYflag = false;
 		bool bZflag = false;
 		std::vector<size_t> vtDim = *hoNDArray3D.get_dimensions();

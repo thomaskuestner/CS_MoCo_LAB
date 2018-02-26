@@ -28,10 +28,10 @@ namespace Gadgetron
 
 	protected:
 		std::vector<size_t> vtDimensions_;
-		int iPartition_;
-		int iPhs_;
-		int iImageLoopCounter_;
-		hoNDArray<float> *hafBuffer_;
+		size_t iPartition_ = 0;
+		size_t iPhs_ = 0;
+		size_t iImageLoopCounter_ = 0;
+		hoNDArray<float> *hafBuffer_ = NULL;
 	};
 }
 

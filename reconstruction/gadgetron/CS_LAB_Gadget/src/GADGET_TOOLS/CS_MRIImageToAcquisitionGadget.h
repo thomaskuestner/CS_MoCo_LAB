@@ -25,7 +25,7 @@ namespace Gadgetron
 		virtual int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 		// correct header information (used for Compressed Sensing data - incomplete information)
-		int fCorrectHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1, int iLine, int iPartition, int iPhase);
+		int fCorrectHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1, size_t iLine, size_t iPartition, size_t iPhase);
 
 		// array dimension
 		std::vector<size_t> vDims_;

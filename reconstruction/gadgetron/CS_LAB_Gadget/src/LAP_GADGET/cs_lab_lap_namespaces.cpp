@@ -21,7 +21,6 @@ ColType cs_lab_lap_arma::roots(ColType c)
 	// Strip trailing zeros, but remember them as roots at zero.
 	int nnz = inz.n_elem;
 	c = c(span(inz(0),inz(nnz-1)));
-	int t = inz(nnz-1);
 	ColType r;
 
 	// Prevent relatively small leading coefficients from introducing Inf
@@ -57,9 +56,9 @@ CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order)
 		break;
 	case 231:
 		temp.set_size(m.n_cols, m.n_slices, m.n_rows);
-		for(int c = 0; c < m.n_cols; ++c) {
-			for(int r = 0; r < m.n_rows; ++r) {
-				for(int s = 0; s < m.n_slices; ++s) {
+		for(uword c = 0; c < m.n_cols; ++c) {
+			for(uword r = 0; r < m.n_rows; ++r) {
+				for(uword s = 0; s < m.n_slices; ++s) {
 					temp(c, s, r) = m(r, c, s);
 				}
 			}
@@ -67,9 +66,9 @@ CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order)
 		break;
 	case 312:
 		temp.set_size(m.n_slices, m.n_rows, m.n_cols);
-		for(int c = 0; c < m.n_cols; ++c) {
-			for(int r = 0; r < m.n_rows; ++r) {
-				for(int s = 0; s < m.n_slices; ++s) {
+		for(uword c = 0; c < m.n_cols; ++c) {
+			for(uword r = 0; r < m.n_rows; ++r) {
+				for(uword s = 0; s < m.n_slices; ++s) {
 					temp(s, r, c) = m(r, c, s);
 				}
 			}
@@ -77,9 +76,9 @@ CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order)
 		break;
 	case 321:
 		temp.set_size(m.n_slices, m.n_cols, m.n_rows);
-		for(int c = 0; c < m.n_cols; ++c) {
-			for(int r = 0; r < m.n_rows; ++r) {
-				for(int s = 0; s < m.n_slices; ++s) {
+		for(uword c = 0; c < m.n_cols; ++c) {
+			for(uword r = 0; r < m.n_rows; ++r) {
+				for(uword s = 0; s < m.n_slices; ++s) {
 					temp(s, c, r) = m(r, c, s);
 				}
 			}
@@ -87,9 +86,9 @@ CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order)
 		break;
 	case 213:
 		temp.set_size(m.n_cols, m.n_rows, m.n_slices);
-		for(int c = 0; c < m.n_cols; ++c) {
-			for(int r = 0; r < m.n_rows; ++r) {
-				for(int s = 0; s < m.n_slices; ++s) {
+		for(uword c = 0; c < m.n_cols; ++c) {
+			for(uword r = 0; r < m.n_rows; ++r) {
+				for(uword s = 0; s < m.n_slices; ++s) {
 					temp(c, r, s) = m(r, c, s);
 				}
 			}
@@ -97,9 +96,9 @@ CubeType cs_lab_lap_arma::permuteSimple(CubeType &m, int order)
 		break;
 	case 132:
 		temp.set_size(m.n_rows, m.n_slices, m.n_cols);
-		for(int c = 0; c < m.n_cols; ++c) {
-			for(int r = 0; r < m.n_rows; ++r) {
-				for(int s = 0; s < m.n_slices; ++s) {
+		for(uword c = 0; c < m.n_cols; ++c) {
+			for(uword r = 0; r < m.n_rows; ++r) {
+				for(uword s = 0; s < m.n_slices; ++s) {
 					temp(r, s, c) = m(r, c, s);
 				}
 			}

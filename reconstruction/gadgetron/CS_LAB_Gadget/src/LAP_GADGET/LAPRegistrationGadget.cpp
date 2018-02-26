@@ -43,7 +43,6 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	/* ------------------------------------------------------------------- */
 	std::vector<size_t> dimension = *m2->getObjectPtr()->get_dimensions();
 	size_t num_dims = m2->getObjectPtr()->get_number_of_dimensions();
-	size_t num_rep = 0, num_par = 0;
 
 	// get dimensions flag
 	if (num_dims == 2) {
@@ -127,9 +126,6 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 
 		// copy image to new registered 4D image
 		memcpy(fRegisteredImage.get_data_ptr()+tOffset, &cRegisteredImage, cuiNumberOfPixels*sizeof(float));
-
-		// clean up
-		delete &shifter;
 	}
 
 	// new GadgetContainer

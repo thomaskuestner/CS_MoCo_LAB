@@ -247,10 +247,9 @@ namespace Gadgetron
 		GADGET_DEBUG_CHECK_RETURN_FALSE(b.get_number_of_elements()==d.get_number_of_elements());
 		GADGET_DEBUG_CHECK_RETURN_FALSE(d.get_number_of_elements()==f.get_number_of_elements());
 
-		const T*pA = a.begin();
-		const T*pB = b.begin();
-		const T*pD = d.begin();
-		const T*pF = f.begin();
+		const T *pA = a.begin();
+		const T *pD = d.begin();
+		const T *pF = f.begin();
 		T *pR = r.begin();
 
 		long long N = b.get_number_of_elements();
@@ -353,18 +352,19 @@ namespace Gadgetron
 	template <typename T>
 	bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result)
 	{
-		int y = a, z = b;
+		int y = a;
+		int z = b;
 		// get dims of incoming array
 		std::vector<size_t> dims = *Array.get_dimensions();
 
 		// get center indices
-		int iCenterX = std::floor((float)(dims[2]-1)/2);
-		int iCenterY = std::floor((float)(dims[0]-1)/2);
-		int iCenterZ = std::floor((float)(dims[1]-1)/2);
+		size_t iCenterX = std::floor((float)(dims[2]-1)/2);
+		size_t iCenterY = std::floor((float)(dims[0]-1)/2);
+		size_t iCenterZ = std::floor((float)(dims[1]-1)/2);
 
 		// get border indices
 		//GDEBUG("y: %i, z: %i\n", y,z);
-		int iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower;
+		size_t iBorderY_Upper, iBorderY_Lower, iBorderZ_Upper, iBorderZ_Lower;
 		if (y%2 == 0) {
 			iBorderY_Upper = iCenterY+std::ceil((float)y/2);
 			iBorderY_Lower = iCenterY-std::floor((float)y/2)+1;
@@ -407,8 +407,8 @@ namespace Gadgetron
 		// fill output
 		T* PtrIn = Array.get_data_ptr();
 		T* PtrOut= result.get_data_ptr();
-		for (int iy = iBorderY_Lower; iy <= iBorderY_Upper; iy++) {
-			for(int iz = iBorderZ_Lower; iz <= iBorderZ_Upper; iz++) {
+		for (size_t iy = iBorderY_Lower; iy <= iBorderY_Upper; iy++) {
+			for(size_t iz = iBorderZ_Lower; iz <= iBorderZ_Upper; iz++) {
 				PtrOut[(iy-iBorderY_Lower)+(iz-iBorderZ_Lower)*y] = PtrIn[iy + iz*dims[0] + iCenterX*dims[0]*dims[1]];
 			}
 		}
@@ -424,7 +424,7 @@ namespace Gadgetron
 		hoNDArray<float> r(a.get_dimensions());
 
 		float * pR = r.begin();
-		float fResult;
+		float fResult = 0.0;
 
 		try {
 			long long N = (long long)a.get_number_of_elements();
@@ -451,7 +451,7 @@ namespace Gadgetron
 		bool isAllZero = true;
 		bool *PtrIn = Array.get_data_ptr();
 
-		for (long i = 0; i < Array.get_number_of_elements(); i++) {
+		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != false) {
 				isAllZero = false;
 				break;
@@ -466,7 +466,7 @@ namespace Gadgetron
 		bool isAllZero = true;
 		std::complex<float> *PtrIn = Array.get_data_ptr();
 
-		for (long i = 0; i < Array.get_number_of_elements(); i++) {
+		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != std::complex<float>(0, 0)) {
 				isAllZero = false;
 				break;
@@ -481,7 +481,7 @@ namespace Gadgetron
 	{
 		bool *PtrIn = Array.get_data_ptr();
 
-		for (long i = 0; i < Array.get_number_of_elements(); i++) {
+		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] == false) {
 				return false;
 			}
@@ -591,12 +591,12 @@ namespace Gadgetron
 
 	// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 	template <typename T>
-	bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result)
+	bool sum_dim(hoNDArray<T> &Array, unsigned int dimension, hoNDArray<T> &result)
 	{
 		hoNDArray<T> NewTmpArray = Array;
 
 		// get number of dimensions
-		int iNoDim = NewTmpArray.get_number_of_dimensions();
+		size_t iNoDim = NewTmpArray.get_number_of_dimensions();
 
 		// get dimensions
 		std::vector<size_t> vDims = *NewTmpArray.get_dimensions();
@@ -608,7 +608,7 @@ namespace Gadgetron
 			if (iNoDim > 1) {
 				// permute array - summation dimension will be last dimension
 				std::vector<size_t> vPermute;
-				for (int i = 0; i < iNoDim; i++) {
+				for (size_t i = 0; i < iNoDim; i++) {
 					if (i != dimension) {
 						vPermute.push_back(i);
 					}
@@ -617,9 +617,6 @@ namespace Gadgetron
 				vPermute.push_back(dimension);
 				NewTmpArray = *permute(&NewTmpArray, &vPermute,false);
 
-				// number of elements of all dimension except the summation dimension
-				long lMax = NewTmpArray.get_number_of_elements()/vDims.at(dimension);
-				//GDEBUG("lMax: %i\n", lMax);
 				// create output array
 				std::vector<size_t> vNewDims = *NewTmpArray.get_dimensions();
 				vNewDims.pop_back();
@@ -628,8 +625,8 @@ namespace Gadgetron
 				// summation in specified dimension
 				T* pNewArray = tmp.get_data_ptr();
 				T* pOldArray = NewTmpArray.get_data_ptr();
-				for (int sum_dim = 0; sum_dim < vDims.at(dimension); sum_dim++) {
-					for (int i = 0; i < tmp.get_number_of_elements(); i++) {
+				for (size_t sum_dim = 0; sum_dim < vDims.at(dimension); sum_dim++) {
+					for (size_t i = 0; i < tmp.get_number_of_elements(); i++) {
 						pNewArray[i] += pOldArray[i + tmp.get_number_of_elements()*sum_dim];
 					}
 				}
@@ -642,8 +639,9 @@ namespace Gadgetron
 
 				// summation
 				T* pOldArray = NewTmpArray.get_data_ptr();
-				T* pNewArray = tmp.get_data_ptr(); pNewArray[0] = 0;
-				for (long sum_dim = 0; sum_dim < vDims.at(0); sum_dim++) {
+				T* pNewArray = tmp.get_data_ptr();
+				pNewArray[0] = 0;
+				for (size_t sum_dim = 0; sum_dim < vDims.at(0); sum_dim++) {
 					pNewArray[0] += pOldArray[sum_dim];
 				}
 
@@ -790,7 +788,7 @@ namespace Gadgetron
 
 	// flip array in specified dimension - reference to: hoNDFFT.cpp (cpufft - original Gadgetron)
 	template <typename T>
-	bool flip_array(hoNDArray<T> &Array, int dimension)
+	bool flip_array(hoNDArray<T> &Array, unsigned int dimension)
 	{
 		// check dimensions
 		if (Array.get_number_of_dimensions() <= dimension) {
@@ -964,13 +962,13 @@ namespace Gadgetron
 
 		// get sum
 		T sum = 0.0;
-		for (int i = 0; i < result.size(); i++) {
-			sum += result[i];
+		for (size_t i = 0; i < result.size(); i++) {
+			sum += result.at(i);
 		}
 
 		// norm output
-		for (int i = 0; i < result.size(); i++) {
-			result[i] /= sum;
+		for (size_t i = 0; i < result.size(); i++) {
+			result.at(i) /= sum;
 		}
 	}
 
@@ -1032,7 +1030,7 @@ namespace Gadgetron
 		std::vector<T> vTmp(aOutput.get_size(0));
 
 		// loop over lines
-		for (long i = 0; i < aOutput.get_size(1); i++) {
+		for (size_t i = 0; i < aOutput.get_size(1); i++) {
 			// offset of current line
 			int offset = i*aOutput.get_size(0);
 
@@ -1054,7 +1052,7 @@ namespace Gadgetron
 
 	// 1D array convolution - same size - arbitrary dimension - ref to: hoNDFFT.cpp from original Gadgetron implementation
 	template <typename T>
-	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, int dimension)
+	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, unsigned int dimension)
 	{
 		// check dimensions
 		if (Array.get_number_of_dimensions() <= dimension) {
@@ -1147,7 +1145,7 @@ namespace Gadgetron
 	void circshift(std::vector<T> &Array, int shift)
 	{
 		// out of boundary?
-		if (std::abs(shift) > Array.size()) {
+		if (static_cast<unsigned int>(std::abs(shift)) > Array.size()) {
 			if (shift >= 0) {
 				shift = shift%Array.size();
 			} else {
@@ -1177,7 +1175,7 @@ namespace Gadgetron
 
 	// circular 1D array shift (arbitrary dimension) - ref to: hoNDFFT.cpp from original Gadgetron implementation
 	template <typename T>
-	void circshift(hoNDArray<T> &Array, int shift, int dimension)
+	void circshift(hoNDArray<T> &Array, int shift, unsigned int dimension)
 	{
 		// check dimensions
 		if (Array.get_number_of_dimensions() <= dimension) {
@@ -1185,7 +1183,7 @@ namespace Gadgetron
 		}
 
 		// out of boundary?
-		if (std::abs(shift) > Array.get_size(dimension)) {
+		if (static_cast<unsigned int>(std::abs(shift)) > Array.get_size(dimension)) {
 			if (shift >= 0) {
 				shift = shift%Array.get_size(dimension);
 			} else {
@@ -1308,23 +1306,29 @@ namespace Gadgetron
 		slope.reserve(x.size());
 		intercept.reserve(x.size());
 
-		for (int i = 0; i < x.size(); ++i) {
+		for (size_t i = 0; i < x.size(); ++i) {
 			if (i < x.size()-1) {
-				dx.push_back(x[i+1] - x[i]);
-				dy.push_back(y[i+1] - y[i]);
-				slope.push_back(dy[i] / dx[i]);
-				intercept.push_back(y[i] - x[i] * slope[i]);
+				dx.push_back(x.at(i+1) - x.at(i));
+				dy.push_back(y.at(i+1) - y.at(i));
+				slope.push_back(dy.at(i) / dx.at(i));
+				intercept.push_back(y.at(i) - x.at(i) * slope.at(i));
 			} else {
-				dx.push_back(dx[i-1]);
-				dy.push_back(dy[i-1]);
-				slope.push_back(slope[i-1]);
-				intercept.push_back(intercept[i-1]);
+				dx.push_back(dx.at(i-1));
+				dy.push_back(dy.at(i-1));
+				slope.push_back(slope.at(i-1));
+				intercept.push_back(intercept.at(i-1));
 			}
 		}
 
-		for (int i = 0; i < x_new.size(); ++i) {
-			int idx = findNearestNeighbourIndex<T>(x_new[i], x);
-			y_new.push_back(slope[idx] * x_new[i] + intercept[idx]);
+		for (size_t i = 0; i < x_new.size(); ++i) {
+			int idx = findNearestNeighbourIndex<T>(x_new.at(i), x);
+
+			if (idx < 0) {
+				GWARN("idx<0: Something went wrong!\n");
+				continue;
+			}
+
+			y_new.push_back(slope.at(idx) * x_new.at(i) + intercept.at(idx));
 		}
 
 		return y_new;
@@ -1336,11 +1340,11 @@ namespace Gadgetron
 		float dist = FLT_MAX;
 		int idx = -1;
 
-		for (int i = 0; i < x.size(); ++i) {
+		for (size_t i = 0; i < x.size(); ++i) {
 			float newDist = std::abs(value - x[i]);
 			if (newDist > 0 && newDist < dist) {
 				dist = newDist;
-				idx = i;
+				idx = static_cast<int>(i);
 			}
 		}
 
@@ -1437,7 +1441,7 @@ namespace Gadgetron
 		bool *pData = Array.get_data_ptr();
 
 		// loop over array
-		for (long i = 0; i < Array.get_number_of_elements(); i++) {
+		for (unsigned int i = 0; i < Array.get_number_of_elements(); i++) {
 			if (pData[i] != true) {
 				bFound = false;
 				return bFound;
@@ -1452,7 +1456,7 @@ namespace Gadgetron
 		bool bFound = true;
 
 		// loop over array
-		for (long i = 0; i < Vector.size(); i++) {
+		for (unsigned int i = 0; i < Vector.size(); i++) {
 			if (Vector[i] != true) {
 				bFound = false;
 				return bFound;
@@ -1476,7 +1480,7 @@ namespace Gadgetron
 			if ((vStart.at(i)+vSize.at(i)) > input.get_size(i)+1) {
 				vStart.at(i) = input.get_size(i)-vSize.at(i);
 				if (vStart.at(i) < 0) {
-					vStart.at(i) == 0;
+					vStart.at(i) = 0;
 				}
 	//			mexPrintf("SomeFunctions::get_sub_array failed - out of bounds - sub-array dimension size adjusted\n");mexEvalString("drawnow;");
 			}
@@ -1629,22 +1633,11 @@ namespace Gadgetron
 		GC_acq_m1_new->getObjectPtr()->active_channels				= GC_acq_m1->getObjectPtr()->active_channels;
 		GC_acq_m1_new->getObjectPtr()->available_channels			= GC_acq_m1->getObjectPtr()->available_channels;
 		GC_acq_m1_new->getObjectPtr()->center_sample				= GC_acq_m1->getObjectPtr()->center_sample;
-		GC_acq_m1_new->getObjectPtr()->channel_mask[0]				= GC_acq_m1->getObjectPtr()->channel_mask[0];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[1]				= GC_acq_m1->getObjectPtr()->channel_mask[1];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[2]				= GC_acq_m1->getObjectPtr()->channel_mask[2];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[3]				= GC_acq_m1->getObjectPtr()->channel_mask[3];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[4]				= GC_acq_m1->getObjectPtr()->channel_mask[4];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[5]				= GC_acq_m1->getObjectPtr()->channel_mask[5];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[6]				= GC_acq_m1->getObjectPtr()->channel_mask[6];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[7]				= GC_acq_m1->getObjectPtr()->channel_mask[7];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[8]				= GC_acq_m1->getObjectPtr()->channel_mask[8];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[9]				= GC_acq_m1->getObjectPtr()->channel_mask[9];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[10]				= GC_acq_m1->getObjectPtr()->channel_mask[10];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[11]				= GC_acq_m1->getObjectPtr()->channel_mask[11];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[12]				= GC_acq_m1->getObjectPtr()->channel_mask[12];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[13]				= GC_acq_m1->getObjectPtr()->channel_mask[13];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[14]				= GC_acq_m1->getObjectPtr()->channel_mask[14];
-		GC_acq_m1_new->getObjectPtr()->channel_mask[15]				= GC_acq_m1->getObjectPtr()->channel_mask[15];
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_CHANNEL_MASKS; i++) {
+			GC_acq_m1_new->getObjectPtr()->channel_mask[i]			= GC_acq_m1->getObjectPtr()->channel_mask[i];
+		}
+
 		GC_acq_m1_new->getObjectPtr()->discard_post					= GC_acq_m1->getObjectPtr()->discard_post;
 		GC_acq_m1_new->getObjectPtr()->discard_pre					= GC_acq_m1->getObjectPtr()->discard_pre;
 		GC_acq_m1_new->getObjectPtr()->encoding_space_ref			= GC_acq_m1->getObjectPtr()->encoding_space_ref;
@@ -1658,58 +1651,51 @@ namespace Gadgetron
 		GC_acq_m1_new->getObjectPtr()->idx.segment					= GC_acq_m1->getObjectPtr()->idx.segment;
 		GC_acq_m1_new->getObjectPtr()->idx.set						= GC_acq_m1->getObjectPtr()->idx.set;
 		GC_acq_m1_new->getObjectPtr()->idx.slice					= GC_acq_m1->getObjectPtr()->idx.slice;
-		GC_acq_m1_new->getObjectPtr()->idx.user[0]					= GC_acq_m1->getObjectPtr()->idx.user[0];
-		GC_acq_m1_new->getObjectPtr()->idx.user[1]					= GC_acq_m1->getObjectPtr()->idx.user[1];
-		GC_acq_m1_new->getObjectPtr()->idx.user[2]					= GC_acq_m1->getObjectPtr()->idx.user[2];
-		GC_acq_m1_new->getObjectPtr()->idx.user[3]					= GC_acq_m1->getObjectPtr()->idx.user[3];
-		GC_acq_m1_new->getObjectPtr()->idx.user[4]					= GC_acq_m1->getObjectPtr()->idx.user[4];
-		GC_acq_m1_new->getObjectPtr()->idx.user[5]					= GC_acq_m1->getObjectPtr()->idx.user[5];
-		GC_acq_m1_new->getObjectPtr()->idx.user[6]					= GC_acq_m1->getObjectPtr()->idx.user[6];
-		GC_acq_m1_new->getObjectPtr()->idx.user[7]					= GC_acq_m1->getObjectPtr()->idx.user[7];
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
+			GC_acq_m1_new->getObjectPtr()->idx.user[i]				= GC_acq_m1->getObjectPtr()->idx.user[i];
+		}
+
 		GC_acq_m1_new->getObjectPtr()->measurement_uid				= GC_acq_m1->getObjectPtr()->measurement_uid;
 		GC_acq_m1_new->getObjectPtr()->number_of_samples			= GC_acq_m1->getObjectPtr()->number_of_samples;
-		GC_acq_m1_new->getObjectPtr()->patient_table_position[0]	= GC_acq_m1->getObjectPtr()->patient_table_position[0];
-		GC_acq_m1_new->getObjectPtr()->patient_table_position[1]	= GC_acq_m1->getObjectPtr()->patient_table_position[1];
-		GC_acq_m1_new->getObjectPtr()->patient_table_position[2]	= GC_acq_m1->getObjectPtr()->patient_table_position[2];
-		GC_acq_m1_new->getObjectPtr()->phase_dir[0]					= GC_acq_m1->getObjectPtr()->phase_dir[0];
-		GC_acq_m1_new->getObjectPtr()->phase_dir[1]					= GC_acq_m1->getObjectPtr()->phase_dir[1];
-		GC_acq_m1_new->getObjectPtr()->phase_dir[2]					= GC_acq_m1->getObjectPtr()->phase_dir[2];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[0]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[0];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[1]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[1];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[2]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[2];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[3]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[3];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[4]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[4];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[5]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[5];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[6]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[6];
-		GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[7]		= GC_acq_m1->getObjectPtr()->physiology_time_stamp[7];
-		GC_acq_m1_new->getObjectPtr()->position[0]					= GC_acq_m1->getObjectPtr()->position[0];
-		GC_acq_m1_new->getObjectPtr()->position[1]					= GC_acq_m1->getObjectPtr()->position[1];
-		GC_acq_m1_new->getObjectPtr()->position[2]					= GC_acq_m1->getObjectPtr()->position[2];
-		GC_acq_m1_new->getObjectPtr()->read_dir[0]					= GC_acq_m1->getObjectPtr()->read_dir[0];
-		GC_acq_m1_new->getObjectPtr()->read_dir[1]					= GC_acq_m1->getObjectPtr()->read_dir[1];
-		GC_acq_m1_new->getObjectPtr()->read_dir[2]					= GC_acq_m1->getObjectPtr()->read_dir[2];
+
+		for (unsigned int i = 0; i < 3; i++) {
+			GC_acq_m1_new->getObjectPtr()->patient_table_position[i]= GC_acq_m1->getObjectPtr()->patient_table_position[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			GC_acq_m1_new->getObjectPtr()->phase_dir[i]				= GC_acq_m1->getObjectPtr()->phase_dir[i];
+		}
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_PHYS_STAMPS; i++) {
+			GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[i]	= GC_acq_m1->getObjectPtr()->physiology_time_stamp[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			GC_acq_m1_new->getObjectPtr()->position[i]				= GC_acq_m1->getObjectPtr()->position[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			GC_acq_m1_new->getObjectPtr()->read_dir[i]				= GC_acq_m1->getObjectPtr()->read_dir[i];
+		}
+
 		GC_acq_m1_new->getObjectPtr()->sample_time_us				= GC_acq_m1->getObjectPtr()->sample_time_us;
 		GC_acq_m1_new->getObjectPtr()->scan_counter					= GC_acq_m1->getObjectPtr()->scan_counter;
-		GC_acq_m1_new->getObjectPtr()->slice_dir[0]					= GC_acq_m1->getObjectPtr()->slice_dir[0];
-		GC_acq_m1_new->getObjectPtr()->slice_dir[1]					= GC_acq_m1->getObjectPtr()->slice_dir[1];
-		GC_acq_m1_new->getObjectPtr()->slice_dir[2]					= GC_acq_m1->getObjectPtr()->slice_dir[2];
+
+		for (unsigned int i = 0; i < 3; i++) {
+			GC_acq_m1_new->getObjectPtr()->slice_dir[i]				= GC_acq_m1->getObjectPtr()->slice_dir[i];
+		}
+
 		GC_acq_m1_new->getObjectPtr()->trajectory_dimensions		= GC_acq_m1->getObjectPtr()->trajectory_dimensions;
-		GC_acq_m1_new->getObjectPtr()->user_float[0]				= GC_acq_m1->getObjectPtr()->user_float[0];
-		GC_acq_m1_new->getObjectPtr()->user_float[1]				= GC_acq_m1->getObjectPtr()->user_float[1];
-		GC_acq_m1_new->getObjectPtr()->user_float[2]				= GC_acq_m1->getObjectPtr()->user_float[2];
-		GC_acq_m1_new->getObjectPtr()->user_float[3]				= GC_acq_m1->getObjectPtr()->user_float[3];
-		GC_acq_m1_new->getObjectPtr()->user_float[4]				= GC_acq_m1->getObjectPtr()->user_float[4];
-		GC_acq_m1_new->getObjectPtr()->user_float[5]				= GC_acq_m1->getObjectPtr()->user_float[5];
-		GC_acq_m1_new->getObjectPtr()->user_float[6]				= GC_acq_m1->getObjectPtr()->user_float[6];
-		GC_acq_m1_new->getObjectPtr()->user_float[7]				= GC_acq_m1->getObjectPtr()->user_float[7];
-		GC_acq_m1_new->getObjectPtr()->user_int[0]					= GC_acq_m1->getObjectPtr()->user_int[0];
-		GC_acq_m1_new->getObjectPtr()->user_int[1]					= GC_acq_m1->getObjectPtr()->user_int[1];
-		GC_acq_m1_new->getObjectPtr()->user_int[2]					= GC_acq_m1->getObjectPtr()->user_int[2];
-		GC_acq_m1_new->getObjectPtr()->user_int[3]					= GC_acq_m1->getObjectPtr()->user_int[3];
-		GC_acq_m1_new->getObjectPtr()->user_int[4]					= GC_acq_m1->getObjectPtr()->user_int[4];
-		GC_acq_m1_new->getObjectPtr()->user_int[5]					= GC_acq_m1->getObjectPtr()->user_int[5];
-		GC_acq_m1_new->getObjectPtr()->user_int[6]					= GC_acq_m1->getObjectPtr()->user_int[6];
-		GC_acq_m1_new->getObjectPtr()->user_int[7]					= GC_acq_m1->getObjectPtr()->user_int[7];
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_FLOATS; i++) {
+			GC_acq_m1_new->getObjectPtr()->user_float[i]			= GC_acq_m1->getObjectPtr()->user_float[i];
+		}
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
+			GC_acq_m1_new->getObjectPtr()->user_int[i]				= GC_acq_m1->getObjectPtr()->user_int[i];
+		}
+
 		GC_acq_m1_new->getObjectPtr()->version						= GC_acq_m1->getObjectPtr()->version;
 
 		return GADGET_OK;
@@ -1720,20 +1706,25 @@ namespace Gadgetron
 		tmp_m1->getObjectPtr()->average						= m1->getObjectPtr()->average;
 		tmp_m1->getObjectPtr()->channels					= m1->getObjectPtr()->channels;
 		tmp_m1->getObjectPtr()->contrast					= m1->getObjectPtr()->contrast;
-		tmp_m1->getObjectPtr()->field_of_view[0]			= m1->getObjectPtr()->field_of_view[0];
-		tmp_m1->getObjectPtr()->field_of_view[1]			= m1->getObjectPtr()->field_of_view[1];
-		tmp_m1->getObjectPtr()->field_of_view[2]			= m1->getObjectPtr()->field_of_view[2];
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->field_of_view[i]		= m1->getObjectPtr()->field_of_view[i];
+		}
+
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		tmp_m1->getObjectPtr()->data_type					= m1->getObjectPtr()->data_type;
 #else
 		tmp_m1->getObjectPtr()->image_data_type				= m1->getObjectPtr()->image_data_type;
 #endif
+
 		tmp_m1->getObjectPtr()->image_series_index			= m1->getObjectPtr()->image_series_index;
 		tmp_m1->getObjectPtr()->image_index					= m1->getObjectPtr()->image_index;
 		tmp_m1->getObjectPtr()->image_type					= m1->getObjectPtr()->image_type;
-		tmp_m1->getObjectPtr()->matrix_size[0]				= m1->getObjectPtr()->matrix_size[0];
-		tmp_m1->getObjectPtr()->matrix_size[1]				= m1->getObjectPtr()->matrix_size[1];
-		tmp_m1->getObjectPtr()->matrix_size[2]				= m1->getObjectPtr()->matrix_size[2];
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->matrix_size[i]			= m1->getObjectPtr()->matrix_size[i];
+		}
+
 		tmp_m1->getObjectPtr()->phase						= m1->getObjectPtr()->phase;
 		tmp_m1->getObjectPtr()->repetition					= m1->getObjectPtr()->repetition;
 		tmp_m1->getObjectPtr()->set							= m1->getObjectPtr()->set;
@@ -1741,45 +1732,39 @@ namespace Gadgetron
 		tmp_m1->getObjectPtr()->acquisition_time_stamp		= m1->getObjectPtr()->acquisition_time_stamp;
 		tmp_m1->getObjectPtr()->flags						= m1->getObjectPtr()->flags;
 		tmp_m1->getObjectPtr()->measurement_uid				= m1->getObjectPtr()->measurement_uid;
-		tmp_m1->getObjectPtr()->patient_table_position[0]	= m1->getObjectPtr()->patient_table_position[0];
-		tmp_m1->getObjectPtr()->patient_table_position[1]	= m1->getObjectPtr()->patient_table_position[1];
-		tmp_m1->getObjectPtr()->patient_table_position[2]	= m1->getObjectPtr()->patient_table_position[2];
-		tmp_m1->getObjectPtr()->phase_dir[0]				= m1->getObjectPtr()->phase_dir[0];
-		tmp_m1->getObjectPtr()->phase_dir[1]				= m1->getObjectPtr()->phase_dir[1];
-		tmp_m1->getObjectPtr()->phase_dir[2]				= m1->getObjectPtr()->phase_dir[2];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[0]	= m1->getObjectPtr()->physiology_time_stamp[0];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[1]	= m1->getObjectPtr()->physiology_time_stamp[1];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[2]	= m1->getObjectPtr()->physiology_time_stamp[2];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[3]	= m1->getObjectPtr()->physiology_time_stamp[3];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[4]	= m1->getObjectPtr()->physiology_time_stamp[4];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[5]	= m1->getObjectPtr()->physiology_time_stamp[5];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[6]	= m1->getObjectPtr()->physiology_time_stamp[6];
-		tmp_m1->getObjectPtr()->physiology_time_stamp[7]	= m1->getObjectPtr()->physiology_time_stamp[7];
-		tmp_m1->getObjectPtr()->position[0]					= m1->getObjectPtr()->position[0];
-		tmp_m1->getObjectPtr()->position[1]					= m1->getObjectPtr()->position[1];
-		tmp_m1->getObjectPtr()->position[2]					= m1->getObjectPtr()->position[2];
-		tmp_m1->getObjectPtr()->read_dir[0]					= m1->getObjectPtr()->read_dir[0];
-		tmp_m1->getObjectPtr()->read_dir[1]					= m1->getObjectPtr()->read_dir[1];
-		tmp_m1->getObjectPtr()->read_dir[2]					= m1->getObjectPtr()->read_dir[2];
-		tmp_m1->getObjectPtr()->slice_dir[0]				= m1->getObjectPtr()->slice_dir[0];
-		tmp_m1->getObjectPtr()->slice_dir[1]				= m1->getObjectPtr()->slice_dir[1];
-		tmp_m1->getObjectPtr()->slice_dir[2]				= m1->getObjectPtr()->slice_dir[2];
-		tmp_m1->getObjectPtr()->user_float[0]				= m1->getObjectPtr()->user_float[0];
-		tmp_m1->getObjectPtr()->user_float[1]				= m1->getObjectPtr()->user_float[1];
-		tmp_m1->getObjectPtr()->user_float[2]				= m1->getObjectPtr()->user_float[2];
-		tmp_m1->getObjectPtr()->user_float[3]				= m1->getObjectPtr()->user_float[3];
-		tmp_m1->getObjectPtr()->user_float[4]				= m1->getObjectPtr()->user_float[4];
-		tmp_m1->getObjectPtr()->user_float[5]				= m1->getObjectPtr()->user_float[5];
-		tmp_m1->getObjectPtr()->user_float[6]				= m1->getObjectPtr()->user_float[6];
-		tmp_m1->getObjectPtr()->user_float[7]				= m1->getObjectPtr()->user_float[7];
-		tmp_m1->getObjectPtr()->user_int[0]					= m1->getObjectPtr()->user_int[0];
-		tmp_m1->getObjectPtr()->user_int[1]					= m1->getObjectPtr()->user_int[1];
-		tmp_m1->getObjectPtr()->user_int[2]					= m1->getObjectPtr()->user_int[2];
-		tmp_m1->getObjectPtr()->user_int[3]					= m1->getObjectPtr()->user_int[3];
-		tmp_m1->getObjectPtr()->user_int[4]					= m1->getObjectPtr()->user_int[4];
-		tmp_m1->getObjectPtr()->user_int[5]					= m1->getObjectPtr()->user_int[5];
-		tmp_m1->getObjectPtr()->user_int[6]					= m1->getObjectPtr()->user_int[6];
-		tmp_m1->getObjectPtr()->user_int[7]					= m1->getObjectPtr()->user_int[7];
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->patient_table_position[i]= m1->getObjectPtr()->patient_table_position[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->phase_dir[i]			= m1->getObjectPtr()->phase_dir[i];
+		}
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_PHYS_STAMPS; i++) {
+			tmp_m1->getObjectPtr()->physiology_time_stamp[i]= m1->getObjectPtr()->physiology_time_stamp[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->position[i]				= m1->getObjectPtr()->position[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->read_dir[i]				= m1->getObjectPtr()->read_dir[i];
+		}
+
+		for (unsigned int i = 0; i < 3; i++) {
+			tmp_m1->getObjectPtr()->slice_dir[i]			= m1->getObjectPtr()->slice_dir[i];
+		}
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_FLOATS; i++) {
+			tmp_m1->getObjectPtr()->user_float[i]			= m1->getObjectPtr()->user_float[i];
+		}
+
+		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
+			tmp_m1->getObjectPtr()->user_int[i]				= m1->getObjectPtr()->user_int[i];
+		}
+
 		tmp_m1->getObjectPtr()->version						= m1->getObjectPtr()->version;
 
 		return GADGET_OK;

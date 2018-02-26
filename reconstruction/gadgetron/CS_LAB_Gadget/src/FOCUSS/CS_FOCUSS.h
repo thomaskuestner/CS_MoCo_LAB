@@ -79,25 +79,25 @@ namespace Gadgetron
 	{
 	public:
 		// reconstruct the k-space data in the process(...) method
-		virtual int process(GadgetContainerMessage< ISMRMRD::ImageHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2) = 0;
+		virtual int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2) = 0;
 
 		// read the flexible data header
-		int process_config(ACE_Message_Block* mb);//MS 17/03/30 =0;
+		int process_config(ACE_Message_Block *mb);//MS 17/03/30 =0;
 
 		// read user specific values from header and initialize variables
-		void fInitVal(GadgetContainerMessage< ISMRMRD::ImageHeader>* m1);
+		void fInitVal(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1);
 
 		// calculating gradient of ESPReSSo
-		virtual void fGradESPReSSo(hoNDArray< std::complex< float > > & hacfRho, hoNDArray< std::complex< float > > &hacfFullMask, hoNDArray< std::complex< float > > &hacfKSpace, hoNDArray <std::complex< float > > &hacfW, hoNDArray< std::complex< float > > &hacfQ) = 0;
+		virtual void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) = 0;
 
 		// init filter array and sampling masks for ESPReSSo constraint
-		virtual void fInitESPReSSo(hoNDArray< bool >& habFullMask) = 0;
+		virtual void fInitESPReSSo(hoNDArray<bool> &habFullMask) = 0;
 
 		// windowing incoming data for initial estimate
-		virtual void fWindowing(hoNDArray<std::complex< float > > & hacfWWindowed) = 0;
+		virtual void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed) = 0;
 
 		// FOCUSS reconstruction
-		virtual int fRecon(hoNDArray< std::complex< float > > &hacfInput, hoNDArray< std::complex< float > > &hacfRecon) = 0;
+		virtual int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon) = 0;
 
 		// method for setting up the transformation objects
 		void fSetupTransformation();
@@ -156,7 +156,7 @@ namespace Gadgetron
 		bool bESPReSSoIsLower_;
 
 		// Control Flag - indicates if class is used as standalone Gadget or called from Control class
-		bool bControl_;
+		bool bControl_ = false;
 
 		// second control flag - indicates if class parameters are set by XML config or by accu gadget
 		int bXMLControl_;
@@ -218,7 +218,9 @@ namespace Gadgetron
 	class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
 	{
 	public:
-		CS_FOCUSS_2D() { bControl_ = false; }
+		CS_FOCUSS_2D()
+		{
+		}
 
 		GADGET_DECLARE(CS_FOCUSS_2D)
 
@@ -231,10 +233,14 @@ namespace Gadgetron
 
 	protected:
 		// calculating gradient of ESPReSSo - not used in 2Dt
-		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) {}
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ)
+		{
+		}
 
 		// init filter array and sampling masks for ESPReSSo constraint - not used in 2Dt
-		void fInitESPReSSo(hoNDArray<bool> &habFullMask) {}
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask)
+		{
+		}
 
 		// windowing incoming data for initial estimate
 		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
@@ -276,7 +282,9 @@ namespace Gadgetron
 	class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
 	{
 	public:
-		CS_FOCUSS_3D() { bControl_ = false; }
+		CS_FOCUSS_3D()
+		{
+		}
 
 		GADGET_DECLARE(CS_FOCUSS_3D)
 
@@ -303,7 +311,9 @@ namespace Gadgetron
 	class EXPORTCSLAB CS_FOCUSS_4D : public CS_FOCUSS
 	{
 	public:
-		CS_FOCUSS_4D() { bControl_ = false; }
+		CS_FOCUSS_4D()
+		{
+		}
 
 		GADGET_DECLARE(CS_FOCUSS_4D)
 		

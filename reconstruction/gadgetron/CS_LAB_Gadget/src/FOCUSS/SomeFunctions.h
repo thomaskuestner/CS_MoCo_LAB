@@ -106,7 +106,7 @@ namespace Gadgetron{
 
 	// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
 	template <typename T>
-	bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
+	bool sum_dim(hoNDArray<T> &Array, unsigned int dimension, hoNDArray<T> &result);
 
 	//inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
 
@@ -116,15 +116,11 @@ namespace Gadgetron{
 
 	// flip array in specified dimension
 	template <typename T>
-	bool flip_array(hoNDArray<T> &Array, int dimension);
+	bool flip_array(hoNDArray<T> &Array, unsigned int dimension);
 
 	// flip line in array by specified offset
 	template <typename T>
 	bool flip_line(hoNDArray<T> &Array, size_t offset);
-
-	// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
-	template <typename T>
-	bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
 
 	// Gaussian 1D filter
 	template <typename T>
@@ -140,7 +136,7 @@ namespace Gadgetron{
 
 	// 1D array convolution - same size - arbitrary dimension
 	template <typename T>
-	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, int dimensions);
+	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, unsigned int dimensions);
 
 	// circular 1D vector shift
 	template <typename T>
@@ -152,7 +148,7 @@ namespace Gadgetron{
 
 	// circular 1D array shift (arbitrary dimension)
 	template <typename T>
-	void circshift(hoNDArray<T> &Array, int shift, int dimension);
+	void circshift(hoNDArray<T> &Array, int shift, unsigned int dimension);
 
 	// output a linear equally spaced vector
 	template <typename T>
@@ -172,7 +168,6 @@ namespace Gadgetron{
 	// get sub array
 	template <typename T>
 	void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<size_t> vSize, hoNDArray<T> &out);
-
 
 	template <typename T>
 	bool sum_dim_g(hoNDArray<T> &Array, int dimension);

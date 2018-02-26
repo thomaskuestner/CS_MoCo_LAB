@@ -21,9 +21,9 @@ int ImageSlicerGadget::process_config(ACE_Message_Block *mb)
 int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<float> > *m2)
 {
 	// loop over partitions
-	for (int iPar = 0; iPar < (*m2->getObjectPtr()->get_dimensions())[2]; iPar++) {
+	for (size_t iPar = 0; iPar < (*m2->getObjectPtr()->get_dimensions())[2]; iPar++) {
 		// loop over phases
-		for (int iPhs = 0; iPhs < (*m2->getObjectPtr()->get_dimensions())[3]; iPhs) {
+		for (size_t iPhs = 0; iPhs < (*m2->getObjectPtr()->get_dimensions())[3]; iPhs++) {
 			GDEBUG("SlicerGadget: par: %i phs: %i\n", iPar, iPhs);
 
 			// new image header

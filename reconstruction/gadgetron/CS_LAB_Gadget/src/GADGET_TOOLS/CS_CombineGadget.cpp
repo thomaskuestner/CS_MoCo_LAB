@@ -76,7 +76,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 
 	// debug output
 	std::vector<size_t> di = *m2->getObjectPtr()->get_dimensions();
-	for (int i = 0; i < di.size(); i++) {
+	for (size_t i = 0; i < di.size(); i++) {
 		GDEBUG("d: %i\n", di.at(i));
 	}
 
@@ -194,7 +194,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 		}
 		
 		// divide by number of repetitions
-		for (long i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
+		for (size_t i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
 			Ptr[i] /= nt;
 		}
 
@@ -225,7 +225,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 		}
 
 		// divide by number of repetitions
-		for (long i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
+		for (size_t i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
 			Ptr[i] /= nt;
 		}
 
@@ -241,7 +241,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 
 		// fill output array
 		std::complex<float> *Ptr = m3->getObjectPtr()->get_data_ptr();
-		for (long i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
+		for (size_t i = 0; i < m3->getObjectPtr()->get_number_of_elements(); i++) {
 			Ptr[i] = d2[i];
 		}
 	}

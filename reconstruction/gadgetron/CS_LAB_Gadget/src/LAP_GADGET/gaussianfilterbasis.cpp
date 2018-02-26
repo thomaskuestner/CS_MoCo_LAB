@@ -15,7 +15,7 @@ Gadgetron::GaussianFilterBasis::GaussianFilterBasis(int size_)
 	ColType k_ = linspace<ColType>(-size, size, fabs(-size-size)+1);
 	MatType k__ = repmat(k_, 1, 2*size+1);
 
-	for(int i = 0; i < k.n_slices; i++) {
+	for(uword i = 0; i < k.n_slices; i++) {
 		k.slice(i) = k__;
 	}
 
@@ -34,19 +34,19 @@ Gadgetron::GaussianFilterBasis::GaussianFilterBasis(int size_)
 	CubeType b4 = cs_lab_lap_functions::g(k, size) % p % cs_lab_lap_functions::g(l, size) % cs_lab_lap_functions::g(p, size);
 	b4 = b4 / accu(p % b4);
 
-	for(int i = 0; i < b1.n_elem; i++) {
+	for(uword i = 0; i < b1.n_elem; i++) {
 		basis(i) = b1(i);
 	}
 
-	for(int i = 0; i < b2.n_elem; i++) {
+	for(uword i = 0; i < b2.n_elem; i++) {
 		basis(i+b1.n_elem) = b2(i);
 	}
 
-	for(int i = 0; i < b3.n_elem; i++) {
+	for(uword i = 0; i < b3.n_elem; i++) {
 		basis(i+b1.n_elem+b2.n_elem) = b3(i);
 	}
 
-	for(int i = 0; i < b4.n_elem; i++) {
+	for(uword i = 0; i < b4.n_elem; i++) {
 		basis(i+b1.n_elem+b2.n_elem+b3.n_elem) = b4(i);
 	}
 

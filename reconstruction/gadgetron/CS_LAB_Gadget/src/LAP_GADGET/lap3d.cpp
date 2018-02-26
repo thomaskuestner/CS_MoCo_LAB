@@ -47,7 +47,7 @@ field<CubeType> Gadgetron::LAP3D::exec()
 	//Prefilter I1
 	I1 = I1 - cs_lab_lap_filter::conv(I1, hGaussian);
 
-	for (int l = 0; l < FilterSizes.n_elem; l++) {
+	for (size_t l = 0; l < FilterSizes.n_elem; l++) {
 		std::cout << "Level " << l+1 << "/" << FilterSizes.n_elem << endl;
 
 		//Current Filtersize
@@ -110,10 +110,10 @@ return u_holder;
 
 field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3DKSpace(CubeType &I1_k_, CubeType &I2_k_, int sampleStepSize, int K_)
 {
-	int N = 4;
-	//Create the GaussianFilterBasis with current Filtersize K
-	GaussianFilterBasis mBasis(K_);
-	int K1 = 2*K_+1; //Blocksize
+// 	int N = 4;
+// 	//Create the GaussianFilterBasis with current Filtersize K
+// 	GaussianFilterBasis mBasis(K_);
+// 	int K1 = 2*K_+1; //Blocksize
 
 	// TODO: No return here! return something!
 }

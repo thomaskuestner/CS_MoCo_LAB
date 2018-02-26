@@ -13,7 +13,7 @@ changes		:
 using namespace Gadgetron;
 
 // class constructor
-CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget() : bufferkSpace_(0), bufferNav_(0), iBaseRes_(0), fFullySa_(.065), iEchoLine_(0), iEchoPartition_(0), lNoScans_(0), iNoChannels_(0)
+CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget()
 {
 	GlobalVar::instance()->vPE_.clear();
 	GlobalVar::instance()->vPA_.clear();
@@ -775,6 +775,8 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		return GADGET_OK;
 	}
+
+	return GADGET_OK;
 }
 
 GADGET_FACTORY_DECLARE(CS_Retro_AccumulatorGadget)

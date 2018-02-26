@@ -107,7 +107,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	pcfPtr2_ = hacfFullMask.get_data_ptr();
 	pbPtr_ = habFullMask.get_data_ptr();
 
-	for (int i = 0; i < hacfKSpace.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < hacfKSpace.get_number_of_elements(); i++) {
 		if (pcfPtr_[i] != cfZero) {
 			pcfPtr2_[i] = cfOne;
 			pbPtr_[i] = true;
@@ -156,7 +156,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 		// fill channel
 		#pragma omp parallel for
-		for (long i = 0; i < vtDim_[0]*vtDim_[1]; i++) {
+		for (size_t i = 0; i < vtDim_[0]*vtDim_[1]; i++) {
 			pcfPtr_[i+tOffset] = std::complex<float>(fTmp);
 			pcfPtr2_[i+tOffset] /= fTmp;
 		}
@@ -205,8 +205,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				}
 
 				// how many channels are converged
-				int iNom = 0;
-				for (int iI = 0; iI < vfVec.size(); iI++) {
+				unsigned int iNom = 0;
+				for (size_t iI = 0; iI < vfVec.size(); iI++) {
 					if (vfVec[iI] > fEpsilon_) {
 						iNom++;
 					}
@@ -249,13 +249,13 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 					// calculate nominator
 					pcfPtr2_ = hacfSubArrayG.get_data_ptr();
-					for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
+					for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
 						fNumerator += pcfPtr2_[iI]*pcfPtr2_[iI];
 					}
 
 					// calculate denominator
 					pcfPtr2_ = hacfSubArrayG_old.get_data_ptr();
-					for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
+					for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
 						fDenominator += pcfPtr2_[iI]*pcfPtr2_[iI];
 					}
 
@@ -265,7 +265,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 					// fill part of the 3D array
 					#pragma omp parallel for
-					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++) {
+					for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++) {
 						pcfPtr_[lI+tOffset] = fBetaCha;
 					}
 				}
@@ -296,12 +296,12 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 					// calculate nominator
 					pcfPtr2_ = hacfSubArrayE.get_data_ptr();
 					pcfPtr3_ = hacfSubArrayZ.get_data_ptr();
-					for (long iI = 0; iI < hacfSubArrayE.get_number_of_elements(); iI++) {
+					for (size_t iI = 0; iI < hacfSubArrayE.get_number_of_elements(); iI++) {
 						fNumerator += std::conj(pcfPtr3_[iI])*pcfPtr2_[iI];
 					}
 
 					// calculate denominator
-					for (long iI = 0; iI < hacfSubArrayZ.get_number_of_elements(); iI++) {
+					for (size_t iI = 0; iI < hacfSubArrayZ.get_number_of_elements(); iI++) {
 						fDenominator += std::conj(pcfPtr3_[iI])*pcfPtr3_[iI];
 					}
 
@@ -311,7 +311,7 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 					// fill 3D alpha array
 					#pragma omp parallel for
-					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++) {
+					for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++) {
 						pcfPtr_[lI+tOffset] = fAlphaCha;
 					}
 				}
@@ -381,10 +381,12 @@ void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 			vStart.push_back(std::floor((float)vtDim_[iI]/2)+std::ceil(-(float)viCalibrationSize_.at(iI)/2));
 		}
 	}
-	vStart.push_back(0); vStart.push_back(0);
-	for (int iY = vStart.at(0); iY < vStart.at(0)+viCalibrationSize_.at(0); iY++) {
-		for (int iX = vStart.at(1); iX < vStart.at(1)+viCalibrationSize_.at(1); iX++) {
-			for (int iC = vStart.at(2); iC < vStart.at(2)+viCalibrationSize_.at(2); iC++) {
+
+	vStart.push_back(0);
+	vStart.push_back(0);
+	for (size_t iY = vStart.at(0); iY < vStart.at(0)+viCalibrationSize_.at(0); iY++) {
+		for (size_t iX = vStart.at(1); iX < vStart.at(1)+viCalibrationSize_.at(1); iX++) {
+			for (size_t iC = vStart.at(2); iC < vStart.at(2)+viCalibrationSize_.at(2); iC++) {
 				hacfMask2D(iY, iX, iC) = std::complex<float>(1.0);
 			}
 		}
@@ -400,7 +402,7 @@ void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 	pcfPtr_ = hacfMask2D.get_data_ptr();
 
 	#pragma omp parallel for
-	for (long lI = 0; lI < hacfMask2D.get_number_of_elements(); lI++) {
+	for (size_t lI = 0; lI < hacfMask2D.get_number_of_elements(); lI++) {
 		if(pcfPtr_[lI] == std::complex<float>(0.0)) {
 			pbPtr_[lI] = false;
 		}
@@ -414,15 +416,14 @@ void CS_FOCUSS_2D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 //--------------------------------------------------------------------------
 void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray)
 {
-	int iSY = 2;
+	size_t iSY = 2;
 	bool bYflag = false;
 	std::vector<size_t> vtDim = *habArray.get_dimensions();
-	bool *pbArray = habArray.get_data_ptr();
 
 	while(!bYflag) {
 		if (!bYflag) {
-			for (int iY = std::ceil((float)vtDim[0]/2)-iSY+1; iY < std::ceil((float)vtDim[0]/2)+iSY+1; iY++) {
-				if (!habArray(iY, std::ceil((float)vtDim[1]/2))) {//!pbArray)
+			for (size_t iY = std::ceil((float)vtDim[0]/2)-iSY+1; iY < std::ceil((float)vtDim[0]/2)+iSY+1; iY++) {
+				if (!habArray(iY, std::ceil((float)vtDim[1]/2))) {
 					bYflag = true;
 				} else {
 					iSY++;
@@ -430,7 +431,7 @@ void CS_FOCUSS_2D::fGetCalibrationSize(const hoNDArray<bool> &habArray)
 			}
 		}
 
-		if (iSY == vtDim[0]) {
+		if (iSY == vtDim.at(0)) {
 			bYflag = true;
 		}
 	}

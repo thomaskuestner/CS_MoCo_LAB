@@ -46,7 +46,6 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	/* ------------------------------------------------------------------- */
 	std::vector<size_t> dimension = *m2->getObjectPtr()->get_dimensions();
 	size_t num_dims = m2->getObjectPtr()->get_number_of_dimensions();
-	size_t num_rep = 0, num_par = 0;
 
 	// get dimensions flag
 	if (num_dims == 2) {
@@ -188,8 +187,7 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 		}
 
 		// get output image
-		float *fLocalBufferOutput = new float[cuiNumberOfPixels];
-		ImageType *itkOutputImage;
+		ImageType *itkOutputImage = NULL;
 
 		if (error == 0) {
 			if (elastix_obj->GetResultImage().IsNotNull()) {
@@ -200,7 +198,14 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 		} else {
 			// error handling - write message and fill array with zeros
 			GERROR("array is zero\n", error);
+		}
+
+		// set output image to zeros if non-existent
+		bool zero_image_created = false;
+		if (itkOutputImage == NULL) {
+			itkOutputImage = ImageType::New();
 			itkOutputImage->FillBuffer(0.0);
+			zero_image_created = true;
 		}
 
 		// copy image to new registered 3D image
@@ -208,6 +213,10 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 
 		// clean up
 		delete elastix_obj;
+
+		if (zero_image_created) {
+			itkOutputImage->Delete();
+		}
 	}
 
 	// new GadgetContainer
@@ -338,8 +347,8 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 		}
 
 		// get output image
-		float *fLocalBufferOutput = new float[cuiNumberOfPixels];
-		ImageType *itkOutputImage;
+		ImageType *itkOutputImage = NULL;
+
 		if (error == 0) {
 			if (elastix_obj->GetResultImage().IsNotNull()) {
 				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());
@@ -347,9 +356,15 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 				GERROR("GetResultImage() is NULL \n", error);
 			}
 		} else {
-			// error handling - write message and fill array with zeros
 			GERROR("array is zero\n", error);
+		}
+
+		// set output image to zeros if non-existent
+		bool zero_image_created = false;
+		if (itkOutputImage == NULL) {
+			itkOutputImage = ImageType::New();
 			itkOutputImage->FillBuffer(0.0);
+			zero_image_created = true;
 		}
 
 		// copy image to new registered 4D image
@@ -357,6 +372,10 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 
 		// clean up
 		delete elastix_obj;
+
+		if (zero_image_created) {
+			itkOutputImage->Delete();
+		}
 	}
 
 	// new GadgetContainer

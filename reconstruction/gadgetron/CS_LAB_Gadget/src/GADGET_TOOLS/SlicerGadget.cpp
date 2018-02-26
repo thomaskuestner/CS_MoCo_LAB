@@ -51,9 +51,9 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,Gadge
 	} else if(bIs3D_ || bIs4D_) {
 		// handle 3D/4D data - separate slices in own container and header
 		// loop over repetitions
-		for (int rep = 0; rep < num_rep; rep++) {
+		for (size_t rep = 0; rep < num_rep; rep++) {
 			// loop over partitions
-			for (int par = 0; par < num_par; par++) {
+			for (size_t par = 0; par < num_par; par++) {
 				// new AcquisitionHeader
 				GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* tmp_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
 
@@ -150,6 +150,8 @@ int SlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,Gadge
 		m1->release();
 		return GADGET_OK;
 	}
+
+	return GADGET_OK;
 }
 
 GADGET_FACTORY_DECLARE(SlicerGadget)

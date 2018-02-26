@@ -11,9 +11,9 @@ int CS_MRIImageToAcquisitionGadget::process(GadgetContainerMessage<ISMRMRD::Imag
 	// ---------------------------------------------------------------------------------
 	// ------------------------------ conversion ---------------------------------------
 	// ---------------------------------------------------------------------------------
-	for (int iPhase = 0; iPhase < vDims_[3]; iPhase++) {
-		for (int iPartition = 0; iPartition < vDims_[2]; iPartition++) {
-			for (int iLine = 0; iLine < vDims_[1]; iLine++) {
+	for (size_t iPhase = 0; iPhase < vDims_[3]; iPhase++) {
+		for (size_t iPartition = 0; iPartition < vDims_[2]; iPartition++) {
+			for (size_t iLine = 0; iLine < vDims_[1]; iLine++) {
 
 				// new AcquisitionHeader
 				GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
@@ -65,7 +65,7 @@ int CS_MRIImageToAcquisitionGadget::process(GadgetContainerMessage<ISMRMRD::Imag
 }
 
 // correct header information for filled full kSpace data
-int CS_MRIImageToAcquisitionGadget::fCorrectHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1, int iLine, int iPartition, int iPhase)
+int CS_MRIImageToAcquisitionGadget::fCorrectHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_hdr_m1, size_t iLine, size_t iPartition, size_t iPhase)
 {
 	// fill temporal acquisition header with values from first scan
 	fCopyAcqHeader(GC_acq_hdr_m1, GlobalVar::instance()->AcqVec_.at(0));

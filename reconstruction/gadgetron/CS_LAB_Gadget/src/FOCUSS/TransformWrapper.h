@@ -70,7 +70,7 @@ namespace Gadgetron
 			float *fRealPtr = RealArray.get_data_ptr(), *fImagPtr = ImagArray.get_data_ptr();
 			std::complex<float> *cArrayPtr = Array.get_data_ptr();
 
-			for (int i = 0; i < RealArray.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < RealArray.get_number_of_elements(); i++) {
 				fRealPtr[i] = cArrayPtr[i].real();
 				fImagPtr[i] = cArrayPtr[i].imag();
 			}
@@ -83,7 +83,7 @@ namespace Gadgetron
 
 			// put real and imaginary parts into original array
 			#pragma omp parallel for
-			for (int i = 0; i < RealArray.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < RealArray.get_number_of_elements(); i++) {
 				cArrayPtr[i] = std::complex<float>(fRealPtr[i],fImagPtr[i]);
 			}
 
@@ -95,10 +95,11 @@ namespace Gadgetron
 		{
 			// split real and imaginary part for split DCT
 			hoNDArray<float> RealArray(Array.get_dimensions()), ImagArray(Array.get_dimensions());
-			float *fRealPtr = RealArray.get_data_ptr(), *fImagPtr = ImagArray.get_data_ptr();
+			float *fRealPtr = RealArray.get_data_ptr();
+			float *fImagPtr = ImagArray.get_data_ptr();
 			std::complex<float> *cArrayPtr = Array.get_data_ptr();
 
-			for (int i = 0; i < RealArray.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < RealArray.get_number_of_elements(); i++) {
 				fRealPtr[i] = cArrayPtr[i].real();
 				fImagPtr[i] = cArrayPtr[i].imag();
 			}
@@ -111,7 +112,7 @@ namespace Gadgetron
 
 			// put real and imaginary parts into original array
 			#pragma omp parallel for
-			for (int i = 0; i < RealArray.get_number_of_elements(); i++) {
+			for (size_t i = 0; i < RealArray.get_number_of_elements(); i++) {
 				cArrayPtr[i] = std::complex<float>(fRealPtr[i],fImagPtr[i]);
 			}
 

@@ -29,39 +29,39 @@ namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
 	{
 	private:
-		hoNDArray<std::complex<float> > *bufferkSpace_;
-		hoNDArray<std::complex<float> > *bufferNav_;
+		hoNDArray<std::complex<float> > *bufferkSpace_ = NULL;
+		hoNDArray<std::complex<float> > *bufferNav_ = NULL;
 
 		std::vector<size_t> dimkSpace_;
 		std::vector<size_t> dimNav_;
 
-		long lCurrentScan_;
+		unsigned long lCurrentScan_ = 0;
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
-		long long image_counter_;
-		long long image_series_;
+		long long image_counter_ = 0;
+		long long image_series_ = 0;
 
-		unsigned long lNoScans_;
-		unsigned int iNoChannels_;
-		unsigned int iNoNav_;
-		unsigned int iNoNavLine_;
-		int iEchoLine_;
-		int iEchoPartition_;
+		unsigned long lNoScans_ = 0;
+		unsigned int iNoChannels_ = 0;
+		unsigned int iNoNav_ = 0;
+		unsigned int iNoNavLine_ = 0;
+		int iEchoLine_ = 0;
+		int iEchoPartition_ = 0;
 
 		// CS_Retro variables
-		int iBaseRes_;
+		int iBaseRes_ = 0;
 
 		// number of phases
-		int iNPhases_;
+		int iNPhases_ = 0;
 
 		// Compressed Sensing variables
-		int iESPReSSoDirection_;
-		float fPartialFourierVal_;
-		int iBodyRegion_;
-		int iVDMap_;
-		int iSamplingType_;
-		float fCSAcc_;
-		float fFullySa_;
+		int iESPReSSoDirection_ = 0;
+		float fPartialFourierVal_ = 0;
+		int iBodyRegion_ = 0;
+		int iVDMap_ = 0;
+		int iSamplingType_ = 0;
+		float fCSAcc_ = 0;
+		float fFullySa_ = 0.065;
 
 	public:
 		CS_Retro_AccumulatorGadget();

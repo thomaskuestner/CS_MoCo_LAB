@@ -40,16 +40,16 @@ Gadgetron::ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_,
 	//Generate x, y, z
 	x.set_size(a,b,c);
 
-	for (int k = 0; k < x.n_slices; k++) {
-		for (int j = 0; j < x.n_cols; j++) {
+	for (uword k = 0; k < x.n_slices; k++) {
+		for (uword j = 0; j < x.n_cols; j++) {
 			x.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1, a);
 		}
 	}
 
 	y.set_size(b,a,c);
 
-	for (int k = 0; k < y.n_slices; k++) {
-		for (int j = 0; j < y.n_cols; j++) {
+	for (uword k = 0; k < y.n_slices; k++) {
+		for (uword j = 0; j < y.n_cols; j++) {
 			y.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1,b);
 		}
 	}
@@ -57,8 +57,8 @@ Gadgetron::ShiftEngine3D::ShiftEngine3D(CubeType i_, CubeType ux_, CubeType uy_,
 
 	z.set_size(c,a,b);
 
-	for (int k = 0; k < z.n_slices; k++) {
-		for (int j = 0; j < z.n_cols; j++) {
+	for (uword k = 0; k < z.n_slices; k++) {
+		for (uword j = 0; j < z.n_cols; j++) {
 			z.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(1,c);
 		}
 	}
@@ -122,23 +122,23 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 
 	//Generate new x,y,z
 	x.resize(a0,b0,c0);
-	for (int k = 0; k < x.n_slices; k++) {
-		for (int j = 0; j < x.n_cols; j++) {
+	for (uword k = 0; k < x.n_slices; k++) {
+		for (uword j = 0; j < x.n_cols; j++) {
 			x.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(k0,k1);
 		}
 	}
 
 	y.resize(b0,a0,c0);
-	for (int k = 0; k < y.n_slices; k++) {
-		for (int j = 0; j < y.n_cols; j++) {
+	for (uword k = 0; k < y.n_slices; k++) {
+		for (uword j = 0; j < y.n_cols; j++) {
 			y.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(l0,l1);
 		}
 	}
 	y = cs_lab_lap_arma::permuteSimple(y, 213);
 
 	z.resize(c0,b0,a0);
-	for (int k = 0; k < z.n_slices; k++) {
-		for (int j = 0; j < z.n_cols; j++) {
+	for (uword k = 0; k < z.n_slices; k++) {
+		for (uword j = 0; j < z.n_cols; j++) {
 			z.slice(k).col(j) = cs_lab_lap_arma::regspaceSimple(m0,m1);
 		}
 	}
@@ -282,12 +282,12 @@ CubeType Gadgetron::ShiftEngine3D::filtering(ColType numerator, ColType denumera
 	CubeType out(i_.n_rows, i_.n_cols, i_.n_slices, fill::zeros);
 
 	// bsxfun minus
-	for (int k = 0; k < out.n_slices; k++) {
+	for (uword k = 0; k < out.n_slices; k++) {
 		out.slice(k) = i_.slice(k).each_row()-i_.slice(k).row(0);
 	}
 
-	for (int k = 0; k < out.n_slices; k++) {
-		for (int j = 0; j < out.n_cols; j++) {
+	for (uword k = 0; k < out.n_slices; k++) {
+		for (uword j = 0; j < out.n_cols; j++) {
 			sp::IIR_filt<PixelType, PixelType, PixelType> iir_filt;
 			iir_filt.set_coeffs(numerator,denumerator);
 			//I_.slice(k).col(j) = iir_filt.filter(I_.slice(k).col(j));
@@ -298,7 +298,7 @@ CubeType Gadgetron::ShiftEngine3D::filtering(ColType numerator, ColType denumera
 	}
 
 	// bsxfun plus
-	for (int k = 0; k < out.n_slices; k++) {
+	for (uword k = 0; k < out.n_slices; k++) {
 		out.slice(k) = out.slice(k).each_row()+i_.slice(k).row(0)*1/accu(denumerator);
 	}
 
@@ -340,15 +340,15 @@ CubeType Gadgetron::ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType 
 	//ColType z0n = cs_lab_lap_filter::iir(onezeros, numerator, denumerator);
 	CubeType t(2*N+1, K1, K2);
 
-	for (int k = 0; k < x.n_slices; k++) {
+	for (uword k = 0; k < x.n_slices; k++) {
 		MatType temp = join_vert(x.slice(k), flipud(x.slice(k)));
 		t.slice(k) = join_vert(temp, x.slice(k).row(0));
 	}
 
 	CubeType out(2*N+1, K1, K2);
 
-	for (int k = 0; k < out.n_slices; k++) {
-		for (int j = 0; j < out.n_cols; j++) {
+	for (uword k = 0; k < out.n_slices; k++) {
+		for (uword j = 0; j < out.n_cols; j++) {
 			sp::IIR_filt<PixelType, PixelType, PixelType> iir_filt2;
 			iir_filt2.set_coeffs(numerator, denumerator);
 			ColType x = t.slice(k).col(j);
@@ -373,7 +373,7 @@ CubeType Gadgetron::ShiftEngine3D::symfilter(PixelType a, PixelType b, CubeType 
 	CubeType out1 = out.tube(span(0,N-1), span::all);
 	CubeType out2 = out.tube(span(N, 2*N-1), span::all);
 
-	for (int k = 0; k < out2.n_slices; k++) {
+	for (uword k = 0; k < out2.n_slices; k++) {
 		out2.slice(k) = flipud(out2.slice(k));
 	}
 
@@ -484,7 +484,6 @@ CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType 
 {
 	int L1 = -2;
 	int L2 = 2;
-	int phi;
 
 	//Minimum and maximum row index needed in the interpolation formula
 	int k0 = floor(x.min()-L2+1);
@@ -528,7 +527,6 @@ CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType 
 
 	int a0 = I0.n_rows;
 	int b0 = I0.n_cols;
-	int c0 = I0.n_slices;
 
 	// now prefiltering
 	// along 1st dimension
@@ -565,14 +563,14 @@ CubeType Gadgetron::ShiftEngine3D::cubicInterp(CubeType x, CubeType y, CubeType 
 	ColType h = cs_lab_lap_arma::regspaceSimple(0, L2-L1-1);
 	CubeType DK(h.n_elem, h.n_elem, h.n_elem, fill::zeros);
 
-	for (int k = 0; k < DK.n_slices; k++) {
+	for (uword k = 0; k < DK.n_slices; k++) {
 		DK.slice(k) = repmat(h, 1, DK.n_cols);
 	}
 
 	CubeType DL = cs_lab_lap_arma::permuteSimple(DK, 213);
 	CubeType DM = cs_lab_lap_arma::permuteSimple(DK, 321);
 
-	for (int i = 0; i < DK.n_elem; i++) {
+	for (uword i = 0; i < DK.n_elem; i++) {
 		int dk = DK(i);
 		int dl = DL(i);
 		int dm = DM(i);
