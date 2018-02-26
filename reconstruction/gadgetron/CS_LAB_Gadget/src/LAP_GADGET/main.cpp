@@ -6,16 +6,15 @@
 #include "lap3d.h"
 #include "shiftengine3d.h"
 
-using namespace std;
 using namespace arma;
 
 float CG_PSNR3D(CubeType Base_image, CubeType Recon_image);
 
 int main(int argc, char *argv[])
 {
-	string firstImagePath;
-	string secondImagePath;
-	string resultImagePath;
+	std::string firstImagePath;
+	std::string secondImagePath;
+	std::string resultImagePath;
 
 	SizeType rows;
 	SizeType cols;
@@ -27,10 +26,10 @@ int main(int argc, char *argv[])
 	if (argc < 2) {
 		std::cerr << "Usage: " << std::endl;
 		std::cerr << std::endl;
-		std::cerr << "  " << argv[0] << " <path-to-image1> <path-to-image2> <path-to-result-image> <image-rows> <image-columns> <image-slices>" << endl;
-		std::cerr << "  " << argv[0] << " <pointer-to-image1> <pointer-to-image2> <pointer-to-result-image>, <image-rows> <image-columns> <image-slices>" <<endl;
+		std::cerr << "  " << argv[0] << " <path-to-image1> <path-to-image2> <path-to-result-image> <image-rows> <image-columns> <image-slices>" << std::endl;
+		std::cerr << "  " << argv[0] << " <pointer-to-image1> <pointer-to-image2> <pointer-to-result-image>, <image-rows> <image-columns> <image-slices>" << std::endl;
 		std::cerr << std::endl;
-		std::cerr << "Run '" << argv[0] << " --help' for more information" << endl;
+		std::cerr << "Run '" << argv[0] << " --help' for more information" << std::endl;
 		std::cerr << std::endl;
 
 		return EXIT_FAILURE;
@@ -63,18 +62,18 @@ int main(int argc, char *argv[])
 
 	//Construct two 3D Images
 	//Construct the LocalAllpass Algorithm Object with Level min and max
-	LAP3D mLAP3D(i1, i2, 0, 4);
+	Gadgetron::LAP3D mLAP3D(i1, i2, 0, 4);
 
 	field<CubeType> flow_estimation = mLAP3D.exec();
 
 	//Shift first image according to estimated optical flow
-	ShiftEngine3D shifter(i1, flow_estimation(0), flow_estimation(1), flow_estimation(2));
+	Gadgetron::ShiftEngine3D shifter(i1, flow_estimation(0), flow_estimation(1), flow_estimation(2));
 	CubeType i_hat_fast = shifter.execCubicShift();
 	//Save result image
 	Col<PixelType> i_hat_fast_v = vectorise(i_hat_fast);
 	i_hat_fast_v.save(resultImagePath, raw_ascii);
 
-	cout << "PSNR_uB_Fast: " << CG_PSNR3D(i2, i_hat_fast) << endl;
+	std::cout << "PSNR_uB_Fast: " << CG_PSNR3D(i2, i_hat_fast) << std::endl;
 
 	return EXIT_SUCCESS;
 }
@@ -89,7 +88,7 @@ float CG_PSNR3D(CubeType Base_image, CubeType Recon_image)
 
 	float MSE = accu(arma::pow(arma::abs(Base_image-Recon_image),2)) / (n*m*p);
 
-	float PSNR = 10 * log10(pow(Max_I, 2) / MSE);
+	float PSNR = 10 * std::log10(std::pow(Max_I, 2) / MSE);
 
 	return PSNR;
 }
