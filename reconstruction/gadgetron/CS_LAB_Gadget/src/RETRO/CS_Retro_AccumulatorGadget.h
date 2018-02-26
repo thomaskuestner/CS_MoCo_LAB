@@ -26,11 +26,11 @@
 #endif
 
 namespace Gadgetron {
-	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
+	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
 	{
 	private:
-		hoNDArray< std::complex<float> >* bufferkSpace_;
-		hoNDArray< std::complex<float> >* bufferNav_;
+		hoNDArray<std::complex<float> > *bufferkSpace_;
+		hoNDArray<std::complex<float> > *bufferNav_;
 
 		std::vector<size_t> dimkSpace_;
 		std::vector<size_t> dimNav_;
@@ -70,8 +70,8 @@ namespace Gadgetron {
 		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
 
 	protected:
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
+		int process_config(ACE_Message_Block *mb);
+		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
@@ -82,4 +82,5 @@ namespace Gadgetron {
 #endif
 	};
 } // close namespace Gadgetron
+
 #endif //CS_RETRO_ACCUMULATORGADGET_H

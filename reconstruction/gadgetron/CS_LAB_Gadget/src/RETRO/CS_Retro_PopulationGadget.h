@@ -39,14 +39,14 @@ description	: 	k-space population/gating
 #endif
 
 namespace Gadgetron {
-	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
+	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3<ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
 	{
 	private:
 		// populated/reordered kspace
-		hoNDArray<std::complex<float>> hacfKSpace_reordered_;
+		hoNDArray<std::complex<float> > hacfKSpace_reordered_;
 
 		// unordered k-space
-		hoNDArray<std::complex<float>> hacfKSpace_unordered_;
+		hoNDArray<std::complex<float> > hacfKSpace_unordered_;
 
 		// array dimensions of unordered k-space
 		std::vector<size_t> vtDims_unordered_;
@@ -85,8 +85,8 @@ namespace Gadgetron {
 		GADGET_DECLARE(CS_Retro_PopulationGadget);
 
 	protected:
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray<float> >* m2, GadgetContainerMessage< hoNDArray<std::complex<float> > >* m3);
+		int process_config(ACE_Message_Block *mb);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3);
 
 	private:
 		bool fDiscard();

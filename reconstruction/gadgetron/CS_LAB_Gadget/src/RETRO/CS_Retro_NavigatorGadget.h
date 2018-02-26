@@ -21,7 +21,7 @@
 #include "GadgetIsmrmrdReadWrite.h"
 
 namespace Gadgetron {
-	class EXPORTCSLAB CS_Retro_NavigatorGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray< std::complex<float> >, hoNDArray<std::complex<float>> >
+	class EXPORTCSLAB CS_Retro_NavigatorGadget : public Gadget3<ISMRMRD::ImageHeader, hoNDArray<std::complex<float> >, hoNDArray<std::complex<float> > >
 	{
 	private:
 		// navigator signal interpolated to TRs
@@ -53,11 +53,11 @@ namespace Gadgetron {
 
 	protected:
 		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2, GadgetContainerMessage<hoNDArray<std::complex<float>>>* m3);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3);
 
 	private:
-		void getNav2D(hoNDArray<std::complex<float>> &aNav);
-		void getNav2DPCA(hoNDArray<std::complex<float>> &aNav);
+		void getNav2D(hoNDArray<std::complex<float> > &aNav);
+		void getNav2DPCA(hoNDArray<std::complex<float> > &aNav);
 
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__

@@ -75,13 +75,11 @@ references	:	ESPReSSo: Küstner, T. et al. (2014):"ESPReSSo: A Compressed Sensin
 namespace Gadgetron
 {
 	// abstract base class for the FOCUSS reconstruction
-	class EXPORTCSLAB CS_FOCUSS : public Gadget2< ISMRMRD::ImageHeader, hoNDArray< std::complex< float > > >
+	class EXPORTCSLAB CS_FOCUSS : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<std::complex<float> > >
 	{
-
 	public:
-
 		// reconstruct the k-space data in the process(...) method
-		virtual int process( GadgetContainerMessage< ISMRMRD::ImageHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2) = 0;
+		virtual int process(GadgetContainerMessage< ISMRMRD::ImageHeader >* m1, GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2) = 0;
 
 		// read the flexible data header
 		int process_config(ACE_Message_Block* mb);//MS 17/03/30 =0;
@@ -99,14 +97,13 @@ namespace Gadgetron
 		virtual void fWindowing(hoNDArray<std::complex< float > > & hacfWWindowed) = 0;
 
 		// FOCUSS reconstruction
-		virtual int fRecon(hoNDArray< std::complex< float > >  &hacfInput, hoNDArray< std::complex< float > >  &hacfRecon) = 0;
+		virtual int fRecon(hoNDArray< std::complex< float > > &hacfInput, hoNDArray< std::complex< float > > &hacfRecon) = 0;
 
 		// method for setting up the transformation objects
 		void fSetupTransformation();
 
 	// properties
-	#ifdef __GADGETRON_VERSION_HIGHER_3_6__
-			
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		// ESPReSSo active?
 		GADGET_PROPERTY(CSESPReSSo, int, "CSESPReSSo", 0);
 
@@ -114,7 +111,7 @@ namespace Gadgetron
 		GADGET_PROPERTY(bXMLControl, int, "XMLControl", 0);
 
 		// residual of CG method
-		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);		
+		GADGET_PROPERTY(iCGResidual, int, "CG Beta", 0);
 
 		// k-t FOCUSS loops
 		GADGET_PROPERTY(OuterIterations, int, "OuterIterations", 2);
@@ -149,9 +146,7 @@ namespace Gadgetron
 		// FOCUSS
 		GADGET_PROPERTY(lambda, double, "lambda", 0.01);
 		GADGET_PROPERTY(lambdaESPReSSo, double, "lambdaESPReSSo", 0.0);
-
-	#endif
-
+#endif
 
 	// bool:
 		// data pointer
@@ -206,7 +201,7 @@ namespace Gadgetron
 
 	// hoNDArray<cx_float>:
 		// FilterArray for ESPReSSo filtering
-		hoNDArray<std::complex<float> >  hacfFilter_;
+		hoNDArray<std::complex<float> > hacfFilter_;
 
 	// objects
 		// Transformation object for KernelTransform
@@ -217,120 +212,120 @@ namespace Gadgetron
 
 		// Transformation object after all - put k-space or image on stream
 		Transform *Transform_fftAA_;
-};
+	};
 
-// inherited class for a 2D acquisition
-class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
-{
+	// inherited class for a 2D acquisition
+	class EXPORTCSLAB CS_FOCUSS_2D : public CS_FOCUSS
+	{
 	public:
-		CS_FOCUSS_2D(){	bControl_ = false;};
+		CS_FOCUSS_2D() { bControl_ = false; }
 
 		GADGET_DECLARE(CS_FOCUSS_2D)
 
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 		//int process_config(ACE_Message_Block* mb);
 
 		// 2D FOCUSS CS reconstruction
-		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
+		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon);
 
 	protected:
 		// calculating gradient of ESPReSSo - not used in 2Dt
-		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) {}
 
 		// init filter array and sampling masks for ESPReSSo constraint - not used in 2Dt
-		void fInitESPReSSo(hoNDArray<bool>& habFullMask){};
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask) {}
 
 		// windowing incoming data for initial estimate
 		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
 
 		// get calibration size
 		void fGetCalibrationSize(const hoNDArray<bool> &habArray);
-};
+	};
 
-//// inherited class for a 2Dt acquisition
-//class EXPORTCSLAB CS_FOCUSS_2Dt : public CS_FOCUSS
-//{
-//	public:
-//		CS_FOCUSS_2Dt(){ bControl_ = false; };
+// 	// inherited class for a 2Dt acquisition
+// 	class EXPORTCSLAB CS_FOCUSS_2Dt : public CS_FOCUSS
+// 	{
+// 	public:
+// 		CS_FOCUSS_2Dt() { bControl_ = false; }
 //
-//		GADGET_DECLARE(CS_FOCUSS_2Dt)
+// 		GADGET_DECLARE(CS_FOCUSS_2Dt)
 //
-//		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+// 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray< std::complex<float> > > *m2);
 //
-//		int process_config(ACE_Message_Block* mb);
+// 		int process_config(ACE_Message_Block *mb);
 //
-//		// 2Dt FOCUSS CS reconstruction
-//		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
+// 		// 2Dt FOCUSS CS reconstruction
+// 		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon);
 //
-//	protected:
-//		// calculating gradient of ESPReSSo - not used in 2Dt
-//		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
+// 	protected:
+// 		// calculating gradient of ESPReSSo - not used in 2Dt
+// 		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){}
 //
-//		// init filter array and sampling masks for ESPReSSo constraint - not used in 2Dt
-//		void fInitESPReSSo(hoNDArray<bool>& habFullMask){};
+// 		// init filter array and sampling masks for ESPReSSo constraint - not used in 2Dt
+// 		void fInitESPReSSo(hoNDArray<bool> &habFullMask){}
 //
-//		// windowing incoming data for initial estimate
-//		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
+// 		// windowing incoming data for initial estimate
+// 		void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed);
 //
-//		// get calibration size
-//		void fGetCalibrationSize(const hoNDArray<bool> &habArray);
-//};
+// 		// get calibration size
+// 		void fGetCalibrationSize(const hoNDArray<bool> &habArray);
+// 	};
 
-// inherited class for a 3D acquisition
-class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
-{
-    public:
-		CS_FOCUSS_3D(){	bControl_ = false; };
+	// inherited class for a 3D acquisition
+	class EXPORTCSLAB CS_FOCUSS_3D : public CS_FOCUSS
+	{
+	public:
+		CS_FOCUSS_3D() { bControl_ = false; }
 
 		GADGET_DECLARE(CS_FOCUSS_3D)
 
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 		// 3D FOCUSS CS reconstruction
-		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);
+		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon);
 
 		//int process_config(ACE_Message_Block* mb);
 
 	protected:
 		// calculating gradient of ESPReSSo
-		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ);
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ);
 
 		// init filter array and sampling masks for ESPReSSo constraint
-		void fInitESPReSSo(hoNDArray<bool>& habFullMask);
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask);
 
 		// windowing incoming data for initial estimate
-		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
+		void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed);
 
 		// get calibration size
 		void fGetCalibrationSize(const hoNDArray<bool> &habArray);
-};
+	};
 
-class EXPORTCSLAB CS_FOCUSS_4D : public CS_FOCUSS
-{
-    public:
-		CS_FOCUSS_4D(){	bControl_ = false; };
+	class EXPORTCSLAB CS_FOCUSS_4D : public CS_FOCUSS
+	{
+	public:
+		CS_FOCUSS_4D() { bControl_ = false; }
 
 		GADGET_DECLARE(CS_FOCUSS_4D)
 		
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 		// 4D FOCUSS CS reconstruction
-		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon);		
+		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon);
 
 		//int process_config(ACE_Message_Block* mb);
 
 	protected:
 		// calculating gradient of ESPReSSo
-		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ);
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ);
 
 		// init filter array and sampling masks for ESPReSSo constraint
-		void fInitESPReSSo(hoNDArray<bool>& habFullMask);
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask);
 
 		// windowing incoming data for initial estimate
-		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed);
+		void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed);
 
 		// get calibration size
 		void fGetCalibrationSize(hoNDArray<bool> &habArray);
-};
-
+	};
 }
+
 #endif //CS_FOCUSS_H

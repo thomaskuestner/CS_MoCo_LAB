@@ -32,24 +32,24 @@ description	: 	Elastix-based image registration
 
 typedef elastix::ELASTIX::ParameterMapType RegistrationParametersType;
 typedef itk::ParameterFileParser ParserType;
-typedef itk::Image< float, 3 >  ImageType;
+typedef itk::Image<float, 3> ImageType;
 typedef itk::ImportImageFilter<float, 3> ImportFilterType;
 
 namespace Gadgetron
 {
-	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float>>
+	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float> >
 	{
 		public:
 		ElastixRegistrationGadget();
 		~ElastixRegistrationGadget();
-		
-		GADGET_DECLARE(ElastixRegistrationGadget);
-		
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
-		int process_config(ACE_Message_Block* mb);		
 
-		int fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
-		int fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
+		GADGET_DECLARE(ElastixRegistrationGadget);
+
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+		int process_config(ACE_Message_Block *mb);
+
+		int fRegistration3D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+		int fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
 
 		std::vector<size_t> vtDim_;
 		bool bIs2D_;

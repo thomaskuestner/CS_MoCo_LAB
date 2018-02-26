@@ -16,35 +16,34 @@ references	:	-
 
 using namespace Gadgetron;
 
-int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){
-
+int CS_CONTROL::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
+{
 	// get dimension of the incoming data object
 	std::vector<size_t> vDims = *m2->getObjectPtr()->get_dimensions();
 
 	// copy GadgetContainer and init with m2 data
-	GadgetContainerMessage< hoNDArray< std::complex<float> > >* tmp_m2 = new GadgetContainerMessage< hoNDArray< std::complex<float> > >();
+	GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 	tmp_m2->getObjectPtr()->create(vDims);
-	memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_number_of_elements()*sizeof(std::complex< float >));
+	memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_number_of_elements()*sizeof(std::complex<float>));
 	
 	// evaluate dimension and create suitable class object
-	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
+	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1) {
 		pCS = new CS_FOCUSS_2D();
 		GINFO("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1) {
 		//pCS = new CS_FOCUSS_2Dt();
+		// TODO: set pCS
+		pCS = NULL;
 		GINFO("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1) {
 		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
 		sum_dim(*tmp_m2->getObjectPtr(), 3, *tmp_m2->getObjectPtr());
-		
+
 		//tmp_m2->getObjectPtr()->print(std::cout);
 
 		pCS = new CS_FOCUSS_3D();
 		GINFO("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1) {
 		
 		pCS = new CS_FOCUSS_4D();
 
@@ -72,6 +71,7 @@ int CS_CONTROL::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, Gadg
 	if (this->next()->putq(m1) < 0) {
 		return GADGET_FAIL;
 	}
+
 	return GADGET_OK;
 }
 

@@ -22,33 +22,37 @@ references	:	http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Entwurfsmuster
 #include "hoNDArray.h"
 #include "hoNDKLT_CS.h"
 
-namespace Gadgetron{
+namespace Gadgetron
+{
+	class GlobalVar
+	{
+	public:
+		static GlobalVar* instance() {
+			static CGuard g;
 
-	class GlobalVar{
-		public:
-			static GlobalVar* instance(){
-				static CGuard g;
-				if (!_instance)
-					_instance = new GlobalVar();
-				return _instance;
+			if (!_instance) {
+				_instance = new GlobalVar();
 			}
 
+			return _instance;
+		}
+
 		//std::vector< hoNDArray< std::complex< float > > * > vfPrincipleComponents_;
-		std::vector< bool > vbStatPrinc_;
-		std::vector< hoNDKLT_CS< std::complex< float > > * > KLTVec_;
+		std::vector<bool> vbStatPrinc_;
+		std::vector<hoNDKLT_CS<std::complex<float> >* > KLTVec_;
 
 		// acquisition header
-		std::vector< GadgetContainerMessage<ISMRMRD::AcquisitionHeader> * > AcqVec_;
+		std::vector<GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* > AcqVec_;
 
 		// image header
-		std::vector< GadgetContainerMessage<ISMRMRD::ImageHeader> * > ImgHeadVec_;
+		std::vector<GadgetContainerMessage<ISMRMRD::ImageHeader>* > ImgHeadVec_;
 
 		// nav indices
-		std::vector< float > vNavInd_;
+		std::vector<float> vNavInd_;
 
 		// loop counter vectors
-		std::vector< int > vPE_;
-		std::vector< int > vPA_;
+		std::vector<int> vPE_;
+		std::vector<int> vPA_;
 
 		// TR of sequence
 		float fTR_;
@@ -83,25 +87,24 @@ namespace Gadgetron{
 		int iNPhases_;
 		int iPopulationMode_;		// mode for k-space population (0: closes, 1: average, 2: collect)
 
-		private:
-			static GlobalVar* _instance;
-			GlobalVar() {}
-			GlobalVar(const GlobalVar&);
-			~GlobalVar(){}
+	private:
+		static GlobalVar* _instance;
+		GlobalVar() {}
+		GlobalVar(const GlobalVar&);
+		~GlobalVar() {}
 
-			class CGuard{
-				public:
-					~CGuard()
-					{
-						if( NULL != GlobalVar::_instance)
-						{
-							delete GlobalVar::_instance;
-							GlobalVar::_instance = NULL;
-						}
+		class CGuard{
+			public:
+				~CGuard()
+				{
+					if (NULL != GlobalVar::_instance) {
+						delete GlobalVar::_instance;
+						GlobalVar::_instance = NULL;
 					}
-			};
-			friend class CGuard;
-	};	
+				}
+		};
+		friend class CGuard;
+	};
 }
 
 #endif  //GlobalVar_H

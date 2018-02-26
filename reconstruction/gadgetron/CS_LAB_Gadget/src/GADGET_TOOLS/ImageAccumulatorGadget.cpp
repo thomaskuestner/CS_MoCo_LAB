@@ -1,23 +1,29 @@
 #include "ImageAccumulatorGadget.h"
 
-namespace Gadgetron{
-// class constructor
-ImageAccumulatorGadget::ImageAccumulatorGadget() : hafBuffer_(0), iPartition_(0), iImageLoopCounter_(0){ }
-// class destructor 
-ImageAccumulatorGadget::~ImageAccumulatorGadget() {if (hafBuffer_) delete hafBuffer_;}
+using namespace Gadgetron;
+
+ImageAccumulatorGadget::ImageAccumulatorGadget() : hafBuffer_(0), iPartition_(0), iImageLoopCounter_(0)
+{
+}
+
+ImageAccumulatorGadget::~ImageAccumulatorGadget()
+{
+	if (hafBuffer_) {
+		delete hafBuffer_;
+	}
+}
 
 // read flexible data header
-int ImageAccumulatorGadget::process_config(ACE_Message_Block* mb)
-{ 
+int ImageAccumulatorGadget::process_config(ACE_Message_Block *mb)
+{
   return GADGET_OK;
 }
 
-// process(...): buffers the incoming data to a fully buffered k-space array
-int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2)
+// buffers the incoming data to a fully buffered k-space array
+int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
 {
 	// create temporal buffer if not already exists
 	if (!hafBuffer_) {
-		
 		// get dimensions of slice
 		vtDimensions_ = *m2->getObjectPtr()->get_dimensions();
 
@@ -26,25 +32,26 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 
 		// extend dimensions by number of phases
 		vtDimensions_.push_back(GlobalVar::instance()->iNPhases_);
-		for (int iI = 0; iI < vtDimensions_.size(); iI++){
+		for (int iI = 0; iI < vtDimensions_.size(); iI++) {
 			GDEBUG("image size - %i: %i\n", iI, vtDimensions_[iI]);
 		}
 		
 		// initialize buffer array for incoming data
-		if (!(hafBuffer_ = new hoNDArray< float >())) {
+		if (!(hafBuffer_ = new hoNDArray<float>())) {
 			GERROR("Failed create buffer\n");
 
 			return GADGET_FAIL;
 		}
 
 		// create buffer array for incoming data
-		try {hafBuffer_->create(&vtDimensions_);}
-		catch (std::runtime_error &err){
+		try {
+			hafBuffer_->create(&vtDimensions_);
+		} catch (std::runtime_error &err) {
 			GEXCEPTION(err,"Failed allocate buffer array\n");
 			return GADGET_FAIL;
 		}
 
-		GINFO("receiving data...\n");  
+		GINFO("receiving data...\n");
 	}
 	
 	// get pointers to the temporal buffer and the incoming data
@@ -55,45 +62,48 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	// get partition
 	iPartition_++;
 	iImageLoopCounter_++;
+
 	GDEBUG("stack images: %i/%i - %i/%i - %i..\n", iPartition_+1, vtDimensions_[2], iPhs_+1, vtDimensions_[3], iImageLoopCounter_);
+
 	// calculate the offset and copy the data into the temporal buffer
 	size_t tOffset = iPartition_*vtDimensions_[1]*vtDimensions_[0] + iPhs_*vtDimensions_[1]*vtDimensions_[0]*vtDimensions_[2];
 	memcpy(b+tOffset, d, sizeof(float)*vtDimensions_[1]*vtDimensions_[0]);
 
 	// save header information of each slice (don't mess up position..)
-	GadgetContainerMessage<ISMRMRD::ImageHeader>* tmp_m1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
+	GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 
 	// On some platforms, it is necessary to initialize the image header
 	memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 	
 	// copy header data
 	fCopyImageHeader(tmp_m1, m1);
-	m2->getObjectPtr()->get_dimensions();
+
 	// push header to global header vector - for kSpace
 	GlobalVar::instance()->ImgHeadVec_.push_back(tmp_m1);
 
 	// reset partition number if end is reached
-	if (iPartition_++ == vtDimensions_[2]){
+	if (iPartition_++ == vtDimensions_[2]) {
 		iPartition_ = 0;
 	}
-	
+
 	// end of gadget reached when all images received
-	if(iImageLoopCounter_ == vtDimensions_[2]*vtDimensions_[3]){
+	if (iImageLoopCounter_ == vtDimensions_[2]*vtDimensions_[3]) {
 		GINFO("data received and stacked..\n");
-		
+
 		// copy data to new container
-		GadgetContainerMessage< hoNDArray< float > >* cm2 = new GadgetContainerMessage<hoNDArray< float > >();
-    
+		GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
+
 		// concatenate data with header
 		tmp_m1->cont(cm2);
-	
-		try{cm2->getObjectPtr()->create(hafBuffer_->get_dimensions());}
-		catch (std::runtime_error &err){
-			GEXCEPTION(err,"ImageAccumulatorGadget - Unable to allocate new image array\n");
+
+		try {
+			cm2->getObjectPtr()->create(hafBuffer_->get_dimensions());
+		} catch (std::runtime_error &err) {
+			GEXCEPTION(err, "ImageAccumulatorGadget - Unable to allocate new image array\n");
 			tmp_m1->release();
 			return -1;
 		}
-		
+
 		memcpy(cm2->getObjectPtr()->get_data_ptr(),b, sizeof(float)*hafBuffer_->get_number_of_elements());
 
 		m1->release();
@@ -105,10 +115,11 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 
 		return GADGET_OK;
 	}
-	
+
+	// TODO: Return something by default
 }
 
-//int ImageAccumulatorGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1){
+//int ImageAccumulatorGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1) {
 //	tmp_m1->getObjectPtr()->average						= m1->getObjectPtr()->average;
 //	tmp_m1->getObjectPtr()->channels					= m1->getObjectPtr()->channels;
 //	tmp_m1->getObjectPtr()->contrast					= m1->getObjectPtr()->contrast;
@@ -174,5 +185,3 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 //}
 
 GADGET_FACTORY_DECLARE(ImageAccumulatorGadget)
-}
-

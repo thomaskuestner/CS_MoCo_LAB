@@ -1,26 +1,31 @@
 #include "ImageSlicerGadget.h"
 
-namespace Gadgetron{
+using namespace Gadgetron;
 
 // class constructor
-ImageSlicerGadget::ImageSlicerGadget(){}
- 
+ImageSlicerGadget::ImageSlicerGadget()
+{
+}
+
 // class destructor 
-ImageSlicerGadget::~ImageSlicerGadget(){}
+ImageSlicerGadget::~ImageSlicerGadget()
+{
+}
 
-// read ACE message block - flexible data header - (nothing to read)
-int ImageSlicerGadget::process_config(ACE_Message_Block* mb){return GADGET_OK;}
+int ImageSlicerGadget::process_config(ACE_Message_Block *mb)
+{
+	return GADGET_OK;
+}
 
-// process(...): data processing - cuts the data into 2D data sets
-int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,GadgetContainerMessage< hoNDArray< float> >* m2)
-{	
+// data processing - cuts the data into 2D data sets
+int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<float> > *m2)
+{
 	// loop over partitions
-	for (int iPar = 0; iPar < (*m2->getObjectPtr()->get_dimensions())[2]; iPar++){
-		
+	for (int iPar = 0; iPar < (*m2->getObjectPtr()->get_dimensions())[2]; iPar++) {
 		// loop over phases
-		for (int iPhs = 0; iPhs < (*m2->getObjectPtr()->get_dimensions())[3]; iPhs){
-
+		for (int iPhs = 0; iPhs < (*m2->getObjectPtr()->get_dimensions())[3]; iPhs) {
 			GDEBUG("SlicerGadget: par: %i phs: %i\n", iPar, iPhs);
+
 			// new image header
 			GadgetContainerMessage<ISMRMRD::ImageHeader>* new_m1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 
@@ -31,10 +36,11 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 			fCopyImageHeader(new_m1, GlobalVar::instance()->ImgHeadVec_.at(iPar));
 			new_m1->getObjectPtr()->matrix_size[2] = 1;
 
-			// create 2D array and fill 
-			GadgetContainerMessage< hoNDArray<float> >* hafSecBuf = new GadgetContainerMessage< hoNDArray<float> >();
-			try{hafSecBuf->getObjectPtr()->create((*m2->getObjectPtr()->get_dimensions())[0], (*m2->getObjectPtr()->get_dimensions())[1]) ;}
-			catch (std::runtime_error &err){
+			// create 2D array and fill
+			GadgetContainerMessage<hoNDArray<float> > *hafSecBuf = new GadgetContainerMessage<hoNDArray<float> >();
+			try {
+				hafSecBuf->getObjectPtr()->create((*m2->getObjectPtr()->get_dimensions())[0], (*m2->getObjectPtr()->get_dimensions())[1]);
+			} catch (std::runtime_error &err) {
 				GEXCEPTION(err,"Unable to allocate new image array\n");
 				hafSecBuf->release();
 				return -1;
@@ -51,7 +57,7 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 			// copy data
 			memcpy(new_ptr, old_ptr + tOffset, sizeof(float)*(*m2->getObjectPtr()->get_dimensions())[0]*(*m2->getObjectPtr()->get_dimensions())[1]);
 
-			// put on Q
+			// put on Queue
 			if (this->next()->putq(new_m1) < 0) {
 				return GADGET_FAIL;
 			}
@@ -66,7 +72,7 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 }
 
 // copy header data
-//int ImageSlicerGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1){
+//int ImageSlicerGadget::fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1) {
 //tmp_m1->getObjectPtr()->average						= m1->getObjectPtr()->average;
 //	tmp_m1->getObjectPtr()->channels					= m1->getObjectPtr()->channels;
 //	tmp_m1->getObjectPtr()->contrast					= m1->getObjectPtr()->contrast;
@@ -132,5 +138,3 @@ int ImageSlicerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,
 //}
 
 GADGET_FACTORY_DECLARE(ImageSlicerGadget)
-}
-

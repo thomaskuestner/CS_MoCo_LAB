@@ -13,21 +13,19 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-namespace Gadgetron{
-	
-	class EXPORTCSLAB ImageSlicerGadget : public Gadget2< ISMRMRD::ImageHeader, hoNDArray< float > >
-    {
-    public:      
-      ImageSlicerGadget();
-      ~ImageSlicerGadget();
-      int process_config(ACE_Message_Block* mb);
-	  int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage<hoNDArray< float >>* m2);
-	  GADGET_DECLARE(ImageSlicerGadget);
-	  
-	  //int fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader>* tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1);
+namespace Gadgetron
+{
+	class EXPORTCSLAB ImageSlicerGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float> >
+	{
+	public:
+		ImageSlicerGadget();
+		~ImageSlicerGadget();
+		int process_config(ACE_Message_Block* mb);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+		GADGET_DECLARE(ImageSlicerGadget);
 
-    protected:
-
-    };
+		//int fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader>* tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1);
+	};
 }
+
 #endif //IMAGESLICERGADGET_H
