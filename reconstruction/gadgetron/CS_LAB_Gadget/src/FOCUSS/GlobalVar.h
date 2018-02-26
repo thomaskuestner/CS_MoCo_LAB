@@ -51,8 +51,8 @@ namespace Gadgetron
 		std::vector<float> vNavInd_;
 
 		// loop counter vectors
-		std::vector<int> vPE_;
-		std::vector<int> vPA_;
+		std::vector<uint16_t> vPE_;
+		std::vector<uint16_t> vPA_;
 
 		// TR of sequence
 		float fTR_;

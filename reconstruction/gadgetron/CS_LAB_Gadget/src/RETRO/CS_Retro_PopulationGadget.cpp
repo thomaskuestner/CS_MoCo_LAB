@@ -192,11 +192,11 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 			std::vector<size_t> histogram = std::vector<size_t>(iNumberBins);
 
 			// init 0
-			for (unsigned int i = 0; i < iNumberBins; i++) {
+			for (size_t i = 0; i < iNumberBins; i++) {
 				histogram.at(i) = 0;
 			}
 
-			for (unsigned long int i = 0; i < vNavInt_.size(); i++) {
+			for (size_t i = 0; i < vNavInt_.size(); i++) {
 				unsigned int bin = static_cast<unsigned int>(std::floor(vNavInt_.at(i)/((fNavMax-fNavMin)/iNumberBins)));
 
 				if (bin >= iNumberBins) {
@@ -297,11 +297,11 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 			GINFO("weights calculated - phase: %i\n", iPh);
 
 			// loop over lines
-			for (unsigned int iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
+			for (size_t iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
 				// loop over partitions
-				for (unsigned int iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
+				for (size_t iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
 					// check if iLine was acquired and push Indices on vector
-					std::vector<long> lIndices;
+					std::vector<size_t> lIndices;
 					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
 							lIndices.push_back(i);
@@ -309,7 +309,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 					}
 
 					// check iPar of the found acquisitions
-					std::vector<long> lIndices2;
+					std::vector<size_t> lIndices2;
 					for (size_t n = 0; n < lIndices.size(); n++) {
 						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
 							lIndices2.push_back(lIndices.at(n));
@@ -327,7 +327,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 						}
 
 						// min distance
-						int iIndexMinDist = lIndices2.at(std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin());
+						size_t iIndexMinDist = lIndices2.at(std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin());
 						float fValMinDist = vWeights.at(iIndexMinDist);
 
 						if (fValMinDist > vTolerance_.at(iPh)) {// && (abs((float)iLine - (float)iEchoLine_)) > fDist*dimensionsIn_[1] || (abs((float)iPar - (float)iEchoPartition_)) > fDist*dimensionsIn_[2])
@@ -417,17 +417,17 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 			//	                for iL = 1:iNLines
 			//	                    lLineMask = iLine == (iL - 1);
 			// loop over lines
-			for (unsigned int iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
+			for (size_t iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
 				// loop over partitions
-				for (unsigned int iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
-					std::vector<long> lIndices;
+				for (size_t iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
+					std::vector<size_t> lIndices;
 					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
 							lIndices.push_back(i);
 						}
 					}
 
-					std::vector<long> lIndices2;
+					std::vector<size_t> lIndices2;
 					for (size_t n = 0; n < lIndices.size(); n++) {
 						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
 							lIndices2.push_back(lIndices.at(n));
@@ -467,7 +467,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 
 								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
 
-								for(unsigned int x = 0; x < (dimensionsIn_[0]*2); x++) {
+								for(size_t x = 0; x < (dimensionsIn_[0]*2); x++) {
 									// /dWeightAccu added (see loop below)
 									// TODO: Error check here!
 									hacfKSpace_reordered_.at(tOffset_reordered + x) = hacfKSpace_reordered_.at(tOffset_reordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);

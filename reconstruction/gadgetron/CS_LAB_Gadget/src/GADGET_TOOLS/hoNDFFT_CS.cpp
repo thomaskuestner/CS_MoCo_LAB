@@ -1640,7 +1640,6 @@ bool hoNDFFT_CS<T>::fft1(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 	T fftRatio = 1.0/std::sqrt(T(n0));
 
 	size_t num = a.get_number_of_elements()/n0;
-	long long n;
 
 	if (typeid(T) == typeid(float)) {
 		fftwf_plan p;
@@ -1661,7 +1660,7 @@ bool hoNDFFT_CS<T>::fft1(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 		mutex_.unlock();
 
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftwf_execute_dft(p, reinterpret_cast<fftwf_complex*>(a.begin()+n*n0),
 				reinterpret_cast<fftwf_complex*>(r.begin()+n*n0));
 		}
@@ -1688,7 +1687,7 @@ bool hoNDFFT_CS<T>::fft1(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 		mutex_.unlock();
 
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftw_execute_dft(p, reinterpret_cast<fftw_complex*>(a.begin()+n*n0),
 				reinterpret_cast<fftw_complex*>(r.begin()+n*n0));
 		}
@@ -1714,7 +1713,6 @@ bool hoNDFFT_CS<T>::fft2(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 	T fftRatio = 1.0/std::sqrt(T(n0*n1));
 
 	size_t num = a.get_number_of_elements()/(n0*n1);
-	long long n;
 
 	if (typeid(T) == typeid(float)) {
 		fftwf_plan p;
@@ -1735,7 +1733,7 @@ bool hoNDFFT_CS<T>::fft2(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 		mutex_.unlock();
 
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftwf_execute_dft(p, reinterpret_cast<fftwf_complex*>(a.begin()+n*n0*n1),
 				reinterpret_cast<fftwf_complex*>(r.begin()+n*n0*n1));
 		}
@@ -1762,7 +1760,7 @@ bool hoNDFFT_CS<T>::fft2(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 		mutex_.unlock();
 
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftw_execute_dft(p, reinterpret_cast<fftw_complex*>(a.begin()+n*n0*n1),
 				reinterpret_cast<fftw_complex*>(r.begin()+n*n0*n1));
 		}
@@ -1789,7 +1787,6 @@ bool hoNDFFT_CS<T>::fft3(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 	T fftRatio = 1.0/std::sqrt(T(n0*n1*n2));
 
 	size_t num = a.get_number_of_elements()/(n0*n1*n2);
-	long long n;
 
 	if (typeid(T) == typeid(float)) {
 		fftwf_plan p;
@@ -1811,7 +1808,7 @@ bool hoNDFFT_CS<T>::fft3(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 		mutex_.unlock();
 
 		#pragma omp parallel for
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftwf_execute_dft(p, reinterpret_cast<fftwf_complex*>(a.begin()+n*n0*n1*n2),
 				reinterpret_cast<fftwf_complex*>(r.begin()+n*n0*n1*n2));
 		}
@@ -1838,7 +1835,7 @@ bool hoNDFFT_CS<T>::fft3(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 		mutex_.unlock();
 
-		for (n = 0; n < num; n++) {
+		for (size_t n = 0; n < num; n++) {
 			fftw_execute_dft(p, reinterpret_cast<fftw_complex*>(a.begin()+n*n0*n1*n2),
 				reinterpret_cast<fftw_complex*>(r.begin()+n*n0*n1*n2));
 		}
@@ -1852,8 +1849,5 @@ bool hoNDFFT_CS<T>::fft3(hoNDArray<ComplexType> &a, hoNDArray<ComplexType> &r, b
 
 	return true;
 }
-#endif // USE_MKL
 
-// Instantiation
-// template class EXPORTCSLAB hoNDFFT_CS<float>;
-// template class EXPORTCSLAB hoNDFFT_CS<double>;
+#endif // USE_MKL

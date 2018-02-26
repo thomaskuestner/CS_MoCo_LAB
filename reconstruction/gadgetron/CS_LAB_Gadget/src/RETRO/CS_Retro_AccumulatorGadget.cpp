@@ -604,9 +604,9 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	}
 
 	// get current loop counters
-	int samples		= m1->getObjectPtr()->number_of_samples;
-	int line		= m1->getObjectPtr()->idx.kspace_encode_step_1;
-	int partition	= m1->getObjectPtr()->idx.kspace_encode_step_2;
+	uint16_t samples	= m1->getObjectPtr()->number_of_samples;
+	uint16_t line		= m1->getObjectPtr()->idx.kspace_encode_step_1;
+	uint16_t partition	= m1->getObjectPtr()->idx.kspace_encode_step_2;
 
 	// push current loop counters on according vector (temporal)
 	GlobalVar::instance()->vPE_.push_back(line);
