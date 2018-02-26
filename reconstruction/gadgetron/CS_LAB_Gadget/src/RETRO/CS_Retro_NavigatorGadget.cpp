@@ -126,7 +126,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		// fill part of the 3D array
 		#pragma omp parallel for
 		for (long i = 0; i < aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2); i++) {
-			aPower.at(i+offset) = (fPower.at(c), fPower.at(c));
+			aPower.at(i+offset) = std::complex<float>(fPower.at(c), fPower.at(c));
 		}
 	}
 
