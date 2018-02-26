@@ -83,4 +83,4 @@ namespace Gadgetron {
 	};
 } // close namespace Gadgetron
 
-#endif //CS_RETRO_ACCUMULATORGADGET_H
+#endif // CS_RETRO_ACCUMULATORGADGET_H

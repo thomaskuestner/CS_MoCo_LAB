@@ -1,14 +1,10 @@
 /*
 file name	: 	CS_Retro_PopulationGadget.h
-
-author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
+author		: 	Martin Schwartz (martin.schwartz@med.uni-tuebingen.de)
 				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
-
 version		: 	1.1
-
 date		: 	13.10.2015: initial file
 				15.01.2018: include Gaussian-weighted gating
-
 description	: 	k-space population/gating
 */
 
@@ -102,4 +98,4 @@ namespace Gadgetron {
 #endif
 	};
 } // close namespace Gadgetron
-#endif //CS_RETRO_POPULATIONGADGET_H
+#endif // CS_RETRO_POPULATIONGADGET_H

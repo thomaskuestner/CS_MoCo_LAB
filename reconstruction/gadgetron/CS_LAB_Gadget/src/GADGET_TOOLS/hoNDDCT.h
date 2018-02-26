@@ -1,23 +1,14 @@
 /*	
 file name	: 	hoNDDCT.h
-
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
-
 version		: 	1.0
-
 date		: 	03.01.2015
-
 description	: 	in-place DCT transformation based on the FFTW library
-
 input		:	input				: 	data array, which will be transformed
 				dim_to_transform	: 	direction of the transformation
-				
 output		:	input				: 	in-placed transformed array
-				
 functions	:	dct_int(...)		:	 DCT transformation
-	
-variables	:	instance_			:	Singleton object of the class
-				
+	variables	:	instance_			:	Singleton object of the class
 references	:	- hoNDFFT.h from the original Gadgetron implementation
 				- fftw.org
 */
@@ -126,4 +117,4 @@ namespace Gadgetron
 	template<> void hoNDDCT<float>::set_function_pointers();
 }
 
-#endif //hoNDDCT_H
+#endif // hoNDDCT_H

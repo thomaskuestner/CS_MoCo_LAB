@@ -3,6 +3,7 @@
 	\author Hui Xue
 	\adapted by M. Schwartz: added ftransform/btransform - changed name to hoNDKLT_CS
 */
+
 #ifndef hoNDKLT_CS_H
 #define hoNDKLT_CS_H
 
@@ -122,6 +123,6 @@ namespace Gadgetron
 	template class EXPORTCSLAB hoNDKLT_CS<std::complex<double> >;
 }
 
-#endif //hoNDKLT_CS_H
+#endif // hoNDKLT_CS_H
 
 

@@ -1770,7 +1770,8 @@ namespace Gadgetron
 		return GADGET_OK;
 	}
 
-	template <typename T> inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2)
+	template <typename T>
+	inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2)
 	{
 		T abs_c1 = std::abs(c1);
 		T abs_c2 = std::abs(c2);
@@ -1799,7 +1800,8 @@ namespace Gadgetron
 		}
 	}
 
-	template<typename T> void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element)
+	template <typename T>
+	void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element)
 	{
 		// multiply all element values of dimkSpace_ vector
 		long m = 1;

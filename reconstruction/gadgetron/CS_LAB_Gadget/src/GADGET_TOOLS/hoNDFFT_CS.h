@@ -274,4 +274,4 @@ namespace Gadgetron
 	template<> void hoNDFFT_CS<double>::set_function_pointers();
 }
 
-#endif //hoNDFFT_CS_H
+#endif // hoNDFFT_CS_H

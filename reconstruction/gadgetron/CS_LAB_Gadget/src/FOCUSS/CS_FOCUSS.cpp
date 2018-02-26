@@ -1,16 +1,10 @@
 /*
 file name	: 	CS_FOCUSS.cpp
-
-author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
-
+author		: 	Martin Schwartz (martin.schwartz@med.uni-tuebingen.de)
 version		: 	1.1
-
 date		: 	13.02.2015
-
 description	: 	implementation of the class "CS_FOCUSS.h"
-
 references	:	-
-
 notes		:	methods, which are included in this file, are same for each inherited sub-class
 */
 

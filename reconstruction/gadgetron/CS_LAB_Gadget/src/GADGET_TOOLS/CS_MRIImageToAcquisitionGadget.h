@@ -32,4 +32,4 @@ namespace Gadgetron
 	};
 }
 
-#endif //CS_MRIIMAGETOACQUISITIONGADGET_H
+#endif // CS_MRIIMAGETOACQUISITIONGADGET_H

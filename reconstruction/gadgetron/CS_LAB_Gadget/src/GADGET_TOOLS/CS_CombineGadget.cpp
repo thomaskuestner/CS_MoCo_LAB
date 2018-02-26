@@ -93,9 +93,11 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 		nx = m2->getObjectPtr()->get_size(0);
 		ny = m2->getObjectPtr()->get_size(1);
 		nz = m2->getObjectPtr()->get_size(2);
-		nc = m2->getObjectPtr()->get_size(3);	
+		nc = m2->getObjectPtr()->get_size(3);
 		nt = 1;
+
 		GDEBUG("dim 2D 3D - x: %i, y: %i, z: %i, c: %i, t: %i\n", nx,ny,nz,nc,nt);
+
 		dimensions_.push_back(nx);
 		dimensions_.push_back(ny);
 		dimensions_.push_back(nz);
@@ -117,8 +119,8 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 		GERROR("Error occured - dimension..\n");
 	}
 
-	hoNDArray<std::complex<float>> Data(dimensions_);
-	std::complex<float>* d1 = m2->getObjectPtr()->get_data_ptr();
+	hoNDArray<std::complex<float> > Data(dimensions_);
+	std::complex<float> *d1 = m2->getObjectPtr()->get_data_ptr();
 	std::complex<float> *d2 = Data.get_data_ptr();
 	
 	// Create a new message with an hoNDArray for the combined image
@@ -175,7 +177,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 	// 2Dt
 	if (num_dims == 4 && rep_avg_) {
 		try{
-			m3->getObjectPtr()->create(dimensions_[0], dimensions_[1],1);
+			m3->getObjectPtr()->create(dimensions_[0], dimensions_[1], 1);
 		} catch (std::runtime_error &err) {
 			GEXCEPTION(err, "Failed to allocate new array\n");
 			return -1;
@@ -232,7 +234,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 		// set dim
 		m1->getObjectPtr()->user_int[0] = 5;
 	} else {
-		try{
+		try {
 			m3->getObjectPtr()->create(&dimensions_);
 		} catch (std::runtime_error &err) {
 			GEXCEPTION(err, "CS_CombineGadget, failed to allocate new array\n");
@@ -247,6 +249,7 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 	}
 
 	GDEBUG("num dims new array: %i\n", m3->getObjectPtr()->get_number_of_dimensions());
+
 	// Modify header to match the size and change the type to real
 	m1->getObjectPtr()->channels = 1;
 

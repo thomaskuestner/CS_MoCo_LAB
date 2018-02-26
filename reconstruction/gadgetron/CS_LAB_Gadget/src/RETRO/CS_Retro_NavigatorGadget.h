@@ -65,4 +65,4 @@ namespace Gadgetron {
 #endif
 	};
 } // close namespace Gadgetron
-#endif //CS_RETRO_NAVIGATORGADGET_H
+#endif // CS_RETRO_NAVIGATORGADGET_H

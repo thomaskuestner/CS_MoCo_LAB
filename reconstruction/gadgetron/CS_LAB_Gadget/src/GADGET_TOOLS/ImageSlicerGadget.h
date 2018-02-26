@@ -28,4 +28,4 @@ namespace Gadgetron
 	};
 }
 
-#endif //IMAGESLICERGADGET_H
+#endif // IMAGESLICERGADGET_H

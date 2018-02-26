@@ -47,4 +47,4 @@ namespace Gadgetron
 	};
 }
 
-#endif //CS_ACCUMULATORGADGET_H
+#endif // CS_ACCUMULATORGADGET_H

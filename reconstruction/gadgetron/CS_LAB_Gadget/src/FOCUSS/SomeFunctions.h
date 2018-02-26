@@ -41,8 +41,8 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 
 #include <ismrmrd.h>
 
-
-namespace Gadgetron{
+namespace Gadgetron
+{
 	// r = a-b*c
 	template <typename T>
 	bool fAminusBmultC(hoNDArray<T> &a, hoNDArray<T> &b, const hoNDArray<T> &c, hoNDArray<T> &r);
@@ -183,7 +183,8 @@ namespace Gadgetron{
 	* @param c2 complex value
 	* @return 1 if c1 > c2, -1 if c1 < c2 or 0 if c1 == c2
 	*/
-	template <typename T> inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2);
+	template <typename T>
+	inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2);
 
 	/**
 	* @brief Prints message of too few RAM storage available.
@@ -191,9 +192,10 @@ namespace Gadgetron{
 	* @param sizes a vector containing all element sizes to multiplicate
 	* @param bytes_per_element amount of bytes each element is using
 	*/
-	template <typename T> void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
+	template <typename T>
+	void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
 }
 
-#endif //SOMEFUNCTIONS_H
-
 #include "SomeFunctions.hxx"
+
+#endif //SOMEFUNCTIONS_H

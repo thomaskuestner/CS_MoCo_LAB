@@ -1,4 +1,4 @@
-/*	
+/*
 file name	: 	SlicerGadget.h
 author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 version		: 	1.0
@@ -19,7 +19,7 @@ variables	:	image_counter_		:	running image index
 				bIs2D_				:	flag, which indicates 2D data set
 				bIs3D_				:	flag, which indicates 3D data set
 				bIs4D_				:	flag, which indicates 4D data set
-references	:	-
+references	:
 */
 
 #ifndef SLICERGADGET_H

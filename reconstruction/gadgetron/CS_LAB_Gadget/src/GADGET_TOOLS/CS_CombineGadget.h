@@ -48,4 +48,4 @@ namespace Gadgetron
 	};
 }
 
-#endif //CS_COMBINEGADGET_H
+#endif // CS_COMBINEGADGET_H

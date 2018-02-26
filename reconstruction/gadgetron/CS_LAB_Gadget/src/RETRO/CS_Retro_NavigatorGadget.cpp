@@ -53,7 +53,6 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 		return GADGET_FAIL;
 	}
 
-
 	GadgetContainerMessage<hoNDArray<float> > *tmp_m2 = new GadgetContainerMessage<hoNDArray<float> >();
 	tmp_m2->getObjectPtr()->create(vNavInt_.size());
 
@@ -475,7 +474,8 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	int iDisplacement = static_cast<int>(std::ceil(static_cast<float>(iDisplacementMax)/(static_cast<float>(field_of_view_[0])/static_cast<float>(aImg.get_size(0))) - 0.5));
 
 	// fill last line in ref image
-	hoNDArray<float> aRefImg = aSOSImg; aRefImg.fill(0.0);
+	hoNDArray<float> aRefImg = aSOSImg;
+	aRefImg.fill(0.0);
 	for (size_t iI = 0; iI < aSOSImg.get_size(0); iI++) {
 		aRefImg.at(iI + aSOSImg.get_size(0)*(aSOSImg.get_size(1)-1)) = aSOSImg.at(iI + aSOSImg.get_size(0)*(aSOSImg.get_size(1)-1));
 	}
@@ -716,7 +716,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)); // Get the sampling frequency
 
 	//fft(result, ...,1);
-	//fft only 1 dimensional(first dimension)
+	// fft only 1 dimensional (first dimension)
 	hoNDFFT<float>::instance()->fft1(coeff);
 
 	//nfft2 = 2.^nextpow2(nfft);
@@ -813,6 +813,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	}
 
 	subtract(&realpart, &imaginarypart, &dECGhoNDArray);
+
+	// type conversion from complex to float and to vector
 	std::vector<std::complex<float> > dECG;
 	for (size_t i = 0; i < iNMeasurment; i++) {
 		dECG.push_back(0);

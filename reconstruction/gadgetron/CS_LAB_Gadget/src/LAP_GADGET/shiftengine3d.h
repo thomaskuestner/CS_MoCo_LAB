@@ -1,12 +1,8 @@
-/*	
+/*
 file name	: 	shiftengine3d.h
-
 author		: 	Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
-
 version		: 	1.0
-
 date		: 	15.01.2018
-
 description	: 	Image shifting for LAP-based image registration
 */
 

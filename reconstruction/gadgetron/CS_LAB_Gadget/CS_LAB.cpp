@@ -2,28 +2,24 @@
 
 using namespace Gadgetron;
 
-void CS_LAB::fExternalControl(){
-
+void CS_LAB::fExternalControl()
+{
 	// algorithm: 0 - FOCUSS
 	if (iAlgorithm_ == 0) {
-
 		// evaluate dimension and create suitable class object
-		if (iDataset_ == 2 && iTime_ == 0){
+		if (iDataset_ == 2 && iTime_ == 0) {
 			opCS_ = new CS_FOCUSS_2D();
-		}
-		else if (iDataset_ == 2 && iTime_){
-		}
-		else if (iDataset_ == 3){
+		} else if (iDataset_ == 2 && iTime_) {
+// 			opCS_ = new CS_FOCUSS_2Dt();
+		} else if (iDataset_ == 3) {
 			opCS_ = new CS_FOCUSS_3D();
-		}
-		else if (iDataset_ == 4){
+		} else if (iDataset_ == 4) {
 			opCS_ = new CS_FOCUSS_4D();
 		}
-	}
-	else {
+	} else {
 		// not implemented in this version
 	}
-	
+
 	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
 	opCS_->fP_							= fP_;
@@ -50,17 +46,18 @@ void CS_LAB::fExternalControl(){
 
 	// configure KernelTransformation - sparsifying transform
 	// check FFT entry
-	if (iFFT_Sparse_ != 0){
-		for(int i = 0; i < 7; i++){
+	if (iFFT_Sparse_ != 0) {
+		for(int i = 0; i < 7; i++) {
 			int bit = (iFFT_Sparse_ & (1 << i)) >> i;
 			if (bit == 1) {
 				opCS_->Transform_KernelTransform_->set_transformation_sparsity(0,i);
 			}
 		}
 	}
+
 	// check DCT entry
-	if (iDCT_Sparse_ != 0){
-		for(int i = 0; i < 7; i++){
+	if (iDCT_Sparse_ != 0) {
+		for(int i = 0; i < 7; i++) {
 			int bit = (iDCT_Sparse_ & (1 << i)) >> i;
 			if (bit == 1) {
 				opCS_->Transform_KernelTransform_->set_transformation_sparsity(1,i);
@@ -69,17 +66,16 @@ void CS_LAB::fExternalControl(){
 	}
 
 	// configure KernelTransformation - FFT
-	if (iKernel_FFT_dim_ != 0){
-		for(int i = 0; i < 7; i++){
+	if (iKernel_FFT_dim_ != 0) {
+		for(int i = 0; i < 7; i++) {
 			int bit = (iKernel_FFT_dim_ & (1 << i)) >> i;
-			if (bit == 1){
+			if (bit == 1) {
 				int bit2 = (GlobalVar::instance()->iScrambleDim_ & (1 << i)) >> i;
-				if (bit2 == 1){
+				if (bit2 == 1) {
 					opCS_->Transform_KernelTransform_->set_transformation_fft(i, true);
-				}
-				else{
+				} else {
 					opCS_->Transform_KernelTransform_->set_transformation_fft(i, false);
-				}			
+				}
 			}
 		}
 	}
@@ -88,10 +84,10 @@ void CS_LAB::fExternalControl(){
 	---------------------------------- fftBA ----------------------------------
 	--------------------------------------------------------------------------*/
 	// configure fftBA - transform dimension before start FOCUSS
-	if (iFFTBA_!= 0){
-		for(int i = 0; i < 7; i++){
+	if (iFFTBA_!= 0) {
+		for(int i = 0; i < 7; i++) {
 			int bit = (iFFTBA_ & (1 << i)) >> i;
-			if (bit == 1){
+			if (bit == 1) {
 				opCS_->Transform_fftBA_->set_transformation_fft(i, true);
 			}
 		}
@@ -101,7 +97,7 @@ void CS_LAB::fExternalControl(){
 	/*-------------------------------------------------------------------------
 	---------------------------------- fftAA ----------------------------------
 	--------------------------------------------------------------------------*/
-	if (kSpaceOut_ == true){
+	if (kSpaceOut_ == true) {
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,0);
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,1);
 		opCS_->Transform_fftAA_->set_transformation_sparsity(0,2);
@@ -112,7 +108,7 @@ void CS_LAB::fExternalControl(){
 	}
 }
 
-//int CS_LAB::process_config(ACE_Message_Block* mb){
+//int CS_LAB::process_config(ACE_Message_Block* mb) {
 //		GINFO("process config..\n");
 //	//bXMLControl_ = true;
 //	#ifdef __GADGETRON_VERSION_HIGHER_3_6__
@@ -208,8 +204,8 @@ void CS_LAB::fExternalControl(){
 //};
 
 
-int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2){
-	
+int CS_LAB::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
+{
 	// get dimension of the incoming data object
 	std::vector<size_t> vDims = *m2->getObjectPtr()->get_dimensions();
 
@@ -219,23 +215,19 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 	memcpy(tmp_m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_data_ptr(), m2->getObjectPtr()->get_number_of_elements()*sizeof(std::complex< float >));
 	
 	// evaluate dimension and create suitable class object
-	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1){
+	if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) == 1) {
 		opCS_ = new CS_FOCUSS_2D();
 		GINFO("Incoming data is 2D - starting 2D FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1){
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) == 1 && vDims.at(3) > 1) {
 		//opCS_ = new CS_FOCUSS_2Dt();
 		GINFO("Incoming data is 2Dt - starting 2Dt FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1){
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) == 1) {
 		// squeeze array due to x,y,z,c dimension of 3D FOCUSS class
 		sum_dim(*tmp_m2->getObjectPtr(), 3, *tmp_m2->getObjectPtr());
 		
 		opCS_ = new CS_FOCUSS_3D();
 		GINFO("Incoming data is 3D - starting 3D FOCUSS reconstruction\n");
-	}
-	else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1){
-		
+	} else if (vDims.at(0) > 1 && vDims.at(1) > 1 && vDims.at(2) > 1 && vDims.at(3) > 1) {
 		opCS_ = new CS_FOCUSS_4D();
 
 		GINFO("Incoming data is 4D - starting 4D FOCUSS reconstruction\n");
@@ -262,6 +254,7 @@ int CS_LAB::process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetCo
 	if (this->next()->putq(m1) < 0) {
 		return GADGET_FAIL;
 	}
+
 	return GADGET_OK;
 }
 GADGET_FACTORY_DECLARE(CS_LAB)
