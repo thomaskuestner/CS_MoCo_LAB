@@ -390,7 +390,7 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 		}
 #endif
 		else {
-			GWARN("No trajectory description present!");
+			GWARN("No trajectory description present!\n");
 		}
 
 		//-------------------------------------------------------------------------
