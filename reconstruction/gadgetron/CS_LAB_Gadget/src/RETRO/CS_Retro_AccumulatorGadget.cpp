@@ -653,6 +653,19 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			GlobalVar::instance()->vNavInd_.pop_back();
 		}
 
+		// bring GlobalVar::instance()->vNavInd_ to length of iNoNav_ if necessary
+		if (iNoNav_ > GlobalVar::instance()->vNavInd_.size()) {
+			iNoNav_ = GlobalVar::instance()->vNavInd_.size();
+			GINFO("iNoNav_ (=%d) larger than vNavInd_.size() (=%d). Correcting to equality.\n", iNoNav_, GlobalVar::instance()->vNavInd_.size());
+		} else {
+			// this could also be done by:
+			// if (iNoNavLine_ >= (GlobalVar::instance()->iNavPERes_/2)) GlobalVar::instance()->vNavInd_.pop_back();
+			while (iNoNav_ < GlobalVar::instance()->vNavInd_.size()) {
+				GINFO("iNoNav_ (=%d) smaller than vNavInd_.size() (=%d). Correcting to equality.\n", iNoNav_, GlobalVar::instance()->vNavInd_.size());
+				GlobalVar::instance()->vNavInd_.pop_back();
+			}
+		}
+
 		GINFO("%i navigator data found..\n", iNoNav_);
 
 		std::vector<size_t> vStart, vSize;
