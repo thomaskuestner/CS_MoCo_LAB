@@ -186,7 +186,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 
 	GINFO("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
 
-	if ( (iMaxIndex < 20) || (iMaxIndex > static_cast<int>(aPowerInChan.get_size(1))-20)) {
+	if ((iMaxIndex < 20) || (iMaxIndex > static_cast<int>(aPowerInChan.get_size(0))-20)) {
 		GERROR("Error: iMaxIndex out of bounds..\n");
 
 		return;
