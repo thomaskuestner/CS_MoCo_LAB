@@ -651,7 +651,7 @@ namespace Gadgetron
 		return GADGET_OK;
 	}
 
-#ifndef __GADGETRON_VERSION_HIGHER_3_6__
+#if !defined(__GADGETRON_VERSION_HIGHER_3_6__) && WIN32 == 0
 	// save array
 	inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix)
 	{
