@@ -108,8 +108,6 @@ namespace Gadgetron
 	template <typename T>
 	bool sum_dim(hoNDArray<T> &Array, unsigned int dimension, hoNDArray<T> &result);
 
-	//inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
-
 	#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
 		inline bool save_array(hoNDArray<std::complex<float> > &Array, std::string file_prefix);
 	#endif

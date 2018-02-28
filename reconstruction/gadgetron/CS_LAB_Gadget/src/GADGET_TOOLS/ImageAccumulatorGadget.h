@@ -24,8 +24,6 @@ namespace Gadgetron
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
 		GADGET_DECLARE(ImageAccumulatorGadget);
 
-		int fCopyHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader> *m1);
-
 	protected:
 		std::vector<size_t> vtDimensions_;
 		size_t iPartition_ = 0;

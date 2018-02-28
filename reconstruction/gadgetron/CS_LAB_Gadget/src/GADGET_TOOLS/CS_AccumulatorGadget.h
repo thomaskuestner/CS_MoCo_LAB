@@ -36,7 +36,6 @@ namespace Gadgetron
 
 	protected:
 		int fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *GC_img_m2, std::complex<float> *pcfBuffer);
-		//int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_m1_new);
 		hoNDArray<std::complex<float> > *hacfBuffer_;
 		std::vector<size_t> vFOV_;
 		std::vector<size_t> vDim_;
