@@ -197,22 +197,18 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	dimensionsIn_[0] = r_space.matrixSize.x;
 	dimensionsIn_[1] = e_space.matrixSize.y;
 	dimensionsIn_[2] = e_space.matrixSize.z;
-	GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
 	// get FOV
 	field_of_view_[0] = r_space.fieldOfView_mm.x;
 	field_of_view_[1] = e_space.fieldOfView_mm.y;
 	field_of_view_[2] = e_space.fieldOfView_mm.z;
-	GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
 
 	// get echo line and echo partition
 	iEchoLine_ = e_limits.kspace_encoding_step_1.get().center;
 	iEchoPartition_ = e_limits.kspace_encoding_step_2.get().center;
-	GDEBUG("echo line: %i, echo partition: %i\n", iEchoLine_, iEchoPartition_);
 
 	// repetition time
 	GlobalVar::instance()->fTR_ = h.sequenceParameters.get().TR.get().at(0);
-	GDEBUG("TR: %f\n", GlobalVar::instance()->fTR_);
 #else
 	// read xml header file
 	boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -227,23 +223,25 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	dimensionsIn_[0] = r_space.matrixSize().x();
 	dimensionsIn_[1] = e_space.matrixSize().y();
 	dimensionsIn_[2] = e_space.matrixSize().z();
-	GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
 
 	// get FOV
 	field_of_view_[0] = r_space.fieldOfView_mm().x();
 	field_of_view_[1] = e_space.fieldOfView_mm().y();
 	field_of_view_[2] = e_space.fieldOfView_mm().z();
-	GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
 
 	// get echo line and echo partition
 	iEchoLine_ = e_limits.kspace_encoding_step_1().get().center();
 	iEchoPartition_ = e_limits.kspace_encoding_step_2().get().center();
-	GDEBUG("echo line: %i, echo partition: %i\n", iEchoLine_, iEchoPartition_);
 
 	// repetition time
 	GlobalVar::instance()->fTR_ = cfg->sequenceParameters().get().TR().at(0);
-	GDEBUG("TR: %f\n", GlobalVar::instance()->fTR_);
 #endif
+
+	// some debug output
+	GDEBUG("Matrix size: %d, %d, %d\n", dimensionsIn_[0], dimensionsIn_[1], dimensionsIn_[2]);
+	GDEBUG("FOV: %f, %f, %f\n", field_of_view_[0], field_of_view_[1], field_of_view_[2]);
+	GDEBUG("echo line: %i, echo partition: %i\n", iEchoLine_, iEchoPartition_);
+	GDEBUG("TR: %f\n", GlobalVar::instance()->fTR_);
 
 	// set properties
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
