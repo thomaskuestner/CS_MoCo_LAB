@@ -12,8 +12,8 @@ variables	:	bESPRActiveCS_		:	ESPReSSo constraint is active for purely CS data s
 references	:	http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Entwurfsmuster:_Singleton
 */
 
-#ifndef GlobalVar_H
-#define GlobalVar_H
+#ifndef GLOBALVAR_H
+#define GLOBALVAR_H
 
 #pragma once
 #include "Gadget.h"
@@ -107,4 +107,4 @@ namespace Gadgetron
 	};
 }
 
-#endif  //GlobalVar_H
+#endif  //GLOBALVAR_H

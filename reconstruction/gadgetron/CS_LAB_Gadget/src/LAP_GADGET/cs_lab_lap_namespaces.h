@@ -1,5 +1,5 @@
-#ifndef MYNAMESPACES_H
-#define MYNAMESPACES_H
+#ifndef CS_LAB_LAP_NAMESPACES_H
+#define CS_LAB_LAP_NAMESPACES_H
 
 #include <armadillo>
 
@@ -58,5 +58,5 @@ namespace cs_lab_lap_functions {
 	CubeType g(CubeType &c, float K);
 }
 
-#endif // MYNAMESPACES_H
+#endif // CS_LAB_LAP_NAMESPACES_H
 

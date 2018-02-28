@@ -20,6 +20,9 @@ description	: 	interface for the base transformations. For a detailed descriptio
 
 */
 
+#ifndef TRANSFORMWRAPPER_H
+#define TRANSFORMWRAPPER_H
+
 #include "Gadget.h"
 #include "GadgetMRIHeaders.h"
 #include "hoMatrix_util.h"
@@ -171,3 +174,5 @@ namespace Gadgetron
 		}
 	};
 }
+
+#endif // TRANSFORMWRAPPER_H

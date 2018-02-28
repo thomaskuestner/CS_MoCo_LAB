@@ -1,7 +1,8 @@
 // from IsmrmrdDumpGadget
 // from http://stackoverflow.com/questions/8233842/how-to-check-if-directory-exist-using-c-and-winapi
 
-#pragma once
+#ifndef IMAGESAVEHDFGADGETFLOAT_H
+#define IMAGESAVEHDFGADGETFLOAT_H
 
 #include "Gadget.h"
 #include "hoNDArray.h"
@@ -46,3 +47,5 @@ namespace Gadgetron
 		bool append_timestamp_;
 	};
 }
+
+#endif // IMAGESAVEHDFGADGETFLOAT_H
