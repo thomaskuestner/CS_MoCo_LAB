@@ -1,5 +1,7 @@
 #include "CS_Retro_NavigatorGadget.h"
 
+#include <cmath>
+
 using namespace Gadgetron;
 
 // class constructor
@@ -674,7 +676,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	size_t iNMeasurment	= aNav.get_size(1);
 	size_t iNavRes	 	= aNav.get_size(2);
 	size_t iNChannels	= aNav.get_size(3);
-	double pi = 3.14159265358979323846;
 
 	/* MATLAB
 	% Reconstruct the 1-D projections for all measurements and all channels
@@ -849,8 +850,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//ul = 4*tan(pi*fl/2);
 	//uh = 4*tan(pi*fh/2);
 	//den = [1 0 0];
-	float ul = 4*tan(pi*(realfrequency-0.1)/Fs/2/2);
-	float uh = 4*tan(pi*(realfrequency+0.1)/Fs/2/2);
+	float ul = 4*tan(M_PI*(realfrequency-0.1)/Fs/2/2);
+	float uh = 4*tan(M_PI*(realfrequency+0.1)/Fs/2/2);
 	std::vector<std::complex<float> > den;
 	den.push_back(1);
 	den.push_back(0);

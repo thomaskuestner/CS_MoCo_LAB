@@ -522,7 +522,6 @@ namespace Gadgetron
 	*/
 	inline std::vector<float>* fGetHanningWindow(int iElements)
 	{
-		const float pi = 3.141592653589793238463;
 		std::vector<float>* vfHanning = new std::vector<float>(iElements);
 
 		// L = N - 1
@@ -535,7 +534,7 @@ namespace Gadgetron
 
 		// calc w(n)
 		for (std::vector<int>::size_type i = 0; i != vfHanning->size(); i++) {
-			vfHanning->at(i) = .5*(1+std::cos(2*pi*vfHanning->at(i)/fL));
+			vfHanning->at(i) = .5*(1+std::cos(2*M_PI*vfHanning->at(i)/fL));
 		}
 
 		return vfHanning;
@@ -570,7 +569,6 @@ namespace Gadgetron
 	% implemented by Michael.Voelker@mr-bavaria.de, 2012*/
 	inline std::vector<float>* fGetHammingWindow(int iElements)
 	{
-		const float pi = 3.141592653589793238463;
 		std::vector<float> *vfHamming = new std::vector<float>(iElements);
 
 		// L = N - periodic case
@@ -583,7 +581,7 @@ namespace Gadgetron
 
 		// calc w(n)
 		for (std::vector<int>::size_type i = 0; i != vfHamming->size(); i++) {
-			vfHamming->at(i) = 0.54 + 0.46*std::cos(2*pi*vfHamming->at(i)/fL);
+			vfHamming->at(i) = 0.54 + 0.46*std::cos(2*M_PI*vfHamming->at(i)/fL);
 		}
 
 		return vfHamming;
