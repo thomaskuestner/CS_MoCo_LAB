@@ -238,8 +238,8 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
-	return GADGET_OK;
-};
+	return 0;
+}
 
 int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
 {
@@ -397,7 +397,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
-	return GADGET_OK;
+	return 0;
 };
 
 GADGET_FACTORY_DECLARE(ElastixRegistrationGadget)

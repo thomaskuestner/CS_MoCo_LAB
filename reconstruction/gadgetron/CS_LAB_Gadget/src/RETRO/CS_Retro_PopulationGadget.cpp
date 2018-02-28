@@ -54,7 +54,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// discard first seconds of the acquisitions and wait for steady-state
 	//-------------------------------------------------------------------------
-	if (fDiscard()) {
+	if (!fDiscard()) {
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	}
@@ -62,7 +62,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// get centroids
 	//-------------------------------------------------------------------------
-	if (fCalcCentroids(iNPhases_)) {
+	if (!fCalcCentroids(iNPhases_)) {
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	} else {
@@ -74,7 +74,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// populate k-space: mode: closest, gates: 4
 	//-------------------------------------------------------------------------
-	if (fPopulatekSpace(iNPhases_)) {
+	if (!fPopulatekSpace(iNPhases_)) {
 		GERROR("process aborted\n");
 	}
 
@@ -163,7 +163,7 @@ bool CS_Retro_PopulationGadget::fDiscard()
 
 	hacfKSpace_unordered_ = hacfTmp;
 
-	return GADGET_OK;
+	return true;
 }
 
 bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
@@ -250,17 +250,17 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 	case 1:
 		GERROR("reorder_kSpace: k-means gating is not implemented in this version!\n");
 
-		return GADGET_FAIL;
+		return false;
 		break;
 
 	default:
 		GERROR("reorder_kSpace: no gating mode specified!\n");
 
-		return GADGET_FAIL;
+		return false;
 		break;
 	}
 
-	return GADGET_OK;
+	return true;
 }
 
 bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
@@ -368,14 +368,14 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 	case 1:
 		GERROR("reorder_kSpace: population mode 'average' not implemented in this version\n");
 
-		return GADGET_FAIL;
+		return false;
 		break;
 
 	// collect
 	case 2:
 		GERROR("reorder_kSpace: population mode 'collect' not implemented in this version\n");
 
-		return GADGET_FAIL;
+		return false;
 		break;
 
 	// gauss
@@ -494,11 +494,11 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 	default:
 		GERROR("reorder_kSpace: no population mode specified!\n");
 
-		return GADGET_FAIL;
+		return false;
 		break;
 	}
 
-	return GADGET_OK;
+	return true;
 }
 
 GADGET_FACTORY_DECLARE(CS_Retro_PopulationGadget)
