@@ -645,7 +645,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		vNav_.at(i) -= fMin;
 	}
 
-	//interpolation - vNavInt_
+	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
 	std::vector<float> vNavIndNew;
 	for (long i = 0; i < lNoScans_; i++) {
 		vNavIndNew.push_back(i);
