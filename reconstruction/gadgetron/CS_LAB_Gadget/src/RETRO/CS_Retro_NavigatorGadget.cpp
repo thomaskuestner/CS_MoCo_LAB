@@ -838,13 +838,15 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 		dECGIndtemp.push_back(i);
 	}
 
-	std::vector<std::complex<float> > dECGInt;
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECGInt.push_back(i*lNoScans_/iNMeasurement);
+	std::vector<std::complex<float> > dECGInd;
+
+// 	dECGInd = GlobalVar::instance()->vNavInd_;
+	for (size_t i = 0; i < GlobalVar::instance()->vNavInd_.size(); i++) {
+		dECGInd.push_back(GlobalVar::instance()->vNavInd_.at(i));
 	}
 
-	std::vector<std::complex<float> > dECGInd;
-	dECGInd = interp1<std::complex<float> >(dECGInt, dECG, dECGIndtemp);
+	std::vector<std::complex<float> > dECGInt;
+	dECGInt = interp1<std::complex<float> >(dECGInd, dECG, dECGIndtemp);
 
 	// Filter the Signal with a first order butterworth filter
 
