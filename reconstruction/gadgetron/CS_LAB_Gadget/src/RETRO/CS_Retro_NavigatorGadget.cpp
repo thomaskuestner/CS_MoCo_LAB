@@ -737,7 +737,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//fy = fft(y, nfft2);
 	//fy = abs(fy);
-	for(size_t i = 0; i < coeff.get_number_of_elements(); i++) {
+	for (size_t i = 0; i < coeff.get_number_of_elements(); i++) {
 		absresult.at(i) = abs(coeff.at(i));
 	}
 
@@ -749,8 +749,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	fy.create(&fy_dims);
 
 	//fy = fy(1:nfft2/2);
-	for(size_t x = 0; x < fy.get_size(0); x++) {
-		for(size_t i = 0; i < fy.get_size(1); i++) {
+	for (size_t x = 0; x < fy.get_size(0); x++) {
+		for (size_t i = 0; i < fy.get_size(1); i++) {
 			fy.at(i+(x*fy.get_size(1))) = absresult.at(i+(x*fy.get_size(1)));
 		}
 	}
@@ -767,8 +767,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	int frequency = 0;
 	int searcharea = std::floor(Fu) - std::floor(Fl);
 	size_t colmnnr = 0;
-	for(size_t x = 0; x < fy.get_size(0); x++) {
-		for(int i = 0; i < searcharea; i++) {
+	for (size_t x = 0; x < fy.get_size(0); x++) {
+		for (int i = 0; i < searcharea; i++) {
 			size_t pos = i+std::floor(Fl)+(x*fy.get_size(1));
 
 			// break loop if index position is exceeding the limits of fy
@@ -798,7 +798,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDArray<std::complex<float> > dECGtemp;
 	dECGtemp.create(&dECG_dims);
 
-	for(size_t i = 0; i < iNMeasurement; i++) {
+	for (size_t i = 0; i < iNMeasurement; i++) {
 		dECGtemp.at(i) = coeff.at(i+(colmnnr * iNMeasurement));
 	}
 
@@ -810,7 +810,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract real part, for newer compilers also consider:
 	//realpart = real(&dECGtemp);
-	for(size_t i = 0; i < iNMeasurement; i++) {
+	for (size_t i = 0; i < iNMeasurement; i++) {
 		realpart.at(i) = dECGtemp.at(i).real();
 	}
 
@@ -819,7 +819,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract imaginary part, for newer compilers also consider:
 	//imaginarypart = imag(&dECGtemp);
-	for(size_t i = 0; i < iNMeasurement; i++) {
+	for (size_t i = 0; i < iNMeasurement; i++) {
 		imaginarypart.at(i) = dECGtemp.at(i).imag();
 	}
 
@@ -936,7 +936,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//%  normalize so |H(w)| == 1:
 	//%kern = exp(-1i*Wn*(0:2));
-	for(int k = 0; k<3; k++) {
+	for (int k = 0; k < 3; k++) {
 		kern.at(k) = std::exp(std::complex<float>(0.0, -1.0)*static_cast<std::complex<float> >(Wn)*static_cast<std::complex<float> >(k));
 	}
 
@@ -983,7 +983,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	for (size_t m = 0; m < dECG.size(); m++) {
 		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
 
-		for(size_t i = 1; i < den.size(); i++) {
+		for (size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
 	}
@@ -1011,7 +1011,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	for (size_t m = 0; m < dECG.size(); m++) {
 		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
 
-		for(size_t i = 1; i < den.size(); i++) {
+		for (size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
 		}
 	}
@@ -1027,7 +1027,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//dECG = diff(dECG);
 	std::vector<std::complex<float> > dECGdiff;
-	for(size_t i = 0; i < dECG.size()-1; i++) {
+	for (size_t i = 0; i < dECG.size()-1; i++) {
 		dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
 	}
 
