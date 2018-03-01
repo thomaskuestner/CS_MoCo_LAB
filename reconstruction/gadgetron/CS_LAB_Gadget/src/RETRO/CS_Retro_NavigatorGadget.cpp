@@ -672,10 +672,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	* lNoScans_ is the same as length(iLC(:,15)) in Matlab
 	* */
 
-	size_t iNSamples	= aNav.get_size(0);
-	size_t iNMeasurment	= aNav.get_size(1);
-	size_t iNavRes	 	= aNav.get_size(2);
-	size_t iNChannels	= aNav.get_size(3);
+	size_t iNSamples		= aNav.get_size(0);
+	size_t iNMeasurement	= aNav.get_size(1);
+	size_t iNavRes	 		= aNav.get_size(2);
+	size_t iNChannels		= aNav.get_size(3);
 
 	/* MATLAB
 	% Reconstruct the 1-D projections for all measurements and all channels
@@ -689,19 +689,19 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//Concatenate arrays
 	std::vector<size_t> A_dims;
 	A_dims.push_back(iNSamples*iNavRes*iNChannels);
-	A_dims.push_back(iNMeasurment);
+	A_dims.push_back(iNMeasurement);
 
 	hoNDArray<std::complex<float> > A;
 	A.create(&A_dims);
 
-	for (size_t i = 0; i < (iNSamples*iNavRes*iNChannels*iNMeasurment); i++) {
+	for (size_t i = 0; i < (iNSamples*iNavRes*iNChannels*iNMeasurement); i++) {
 		A.at(i) = aImg.at(i);
 	}
 
 	hoNDKLT<std::complex<float> > *VT = new hoNDKLT <std::complex<float> >;
 	std::vector<size_t> coeff_dims;
-	coeff_dims.push_back(iNMeasurment);
-	coeff_dims.push_back(iNMeasurment);
+	coeff_dims.push_back(iNMeasurement);
+	coeff_dims.push_back(iNMeasurement);
 
 	hoNDArray<std::complex<float> > coeff;
 	coeff.create(&coeff_dims);
@@ -714,7 +714,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// TODO: Check why VT is needed - maybe it should be appear somewhere below?
 	delete VT;
 
-	double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurment)); // Get the sampling frequency
+	double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurement)); // Get the sampling frequency
 
 	//fft(result, ...,1);
 	// fft only 1 dimensional (first dimension)
@@ -782,14 +782,14 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
 	Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(lNoScans_)*1000.0);
 	std::vector<size_t> dECG_dims;
-	dECG_dims.push_back(iNMeasurment);
+	dECG_dims.push_back(iNMeasurement);
 	dECG_dims.push_back(1);
 
 	hoNDArray<std::complex<float> > dECGtemp;
 	dECGtemp.create(&dECG_dims);
 
-	for(size_t i = 0; i < iNMeasurment; i++) {
-		dECGtemp.at(i) = coeff.at(i+(colmnnr * iNMeasurment));
+	for(size_t i = 0; i < iNMeasurement; i++) {
+		dECGtemp.at(i) = coeff.at(i+(colmnnr * iNMeasurement));
 	}
 
 	//get the real and the imag part of the signal and subtract them.
@@ -800,7 +800,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract real part, for newer compilers also consider:
 	//realpart = real(&dECGtemp);
-	for(size_t i = 0; i < iNMeasurment; i++) {
+	for(size_t i = 0; i < iNMeasurement; i++) {
 		realpart.at(i) = dECGtemp.at(i).real();
 	}
 
@@ -809,7 +809,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// extract imaginary part, for newer compilers also consider:
 	//imaginarypart = imag(&dECGtemp);
-	for(size_t i = 0; i < iNMeasurment; i++) {
+	for(size_t i = 0; i < iNMeasurement; i++) {
 		imaginarypart.at(i) = dECGtemp.at(i).imag();
 	}
 
@@ -817,12 +817,12 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// type conversion from complex to float and to vector
 	std::vector<std::complex<float> > dECG;
-	for (size_t i = 0; i < iNMeasurment; i++) {
+	for (size_t i = 0; i < iNMeasurement; i++) {
 		dECG.push_back(0);
 	}
 
 	//type conversion from complex to float and to vector
-	for(size_t i = 0; i<iNMeasurment; i++) {
+	for(size_t i = 0; i<iNMeasurement; i++) {
 		dECG.at(i) = real(dECGhoNDArray.at(i));
 	}
 
@@ -834,8 +834,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	}
 
 	std::vector<std::complex<float> > dECGInt;
-	for (size_t i = 0; i < iNMeasurment; i++) {
-		dECGInt.push_back(i*lNoScans_/iNMeasurment);
+	for (size_t i = 0; i < iNMeasurement; i++) {
+		dECGInt.push_back(i*lNoScans_/iNMeasurement);
 	}
 
 	std::vector<std::complex<float> > dECGInd;
