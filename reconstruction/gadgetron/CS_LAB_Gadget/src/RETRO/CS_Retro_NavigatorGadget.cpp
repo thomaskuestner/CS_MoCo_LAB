@@ -828,12 +828,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// type conversion from complex to float and to vector
 	std::vector<std::complex<float> > dECG;
 	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECG.push_back(0);
-	}
-
-	//type conversion from complex to float and to vector
-	for(size_t i = 0; i<iNMeasurement; i++) {
-		dECG.at(i) = real(dECGhoNDArray.at(i));
+		dECG.push_back(real(dECGhoNDArray.at(i)));
 	}
 
 	//factor = length(iLC)/size(coeff,1);
@@ -976,19 +971,15 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	den.at(2) = den.at(2)/den.at(0);
 
 	//Y    = zeros(size(X));
-	std::vector<std::complex<float> > Y;
-	for (size_t i = 0; i < dECG.size(); i++) {
-		Y.push_back(0);
-	}
-
 	//for m = 1:length(Y)
 	//  Y(m) = num(1) * X(m) + z(1);
 	//   for i = 2:n
 	//      z(i - 1) = num(i) * X(m) + z(i) - den(i) * Y(m);
 	//   end
 	//end
-	for(size_t m = 0; m < Y.size(); m++) {
-		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
+	std::vector<std::complex<float> > Y;
+	for (size_t m = 0; m < dECG.size(); m++) {
+		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
 
 		for(size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
@@ -1007,11 +998,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	dECG = Y;
 
 	//Y    = zeros(size(X));
-	Y.clear();
-	for (size_t i = 0; i < dECG.size(); i++) {
-		Y.push_back(0);
-	}
-
 	// second round filtering (backward)
 	//for m = 1:length(Y)
 	//   Y(m) = b(1) * X(m) + z(1);
@@ -1019,8 +1005,9 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//      z(i - 1) = b(i) * X(m) + z(i) - a(i) * Y(m);
 	//   end
 	//end
-	for(size_t m = 0; m < Y.size(); m++) {
-		Y.at(m) = num.at(0) * dECG.at(m) + z.at(0);
+	Y.clear();
+	for (size_t m = 0; m < dECG.size(); m++) {
+		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
 
 		for(size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
