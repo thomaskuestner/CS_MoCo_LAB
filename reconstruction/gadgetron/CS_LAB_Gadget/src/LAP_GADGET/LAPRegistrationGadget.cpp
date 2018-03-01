@@ -96,7 +96,7 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 	CubeType cFixedImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
 	CubeType cMovingImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
 
-	memcpy(&cFixedImage, fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+	memcpy(cFixedImage.memptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 	
 	//Construct the LocalAllpass Algorithm Object with Level min and max
 	LAP3D mLAP3D(cFixedImage, cMovingImage, iLvlMin_, iLvlMax_);
@@ -113,7 +113,7 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
 
-		memcpy(&cMovingImage, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+		memcpy(cMovingImage.memptr(), fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 		mLAP3D.setMovingImage(cMovingImage);
 
 		// image registration
@@ -125,7 +125,7 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 		CubeType cRegisteredImage = shifter.execCubicShift();
 
 		// copy image to new registered 4D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, &cRegisteredImage, cuiNumberOfPixels*sizeof(float));
+		memcpy(fRegisteredImage.get_data_ptr()+tOffset, cRegisteredImage.memptr(), cuiNumberOfPixels*sizeof(float));
 	}
 
 	// new GadgetContainer
