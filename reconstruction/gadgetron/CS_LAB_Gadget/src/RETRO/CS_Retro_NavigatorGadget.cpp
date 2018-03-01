@@ -694,7 +694,17 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDArray<std::complex<float> > A;
 	A.create(&A_dims);
 
-	for (size_t i = 0; i < (iNSamples*iNavRes*iNChannels*iNMeasurement); i++) {
+	// check element bounds -> prevent error in for loop
+	if (A.get_number_of_elements() != aImg.get_number_of_elements()) {
+		GWARN("Oops! Size of A (=%d) != size of aImg (=%d)\n", A.get_number_of_elements(), aImg.get_number_of_elements());
+
+		if (A.get_number_of_elements() > aImg.get_number_of_elements()) {
+			GERROR("Segmentation fault prevented! Check sizes of arrays!\n");
+			throw std::runtime_error("A.get_number_of_elements() > aImg.get_number_of_elements()");
+		}
+	}
+
+	for (size_t i = 0; i < A.get_number_of_elements(); i++) {
 		A.at(i) = aImg.at(i);
 	}
 
