@@ -251,7 +251,8 @@ int CS_CombineGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, 
 	GDEBUG("num dims new array: %i\n", m3->getObjectPtr()->get_number_of_dimensions());
 
 	// Modify header to match the size and change the type to real
-	m1->getObjectPtr()->channels = 1;
+	// WARNING: "channels" are now phases (gates)
+	m1->getObjectPtr()->channels = nt;
 
 	// Now add the new array to the outgoing message
 	m1->cont(m3);
