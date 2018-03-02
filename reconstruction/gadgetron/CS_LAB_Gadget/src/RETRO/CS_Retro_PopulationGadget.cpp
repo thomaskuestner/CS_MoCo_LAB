@@ -120,19 +120,19 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	}
 
 	// only erase data when there is enough
-	if (vNavInt_.size() >= static_cast<unsigned int>(iStartIndex)) {
+	if (vNavInt_.size() >= static_cast<size_t>(iStartIndex)) {
 		vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
 	} else {
 		GWARN("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
 	}
 
-	if (GlobalVar::instance()->vPA_.size() >= static_cast<unsigned int>(iStartIndex)) {
+	if (GlobalVar::instance()->vPA_.size() >= static_cast<size_t>(iStartIndex)) {
 		GlobalVar::instance()->vPA_.erase(GlobalVar::instance()->vPA_.begin(), GlobalVar::instance()->vPA_.begin() + iStartIndex);
 	} else {
 		GWARN("more elements should be delete than there were actually in vPA_. Nothing is done!\n");
 	}
 
-	if (GlobalVar::instance()->vPE_.size() >= static_cast<unsigned int>(iStartIndex)) {
+	if (GlobalVar::instance()->vPE_.size() >= static_cast<size_t>(iStartIndex)) {
 		GlobalVar::instance()->vPE_.erase(GlobalVar::instance()->vPE_.begin(), GlobalVar::instance()->vPE_.begin() + iStartIndex);
 	} else {
 		GWARN("more elements should be delete than there were actually in vPE_. Nothing is done!\n");
@@ -150,9 +150,9 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	// new array
 	hoNDArray<std::complex<float> > hacfTmp(vtDims_new);
 	hacfTmp.fill(std::complex<float>(0.0, 0.0));
-	for (unsigned int iR = 0; iR < hacfKSpace_unordered_.get_size(0); iR++) {
-		for (unsigned int iL = static_cast<unsigned int>(iStartIndex); iL < hacfKSpace_unordered_.get_size(1); iL++) {
-			for (unsigned int iC = 0; iC < hacfKSpace_unordered_.get_size(2); iC++) {
+	for (size_t iR = 0; iR < hacfKSpace_unordered_.get_size(0); iR++) {
+		for (size_t iL = static_cast<size_t>(iStartIndex); iL < hacfKSpace_unordered_.get_size(1); iL++) {
+			for (size_t iC = 0; iC < hacfKSpace_unordered_.get_size(2); iC++) {
 				hacfTmp(iR, iL-iStartIndex, iC) = hacfKSpace_unordered_(iR, iL, iC);
 			}
 		}
