@@ -67,13 +67,23 @@ function [dImg, SInfo, SCoord] = fReadDICOMSingleOrient(SFiles, iInd)
 
 iNDicom = 0;
 SFirstTag  = dicominfo([sFolder, sS, SFiles(1).name]);
+if(isfield(SFirstTag, 'SoftwareVersion') && ~isempty(regexp(SFirstTag.SoftwareVersion, 'E11\w*', 'match', 'once')))
+    lReadMat = true;
+else
+    lReadMat = false;
+end
 dImg = zeros(SFirstTag.Height, SFirstTag.Width, length(SFiles) - iInd + 1);
 if(flagDisp), hWait = showWaitbar('Loading DICOM images', 0); end;
 for iI = iInd:length(SFiles)
     try        
         % Try to read the Dicom information.
         SThisTag  = dicominfo([sFolder, sS, SFiles(iI).name]);
-        [dThisImg, iThisBinHdr]  = fDicomReadFast([sFolder, sS, SFiles(iI).name], SThisTag.Height,  SThisTag.Width);
+        if(lReadMat)
+            dThisImg = dicomread([sFolder, sS, SFiles(iI).name]);
+            iThisBinHdr = [];
+        else
+            [dThisImg, iThisBinHdr]  = fDicomReadFast([sFolder, sS, SFiles(iI).name], SThisTag.Height,  SThisTag.Width);
+        end
         dThisImg = double(dThisImg);
 %         if ~fTestImageCompatibility(SThisTag, SFirstTag), continue; end
         
