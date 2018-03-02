@@ -17,6 +17,13 @@
 		<classname>MRIImageWriter</classname>
 	</writer>
 
+	<!-- remove oversampling in offline reconstruction to match final image resolution in readout direction -->
+	<gadget>
+		<name>RemoveROOversampling</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>RemoveROOversamplingGadget</classname>
+	</gadget>
+
 	<!-- first try - normal AccumulatorGadget -->
 	<gadget>
 		<name>Accumulator</name>
@@ -109,13 +116,6 @@
 		<name>Combine</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_CombineGadget</classname>
-	</gadget>
-
-	<!-- remove oversampling in offline reconstruction to match final image resolution in readout direction -->
-	<gadget>
-		<name>RemoveROOversampling</name>
-		<dll>gadgetron_mricore</dll>
-		<classname>RemoveROOversamplingGadget</classname>
 	</gadget>
 
 	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->
