@@ -162,6 +162,7 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	hacfTmp.print(std::cout);
 
 	hacfKSpace_unordered_ = hacfTmp;
+	vtDims_unordered_ = vtDims_new;
 
 	return true;
 }
