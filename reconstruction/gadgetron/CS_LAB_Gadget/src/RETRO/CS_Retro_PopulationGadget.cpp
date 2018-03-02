@@ -31,7 +31,9 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 {
 	fTolerance_ = 2;
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
-	iNPhases_ = m1->getObjectPtr()->user_int[0];
+
+	// get number of phases/gates
+	unsigned int number_of_phases = m1->getObjectPtr()->user_int[0];
 
 	// get navigator and convert to std::vector
 	//hafNav_ = *m2->getObjectPtr();
@@ -40,16 +42,11 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	}
 
 	// get unordered kspace data
-	vtDims_unordered_ = *m3->getObjectPtr()->get_dimensions();
-
-	// initialization of dimensionsIn_ (copy of AccumulatorGadget)
-	// TODO: check implementation!
-	dimensionsIn_[0] = m1->getObjectPtr()->matrix_size[0];
-	dimensionsIn_[1] = m1->getObjectPtr()->matrix_size[1];
-	dimensionsIn_[2] = m1->getObjectPtr()->matrix_size[2];
-
 	hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
 	memcpy(hacfKSpace_unordered_.get_data_ptr(), m3->getObjectPtr()->get_data_ptr(), sizeof(std::complex<float>)*m3->getObjectPtr()->get_number_of_elements());
+
+	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x Gates x Channels)
+	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_phases, iNoChannels_);
 
 	//-------------------------------------------------------------------------
 	// discard first seconds of the acquisitions and wait for steady-state
@@ -62,7 +59,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// get centroids
 	//-------------------------------------------------------------------------
-	if (!fCalcCentroids(iNPhases_)) {
+	if (!fCalcCentroids(number_of_phases)) {
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	} else {
@@ -74,7 +71,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// populate k-space: mode: closest, gates: 4
 	//-------------------------------------------------------------------------
-	if (!fPopulatekSpace(iNPhases_)) {
+	if (!fPopulatekSpace(number_of_phases)) {
 		GERROR("process aborted\n");
 	}
 
@@ -162,7 +159,6 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	hacfTmp.print(std::cout);
 
 	hacfKSpace_unordered_ = hacfTmp;
-	vtDims_unordered_ = vtDims_new;
 
 	return true;
 }
@@ -282,9 +278,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 	case 0:
 		GINFO("closest mode..\n");
 
-		// initialize output k-space array
-		hacfKSpace_reordered_.create(dimensionsIn_[0]*2, dimensionsIn_[1], dimensionsIn_[2], iNoGates, iNoChannels_);
-
 		GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 		// loop over phases/gates
@@ -298,9 +291,9 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 			GINFO("weights calculated - phase: %i\n", iPh);
 
 			// loop over lines
-			for (size_t iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
+			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
 				// loop over partitions
-				for (size_t iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
+				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
 					// check if iLine was acquired and push Indices on vector
 					std::vector<size_t> lIndices;
 					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
@@ -332,7 +325,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 						size_t iIndexMinDist = lIndices2.at(index_min_this_dist);
 						float fValMinDist = vThisDist.at(index_min_this_dist);
 
-						if (fValMinDist > vTolerance_.at(iPh)) {// && (abs((float)iLine - (float)iEchoLine_)) > fDist*dimensionsIn_[1] || (abs((float)iPar - (float)iEchoPartition_)) > fDist*dimensionsIn_[2])
+						if (fValMinDist > vTolerance_.at(iPh)) {// && (abs((float)iLine - (float)iEchoLine_)) > fDist*hacfKSpace_reordered_.get_size(1) || (abs((float)iPar - (float)iEchoPartition_)) > fDist*hacfKSpace_reordered_.get_size(2))
 							continue;
 						}
 
@@ -341,8 +334,15 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 						max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
 						max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
 						for (int c = 0; c < iNoChannels_; c++) {
-							size_t tOffset_reordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
-							size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + iIndexMinDist*vtDims_unordered_.at(0);
+							size_t tOffset_reordered =
+								iLine * hacfKSpace_reordered_.get_size(0)
+								+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+								+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+								+ c * iNoGates*hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+
+							size_t tOffset_unordered =
+								c * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1)
+								+ iIndexMinDist * hacfKSpace_unordered_.get_size(0);
 
 							// protection against unallowed memory access
 							if (tOffset_reordered > max_offset_reordered) {
@@ -355,7 +355,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 								break;
 							}
 
-							memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
+							memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*hacfKSpace_reordered_.get_size(0));
 						}
 					}
 				}
@@ -382,8 +382,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 
 	// gauss
 	case 3:
-		hacfKSpace_reordered_.create(dimensionsIn_[0]*2, dimensionsIn_[1], dimensionsIn_[2], iNoGates, iNoChannels_);
-
 		//% CARDIAC PHASES loop
 		//for icPh = iNPhasesCardLoop
 		// loop over phases/gates
@@ -419,9 +417,9 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 			//	                for iL = 1:iNLines
 			//	                    lLineMask = iLine == (iL - 1);
 			// loop over lines
-			for (size_t iLine = 0; iLine < dimensionsIn_[1]; iLine++) {
+			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
 				// loop over partitions
-				for (size_t iPar = 0; iPar < dimensionsIn_[2]; iPar++) {
+				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
 					std::vector<size_t> lIndices;
 					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
 						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
@@ -453,8 +451,15 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 							max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
 							max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
 							for (int c = 0; c < iNoChannels_; c++) {
-								size_t tOffset_reordered = iLine*dimensionsIn_[0]*2+iPar*dimensionsIn_[1]*dimensionsIn_[0]*2+iPh*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2+c*iNoGates*dimensionsIn_[2]*dimensionsIn_[1]*dimensionsIn_[0]*2;
-								size_t tOffset_unordered = c*vtDims_unordered_.at(0)*vtDims_unordered_.at(1) + currentindex*vtDims_unordered_.at(0);
+								size_t tOffset_reordered =
+									iLine * hacfKSpace_reordered_.get_size(0)
+									+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+									+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+									+ c * iNoGates * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+
+								size_t tOffset_unordered =
+									c * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1)
+									+ currentindex * hacfKSpace_unordered_.get_size(0);
 
 								// protection against unallowed memory access
 								if (tOffset_reordered > max_offset_reordered) {
@@ -467,9 +472,9 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 									break;
 								}
 
-								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*dimensionsIn_[0]*2);
+								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*hacfKSpace_reordered_.get_size(0));
 
-								for(size_t x = 0; x < (dimensionsIn_[0]*2); x++) {
+								for(size_t x = 0; x < hacfKSpace_reordered_.get_size(0); x++) {
 									// /dWeightAccu added (see loop below)
 									// TODO: Error check here!
 									hacfKSpace_reordered_.at(tOffset_reordered + x) = hacfKSpace_reordered_.at(tOffset_reordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);
@@ -482,7 +487,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 				//dDataAccu = dDataAccu./(dWeightAccu);
 				// brought out to outer loop due to performance reasons.
 				// correct equivalent formulation would be:
-				// 		hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / std::pow(static_cast<float>(dWeightAccu), (dimensionsIn_.at(1)*dimensionsIn_.at(2)));
+				// 		hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / std::pow(static_cast<float>(dWeightAccu), (hacfKSpace_reordered_.get_size(1)*hacfKSpace_reordered_.get_size(2)));
 				// Guess there's an error in that algorithm!
 				// TODO: Error check here!
 // 					for(long i = 0; i < hacfKSpace_reordered_.get_number_of_elements(); i++) {

@@ -44,12 +44,6 @@ namespace Gadgetron {
 		// unordered k-space
 		hoNDArray<std::complex<float> > hacfKSpace_unordered_;
 
-		// array dimensions of unordered k-space
-		std::vector<size_t> vtDims_unordered_;
-
-		// dimensions of incoming array
-		size_t dimensionsIn_[3];
-
 		// number of channels
 		int iNoChannels_;
 
@@ -67,9 +61,6 @@ namespace Gadgetron {
 
 		// navigator signal
 		std::vector<float> vNavInt_;
-
-		// number of gates
-		int iNPhases_;
 
 		// centroids of gates
 		std::vector<float> vfCentroids_;
