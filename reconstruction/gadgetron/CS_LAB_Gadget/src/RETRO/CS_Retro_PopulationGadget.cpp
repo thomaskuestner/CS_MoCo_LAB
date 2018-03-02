@@ -328,8 +328,9 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 						}
 
 						// min distance
-						size_t iIndexMinDist = lIndices2.at(std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin());
-						float fValMinDist = vWeights.at(iIndexMinDist);
+						size_t index_min_this_dist = std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin();
+						size_t iIndexMinDist = lIndices2.at(index_min_this_dist);
+						float fValMinDist = vThisDist.at(index_min_this_dist);
 
 						if (fValMinDist > vTolerance_.at(iPh)) {// && (abs((float)iLine - (float)iEchoLine_)) > fDist*dimensionsIn_[1] || (abs((float)iPar - (float)iEchoPartition_)) > fDist*dimensionsIn_[2])
 							continue;
