@@ -908,6 +908,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDArray<std::complex<float> > e;
 	e.create(&e_dims);
 
+	// computate eigenvalues
+	e.at(0) = (ad.at(0)+ad.at(3)+std::sqrt(std::pow(ad.at(0)+ad.at(3), 2) - std::complex<float>(4)*(ad.at(0)*ad.at(3)-ad.at(1)*ad.at(2))))/std::complex<float>(2);
+	e.at(1) = (ad.at(0)+ad.at(3)-std::sqrt(std::pow(ad.at(0)+ad.at(3), 2) - std::complex<float>(4)*(ad.at(0)*ad.at(3)-ad.at(1)*ad.at(2))))/std::complex<float>(2);
+
 	std::vector<size_t> kern_dims;
 	kern_dims.push_back(3);
 	kern_dims.push_back(1);
@@ -917,17 +921,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	num.push_back(0);
 	num.push_back(0);
 	num.push_back(0);
-
-	//eig
-	hoNDKLT<std::complex<float> > *Vtemp = new hoNDKLT<std::complex<float> >;
-
-	//get the eigen value
-	Vtemp->prepare(ad, static_cast<size_t>(1), static_cast<size_t>(0), false);
-	Vtemp->eigen_value(e);
-
-	// delete Vtemp
-	// TODO: Check why Vtemp is needed - maybe it should be appear somewhere below?
-	delete Vtemp;
 
 	//% Expand recursion formula
 	//den(2) = den(2) - e(1)*den(1);
@@ -956,7 +949,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//===========================================================
 
 	//filtfilt() equivalent function. b = num and a = den
-
 
 	//============================================================
 	//start of zero phase digital filter function
