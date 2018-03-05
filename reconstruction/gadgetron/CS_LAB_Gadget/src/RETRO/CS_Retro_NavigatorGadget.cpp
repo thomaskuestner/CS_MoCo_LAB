@@ -893,7 +893,12 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	t2.at(2)= Wn/4;
 	t2.at(3)= 1;
 
-	multiply(t2, t1, ad);
+	// matlab: ad = inv(t2)*t1;
+	std::complex<float> det_t2 = t2.at(0)*t2.at(3)-t2.at(1)*t2.at(2);
+	ad.at(0) = (+t2.at(3)*t1.at(0)-t2.at(1)*t1.at(2))/det_t2;
+	ad.at(1) = (+t2.at(3)*t1.at(1)-t2.at(1)*t1.at(3))/det_t2;
+	ad.at(2) = (-t2.at(2)*t1.at(0)+t2.at(0)*t1.at(2))/det_t2;
+	ad.at(3) = (-t2.at(2)*t1.at(1)+t2.at(0)*t1.at(3))/det_t2;
 
 	//%den = poly(ad);
 	//e = eig(ad);
