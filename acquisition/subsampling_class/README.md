@@ -2,6 +2,8 @@
 `sudo apt-get install cmake`
 
 ## Compilation
-`cmake .
-make `
+```
+cmake .
+make 
+```
 
