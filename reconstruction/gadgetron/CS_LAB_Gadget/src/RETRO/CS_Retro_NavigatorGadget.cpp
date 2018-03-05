@@ -766,7 +766,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	std::complex<float> maxvalue = 0;
 	int frequency = 0;
 	int searcharea = std::floor(Fu) - std::floor(Fl);
-	size_t colmnnr = 0;
+	size_t column_number = 0;
 	for (size_t x = 0; x < fy.get_size(0); x++) {
 		for (int i = 0; i < searcharea; i++) {
 			size_t pos = i+std::floor(Fl)+(x*fy.get_size(1));
@@ -780,7 +780,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 			if (compare_complex_values<float>(maxvalue, fy.at(pos)) < 0) {
 				maxvalue = fy.at(pos);
 				frequency = i+1;
-				colmnnr = x;
+				column_number = x;
 			}
 		}
 	}
@@ -799,7 +799,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	dECGtemp.create(&dECG_dims);
 
 	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECGtemp.at(i) = coeff.at(i+(colmnnr * iNMeasurement));
+		dECGtemp.at(i) = coeff.at(i+(column_number * iNMeasurement));
 	}
 
 	//get the real and the imag part of the signal and subtract them.
