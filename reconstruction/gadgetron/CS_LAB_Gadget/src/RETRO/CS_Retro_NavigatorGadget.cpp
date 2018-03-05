@@ -857,8 +857,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//ul = 4*tan(pi*fl/2);
 	//uh = 4*tan(pi*fh/2);
 	//den = [1 0 0];
-	float ul = 4*tan(M_PI*(realfrequency-0.1)/Fs/2/2);
-	float uh = 4*tan(M_PI*(realfrequency+0.1)/Fs/2/2);
+	float ul = 4*tan(M_PI*(realfrequency-0.1)/(Fs/2)/2);
+	float uh = 4*tan(M_PI*(realfrequency+0.1)/(Fs/2)/2);
 	std::vector<std::complex<float> > den;
 	den.push_back(1);
 	den.push_back(0);
