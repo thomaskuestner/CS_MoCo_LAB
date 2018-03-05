@@ -977,8 +977,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//   end
 	//end
 	std::vector<std::complex<float> > Y;
-	for (size_t m = 0; m < dECG.size(); m++) {
-		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
+	for (size_t m = 0; m < dECGInt.size(); m++) {
+		Y.push_back(num.at(0) * dECGInt.at(m) + z.at(0));
 
 		for (size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
@@ -993,8 +993,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//flip vector
 	std::reverse(Y.begin(),Y.end());
-	dECG.clear();
-	dECG = Y;
+	dECGInt.clear();
+	dECGInt = Y;
 
 	//Y    = zeros(size(X));
 	// second round filtering (backward)
@@ -1005,8 +1005,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//   end
 	//end
 	Y.clear();
-	for (size_t m = 0; m < dECG.size(); m++) {
-		Y.push_back(num.at(0) * dECG.at(m) + z.at(0));
+	for (size_t m = 0; m < dECGInt.size(); m++) {
+		Y.push_back(num.at(0) * dECGInt.at(m) + z.at(0));
 
 		for (size_t i = 1; i < den.size(); i++) {
 			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
@@ -1015,7 +1015,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//flip again
 	std::reverse(Y.begin(),Y.end());
-	dECG = Y;
+	dECGInt = Y;
 	Y.clear();
 
 	//============================================================
@@ -1024,8 +1024,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//dECG = diff(dECG);
 	std::vector<std::complex<float> > dECGdiff;
-	for (size_t i = 0; i < dECG.size()-1; i++) {
-		dECGdiff.push_back(dECG.at(i+1)-dECG.at(i));
+	for (size_t i = 0; i < dECGInt.size()-1; i++) {
+		dECGdiff.push_back(dECGInt.at(i+1)-dECGInt.at(i));
 	}
 
 	return;
