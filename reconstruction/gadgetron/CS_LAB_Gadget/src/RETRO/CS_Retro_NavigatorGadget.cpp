@@ -724,7 +724,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// TODO: Check why VT is needed - maybe it should be appear somewhere below?
 	delete VT;
 
-	double Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(iNMeasurement)); // Get the sampling frequency
+	double Fs = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0));	// Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
 
 	//fft(result, ...,1);
 	// fft only 1 dimensional (first dimension)
@@ -790,7 +790,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
 	// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
-	Fs = static_cast<float>(GlobalVar::instance()->iMeasurementTime_)/(static_cast<float>(lNoScans_)*1000.0);
+	Fs = 1000.0/GlobalVar::instance()->fTR_;
 	std::vector<size_t> dECG_dims;
 	dECG_dims.push_back(iNMeasurement);
 	dECG_dims.push_back(1);
