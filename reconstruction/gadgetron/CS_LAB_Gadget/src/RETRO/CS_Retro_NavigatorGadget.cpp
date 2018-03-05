@@ -834,7 +834,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//factor = length(iLC)/size(coeff,1);
 	//dECG = fScale(dECG , factor);
 	std::vector<std::complex<float> > dECGIndtemp;
-	for (long i = 0; i <= lNoScans_; i++) {
+	for (long i = 0; i < lNoScans_; i++) {
 		dECGIndtemp.push_back(i);
 	}
 
