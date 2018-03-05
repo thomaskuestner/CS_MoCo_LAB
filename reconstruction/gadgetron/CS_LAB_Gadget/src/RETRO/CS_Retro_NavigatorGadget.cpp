@@ -889,8 +889,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// also transpose
 	t2.at(0)= 1-(Wn*(-Bw/Wn)/4);
-	t2.at(2)= -Wn/4;//(switched indices because of transpose)
-	t2.at(1)= Wn/4;
+	t2.at(1)= -Wn/4;
+	t2.at(2)= Wn/4;
 	t2.at(3)= 1;
 
 	multiply(t2, t1, ad);
