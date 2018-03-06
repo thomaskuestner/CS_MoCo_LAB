@@ -708,7 +708,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 		A.at(i) = aImg.at(i);
 	}
 
-	hoNDKLT<std::complex<float> > *VT = new hoNDKLT <std::complex<float> >;
 	std::vector<size_t> coeff_dims;
 	coeff_dims.push_back(iNMeasurement);
 	coeff_dims.push_back(iNMeasurement);
@@ -717,12 +716,9 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	coeff.create(&coeff_dims);
 
 	//Compute PCA based on KLT principal components are saved in coeff in descending order
-	VT->prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
-	VT->eigen_vector(coeff);
-
-	// delete VT
-	// TODO: Check why VT is needed - maybe it should be appear somewhere below?
-	delete VT;
+	hoNDKLT<std::complex<float> > VT;
+	VT.prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
+	VT.eigen_vector(coeff);
 
 	double Fs = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0));	// Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
 
