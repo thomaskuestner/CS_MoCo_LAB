@@ -147,6 +147,7 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	// new array
 	hoNDArray<std::complex<float> > hacfTmp(vtDims_new);
 	hacfTmp.fill(std::complex<float>(0.0, 0.0));
+	#pragma omp parallel for
 	for (size_t iR = 0; iR < hacfKSpace_unordered_.get_size(0); iR++) {
 		for (size_t iL = static_cast<size_t>(iStartIndex); iL < hacfKSpace_unordered_.get_size(1); iL++) {
 			for (size_t iC = 0; iC < hacfKSpace_unordered_.get_size(2); iC++) {
@@ -281,6 +282,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 		GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
 		// loop over phases/gates
+		#pragma omp parallel for
 		for (int iPh = 0; iPh < iNoGates; iPh++) {
 			// get weights
 			std::vector<float> vWeights(vNavInt_.size());
@@ -385,6 +387,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 		//% CARDIAC PHASES loop
 		//for icPh = iNPhasesCardLoop
 		// loop over phases/gates
+		#pragma omp parallel for
 		for (int iPh = 0; iPh < iNoGates; iPh++) {
 			//initialize the weighting vector
 			std::vector<float> vWeights(vNavInt_.size());
