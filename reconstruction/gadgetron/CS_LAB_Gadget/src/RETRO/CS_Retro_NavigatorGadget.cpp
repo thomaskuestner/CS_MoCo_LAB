@@ -971,6 +971,9 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 		vNavInt_.push_back(dECGInt.at(i+1)-dECGInt.at(i));
 	}
 
+	// push last element twice to recover full size
+	vNavInt_.push_back(vNavInt_.back());
+
 	return;
 }
 
