@@ -41,6 +41,8 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 
 #include <ismrmrd.h>
 
+#define ARRAYSIZE(a) sizeof(a)/sizeof(a[0])
+
 namespace Gadgetron
 {
 	// r = a-b*c

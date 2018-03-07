@@ -728,7 +728,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//nfft2 = 2.^nextpow2(nfft);
 	int nfft2 = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
-	hoNDArray<std::complex<float> > absresult;
+	hoNDArray<float> absresult;
 	absresult.create(&coeff_dims);
 
 	//fy = fft(y, nfft2);
@@ -741,7 +741,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	std::vector<size_t> fy_dims;
 	fy_dims.push_back(inspectednr);
 	fy_dims.push_back(nfft2/2-1);
-	hoNDArray<std::complex<float> > fy;
+	hoNDArray<float> fy;
 	fy.create(&fy_dims);
 
 	//fy = fy(1:nfft2/2);
@@ -759,7 +759,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//[value, frequency] = max(fy(floor(Fl):floor(Fu),1));
 	//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
-	std::complex<float> maxvalue = 0;
+	float maxvalue = 0;
 	int frequency = 0;
 	int searcharea = std::floor(Fu) - std::floor(Fl);
 	size_t column_number = 0;
@@ -773,7 +773,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 				break;
 			}
 
-			if (compare_complex_values<float>(maxvalue, fy.at(pos)) < 0) {
+			if (maxvalue < fy.at(pos)) {
 				maxvalue = fy.at(pos);
 				frequency = i+1;
 				column_number = x;
@@ -784,65 +784,36 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//frequency = ((Fl)+frequency-2)*Fs/nfft2;
 	float realfrequency = (Fl + frequency - 2) * Fs / nfft2;
 
-	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
 	// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
 	Fs = 1000.0/GlobalVar::instance()->fTR_;
-	std::vector<size_t> dECG_dims;
-	dECG_dims.push_back(iNMeasurement);
-	dECG_dims.push_back(1);
 
-	hoNDArray<std::complex<float> > dECGtemp;
-	dECGtemp.create(&dECG_dims);
+	// get the real and the imaginary part of the signal
+	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
+	std::vector<float> dECG_real, dECG_imag;
 
 	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECGtemp.at(i) = coeff.at(i+(column_number * iNMeasurement));
+		std::complex<float> coeff_tmp = coeff.at(i+(column_number * iNMeasurement));
+		dECG_real.push_back(coeff_tmp.real());
+		dECG_imag.push_back(coeff_tmp.imag());
 	}
 
-	//get the real and the imag part of the signal and subtract them.
-	hoNDArray<std::complex<float> > dECGhoNDArray;
-	dECGhoNDArray.create(&dECG_dims);
-	hoNDArray<std::complex<float> > realpart;
-	realpart.create(&dECG_dims);
-
-	// extract real part, for newer compilers also consider:
-	//realpart = real(&dECGtemp);
+	// subtract real and imag part
+	std::vector<float> dECG;
 	for (size_t i = 0; i < iNMeasurement; i++) {
-		realpart.at(i) = dECGtemp.at(i).real();
-	}
-
-	hoNDArray<std::complex<float> > imaginarypart;
-	imaginarypart.create(&dECG_dims);
-
-	// extract imaginary part, for newer compilers also consider:
-	//imaginarypart = imag(&dECGtemp);
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		imaginarypart.at(i) = dECGtemp.at(i).imag();
-	}
-
-	subtract(&realpart, &imaginarypart, &dECGhoNDArray);
-
-	// type conversion from complex to float and to vector
-	std::vector<std::complex<float> > dECG;
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECG.push_back(real(dECGhoNDArray.at(i)));
+		dECG.push_back(dECG_real.at(i) - dECG_imag.at(i));
 	}
 
 	//factor = length(iLC)/size(coeff,1);
 	//dECG = fScale(dECG , factor);
-	std::vector<std::complex<float> > dECGIndtemp;
+	std::vector<float> dECGIndtemp;
 	for (long i = 0; i < lNoScans_; i++) {
 		dECGIndtemp.push_back(i);
 	}
 
-	std::vector<std::complex<float> > dECGInd;
+	std::vector<float> dECGInd = GlobalVar::instance()->vNavInd_;
 
-// 	dECGInd = GlobalVar::instance()->vNavInd_;
-	for (size_t i = 0; i < GlobalVar::instance()->vNavInd_.size(); i++) {
-		dECGInd.push_back(GlobalVar::instance()->vNavInd_.at(i));
-	}
-
-	std::vector<std::complex<float> > dECGInt;
-	dECGInt = interp1<std::complex<float> >(dECGInd, dECG, dECGIndtemp);
+	std::vector<float> dECGInt;
+	dECGInt = interp1(dECGInd, dECG, dECGIndtemp);
 
 	// Filter the Signal with a first order butterworth filter
 
@@ -852,93 +823,77 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//ul = 4*tan(pi*fl/2);
 	//uh = 4*tan(pi*fh/2);
-	//den = [1 0 0];
 	float ul = 4*tan(M_PI*(realfrequency-0.1)/(Fs/2)/2);
 	float uh = 4*tan(M_PI*(realfrequency+0.1)/(Fs/2)/2);
-	std::vector<std::complex<float> > den;
-	den.push_back(1);
-	den.push_back(0);
-	den.push_back(0);
 
 	//Bandwidth and center frequency
 	float Bw = uh - ul;
 	float Wn = std::sqrt(ul*uh);
 
+	// Matlab:
 	//t1 = [1+(Wn*(-Bw/Wn)/4) Wn/4; -Wn/4 1];
 	//t2 = [1-(Wn*(-Bw/Wn)/4) -Wn/4; Wn/4 1];
 	//ad = inv(t2)*t1;
+	// Note: indexing follows mathematical convention: t1[row number][column number]
+	float t1[2][2], t2[2][2];
+	std::complex<float> ad[2][2];	// note: only real values in ad, but calculation of e later on must be complex
 
-	std::vector<size_t> t1_dims;
-	t1_dims.push_back(2);
-	t1_dims.push_back(2);
-	hoNDArray<std::complex<float> > t1;
-	t1.create(&t1_dims);
-	hoNDArray<std::complex<float> > t2;
-	t2.create(&t1_dims);
-	hoNDArray<std::complex<float> > ad;
-	ad.create(&t1_dims);
-
-	t1.at(0) = 1+(Wn*(-Bw/Wn)/4);
-	t1.at(1) = Wn/4;
-	t1.at(2) = -Wn/4;
-	t1.at(3) = 1;
+	t1[0][0] = 1+(Wn*(-Bw/Wn)/4);
+	t1[0][1] = Wn/4;
+	t1[1][0] = -Wn/4;
+	t1[1][1] = 1;
 
 	// also transpose
-	t2.at(0)= 1-(Wn*(-Bw/Wn)/4);
-	t2.at(1)= -Wn/4;
-	t2.at(2)= Wn/4;
-	t2.at(3)= 1;
+	t2[0][0]= 1-(Wn*(-Bw/Wn)/4);
+	t2[0][1]= -Wn/4;
+	t2[1][0]= Wn/4;
+	t2[1][1]= 1;
 
 	// matlab: ad = inv(t2)*t1;
-	std::complex<float> det_t2 = t2.at(0)*t2.at(3)-t2.at(1)*t2.at(2);
-	ad.at(0) = (+t2.at(3)*t1.at(0)-t2.at(1)*t1.at(2))/det_t2;
-	ad.at(1) = (+t2.at(3)*t1.at(1)-t2.at(1)*t1.at(3))/det_t2;
-	ad.at(2) = (-t2.at(2)*t1.at(0)+t2.at(0)*t1.at(2))/det_t2;
-	ad.at(3) = (-t2.at(2)*t1.at(1)+t2.at(0)*t1.at(3))/det_t2;
+	float det_t2 = t2[0][0]*t2[1][1]-t2[0][1]*t2[1][0];
+	ad[0][0] = (+t2[1][1]*t1[0][0]-t2[0][1]*t1[1][0])/det_t2;
+	ad[0][1] = (+t2[1][1]*t1[0][1]-t2[0][1]*t1[1][1])/det_t2;
+	ad[1][0] = (-t2[1][0]*t1[0][0]+t2[0][0]*t1[1][0])/det_t2;
+	ad[1][1] = (-t2[1][0]*t1[0][1]+t2[0][0]*t1[1][1])/det_t2;
 
 	//%den = poly(ad);
 	//e = eig(ad);
-	std::vector<size_t> e_dims;
-	e_dims.push_back(2);
-	e_dims.push_back(1);
-	hoNDArray<std::complex<float> > e;
-	e.create(&e_dims);
+	std::complex<float> e[2];
 
 	// computate eigenvalues
-	e.at(0) = (ad.at(0)+ad.at(3)+std::sqrt(std::pow(ad.at(0)+ad.at(3), 2) - std::complex<float>(4)*(ad.at(0)*ad.at(3)-ad.at(1)*ad.at(2))))/std::complex<float>(2);
-	e.at(1) = (ad.at(0)+ad.at(3)-std::sqrt(std::pow(ad.at(0)+ad.at(3), 2) - std::complex<float>(4)*(ad.at(0)*ad.at(3)-ad.at(1)*ad.at(2))))/std::complex<float>(2);
+	e[0] = (ad[0][0]+ad[1][1]+std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
+	e[1] = (ad[0][0]+ad[1][1]-std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
 
-	std::vector<size_t> kern_dims;
-	kern_dims.push_back(3);
-	kern_dims.push_back(1);
-	hoNDArray<std::complex<float> > kern;
-	kern.create(&kern_dims);
-	std::vector<std::complex<float> > num;
-	num.push_back(0);
-	num.push_back(0);
-	num.push_back(0);
+	std::complex<float> kern[3];
 
+	//den = [1 0 0];
+	float den[] = {1, 0, 0};
+
+	// In Matlab:
 	//% Expand recursion formula
 	//den(2) = den(2) - e(1)*den(1);
 	//den(3) = den(3) - e(2)*den(2);
 	//den(2) = den(2) - e(2)*den(1);
-	den.at(1) = den.at(1) - e.at(0) * den.at(0);
-	den.at(2) = den.at(2) - e.at(1) * den.at(1);
-	den.at(1) = den.at(1) - e.at(1) * den.at(0);
+	//
+	// Some thoughts:
+	//	- e is either real or conjugate complex (see above)
+	//	- in complex case: calculation of den becomes real (because e conjugate complex)
+	//	- then: imaginary part can always be ignored and the matlab calculation reduces to:
+	den[1] = -e[0].real() - e[1].real();
+	den[2] = e[0].real() * e[1].real() + std::pow(e[0].imag(), 2);
 
 	Wn = 2*atan(Wn/4);
 
 	//%  normalize so |H(w)| == 1:
 	//%kern = exp(-1i*Wn*(0:2));
-	for (int k = 0; k < 3; k++) {
-		kern.at(k) = std::exp(std::complex<float>(0.0, -1.0)*static_cast<std::complex<float> >(Wn)*static_cast<std::complex<float> >(k));
+	for (size_t k = 0; k < ARRAYSIZE(kern); k++) {
+		kern[k] = std::exp(std::complex<float>(0.0, -1.0)*std::complex<float>(Wn)*std::complex<float>(k));
 	}
 
 	//f = (kern(1)*den(1)+kern(2)*den(2)+kern(3)*den(3))/(kern(1)-kern(3));
-	std::complex<float> f = (kern.at(0)*den.at(0)+kern.at(1)*den.at(1)+kern.at(2)*den.at(2))/(kern.at(0)-kern.at(2));
-	num.at(0) = f.real();
-	num.at(1) = 0;
-	num.at(2) = - f.real();
+	std::complex<float> f = (kern[0]*den[0]+kern[1]*den[1]+kern[2]*den[2])/(kern[0]-kern[2]);
+
+	float num[3] = {f.real(), 0, -f.real()};
 
 	//===========================================================
 	//end of calculating the numerator and denominator of the first order butterworth filter
@@ -954,16 +909,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//z(n) = 0;
 	//num = num / den(1);
 	//den = den / den(1);
-	std::vector<std::complex<float> > z;
-	z.push_back(0);
-	z.push_back(0);
-	z.push_back(0);
-	num.at(0) = num.at(0)/den.at(0); //num.at(1) is always 0
-	num.at(2) = num.at(2)/den.at(0);
-
-	den.at(0) = den.at(0)/den.at(0);
-	den.at(1) = den.at(1)/den.at(0);
-	den.at(2) = den.at(2)/den.at(0);
+	float z[3] = {0};
 
 	//Y    = zeros(size(X));
 	//for m = 1:length(Y)
@@ -972,20 +918,20 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//      z(i - 1) = num(i) * X(m) + z(i) - den(i) * Y(m);
 	//   end
 	//end
-	std::vector<std::complex<float> > Y;
+	std::vector<float> Y;
 	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num.at(0) * dECGInt.at(m) + z.at(0));
+		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
 
-		for (size_t i = 1; i < den.size(); i++) {
-			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
+		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
+			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
 		}
 	}
 
 	//clear z
 	//z(n) = 0;
-	z.at(0) = 0;
-	z.at(1) = 0;
-	z.at(2) = 0;
+	z[0] = 0;
+	z[1] = 0;
+	z[2] = 0;
 
 	//flip vector
 	std::reverse(Y.begin(),Y.end());
@@ -1002,10 +948,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//end
 	Y.clear();
 	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num.at(0) * dECGInt.at(m) + z.at(0));
+		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
 
-		for (size_t i = 1; i < den.size(); i++) {
-			z.at(i - 1) = num.at(i) * dECGInt.at(m) + z.at(i) - den.at(i) * Y.at(m);
+		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
+			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
 		}
 	}
 
@@ -1019,9 +965,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//============================================================
 
 	//dECG = diff(dECG);
-	std::vector<std::complex<float> > dECGdiff;
+	// Note: dECG is vNavInt_ to process data beyond this function
+	vNavInt_.clear();
 	for (size_t i = 0; i < dECGInt.size()-1; i++) {
-		dECGdiff.push_back(dECGInt.at(i+1)-dECGInt.at(i));
+		vNavInt_.push_back(dECGInt.at(i+1)-dECGInt.at(i));
 	}
 
 	return;
