@@ -202,22 +202,38 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 		}
 
 		// set output image to zeros if non-existent
-		bool zero_image_created = false;
-		if (itkOutputImage == NULL) {
-			itkOutputImage = ImageType::New();
-			itkOutputImage->FillBuffer(0.0);
-			zero_image_created = true;
+		void *memcpy_pointer = NULL;
+		ImageType::Pointer zero_image;
+		if (itkOutputImage != NULL) {
+			memcpy_pointer = itkOutputImage->GetBufferPointer();
+		} else {
+			ImageType::IndexType start;
+			for (size_t i = 0; i < 3; i++) {
+				start[i] = 0;
+			}
+
+			ImageType::SizeType size;
+			for (size_t i = 0; i < vtDim_.size(); i++) {
+				size[i] = vtDim_[i];
+			}
+
+			ImageType::RegionType region;
+			region.SetSize(size);
+			region.SetIndex(start);
+
+			zero_image = ImageType::New();
+			zero_image->SetRegions(region);
+			zero_image->Allocate();
+			zero_image->FillBuffer(0.0);
+
+			memcpy_pointer = zero_image->GetBufferPointer();
 		}
 
 		// copy image to new registered 3D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, itkOutputImage->GetBufferPointer(), cuiNumberOfPixels*sizeof(float));
+		memcpy(fRegisteredImage.get_data_ptr()+tOffset, memcpy_pointer, cuiNumberOfPixels*sizeof(float));
 
 		// clean up
 		delete elastix_obj;
-
-		if (zero_image_created) {
-			itkOutputImage->Delete();
-		}
 	}
 
 	// new GadgetContainer
@@ -362,22 +378,38 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 		}
 
 		// set output image to zeros if non-existent
-		bool zero_image_created = false;
-		if (itkOutputImage == NULL) {
-			itkOutputImage = ImageType::New();
-			itkOutputImage->FillBuffer(0.0);
-			zero_image_created = true;
+		void *memcpy_pointer = NULL;
+		ImageType::Pointer zero_image;
+		if (itkOutputImage != NULL) {
+			memcpy_pointer = itkOutputImage->GetBufferPointer();
+		} else {
+			ImageType::IndexType start;
+			for (size_t i = 0; i < 3; i++) {
+				start[i] = 0;
+			}
+
+			ImageType::SizeType size;
+			for (size_t i = 0; i < vtDim_.size(); i++) {
+				size[i] = vtDim_[i];
+			}
+
+			ImageType::RegionType region;
+			region.SetSize(size);
+			region.SetIndex(start);
+
+			zero_image = ImageType::New();
+			zero_image->SetRegions(region);
+			zero_image->Allocate();
+			zero_image->FillBuffer(0.0);
+
+			memcpy_pointer = zero_image->GetBufferPointer();
 		}
 
 		// copy image to new registered 4D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, itkOutputImage->GetBufferPointer(), cuiNumberOfPixels*sizeof(float));
+		memcpy(fRegisteredImage.get_data_ptr()+tOffset, memcpy_pointer, cuiNumberOfPixels*sizeof(float));
 
 		// clean up
 		delete elastix_obj;
-
-		if (zero_image_created) {
-			itkOutputImage->Delete();
-		}
 	}
 
 	// new GadgetContainer
