@@ -184,7 +184,7 @@ namespace Gadgetron
 	* @return 1 if c1 > c2, -1 if c1 < c2 or 0 if c1 == c2
 	*/
 	template <typename T>
-	inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2);
+	inline int compare_complex_values(const std::complex<T> c1, const std::complex<T> c2);
 
 	/**
 	* @brief Prints message of too few RAM storage available.

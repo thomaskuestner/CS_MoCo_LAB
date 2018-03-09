@@ -1676,7 +1676,7 @@ namespace Gadgetron
 	}
 
 	template <typename T>
-	inline int compare_complex_values(std::complex<T> c1, std::complex<T> c2)
+	inline int compare_complex_values(const std::complex<T> c1, const std::complex<T> c2)
 	{
 		T abs_c1 = std::abs(c1);
 		T abs_c2 = std::abs(c2);
