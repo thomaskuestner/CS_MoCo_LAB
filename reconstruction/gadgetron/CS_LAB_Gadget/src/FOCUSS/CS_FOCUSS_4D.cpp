@@ -366,7 +366,6 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfG.get_data_ptr()+ tOffset, false);
 				std::complex<float> fNumerator = 0.0;
 				std::complex<float> fDenominator = 0.0;
-				std::complex<float> fRightTerm = 0.0;
 
 				// calculate nominator
 				pcfPtr2_ = hacfSubArrayG.get_data_ptr();
