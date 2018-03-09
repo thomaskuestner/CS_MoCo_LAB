@@ -306,7 +306,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				}
 
 				// how many channels are converged
-				int iNom = 0;
+				unsigned int iNom = 0;
 				for (size_t iI = 0; iI < vfVec.size(); iI++) {
 					if (vfVec[iI] > fEpsilon_) {
 						iNom++;
@@ -1297,8 +1297,9 @@ void CS_FOCUSS_4D::fGetCalibrationSize(hoNDArray<bool> &habArray)
 		size_t lOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*idT;
 		hoNDArray< bool > hoNDArray3D(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], habArray.get_data_ptr() + lOffset, false);
 
-		unsigned int iSY = 2;
-		unsigned int iSZ = 2;
+		size_t iSY = 2;
+		size_t iSZ = 2;
+
 		bool bYflag = false;
 		bool bZflag = false;
 

@@ -1066,8 +1066,8 @@ void CS_FOCUSS_3D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 //--------------------------------------------------------------------------
 void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray)
 {
-	int iSY = 2;
-	int iSZ = 2;
+	size_t iSY = 2;
+	size_t iSZ = 2;
 
 	bool bYflag = false;
 	bool bZflag = false;
@@ -1099,11 +1099,11 @@ void CS_FOCUSS_3D::fGetCalibrationSize(const hoNDArray<bool> &habArray)
 
 
 
-		if (static_cast<unsigned int>(iSY) == vtDim[0]) {
+		if (iSY == vtDim[0]) {
 			bYflag = true;
 		}
 
-		if (static_cast<unsigned int>(iSZ) == vtDim[1]) {
+		if (iSZ == vtDim[1]) {
 			bZflag = true;
 		}
 	}
