@@ -174,7 +174,7 @@ namespace Gadgetron
 			long long n;
 
 			#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pA, b)
-			for (n=0; n < (long long)N; n++) {
+			for (n = 0; n < N; n++) {
 				pA[n] = std::pow(std::abs(pA[n]), b);
 			}
 		} catch (...) {
@@ -198,12 +198,12 @@ namespace Gadgetron
 			long long n;
 
 			#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pA, b)
-			for (n=0; n < (long long)N; n++) {
+			for (n = 0; n < N; n++) {
 				pA[n] = std::pow(std::abs(pA[n]), b);
 			}
 
 			#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pA, pC)
-			for (n=0; n < (long long)N; n++) {
+			for (n = 0; n < N; n++) {
 				pA[n] /= pC[n];
 			}
 		} catch (...) {
