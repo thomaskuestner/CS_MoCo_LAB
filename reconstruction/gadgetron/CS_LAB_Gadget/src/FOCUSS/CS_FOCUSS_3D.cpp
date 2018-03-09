@@ -99,13 +99,16 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder,false);
 
 	// update dim_ vector
-	vtDim_.clear(); vtDim_ = *hacfKSpace.get_dimensions();
+	vtDim_.clear();
+	vtDim_ = *hacfKSpace.get_dimensions();
 
 	//------------------------------------------------------------------------
 	//-------------------------- sampling mask -------------------------------
 	//------------------------------------------------------------------------
-	hoNDArray<std::complex<float> > hacfFullMask(hacfKSpace.get_dimensions()); hacfFullMask.fill(cfZero);
-	hoNDArray<bool> habFullMask(hacfKSpace.get_dimensions()); habFullMask.fill(false);
+	hoNDArray<std::complex<float> > hacfFullMask(hacfKSpace.get_dimensions());
+	hacfFullMask.fill(cfZero);
+	hoNDArray<bool> habFullMask(hacfKSpace.get_dimensions());
+	habFullMask.fill(false);
 	pcfPtr_ = hacfKSpace.get_data_ptr();
 	pcfPtr2_ = hacfFullMask.get_data_ptr();
 	pbPtr_ = habFullMask.get_data_ptr();
@@ -185,7 +188,10 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 		GDEBUG("FOCUSS loop: %i\n", iOuter);
 
 		// reset initial values
-		hacfRho.fill(cfZero); hacfD.fill(cfZero); hacfQ.fill(cfZero); hacfG_old.fill(std::complex<float>(1.0,1.0));
+		hacfRho.fill(cfZero);
+		hacfD.fill(cfZero);
+		hacfQ.fill(cfZero);
+		hacfG_old.fill(std::complex<float>(1.0,1.0));
 
 		// inner loop for CG
 		for (int iInner = 0; iInner < GlobalVar::instance()->iNInner_; iInner++) {
@@ -254,8 +260,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			// G = -conj(W).*IFFT(e)+Lambda.*Q + LambdaESPReSSo.*gradESPReSSo
 			try {
 				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
-			}
-			catch (...) {
+			} catch (...) {
 				GERROR("Exception in gradient calculation\n");
 				hacfG.fill(cfZero);
 			}
@@ -309,14 +314,14 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			//alpha(:,:,:,c) = (z_helper(:)'*e_helper(:))/(z_helper(:)'*z_helper(:));
 			pcfPtr_ = hacfAlpha.get_data_ptr();
 			for (int iCha = 0; iCha < iNChannels_; iCha++) {
-				std::complex<float> fAlphaCha (0.0);
+				std::complex<float> fAlphaCha = 0.0;
 
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_.at(0)*vtDim_.at(1)*vtDim_.at(2)*iCha;
 				hoNDArray<std::complex<float> > hacfSubArrayE(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfE.get_data_ptr()+ tOffset, false);
 				hoNDArray<std::complex<float> > hacfSubArrayZ(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfZ.get_data_ptr()+ tOffset, false);
-				std::complex<float> fNumerator(0.0);
-				std::complex<float> fDenominator(0.0);
+				std::complex<float> fNumerator = 0.0;
+				std::complex<float> fDenominator = 0.0;
 
 				// calculate nominator
 				pcfPtr2_ = hacfSubArrayE.get_data_ptr();
@@ -386,7 +391,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 //--------------------------------------------------------------------------
 //------------------ gradient of the ESPReSSo constraint -------------------
 //--------------------------------------------------------------------------
-void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) {
+void CS_FOCUSS_3D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ)
+{
 	//--------------------------------------------------------------------------
 	//------------------ transform to Cartesian k-space image ------------------
 	//--------------------------------------------------------------------------
@@ -527,7 +533,8 @@ void CS_FOCUSS_3D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 			//------------------------- Upper / Lower ?  ------------------------------
 			//------- check if upper or lower region in the k-space is sampled --------
 			//-------------------------------------------------------------------------
-			int iNumFoundUpper = 0, iNumFoundLower = 0;
+			int iNumFoundUpper = 0;
+			int iNumFoundLower = 0;
 
 			// check only for one channel - sampling mask is same for all channels
 			pbPtr_ = habFullMask.get_data_ptr();
