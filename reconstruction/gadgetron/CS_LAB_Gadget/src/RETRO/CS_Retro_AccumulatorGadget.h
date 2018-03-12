@@ -73,6 +73,17 @@ namespace Gadgetron {
 		int process_config(ACE_Message_Block *mb);
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
+	private:
+		bool is_content_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			return header.idx.set == 0;
+		}
+
+		bool is_navigator_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			return header.idx.set == 1;
+		}
+
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);

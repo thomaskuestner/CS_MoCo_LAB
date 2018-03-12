@@ -597,7 +597,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	/*---------------------------------------------------*/
 	// navigator flag
 	bool bNavigator = false;
-	if (m1->getObjectPtr()->idx.set == 1) {		//m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
+	if (is_navigator_dataset(*m1->getObjectPtr())) {		//m1->getObjectPtr()->user_int[1] & 0x1 != 0) {
 		bNavigator = true;
 	}
 
