@@ -507,6 +507,16 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 // process data - incoming unordered k-space(RO,t,c) --> ordered k-space(x,y,z,Phases,c)
 int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
 {
+	// only init the buffers in case of real data acquisition (otherwise wrong values (e.g. base resolution) can occur)
+	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
+		GDEBUG("Reject scan with idx.set=%d\n", m1->getObjectPtr()->idx.set);
+
+		// increase counter (it is still a measurement)
+		lCurrentScan_++;
+
+		return GADGET_OK;
+	}
+
 	/*---------------------------------------------------*/
 	/*----------- init buffer for k-space data ----------*/
 	/*---------------------------------------------------*/
@@ -583,8 +593,6 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		GINFO("bufferNav_:\n");
 		bufferNav_->print(std::cout);
-
-		lCurrentScan_ = 0;
 	}
 
 	// protect Gadget from more inputs than expected
