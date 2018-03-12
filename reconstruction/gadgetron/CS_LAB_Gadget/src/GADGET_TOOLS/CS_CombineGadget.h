@@ -7,43 +7,45 @@
 #include "hoNDArray.h"
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
-#else	
+#else
 	#include "ismrmrd/xml.h"
 #endif
+
 #include <ismrmrd.h>
 #include <complex>
 
-namespace Gadgetron{
-  
-  class EXPORTCSLAB CS_CombineGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray< std::complex< float > > >
-    {
-    public:
-      CS_CombineGadget();
-      virtual ~CS_CombineGadget();
+namespace Gadgetron
+{
+	class EXPORTCSLAB CS_CombineGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<std::complex<float > > >
+	{
+	public:
+		CS_CombineGadget();
+		virtual ~CS_CombineGadget();
 
-	  int process_config(ACE_Message_Block* mb);
-      
-    protected:
-      virtual int process( GadgetContainerMessage<ISMRMRD::ImageHeader>* m1,  GadgetContainerMessage< hoNDArray< std::complex< float > > >* m2);   
+		int process_config(ACE_Message_Block *mb);
 
-	  // combine mode
-	  int combine_mode_;
+		GADGET_DECLARE(CS_CombineGadget);
 
-	  // scaling factor
-	  double scale_;
+	protected:
+		virtual int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float > > > *m2);
 
-	  // offset factor
-	  double offset_;
+		// combine mode
+		int combine_mode_;
 
-	  // repetition averaging flag
-	  bool rep_avg_;
+		// scaling factor
+		double scale_;
 
-	  // array dimensions
-	  std::vector<size_t> dimensions_;
+		// offset factor
+		double offset_;
 
-    };
+		// repetition averaging flag
+		bool rep_avg_;
+
+		// array dimensions
+		std::vector<size_t> dimensions_;
+	};
 }
 
-#endif //CS_COMBINEGADGET_H
+#endif // CS_COMBINEGADGET_H

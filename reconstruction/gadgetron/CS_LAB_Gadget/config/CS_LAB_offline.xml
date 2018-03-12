@@ -16,7 +16,7 @@
       <dll>gadgetron_mricore</dll>
       <classname>MRIImageWriter</classname>
     </writer>
-	
+
 	<!-- first try - normal AccumulatorGadget -->
   <gadget>
     <name>Accumulator</name>
@@ -38,7 +38,7 @@
   <!-- use ESPReSSo constraint for normal CS acquisitions - default: 0  -->
   <gadget>
     <name>FOCUSS</name>
-    <dll>CS_LAB</dll>  
+    <dll>CS_LAB</dll>
 	  <classname>CS_LAB</classname>
 	  <property><name>bXMLControl</name><value>1</value></property>
 	  <property><name>lambda</name><value>0.01</value></property>
@@ -67,7 +67,7 @@
       <dll>gadgetron_mricore</dll>
       <classname>ExtractGadget</classname>
 	  <property><name>extract_mask</name><value>1</value></property>
-    </gadget>  
+    </gadget>
 
 <gadget>
       <name>ImageFinish</name>

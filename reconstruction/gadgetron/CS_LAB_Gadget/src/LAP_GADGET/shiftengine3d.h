@@ -1,25 +1,22 @@
-/*	
+/*
 file name	: 	shiftengine3d.h
-
 author		: 	Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
-
 version		: 	1.0
-
 date		: 	15.01.2018
-
 description	: 	Image shifting for LAP-based image registration
 */
 
 #ifndef SHIFTENGINE3D_H
 #define SHIFTENGINE3D_H
 
-#include "mynamespaces.h"
+#include "cs_lab_lap_namespaces.h"
 
 using namespace arma;
 
 namespace Gadgetron
 {
-	class ShiftEngine3D{
+	class ShiftEngine3D
+	{
 	private:
 		CubeType image;
 		CubeType ux;
@@ -38,8 +35,8 @@ namespace Gadgetron
 		CubeType ext(CubeType i_, ColType extsize_);
 		CubeType filtering(ColType numerator, ColType denumerator, CubeType i_);
 		CubeType symfilter(PixelType a, PixelType b, CubeType x);
-		bool mirt3D_mexinterp(PixelType* Z, PixelType* S, PixelType* T, PixelType* W, PixelType* F,
-								int	MN, int nrows, int ncols, int npages, int ndim);
+		bool mirt3D_mexinterp(PixelType *Z, PixelType *S, PixelType *T, PixelType *W, PixelType *F,
+								int MN, int nrows, int ncols, int npages, int ndim);
 		CubeType cubicInterp(CubeType x, CubeType y, CubeType z, CubeType I);
 
 	public:

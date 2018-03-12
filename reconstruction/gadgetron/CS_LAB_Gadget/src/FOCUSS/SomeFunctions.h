@@ -15,13 +15,7 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #ifndef SOMEFUNCTIONS_H
 #define SOMEFUNCTIONS_H
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
-	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
-#endif
+#include "gadgetron_messages.h"
 
 #pragma once
 #include "hoNDArray.h"
@@ -34,7 +28,7 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 #include "hoNDImage.h"
 #include "complext.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 0
+#ifndef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "GadgetronCommon.h"
 	#include <fstream>
 	#include <ismrmrd_hdf5.h>
@@ -47,145 +41,161 @@ references	:	hoNDArray_math_util.h from the Gadgetron implementation
 
 #include <ismrmrd.h>
 
+#define ARRAYSIZE(a) sizeof(a)/sizeof(a[0])
 
-namespace Gadgetron{
-// r = a-b*c
-template <typename T>
-bool fAminusBmultC(hoNDArray<T>& a, hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
+namespace Gadgetron
+{
+	// r = a-b*c
+	template <typename T>
+	bool fAminusBmultC(hoNDArray<T> &a, hoNDArray<T> &b, const hoNDArray<T> &c, hoNDArray<T> &r);
 
-// r = a*b-c
-template <typename T>
-bool fAmultBminusC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
+	// r = a*b-c
+	template <typename T>
+	bool fAmultBminusC(const hoNDArray<T> &a, const hoNDArray<T> &b, const hoNDArray<T> &c, hoNDArray<T> &r);
 
-// r = a+b*c
-template <typename T>
-bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, hoNDArray<T>& r);
+	// r = a+b*c
+	template <typename T>
+	bool fAplusBmultC(const hoNDArray<T> &a, const hoNDArray<T> &b, const hoNDArray<T> &c, hoNDArray<T> &r);
 
-// r = a+b*c
-template <typename T>
-bool fAplusBmultC(const hoNDArray<T>& a, const hoNDArray<T>& b, const hoNDArray<T>& c, const hoNDArray<T>& d, const hoNDArray<T>& e, const hoNDArray<T>& f, const hoNDArray<T>& g, const hoNDArray<T>& h, const hoNDArray<T>& i, hoNDArray<T>& r);
+	// r = a+b*c
+	template <typename T>
+	bool fAplusBmultC(const hoNDArray<T> &a, const hoNDArray<T> &b, const hoNDArray<T> &c, const hoNDArray<T> &d, const hoNDArray<T> &e, const hoNDArray<T> &f, const hoNDArray<T> &g, const hoNDArray<T> &h, const hoNDArray<T> &i, hoNDArray<T> &r);
 
-// r = a+b
-template <typename T>
-bool fAplusB(T a, const hoNDArray<T>& b, hoNDArray<T>& r);
+	// r = a+b
+	template <typename T>
+	bool fAplusB(T a, const hoNDArray<T> &b, hoNDArray<T> &r);
 
-// calculate abs, pow to b and divide by signal energy
-template <typename T>
-bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c);
+	// calculate abs, pow to b and divide by signal energy
+	template <typename T>
+	bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c);
 
-// multiply: a = a.*b
-template <typename T>
-bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b);
+	// multiply: a = a.*b
+	template <typename T>
+	bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b);
 
-// G: r = -a*b+c*d+e*f+g*h+i*j
-template <typename T>
-bool fCalcGradient(const hoNDArray<T>& a, const hoNDArray<T>& b, T c, const hoNDArray<T>& d, T e, const hoNDArray<T>& f, hoNDArray<T>& r);
+	// G: r = -a*b+c*d+e*f+g*h+i*j
+	template <typename T>
+	bool fCalcGradient(const hoNDArray<T> &a, const hoNDArray<T> &b, T c, const hoNDArray<T> &d, T e, const hoNDArray<T> &f, hoNDArray<T> &r);
 
-//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase));
-template <typename T>
-bool fESPReSSoOut(const hoNDArray<T>& W, const hoNDArray<T>& q, const hoNDArray<T>& phase, const hoNDArray<T>& ifft_kSpaceCombi, hoNDArray<T>& out);
+	//ESPReSSo: 0.5 * Lambda * (conj(W) .* q .* (1+phase) + conj(W).*W.*conj(q).*phase - fTrafkSpaceCombi.*(1+phase));
+	template <typename T>
+	bool fESPReSSoOut(const hoNDArray<T> &W, const hoNDArray<T> &q, const hoNDArray<T> &phase, const hoNDArray<T> &ifft_kSpaceCombi, hoNDArray<T> &out);
 
-// crop array in y/z-plane
-template <typename T>
-bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result);
+	// crop array in y/z-plane
+	template <typename T>
+	bool fCropArrYZ(const hoNDArray<T> &Array, int a, int b, hoNDArray<T> &result);
 
-// calculate signal energy of array
-template <typename T>
-float fCalcEnergy(hoNDArray<T> a);
+	// calculate signal energy of array
+	template <typename T>
+	float fCalcEnergy(hoNDArray<T> a);
 
-// calculate abs and pow to b
-template <typename T>
-bool fAbsPow(hoNDArray<T> &a, float b);
+	// calculate abs and pow to b
+	template <typename T>
+	bool fAbsPow(hoNDArray<T> &a, float b);
 
-// all zero?
-bool fAllZero(const hoNDArray<bool> &Array);
-bool fAllZero(const hoNDArray<std::complex<float> >  &Array);
+	// all zero?
+	bool fAllZero(const hoNDArray<bool> &Array);
+	bool fAllZero(const hoNDArray<std::complex<float> >  &Array);
 
-// all non-zero?
-bool fAllOne(const hoNDArray<bool> &Array);
+	// all non-zero?
+	bool fAllOne(const hoNDArray<bool> &Array);
 
-// get hanning window values
-std::vector<float>* fGetHanningWindow(int iElements);
+	// get hanning window values
+	std::vector<float>* fGetHanningWindow(int iElements);
 
-// get hamming window values
-std::vector<float>* fGetHammingWindow(int iElements);
+	// get hamming window values
+	std::vector<float>* fGetHammingWindow(int iElements);
 
-// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
-template <typename T>
-bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
+	// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
+	template <typename T>
+	bool sum_dim(hoNDArray<T> &Array, unsigned int dimension, hoNDArray<T> &result);
 
-//inline int fCopyHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);  
+	#if !defined(__GADGETRON_VERSION_HIGHER_3_6__) && WIN32 == 0
+		inline bool save_array(hoNDArray<std::complex<float> > &Array, std::string file_prefix);
+	#endif
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ & WIN32 == 0
-	inline bool save_array(hoNDArray< std::complex<float> > &Array, std::string file_prefix);
-#endif
+	// flip array in specified dimension
+	template <typename T>
+	bool flip_array(hoNDArray<T> &Array, unsigned int dimension);
 
-// flip array in specified dimension
-template <typename T>
-bool flip_array(hoNDArray<T> &Array, int dimension);
+	// flip line in array by specified offset
+	template <typename T>
+	bool flip_line(hoNDArray<T> &Array, size_t offset);
 
-// flip line in array by specified offset
-template <typename T>
-bool flip_line(hoNDArray<T> &Array, size_t offset);
+	// Gaussian 1D filter
+	template <typename T>
+	void filter1DGaussian(std::vector<T> &result, int length);
 
-// sum array in specified dimension and squeeze the result - compare to MATLAB sum(array, dim)
-template <typename T>
-bool sum_dim(hoNDArray<T> &Array, int dimension, hoNDArray<T> &result);
+	// vector convolution
+	template <typename T>
+	void vectorConv(std::vector<T> &vector, std::vector<T> &kernelVec, int option);
 
-// Gaussian 1D filter
-template <typename T>
-void filter1DGaussian(std::vector<T> &result, int length);
+	// array convolution - first dimension - same size
+	template <typename T>
+	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec);
 
-// vector convolution
-template <typename T>
-void vectorConv(std::vector<T> &vector, std::vector<T> &kernelVec, int option);
+	// 1D array convolution - same size - arbitrary dimension
+	template <typename T>
+	void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, unsigned int dimensions);
 
-// array convolution - first dimension - same size
-template <typename T>
-void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec);
+	// circular 1D vector shift
+	template <typename T>
+	void circshift(std::vector<T> &Array, int shift);
 
-// 1D array convolution - same size - arbitrary dimension
-template <typename T>
-void arrayConv(hoNDArray<T> &Array, std::vector<T> &kernelVec, int dimensions);
+	// circular 1D array shift (first dimension)
+	template <typename T>
+	void circshift(hoNDArray<T> &Array, int shift);
 
-// circular 1D vector shift
-template <typename T>
-void circshift(std::vector<T> &Array, int shift);
+	// circular 1D array shift (arbitrary dimension)
+	template <typename T>
+	void circshift(hoNDArray<T> &Array, int shift, unsigned int dimension);
 
-// circular 1D array shift (first dimension)
-template <typename T>
-void circshift(hoNDArray<T> &Array, int shift);
+	// output a linear equally spaced vector
+	template <typename T>
+	std::vector<T>& linspace(T fStart, T fEnd, int iElements);
 
-// circular 1D array shift (arbitrary dimension)
-template <typename T>
-void circshift(hoNDArray<T> &Array, int shift, int dimension);
+	// interpolation
+	template <typename T>
+	inline std::vector<T> interp1(std::vector<T> &x, std::vector<T> &y, std::vector<T> &x_new);//, int option);
 
-// output a linear equally spaced vector
-template <typename T>
+	template <typename T>
+	inline int findNearestNeighbourIndex(T value, std::vector<T> &x);
 
-std::vector<T>& linspace(T fStart, T fEnd, int iElements);
+	// all elements true
+	inline bool allTrue(hoNDArray<bool> &Array);
+	inline bool allTrue(std::vector<bool> &Vector);
 
-// interpolation
-inline std::vector< float > interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > &x_new );//, int option);
+	// get sub array
+	template <typename T>
+	void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<size_t> vSize, hoNDArray<T> &out);
 
-inline int findNearestNeighbourIndex( float value, std::vector< float > &x );
+	template <typename T>
+	bool sum_dim_g(hoNDArray<T> &Array, int dimension);
 
-// all elements true
-inline bool allTrue(hoNDArray<bool> &Array);
-inline bool allTrue(std::vector<bool> &Vector);
+	inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);
 
-// get sub array
-template <typename T>
-void get_subarray(hoNDArray<T> &input, std::vector<size_t> vStart, std::vector<size_t> vSize, hoNDArray<T> &out);
+	inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader> *m1);
 
+	/**
+	* @brief Function to compare two complex values the MATLAB way.
+	*
+	* @param c1 complex value
+	* @param c2 complex value
+	* @return 1 if c1 > c2, -1 if c1 < c2 or 0 if c1 == c2
+	*/
+	template <typename T>
+	inline int compare_complex_values(const std::complex<T> c1, const std::complex<T> c2);
 
-template <typename T>
-bool sum_dim_g(hoNDArray<T> &Array, int dimension);
-
-inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);
-
-inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1);
+	/**
+	* @brief Prints message of too few RAM storage available.
+	*
+	* @param sizes a vector containing all element sizes to multiplicate
+	* @param bytes_per_element amount of bytes each element is using
+	*/
+	template <typename T>
+	void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
 }
-#endif //SOMEFUNCTIONS_H
 
 #include "SomeFunctions.hxx"
+
+#endif //SOMEFUNCTIONS_H

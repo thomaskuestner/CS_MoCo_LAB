@@ -1,13 +1,7 @@
 #ifndef CS_RETRO_ACCUMULATORGADGET_H
 #define CS_RETRO_ACCUMULATORGADGET_H
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
-	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
-#endif
+#include "gadgetron_messages.h"
 
 #pragma once
 #include "Gadget.h"
@@ -25,88 +19,79 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	#include "xml.h"
-#else		
+#else
 	#include "ismrmrd/xml.h"
 #endif
 
-namespace Gadgetron{
-	
-	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2< ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
-    {
-    public:      
-		CS_Retro_AccumulatorGadget();
-		~CS_Retro_AccumulatorGadget();
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>*m1, GadgetContainerMessage<hoNDArray<std::complex<float>>>*m2);
-		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
-	  
-    public:
-		
-		hoNDArray< std::complex<float> >* bufferkSpace_;
-		hoNDArray< std::complex<float> >* bufferNav_;
+namespace Gadgetron {
+	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
+	{
+	private:
+		hoNDArray<std::complex<float> > *bufferkSpace_ = NULL;
+		hoNDArray<std::complex<float> > *bufferNav_ = NULL;
 
 		std::vector<size_t> dimkSpace_;
 		std::vector<size_t> dimNav_;
 
-		// navigator signal interpolated to TRs
-		std::vector<float> vNavInt_;
+		unsigned long lCurrentScan_ = 0;
+		size_t dimensionsIn_[3];
+		float field_of_view_[3];
+		long long image_counter_ = 0;
+		long long image_series_ = 0;
 
-		// navigator signal
-		std::vector<float> vNav_;
-		long lCurrentScan_;
-		std::vector<size_t> dimensionsIn_;
-		std::vector<size_t> dimensionsOut_;
-		std::vector<float> field_of_view_;
-		size_t slices_;
-		size_t repetitions_;
-		long long image_counter_;
-		long long image_series_;
-		
-		int iNoSamples_;
-		long lNoScans_;
-		int iNoChannels_;
-		int iNoNav_;
-		int iNoNavLine_;
-		int iEchoLine_;
-		int iEchoPartition_;
-
-		// Gating mode (0: percentile, 1: kMeans)
-		int iGatingMode_;
-
-		// mode for k-space population (0: closes, 1: average, 2: collect)
-		int iPopulationMode_;
-
-		// vector containing the Gate positions
-		std::vector<float> vGatePos_;
-
-		// vector containing the tolerance values
-		std::vector<float> vTolerance_;
+		unsigned long lNoScans_ = 0;
+		unsigned int iNoChannels_ = 0;
+		unsigned int iNoNav_ = 0;
+		unsigned int iNoNavLine_ = 0;
+		int iEchoLine_ = 0;
+		int iEchoPartition_ = 0;
 
 		// CS_Retro variables
-		int iBaseRes_;
-		float fTR_;
-		int iNavPeriod_;
-		int iNavPERes_;
-		int iMeasurementTime_;
+		int iBaseRes_ = 0;
 
 		// number of phases
-		int iNPhases_;
-
-		// tolerance/blending factor
-		float fTolerance_;
+		int iNPhases_ = 0;
 
 		// Compressed Sensing variables
-		int iESPReSSoDirection_; 
-		float fPartialFourierVal_;
-		float fLESPReSSo_;
-		float fLQ_;
-		int iBodyRegion_; 
-		int iVDMap_;
-		int iSamplingType_;
-		float fCSAcc_;
-		float fFullySa_;
-    };
-}
-#endif //CS_RETRO_ACCUMULATORGADGET_H
+		int iESPReSSoDirection_ = 0;
+		float fPartialFourierVal_ = 0;
+		int iBodyRegion_ = 0;
+		int iVDMap_ = 0;
+		int iSamplingType_ = 0;
+		float fCSAcc_ = 0;
+		float fFullySa_ = 0.065;
+
+	public:
+		CS_Retro_AccumulatorGadget();
+		~CS_Retro_AccumulatorGadget();
+
+		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
+
+	protected:
+		int process_config(ACE_Message_Block *mb);
+		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
+
+	private:
+		bool is_content_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			return header.idx.set == 0;
+		}
+
+		bool is_navigator_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			return header.idx.set == 1;
+		}
+
+	public:
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
+		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
+		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
+		GADGET_PROPERTY(Phases, int, "Phases", 0);
+#endif
+	};
+} // close namespace Gadgetron
+
+#endif // CS_RETRO_ACCUMULATORGADGET_H

@@ -34,61 +34,60 @@ variables	:	dims_to_trans_sparsity_				:	vector, which stores the dimensions to 
 #include "TransformWrapper.h"
 #include "hoNDFFT_CS.h"
 
-namespace Gadgetron{
+namespace Gadgetron
+{
+	class EXPORTCSLAB Transform
+	{
+	public:
+		// constructor
+		Transform();
 
-	class EXPORTCSLAB Transform{
+		// array forward transformtion - inplace transformation without FFT wrapping
+		bool KernelFTransform(hoNDArray<std::complex<float> > &Array);
 
-		public:
-			// constructor
-			Transform();
+		// array backward transformtion - inplace transformation without FFT wrapping
+		bool KernelBTransform(hoNDArray<std::complex<float> > &Array);
 
-			// array forward transformtion - inplace transformation without FFT wrapping
-			bool KernelFTransform(hoNDArray<std::complex<float> >  &Array);
+		// array forward transformation - inplace transformation
+		bool FTransform(hoNDArray<std::complex<float> > &Array);
 
-			// array backward transformtion - inplace transformation without FFT wrapping
-			bool KernelBTransform(hoNDArray<std::complex<float> >  &Array);
+		// array backward transformation - inplace transformation
+		bool BTransform(hoNDArray<std::complex<float> > &Array);
 
-			// array forward transformation - inplace transformation
-			bool FTransform(hoNDArray<std::complex<float> >  &Array);
+		// do transformation in only one direction - input: dim to transform, associated function for this dimension will be called
+		bool FTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform);
+		bool FTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform, bool bScramble);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform, bool bScramble);
 
-			// array backward transformation - inplace transformation
-			bool BTransform(hoNDArray<std::complex<float> >  &Array);
+		// do transformation on array, input: array, type of transformation, dim_to_transform
+		bool FTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform, int transformation_type);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, int dim_to_transform, int transformation_type);
+		bool FTransform(hoNDArray<std::complex<float> > &Array, int transformation_type, int dim_to_transform, bool bScramble);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, int transformation_type, int dim_to_transform, bool bScramble);
 
-			// do transformation in only one direction - input: dim to transform, associated function for this dimension will be called
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform);
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, bool bScramble);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, bool bScramble);
+		// do transformation in specified dimensions - input: array, vector with dimensions
+		bool FTransform(hoNDArray<std::complex<float> > &Array, std::vector<int> &dims);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, std::vector<int> &dims);
 
-			// do transformation on array, input: array, type of transformation, dim_to_transform
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, int transformation_type);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, int dim_to_transform, int transformation_type);
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, int transformation_type, int dim_to_transform, bool bScramble);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, int transformation_type, int dim_to_transform, bool bScramble);
+		// do transformation in specified dimensions and transformation type - input: array, type, vector with dimensions
+		bool FTransform(hoNDArray<std::complex<float> > &Array, std::vector<int> &dims, int transformation_type);
+		bool BTransform(hoNDArray<std::complex<float> > &Array, std::vector<int> &dims, int transformation_type);
 
-			// do transformation in specified dimensions - input: array, vector with dimensions
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims);
+		// set active
+		void set_active();
 
-			// do transformation in specified dimensions and transformation type - input: array, type, vector with dimensions
-			bool FTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims, int transformation_type);
-			bool BTransform(hoNDArray<std::complex<float> >  &Array, std::vector<int> &dims, int transformation_type);			
+		// get active - true if transformation is active
+		bool get_active();
 
-			// set active
-			void set_active();
+		// append new sparsifying transform with associated transformation dimension
+		void set_transformation_sparsity(int transformation_name, int dim_to_transform);
 
-			// get active - true if transformation is active
-			bool get_active();
-
-			// append new sparsifying transform with associated transformation dimension
-			void set_transformation_sparsity(int transformation_name, int dim_to_transform);
-
-			// append new fft transform dimension
-			void set_transformation_fft(int dim_to_transform);
-			void set_transformation_fft(int dim_to_transform, bool bScramble);
+		// append new fft transform dimension
+		void set_transformation_fft(int dim_to_transform);
+		void set_transformation_fft(int dim_to_transform, bool bScramble);
 
 	private:
-
 		// vector containing the dimensions to transform (sparsity)
 		std::vector<int> dims_to_trans_sparsity_;
 
@@ -105,4 +104,5 @@ namespace Gadgetron{
 		std::vector<TransformWrapper*> TVec_;
 	};
 }
+
 #endif //TRANSFORM_H

@@ -38,22 +38,23 @@ namespace Gadgetron
 {
 	class EXPORTCSLAB CS_CONTROL : public CS_FOCUSS
 	{
+	public:
 		GADGET_DECLARE(CS_CONTROL)
+
 	protected:
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
-		//int process_config(ACE_Message_Block* mb);
-		
-		void fGradESPReSSo(hoNDArray< std::complex<float> >& hacfRho, hoNDArray< std::complex<float> >&hacfFullMask, hoNDArray< std::complex<float> >&hacfKSpace, hoNDArray< std::complex<float> >&hacfW, hoNDArray< std::complex<float> >&hacfQ){};
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray< std::complex<float> > > *m2);
 
-		void fInitESPReSSo(hoNDArray<bool>& habFullMask){};
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ) {}
 
-		void fWindowing(hoNDArray< std::complex<float> >& hacfWWindowed){};
-		
-		int fRecon(hoNDArray< std::complex<float> > &hacfInput, hoNDArray< std::complex<float> > &hacfRecon){ return GADGET_OK; };
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask) {}
+
+		void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed) {}
+
+		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon) { return GADGET_OK; };
 
 		// pointer to CS_FOCUSS class object
 		CS_FOCUSS *pCS;
-};
-
+	};
 }
+
 #endif //CS_CONTROL_H
