@@ -1,105 +1,170 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gadgetronStreamConfiguration xsi:schemaLocation="http://gadgetron.sf.net/gadgetron gadgetron.xsd"
-        xmlns="http://gadgetron.sf.net/gadgetron"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		xmlns="http://gadgetron.sf.net/gadgetron"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
-  <!-- read incoming acquisition data : deserialization -->
-  <reader>
-    <slot>1008</slot>
-    <dll>gadgetron_mricore</dll>
-    <classname>GadgetIsmrmrdAcquisitionMessageReader</classname>
-  </reader>
+	<!-- read incoming acquisition data : deserialization -->
+	<reader>
+		<slot>1008</slot>
+		<dll>gadgetron_mricore</dll>
+		<classname>GadgetIsmrmrdAcquisitionMessageReader</classname>
+	</reader>
 
-  <!-- write outgoing image data -->
-   <writer>
-      <slot>1022</slot>
-      <dll>gadgetron_mricore</dll>
-      <classname>MRIImageWriterFLOAT</classname>
-    </writer>
-	
-	<!-- AccumulatorGadget -->
-  <gadget>
-    <name>Accumulator</name>
-    <dll>CS_LAB</dll>
-    <classname>CS_Retro_AccumulatorGadget</classname>
-	<property><name>NavPeriod</name><value>200</value></property>
-	<property><name>NavPERes</name><value>8</value></property>
-	<property><name>MeasurementTime</name><value>300</value></property>
-	<property><name>Phases</name><value>4</value></property>
-	<property><name>PopulationMode</name><value>0</value></property>
-	<property><name>GatingMode</name><value>0</value></property>
-  </gadget>
+	<!-- write outgoing image data -->
+	<writer>
+		<slot>1022</slot>
+		<dll>gadgetron_mricore</dll>
+		<classname>MRIImageWriter</classname>
+	</writer>
 
-  <!-- get navigator -->
-  <gadget>
-    <name>Accumulator</name>
-    <dll>CS_LAB</dll>
-    <classname>CS_Retro_NavigatorGadget</classname>
-  </gadget>
-  
-  <!-- populate k-space -->
-  <gadget>
-    <name>Accumulator</name>
-    <dll>CS_LAB</dll>
-    <classname>CS_Retro_PopulationGadget</classname>
-  </gadget>
-  
-  <!-- CS reconstruction -->
-  <!-- FOCUSS iterations - default: 2 										-->
-  <!-- CG Iterations - default: 20 											-->
-  <!-- Lambda - default: 0.01 												-->
-  <!-- Lambda ESPReSSo - default: 0.02 										-->
-  <!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,.. 						-->
-  <!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y,.. 				-->
-  <!-- Sparsifying Transform for each direction 							-->
-  <!-- KernelTrafo - is kSpace trafo active 								-->
-  <!-- fft in read direction 												-->
-  <!-- FOCUSS output: kSpace = 1, Image = 0 								-->
-  <!-- use ESPReSSo constraint for normal CS acquisitions - default: 0  -->
-  <gadget>
-    <name>FOCUSS</name>
-    <dll>CS_LAB</dll>  
-	  <classname>CS_LAB</classname>
-	  <property><name>bXMLControl</name><value>1</value></property>
-	  <property><name>lambda</name><value>0.01</value></property>
-	  <property><name>lambdaESPReSSo</name><value>0</value></property>
-	  <property><name>OuterIterations</name><value>2</value></property>
-	  <property><name>InnerIterations</name><value>2</value></property>
-	  <property><name>kernelFftDim</name><value>3</value></property>
-	  <property><name>fftSparseDim</name><value>3</value></property>
-	  <property><name>dctSparseDim</name><value>0</value></property>
-	  <property><name>pcaSparseDim</name><value>8</value></property>
-	  <property><name>scrambleDim</name><value>3</value></property>
-	  <property><name>transformFftBaDim</name><value>4</value></property>
-	  <property><name>kSpaceOutDim</name><value>0</value></property>
-	  <property><name>CSESPReSSo</name><value>0</value></property>
-  </gadget>
+	<!-- remove oversampling in offline reconstruction to match final image resolution in readout direction -->
+	<gadget>
+		<name>RemoveROOversampling</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>RemoveROOversamplingGadget</classname>
+	</gadget>
+
+	<!-- first try - normal AccumulatorGadget -->
+	<gadget>
+		<name>Accumulator</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_AccumulatorGadget</classname>
+		<property><name>NavPeriod</name><value>200</value></property>
+		<property><name>NavPERes</name><value>8</value></property>
+		<property><name>MeasurementTime</name><value>383</value></property>
+		<property><name>Phases</name><value>4</value></property>
+	</gadget>
+
+<!-- Calculate navigator signal - Choose either classical or PCA algorithm -->
+	<gadget>
+		<name>Navigator</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_NavigatorGadget</classname>
+
+		<property>
+			<!-- 0: classical, 1: PCA -->
+			<name>NavigationMethod</name>
+			<value>0</value>
+		</property>
+	</gadget>
+
+<!-- k-space gating - Choose either closest or gaussian weighted -->
+<!-- 	CS_Retro_PopulationGadget -->
+	<gadget>
+		<name>Gating</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_PopulationGadget</classname>
+
+		<property>
+			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
+			<name>PopulationMode</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- 0: percentile, 1: k-means (not impl.) -->
+			<name>GatingMode</name>
+			<value>0</value>
+		</property>
+	</gadget>
+
+<!-- CS reconstruction - Choose either FOCUSS or BART -->
+<!-- 	FOCUSS-Gadget -->
+	<!-- FOCUSS iterations - default: 2 									-->
+	<!-- CG Iterations - default: 20 										-->
+	<!-- Lambda - default: 0.01 											-->
+	<!-- Lambda ESPReSSo - default: 0.02 									-->
+	<!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,						-->
+	<!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y, 				-->
+	<!-- Sparsifying Transform for each direction 							-->
+	<!-- KernelTrafo - is kSpace trafo active 								-->
+	<!-- fft in read direction 												-->
+	<!-- FOCUSS output: kSpace = 1, Image = 0 								-->
+	<!-- use ESPReSSo constraint for normal CS acquisitions - default: 0	-->
+	<gadget>
+		<name>FOCUSS</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_LAB</classname>
+		<property><name>bXMLControl</name><value>1</value></property>
+		<property><name>lambda</name><value>0.01</value></property>
+		<property><name>lambdaESPReSSo</name><value>0</value></property>
+		<property><name>OuterIterations</name><value>2</value></property>
+		<property><name>InnerIterations</name><value>2</value></property>
+		<property><name>kernelFftDim</name><value>3</value></property>
+		<property><name>fftSparseDim</name><value>3</value></property>
+		<property><name>dctSparseDim</name><value>0</value></property>
+		<property><name>scrambleDim</name><value>3</value></property>
+		<property><name>transformFftBaDim</name><value>4</value></property>
+		<property><name>kSpaceOutDim</name><value>0</value></property>
+		<property><name>CSESPReSSo</name><value>0</value></property>
+	</gadget>
+
+<!-- 	BART-Gadget -->
+	<!--<gadget>
+		<name>BART</name>
+		<dll>gadgetron_bart</dll>
+		<classname>BartGadget</classname>
+		<property><name>isVerboseON</name><value>true</value></property>
+		<property><name>BartCommandScript_name</name><value>CS_LAB_BART_Recon.sh</value></property>
+		<property><name>isBartFileBeingStored</name><value>false</value></property>
+		<property><name>image_series</name><value>0</value></property>
+		<property><name>isBartFolderBeingCachedToVM</name><value>false</value></property>
+		<property><name>AllocateMemorySizeInMegabytes</name><value>50</value></property>
+	</gadget>-->
 
 	<!-- combine the channel data to one image - Mode 0: Unweighted Combine (CPLX data) - 1: Selfweighted Combine (real data only!) -->
-    <gadget>
-      <name>Combine</name>
-      <dll>CS_LAB</dll>
-      <classname>CS_CombineGadget</classname>
-    </gadget>
+	<gadget>
+		<name>Combine</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_CombineGadget</classname>
+	</gadget>
 
 	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->
-    <gadget>
-      <name>Extract</name>
-      <dll>gadgetron_mricore</dll>
-      <classname>ExtractGadget</classname>
-	  <property><name>extract_mask</name><value>1</value></property>
-    </gadget>  
-	
-	<!-- register images -->
-  <gadget>
-    <name>Accumulator</name>
-    <dll>CS_LAB</dll>
-    <classname>RegistrationGadget</classname>
-  </gadget>
+	<gadget>
+		<name>Extract</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>ExtractGadget</classname>
+		<property>
+			<name>extract_mask</name>
+			<value>1</value>
+		</property>
+	</gadget>
 
-<gadget>
-      <name>ImageFinish</name>
-      <dll>gadgetron_mricore</dll>
-      <classname>ImageFinishGadgetFLOAT</classname>
-    </gadget>
+	<!-- image registration - choose either elastix or LAP -->
+<!-- 	ElastixRegistrationGadget -->
+	<!--<gadget>
+		<name>ElastixRegistration</name>
+		<dll>CS_LAB</dll>
+		<classname>ElastixRegistrationGadget</classname>
+
+		<property>
+			<name>PathProgram</name>
+			<value>TBD</value>
+		</property>
+		<property>
+			<name>PathLog</name>
+			<value>TBD</value>
+		</property>
+	</gadget>-->
+
+<!-- 	LAPRegistrationGadget -->
+	<gadget>
+		<name>LAPRegistration</name>
+		<dll>CS_LAB</dll>
+		<classname>LAPRegistrationGadget</classname>
+
+		<property>
+			<name>LvlMin</name>
+			<value>0</value>
+		</property>
+		<property>
+			<name>LvlMax</name>
+			<value>4</value>
+		</property>
+	</gadget>
+
+	<gadget>
+		<name>ImageFinish</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>ImageFinishGadget</classname>
+	</gadget>
 </gadgetronStreamConfiguration>

@@ -1,14 +1,10 @@
-/*	
+/*
 file name	: 	CS_Retro_PopulationGadget.h
-
-author		: 	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
+author		: 	Martin Schwartz (martin.schwartz@med.uni-tuebingen.de)
 				Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
-
 version		: 	1.1
-
 date		: 	13.10.2015: initial file
 				15.01.2018: include Gaussian-weighted gating
-
 description	: 	k-space population/gating
 */
 
@@ -32,39 +28,21 @@ description	: 	k-space population/gating
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-namespace Gadgetron{
-	
-	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3< ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
-    {
-    public:      
-		CS_Retro_PopulationGadget();
-		~CS_Retro_PopulationGadget();
-		int process_config(ACE_Message_Block* mb);
-		int process(GadgetContainerMessage<ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray<float> >* m2, GadgetContainerMessage< hoNDArray<std::complex<float> > >* m3);
-		GADGET_DECLARE(CS_Retro_PopulationGadget);
-	  
-    //private:
-		bool fDiscard();
-		bool fCalcCentroids(int iNoGates);
-		bool fPopulatekSpace(int iNoGates);
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	#include "xml.h"
+#else
+	#include "ismrmrd/xml.h"
+#endif
 
+namespace Gadgetron {
+	class EXPORTCSLAB CS_Retro_PopulationGadget : public Gadget3<ISMRMRD::ImageHeader, hoNDArray<float>, hoNDArray<std::complex<float> > >
+	{
+	private:
 		// populated/reordered kspace
-		hoNDArray<std::complex<float>> hacfKSpace_reordered_;
+		hoNDArray<std::complex<float> > hacfKSpace_reordered_;
 
 		// unordered k-space
-		hoNDArray<std::complex<float>> hacfKSpace_unordered_;
-
-		// array dimensions of unordered k-space
-		std::vector<size_t> vtDims_unordered_;
-
-		// dimensions of incoming array
-		std::vector<size_t> dimensionsIn_;
-		
-		// gating mode
-		int iGatingMode_;
-
-		// population mode
-		int iPopulationMode_;
+		hoNDArray<std::complex<float> > hacfKSpace_unordered_;
 
 		// number of channels
 		int iNoChannels_;
@@ -86,13 +64,29 @@ namespace Gadgetron{
 
 		// centroids of gates
 		std::vector<float> vfCentroids_;
-		
-		// TR of sequence
-		float fTR_;
 
-		bool bMatlab_;
-		std::vector<int> vPE_;
-		std::vector<int> vPA_;
-    };
-}
-#endif //CS_RETRO_POPULATIONGADGET_H
+	public:
+		CS_Retro_PopulationGadget();
+		~CS_Retro_PopulationGadget();
+
+		GADGET_DECLARE(CS_Retro_PopulationGadget);
+
+	protected:
+		int process_config(ACE_Message_Block *mb);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3);
+
+	private:
+		bool fDiscard();
+		bool fCalcCentroids(int iNoGates);
+		bool fPopulatekSpace(int iNoGates);
+
+	public:
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		// declare gadget properties
+		GADGET_PROPERTY(Gates, int, "Gates", 4);
+		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
+		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
+#endif
+	};
+} // close namespace Gadgetron
+#endif // CS_RETRO_POPULATIONGADGET_H

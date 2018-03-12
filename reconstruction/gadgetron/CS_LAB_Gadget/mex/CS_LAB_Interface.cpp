@@ -139,8 +139,6 @@ void process(hoNDArray<std::complex<float>> &hoArray, const mxArray *matStruct)
 	pCS->fPartialFourierVal_= float(dPartialFourierVal);
     pCS->cfLambda_          = std::complex<float>(float(dLambda));
     pCS->cfLambdaESPReSSo_  = std::complex<float>(float(dLambdaESPReSSo));  
-    pCS->bMatlab_           = true;                                         // enable debug output to MATLAB
-    pCS->bDebug_            = true;                                         // enable debug output
     pCS->iDataset_          = int(dDataset);
     pCS->iAlgorithm_        = int(dAlgorithm);
     

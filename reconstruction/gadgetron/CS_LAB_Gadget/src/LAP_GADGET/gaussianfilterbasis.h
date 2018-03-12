@@ -1,18 +1,15 @@
-/*	
+/*
 file name	: 	gaussianfilterbasis.h
-
 author		: 	Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
-
 version		: 	1.0
-
 date		: 	15.01.2018
-
 description	: 	filter functions for LAP-based image registration
 */
 
 #ifndef GAUSSIANFILTERBASIS_H
 #define GAUSSIANFILTERBASIS_H
-#include "mynamespaces.h"
+
+#include "cs_lab_lap_namespaces.h"
 
 using namespace arma;
 
@@ -51,4 +48,5 @@ namespace Gadgetron
 		ColType getGdi(){return Gdi;}
 	};
 }
+
 #endif // GAUSSIANFILTERBASIS_H
