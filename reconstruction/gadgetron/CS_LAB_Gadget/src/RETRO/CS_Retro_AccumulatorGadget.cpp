@@ -32,7 +32,7 @@ CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget()
 }
 
 // print AcquisitionHeader (for debugging purposes only)
-void print_header(int counter, ISMRMRD::AcquisitionHeader h)
+void print_header(int counter, const ISMRMRD::AcquisitionHeader &h)
 {
 	static ISMRMRD::AcquisitionHeader last_header;
 	static bool header_set = false;
