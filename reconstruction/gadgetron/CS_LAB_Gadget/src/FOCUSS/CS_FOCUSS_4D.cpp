@@ -226,8 +226,9 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	//------------------------------------------------------------------------
 	//------ find symmetrical, conjugate sampled part - build filter ---------
 	//------------------------------------------------------------------------
-	//if (bESPRActiveCS_ || fPartialFourierVal_ < 1.0)
-	//	fInitESPReSSo(habFullMask);
+	if (GlobalVar::instance()->bESPRActiveCS_ || GlobalVar::instance()->fPartialFourierVal_ < 1.0) {
+		fInitESPReSSo(habFullMask);
+	}
 
 	//-------------------------------------------------------------------------
 	//----------------------- initial estimate --------------------------------
