@@ -66,14 +66,9 @@ if nargin == 0, error('No filename given.'); end
 % Load the loop counters
 [sPath, sName] = fileparts(sFilename);
 if isempty(sPath)
-    sMatName = [sName, '.mat'];
+    load([sName, '.mat']);
 else
-    sMatName = [sPath, filesep, sName, '.mat'];
-end
-load(sMatName);
-
-if(~exist('isVD','var') || isempty(isVD))
-    isVD = false;
+    load([sPath, filesep, sName, '.mat']);
 end
 
 % Set default values
@@ -130,21 +125,13 @@ if max(iLC(:,1)) ~= min(iLC(:,1)) % possible for Navis
         iEvalInfoMask = iEvalInfoMask(lMask, :);
     end
 end
-iNSamples = double(iLC(1, 1));
-iNCha = double(iLC(1, 2));
+iNSamples = iLC(1, 1);
+
 
 % Load the data
-if(isVD)
-    fprintf(1, 'Number of matching ADCs: %u\n', length(iSP)*iNCha);
-    dRealData = zeros(length(iSP)*iNCha, iNSamples,'single');
-    dImagData = zeros(length(iSP)*iNCha, iNSamples,'single');
-    iCounter = 1;
-    iLCNew = zeros(length(iSP)*iNCha, size(iLC,2), 'uint16'); % make loop counter similar to prior structure
-else
-    fprintf(1, 'Number of matching ADCs: %u\n', length(iSP));
-    dRealData = zeros(length(iSP), iNSamples,'single');
-    dImagData = zeros(length(iSP), iNSamples,'single');
-end
+fprintf(1, 'Number of matching ADCs: %u\n', length(iSP));
+dRealData = zeros(length(iSP), iNSamples,'single');
+dImagData = zeros(length(iSP), iNSamples,'single');
 
 if(usejava('jvm') && ~feature('ShowFigureWindows'))
     flagDisp = false;
@@ -160,37 +147,16 @@ end
 if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', 0); else hw = waitbar(0,'Loading specified ADCs'); end; end;
 fid = fopen([sPath, filesep, sName, '.dat'], 'r');
 for iI = 1:length(iSP)
-    if(isVD)
-        % MDH header (192 byte)
-        % |- channel header (32 byte)
-        % |  |- data (2*4 byte * iNSamples)
-        % |- channel header (32 byte)
-        % ....
-        fseek(fid, double(iSP(iI)) + 192, 'bof');
-        for iCha=1:iNCha
-            fseek(fid, 32, 'cof');
-            dLine = fread(fid, double(iNSamples*2), 'float');
-            dRealData(iCounter, :) = dLine(1:2:end);
-            dImagData(iCounter, :) = dLine(2:2:end);
-            iLCNew(iCounter,:) = iLC(iI,:);
-            iCounter = iCounter + 1;
-        end
-    else
-        fseek(fid, double(iSP(iI)) + 128, 'bof');
-        dLine = fread(fid, double(iNSamples*2), 'float');
-        dRealData(iI, :) = dLine(1:2:end);
-        dImagData(iI, :) = dLine(2:2:end);
-    end
+    fseek(fid, double(iSP(iI)) + 128, 'bof');
+    dLine = fread(fid, double(iNSamples*2), 'float');
+    dRealData(iI, :) = dLine(1:2:end);
+    dImagData(iI, :) = dLine(2:2:end);
     if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', iI/length(iSP)); else waitbar(iI/length(iSP),hw); end; end;
 end
 fclose(fid);
 if(flagDisp), if(flagMW), multiWaitbar('Loading specified ADCs', 'Close'); else close(hw); end; end;
 
 dData = complex(dRealData, dImagData);
-if(isVD)
-    iLC = iLCNew;
-    save(sMatName, 'iLC', '-append'); % overwrite maybe too short iLC
-end
 
 
 

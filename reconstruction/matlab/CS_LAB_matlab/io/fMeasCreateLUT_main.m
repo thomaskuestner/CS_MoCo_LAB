@@ -50,73 +50,23 @@ if nargin
     % Get filesize and extract the header
     SDir = dir(sFilename);
     iFileSize = SDir(1).bytes;
-    fidmeas = fopen(sFilename, 'r', 'ieee-le');
-    firstInt = fread(fidmeas, 1, 'uint32');
-    secondInt = fread(fidmeas, 1, 'uint32');
-   
-    % check version
-    if and(firstInt < 10000, secondInt <= 64)
-        version = 'vd';
-        isVD = true;
-        fprintf(1,'Software version: VD/VE\n');
-
-        % number of different scans in file stored in 2nd in
-        NScans = secondInt;
-        measID = fread(fidmeas,1,'uint32');
-        fileID = fread(fidmeas,1,'uint32');
-        measOffset = cell(1, NScans);
-        measLength = cell(1, NScans);
-        for k=1:NScans
-            measOffset{k} = fread(fidmeas,1,'uint64');
-            measLength{k} = fread(fidmeas,1,'uint64'); 
-            fseek(fidmeas, 152 - 16, 'cof');
-        end
-    else
-        % in VB versions, the first 4 bytes indicate the beginning of the
-        % raw data part of the file
-        version  = 'vb';
-        isVD = false;
-        fprintf(1,'Software version: VB\n');
-        measOffset{1} = 0;
-        measLength{1} = iFileSize;
-        NScans     = 1; % VB does not support multiple scans in one file
-    end
-    
+    fidmeas = fopen(sFilename, 'r');
+    iHeaderLength = fread(fidmeas, 1, 'uint32');
     fprintf(1, '\n*** Parsing %s ***\n', sFilename);
     fprintf(1, 'File Size            : %u  (%u MB)\n', iFileSize, round(iFileSize/(1024^2)));
-    for iScan = 1:NScans
-        fprintf(1, '--- Scan %02d/%02d ---\n', iScan, NScans);
-        cPos = measOffset{iScan};
-        fseek(fidmeas,cPos,'bof');
-        iHeaderLength = fread(fidmeas, 1, 'uint32');
-        
-        fprintf(1, 'Length of the Header %d: %u\n', iScan, iHeaderLength);
-        
-        sXML = fread(fidmeas, iHeaderLength, '*char');
-        if(isVD)
-            if(iScan==1)
-                iDel = 4;
-            else
-                iDel = 11;
-            end                
-            sFilenameXML = sprintf('%s_scan%02d.xml', sFilenameXML(1:end-iDel),iScan); 
-        end
-        fidXML = fopen(sFilenameXML, 'w');
-        fwrite(fidXML, sXML);
-        fclose(fidXML);
-        fprintf(1, 'Header exported to file ''%s''\n', sFilenameXML);
-    end
+    fprintf(1, 'Length of the Header : %u\n', iHeaderLength);
+    
+    sXML = fread(fidmeas, iHeaderLength, '*char');
+    fidXML = fopen(sFilenameXML, 'w');
+    fwrite(fidXML, sXML);
+    fclose(fidXML);
     fclose(fidmeas);
+    fprintf(1, 'Header exported to file ''%s''\n', sFilenameXML);
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     % Get the MDHs
-    fprintf(1, 'Creating MDH LUT\n');
-    if(isVD)
-        [dMDH, iCount] = fMeasCreateLUTVD_mex(sFilename);
-    else % VB
-        [dMDH, iCount] = fMeasCreateLUT_mex(sFilename);
-    end
+    [dMDH, iCount] = fMeasCreateLUT_mex(sFilename);
     iCount = uint32(iCount);
     dMDH = dMDH(:,1:iCount)';
     fprintf(1, 'Number of ADCs: %u\n', iCount);
@@ -130,34 +80,9 @@ if nargin
     else
         lVer = bitget(uint16(dMDH(find(lDrecksMDH, 1, 'first'), 6)), 16);
     end
-    
-    if(isVD)
-        lVer = -2; % drecksMDH currently not correct working -> TODO
-        % workaround -> get values from xml file
-    end
-    
     if  lVer == -1 % no DrecksMDH
         iLCDrecks = [];
         iLCPositions = dMDH(~lDrecksMDH, 32:38);
-    elseif lVer == -2 % VD version: XML -> DrecksMDH 2.0
-        SDrecksMDH  = fParseXML( sFilename, measOffset );
-        
-        lPos = dMDH(:,4) == SDrecksMDH.Geo.MatrixSize(1) * SDrecksMDH.Geo.Oversampling(1);
-        dLCPositions = dMDH(lPos, 31:end);
-        SPos.dSliceDataPosition = dLCPositions(:,1:3);
-        if SDrecksMDH.Seq.Is3D
-            SPos.dSliceDataPosition = unique(SPos.dSliceDataPosition, 'rows');
-        end
-%         SPos.dTablePosition     = unique(-((dLCPositions(:,4) +5)/10)); % wrong: that is shift
-        SPos.dTablePosition     = unique(-dLCPositions(:,8)/10);
-        SPos.dRotMatrix         = quat2dcm(dLCPositions(1,4:7));
-        SPos.dRotMatrix(:,2:3)  = -SPos.dRotMatrix(:,2:3); % due to negative orientation of y and z axis (compared to standard cartesian system)
-        [yaw, pitch, roll]      = dcm2angle(SPos.dRotMatrix);
-        SPos.dRotAngles         = [yaw, pitch, roll];  
-        
-        % also remove leading ref scan (scan no.1)
-        lDrecksMDH = lDrecksMDH | dMDH(:,4) ~= SDrecksMDH.Geo.MatrixSize(1);
-        
     elseif lVer == 0 % or dMDH(1,6) ?, bitget(uint16(dMDH(1, 1)), 16) == 0
         % DrecksMDH 1.0
         iLCDrecks = [dMDH(lDrecksMDH,4:19),zeros(nnz(lDrecksMDH),4),dMDH(lDrecksMDH,30),zeros(nnz(lDrecksMDH),1),dMDH(lDrecksMDH,20:29),dMDH(lDrecksMDH,31:37),zeros(nnz(lDrecksMDH),1),dMDH(lDrecksMDH,38)];
@@ -171,18 +96,6 @@ if nargin
         dFloat = dDrecksMDH(:, 29:30)';
         dDrecksMDH = [dInt(:); dFloat(:)];
         SDrecksMDH = fReadNewDrecksMDH(dDrecksMDH);
-        
-        dLCPositions = dMDH(~lDrecksMDH, 31:end);
-        SPos.dSliceDataPosition = dLCPositions(:,1:3);
-        if SDrecksMDH.Seq.Is3D
-            SPos.dSliceDataPosition = unique(SPos.dSliceDataPosition, 'rows');
-        end
-%         SPos.dTablePosition     = unique(-((dLCPositions(:,4) +5)/10)); % wrong: that is shift
-        SPos.dTablePosition     = unique(-dLCPositions(:,8)/10);
-        SPos.dRotMatrix         = quat2dcm(dLCPositions(1,4:7));
-        SPos.dRotMatrix(:,2:3)  = -SPos.dRotMatrix(:,2:3); % due to negative orientation of y and z axis (compared to standard cartesian system)
-        [yaw, pitch, roll]      = dcm2angle(SPos.dRotMatrix);
-        SPos.dRotAngles         = [yaw, pitch, roll];  
     end
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
@@ -194,15 +107,27 @@ if nargin
     
     % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     if (lVer == -1)
-        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'iLCPositions', 'isVD');
+        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'iLCPositions');
         fMeasInfo(sFilename);
     elseif (lVer == 0)   % or dMDH(1,6) ?, bitget(uint16(dMDH(1, 1)), 16) == 0   %
         % DrecksMDH 1.0
-        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'iLCDrecks', 'iLCPositions', 'isVD');
+        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'iLCDrecks', 'iLCPositions');
         fMeasInfo(sFilename);
     else
-        % DrecksMDH 2.0 AND VD version: XML -> DrecksMDH 2.0       
-        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'SDrecksMDH', 'SPos', 'isVD');
+        % DrecksMDH 2.0
+        dLCPositions = dMDH(~lDrecksMDH, 31:end);
+        SPos.dSliceDataPosition = dLCPositions(:,1:3);
+        if SDrecksMDH.Seq.Is3D
+            SPos.dSliceDataPosition = unique(SPos.dSliceDataPosition, 'rows');
+        end
+%         SPos.dTablePosition     = unique(-((dLCPositions(:,4) +5)/10)); % wrong: that is shift
+        SPos.dTablePosition     = unique(-dLCPositions(:,8)/10);
+        SPos.dRotMatrix         = quat2dcm(dLCPositions(1,4:7));
+        SPos.dRotMatrix(:,2:3)  = -SPos.dRotMatrix(:,2:3); % due to negative orientation of y and z axis (compared to standard cartesian system)
+        [yaw, pitch, roll]      = dcm2angle(SPos.dRotMatrix);
+        SPos.dRotAngles         = [yaw, pitch, roll];  
+        
+        save(sFilenameMat, 'iLC', 'iSP', 'iEvalInfoMask', 'SDrecksMDH', 'SPos');
         fMeasInfo2(sFilename);       % Print loop counter summary
     end
 else

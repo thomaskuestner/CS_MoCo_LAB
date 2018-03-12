@@ -6,7 +6,3 @@
 *install_manifest.txt
 *subsampling
 *core
-
-# in subsampling folder
-acquisition/subsampling_class/Subsample
-acquisition/subsampling_class/Subsample.exe
