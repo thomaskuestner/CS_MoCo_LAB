@@ -455,6 +455,12 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
 				float channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
 
+				// don't divide by zero
+				if (channel_max_energy == 0.0) {
+					GWARN("channel_max_energy is 0!\n");
+					continue;
+				}
+
 				// perform division at all elements in channel
 				for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
 					hacfWWindowed.at(i+tOffset) /= std::complex<float>(channel_max_energy);
