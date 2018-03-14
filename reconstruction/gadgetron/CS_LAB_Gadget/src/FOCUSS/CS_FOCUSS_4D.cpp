@@ -246,23 +246,23 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	for (int iCha = 0; iCha < iNChannels_; iCha++) {
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
 		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
-		float fTmp;
+		float channel_max_energy;
 
 		if (iNorm_ == 0) {
-			fTmp = fCalcEnergy(hacfEnergyPerChannel);
+			channel_max_energy = fCalcEnergy(hacfEnergyPerChannel);
 		} else if (iNorm_ == 1) {
-			fTmp = abs((float)amax(&hacfEnergyPerChannel));
+			channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
 		} else {
-			fTmp = 1.0;
+			channel_max_energy = 1.0;
 		}
 
-		GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
+		GDEBUG("energy in channel[%i]: %e..\n", iCha, channel_max_energy);
 
 		// fill channel
 		#pragma omp parallel for
 		for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
-			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(fTmp);
-			hacfWWindowed.get_data_ptr()[i+tOffset] /= fTmp;
+			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(channel_max_energy);
+			hacfWWindowed.get_data_ptr()[i+tOffset] /= std::complex<float>(channel_max_energy);
 		}
 	}
 
