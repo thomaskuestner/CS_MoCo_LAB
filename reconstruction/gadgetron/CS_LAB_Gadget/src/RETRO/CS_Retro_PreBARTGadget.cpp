@@ -21,6 +21,10 @@ int CS_Retro_PreBARTGadget::process_config(ACE_Message_Block *mb)
 
 int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
 {
+	// save image header
+	GlobalVar::instance()->ImgHeadVec_.clear();
+	GlobalVar::instance()->ImgHeadVec_.push_back(m1->getObjectPtr());
+
 	// get the pipeline content
 	ISMRMRD::AcquisitionHeader header = *GlobalVar::instance()->AcqVec_.at(0);
 	hoNDArray<std::complex<float> > data = *m2->getObjectPtr();

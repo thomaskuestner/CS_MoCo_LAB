@@ -40,9 +40,9 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	cm2->getObjectPtr()->create(data.get_size(0), data.get_size(1), data.get_size(2), data.get_size(3));
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), data.get_data_ptr(), sizeof(std::complex<float>)*data.get_size(0)*data.get_size(1)*data.get_size(2)*data.get_size(3));
 
-	// create and set ImageHeader
+	// restore image header from pre BART state
 	GadgetContainerMessage<ISMRMRD::ImageHeader> *cm1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
-	fCopyImageHeader(cm1, &m1->getObjectPtr()->headers_.at(0));
+	fCopyImageHeader(cm1, GlobalVar::instance()->ImgHeadVec_.at(0));
 
 	// reset number of gates (otherwise value is lost and no output is performed)
 	cm1->getObjectPtr()->channels = GlobalVar::instance()->iNPhases_;
