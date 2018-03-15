@@ -358,7 +358,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 		int error = 0;
 		try {
 			// perform registration with (FixedImage, MovingImage, ParameterFile, OutputPath, ElastixLog, ConsoleOutput, FixedImageMask, MovingImageMask)
-			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, "D:/Programme/elastix", true, false, 0, 0);
+			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, true, false, 0, 0);
 		} catch (itk::ExitEvent &err) {
 			// error handling - write message and fill array with zeros
 			GERROR("Error event catched directly from elastix\n");
