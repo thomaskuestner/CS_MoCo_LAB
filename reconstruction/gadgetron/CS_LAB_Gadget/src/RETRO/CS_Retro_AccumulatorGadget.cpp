@@ -255,8 +255,6 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	GlobalVar::instance()->iMeasurementTime_	= *(get_int_value("MeasurementTime").get());
 	iNPhases_									= *(get_int_value("Phases").get());
 #endif
-	// also set global variable
-	GlobalVar::instance()->iNPhases_ = iNPhases_;	// used by CS_Retro_PostBARTGadget to recover gates
 
 	int iESPReSSoY = 0;
 	int iESPReSSoZ = 0;
@@ -392,6 +390,9 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 		else {
 			GWARN("No trajectory description present!\n");
 		}
+
+		// also set global variable
+		GlobalVar::instance()->iNPhases_ = iNPhases_;	// used by CS_Retro_PostBARTGadget to recover gates
 
 		//-------------------------------------------------------------------------
 		//----------------------- Interpret Integer Data  -------------------------
