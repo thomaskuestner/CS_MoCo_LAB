@@ -345,7 +345,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 		// crop moving image from 4D dataset
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
 		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
-		
+
 		float *fLocalBuffer = new float[cuiNumberOfPixels];
 		memcpy(fLocalBuffer, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 		itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);	
@@ -356,6 +356,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 		// image registration
 		elastix::ELASTIX *elastix_obj = new elastix::ELASTIX();
 		int error = 0;
+
 		try {
 			// perform registration with (FixedImage, MovingImage, ParameterFile, OutputPath, ElastixLog, ConsoleOutput, FixedImageMask, MovingImageMask)
 			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, true, false, 0, 0);
@@ -374,6 +375,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 				GERROR("GetResultImage() is NULL \n", error);
 			}
 		} else {
+			// error handling - write message and fill array with zeros
 			GERROR("array is zero\n", error);
 		}
 
