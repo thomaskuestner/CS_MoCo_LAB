@@ -172,9 +172,9 @@ namespace Gadgetron
 	template <typename T>
 	bool sum_dim_g(hoNDArray<T> &Array, int dimension);
 
-	inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new);
+	inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new, const ISMRMRD::AcquisitionHeader *GC_acq_m1);
 
-	inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader> *m1);
+	inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, const ISMRMRD::ImageHeader *m1);
 
 	/**
 	* @brief Function to compare two complex values the MATLAB way.

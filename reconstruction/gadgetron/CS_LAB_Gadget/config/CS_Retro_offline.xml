@@ -68,19 +68,22 @@
 	</gadget>
 
 <!-- CS reconstruction - Choose either FOCUSS or BART -->
-<!-- 	FOCUSS-Gadget -->
-	<!-- FOCUSS iterations - default: 2 									-->
-	<!-- CG Iterations - default: 20 										-->
-	<!-- Lambda - default: 0.01 											-->
-	<!-- Lambda ESPReSSo - default: 0.02 									-->
-	<!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,						-->
-	<!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y, 				-->
-	<!-- Sparsifying Transform for each direction 							-->
-	<!-- KernelTrafo - is kSpace trafo active 								-->
-	<!-- fft in read direction 												-->
-	<!-- FOCUSS output: kSpace = 1, Image = 0 								-->
-	<!-- use ESPReSSo constraint for normal CS acquisitions - default: 0	-->
-	<gadget>
+<!-- 	FOCUSS-Toolchain -->
+	<!-- Notes on FOCUSS-Gadget -->
+		<!-- FOCUSS iterations - default: 2 									-->
+		<!-- CG Iterations - default: 20 										-->
+		<!-- Lambda - default: 0.01 											-->
+		<!-- Lambda ESPReSSo - default: 0.02 									-->
+		<!-- Kernel FFT dimensions - bit-mask - 1:x, 2:y,						-->
+		<!-- Kernel Sparsifying dimensions - bit-mask - 1:x, 2:y, 				-->
+		<!-- Sparsifying Transform for each direction 							-->
+		<!-- KernelTrafo - is kSpace trafo active 								-->
+		<!-- fft in read direction 												-->
+		<!-- FOCUSS output: kSpace = 1, Image = 0 								-->
+		<!-- use ESPReSSo constraint for normal CS acquisitions - default: 0	-->
+	<!-- Notes on Combine-Gadget -->
+		<!-- combine the channel data to one image - Mode 0: Unweighted Combine (CPLX data) - 1: Selfweighted Combine (real data only!) -->
+	<!--<gadget>
 		<name>FOCUSS</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_LAB</classname>
@@ -97,9 +100,44 @@
 		<property><name>kSpaceOutDim</name><value>0</value></property>
 		<property><name>CSESPReSSo</name><value>0</value></property>
 	</gadget>
+	<gadget>
+		<name>Combine</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_CombineGadget</classname>
+	</gadget>-->
 
-<!-- 	BART-Gadget -->
-	<!--<gadget>
+<!-- 	BART-Toolchain -->
+	<!-- Notes on CS_MRIImageToAcquisitonGadget -->
+		<!-- Reset AcquisitionHeader instead of ImageHeader -->
+	<!-- Notes on CS_Retro_PreBARTGadget -->
+		<!-- Convert Gadget2 to Gadget1 -->
+	<!-- Notes on PrepRef -->
+		<!-- Some Notes:																						-->
+		<!-- debug_folder, perform_timing, verbose:	parameters for debug and timing								-->
+		<!-- average_all_ref_N:						averaging across repetition									-->
+		<!-- average_all_ref_S:						every set has its own kernels								-->
+		<!-- prepare_ref_always:					whether always to prepare ref if no acceleration is used	-->
+	<!-- Notes on CS_Retro_PostBARTGadget -->
+		<!-- Re-convert Gadget1 to Gadget2 -->
+	<gadget>
+		<name>Pre BART</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_PreBARTGadget</classname>
+	</gadget>
+	<gadget>
+		<name>PrepRef</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>GenericReconCartesianReferencePrepGadget</classname>
+
+		<property><name>debug_folder</name><value></value></property>
+		<property><name>perform_timing</name><value>true</value></property>
+		<property><name>verbose</name><value>true</value></property>
+
+		<property><name>average_all_ref_N</name><value>true</value></property>
+		<property><name>average_all_ref_S</name><value>false</value></property>
+		<property><name>prepare_ref_always</name><value>true</value></property>
+	</gadget>
+	<gadget>
 		<name>BART</name>
 		<dll>gadgetron_bart</dll>
 		<classname>BartGadget</classname>
@@ -109,13 +147,11 @@
 		<property><name>image_series</name><value>0</value></property>
 		<property><name>isBartFolderBeingCachedToVM</name><value>false</value></property>
 		<property><name>AllocateMemorySizeInMegabytes</name><value>50</value></property>
-	</gadget>-->
-
-	<!-- combine the channel data to one image - Mode 0: Unweighted Combine (CPLX data) - 1: Selfweighted Combine (real data only!) -->
+	</gadget>
 	<gadget>
-		<name>Combine</name>
+		<name>Post BART</name>
 		<dll>CS_LAB</dll>
-		<classname>CS_CombineGadget</classname>
+		<classname>CS_Retro_PostBARTGadget</classname>
 	</gadget>
 
 	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->

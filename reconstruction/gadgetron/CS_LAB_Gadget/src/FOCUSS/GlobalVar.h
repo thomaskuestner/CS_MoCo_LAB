@@ -42,10 +42,10 @@ namespace Gadgetron
 		std::vector<hoNDKLT_CS<std::complex<float> >* > KLTVec_;
 
 		// acquisition header
-		std::vector<GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* > AcqVec_;
+		std::vector<ISMRMRD::AcquisitionHeader*> AcqVec_;
 
 		// image header
-		std::vector<GadgetContainerMessage<ISMRMRD::ImageHeader>* > ImgHeadVec_;
+		std::vector<ISMRMRD::ImageHeader*> ImgHeadVec_;
 
 		// nav indices
 		std::vector<float> vNavInd_;
