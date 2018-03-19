@@ -76,10 +76,10 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 	
 	// copy header data
-	fCopyImageHeader(tmp_m1, m1);
+	fCopyImageHeader(tmp_m1, m1->getObjectPtr());
 
 	// push header to global header vector - for kSpace
-	GlobalVar::instance()->ImgHeadVec_.push_back(tmp_m1);
+	GlobalVar::instance()->ImgHeadVec_.push_back(tmp_m1->getObjectPtr());
 
 	// reset partition number if end is reached
 	if (iPartition_++ == vtDimensions_[2]) {

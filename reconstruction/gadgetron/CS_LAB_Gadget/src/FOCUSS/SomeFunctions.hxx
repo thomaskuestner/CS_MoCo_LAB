@@ -1532,145 +1532,145 @@ namespace Gadgetron
 		return false;
 	}
 
-	inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1, GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new)
+	inline int fCopyAcqHeader(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *GC_acq_m1_new, ISMRMRD::AcquisitionHeader *GC_acq_m1)
 	{
-		GC_acq_m1_new->getObjectPtr()->acquisition_time_stamp		= GC_acq_m1->getObjectPtr()->acquisition_time_stamp;
-		GC_acq_m1_new->getObjectPtr()->active_channels				= GC_acq_m1->getObjectPtr()->active_channels;
-		GC_acq_m1_new->getObjectPtr()->available_channels			= GC_acq_m1->getObjectPtr()->available_channels;
-		GC_acq_m1_new->getObjectPtr()->center_sample				= GC_acq_m1->getObjectPtr()->center_sample;
+		GC_acq_m1_new->getObjectPtr()->acquisition_time_stamp		= GC_acq_m1->acquisition_time_stamp;
+		GC_acq_m1_new->getObjectPtr()->active_channels				= GC_acq_m1->active_channels;
+		GC_acq_m1_new->getObjectPtr()->available_channels			= GC_acq_m1->available_channels;
+		GC_acq_m1_new->getObjectPtr()->center_sample				= GC_acq_m1->center_sample;
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_CHANNEL_MASKS; i++) {
-			GC_acq_m1_new->getObjectPtr()->channel_mask[i]			= GC_acq_m1->getObjectPtr()->channel_mask[i];
+			GC_acq_m1_new->getObjectPtr()->channel_mask[i]			= GC_acq_m1->channel_mask[i];
 		}
 
-		GC_acq_m1_new->getObjectPtr()->discard_post					= GC_acq_m1->getObjectPtr()->discard_post;
-		GC_acq_m1_new->getObjectPtr()->discard_pre					= GC_acq_m1->getObjectPtr()->discard_pre;
-		GC_acq_m1_new->getObjectPtr()->encoding_space_ref			= GC_acq_m1->getObjectPtr()->encoding_space_ref;
-		GC_acq_m1_new->getObjectPtr()->flags						= GC_acq_m1->getObjectPtr()->flags;
-		GC_acq_m1_new->getObjectPtr()->idx.average					= GC_acq_m1->getObjectPtr()->idx.average;
-		GC_acq_m1_new->getObjectPtr()->idx.contrast					= GC_acq_m1->getObjectPtr()->idx.contrast;
-		GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_1		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_1;
-		GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_2		= GC_acq_m1->getObjectPtr()->idx.kspace_encode_step_2;
-		GC_acq_m1_new->getObjectPtr()->idx.phase					= GC_acq_m1->getObjectPtr()->idx.phase;
-		GC_acq_m1_new->getObjectPtr()->idx.repetition				= GC_acq_m1->getObjectPtr()->idx.repetition;
-		GC_acq_m1_new->getObjectPtr()->idx.segment					= GC_acq_m1->getObjectPtr()->idx.segment;
-		GC_acq_m1_new->getObjectPtr()->idx.set						= GC_acq_m1->getObjectPtr()->idx.set;
-		GC_acq_m1_new->getObjectPtr()->idx.slice					= GC_acq_m1->getObjectPtr()->idx.slice;
+		GC_acq_m1_new->getObjectPtr()->discard_post					= GC_acq_m1->discard_post;
+		GC_acq_m1_new->getObjectPtr()->discard_pre					= GC_acq_m1->discard_pre;
+		GC_acq_m1_new->getObjectPtr()->encoding_space_ref			= GC_acq_m1->encoding_space_ref;
+		GC_acq_m1_new->getObjectPtr()->flags						= GC_acq_m1->flags;
+		GC_acq_m1_new->getObjectPtr()->idx.average					= GC_acq_m1->idx.average;
+		GC_acq_m1_new->getObjectPtr()->idx.contrast					= GC_acq_m1->idx.contrast;
+		GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_1		= GC_acq_m1->idx.kspace_encode_step_1;
+		GC_acq_m1_new->getObjectPtr()->idx.kspace_encode_step_2		= GC_acq_m1->idx.kspace_encode_step_2;
+		GC_acq_m1_new->getObjectPtr()->idx.phase					= GC_acq_m1->idx.phase;
+		GC_acq_m1_new->getObjectPtr()->idx.repetition				= GC_acq_m1->idx.repetition;
+		GC_acq_m1_new->getObjectPtr()->idx.segment					= GC_acq_m1->idx.segment;
+		GC_acq_m1_new->getObjectPtr()->idx.set						= GC_acq_m1->idx.set;
+		GC_acq_m1_new->getObjectPtr()->idx.slice					= GC_acq_m1->idx.slice;
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
-			GC_acq_m1_new->getObjectPtr()->idx.user[i]				= GC_acq_m1->getObjectPtr()->idx.user[i];
+			GC_acq_m1_new->getObjectPtr()->idx.user[i]				= GC_acq_m1->idx.user[i];
 		}
 
-		GC_acq_m1_new->getObjectPtr()->measurement_uid				= GC_acq_m1->getObjectPtr()->measurement_uid;
-		GC_acq_m1_new->getObjectPtr()->number_of_samples			= GC_acq_m1->getObjectPtr()->number_of_samples;
+		GC_acq_m1_new->getObjectPtr()->measurement_uid				= GC_acq_m1->measurement_uid;
+		GC_acq_m1_new->getObjectPtr()->number_of_samples			= GC_acq_m1->number_of_samples;
 
 		for (unsigned int i = 0; i < 3; i++) {
-			GC_acq_m1_new->getObjectPtr()->patient_table_position[i]= GC_acq_m1->getObjectPtr()->patient_table_position[i];
+			GC_acq_m1_new->getObjectPtr()->patient_table_position[i]= GC_acq_m1->patient_table_position[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			GC_acq_m1_new->getObjectPtr()->phase_dir[i]				= GC_acq_m1->getObjectPtr()->phase_dir[i];
+			GC_acq_m1_new->getObjectPtr()->phase_dir[i]				= GC_acq_m1->phase_dir[i];
 		}
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_PHYS_STAMPS; i++) {
-			GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[i]	= GC_acq_m1->getObjectPtr()->physiology_time_stamp[i];
+			GC_acq_m1_new->getObjectPtr()->physiology_time_stamp[i]	= GC_acq_m1->physiology_time_stamp[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			GC_acq_m1_new->getObjectPtr()->position[i]				= GC_acq_m1->getObjectPtr()->position[i];
+			GC_acq_m1_new->getObjectPtr()->position[i]				= GC_acq_m1->position[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			GC_acq_m1_new->getObjectPtr()->read_dir[i]				= GC_acq_m1->getObjectPtr()->read_dir[i];
+			GC_acq_m1_new->getObjectPtr()->read_dir[i]				= GC_acq_m1->read_dir[i];
 		}
 
-		GC_acq_m1_new->getObjectPtr()->sample_time_us				= GC_acq_m1->getObjectPtr()->sample_time_us;
-		GC_acq_m1_new->getObjectPtr()->scan_counter					= GC_acq_m1->getObjectPtr()->scan_counter;
+		GC_acq_m1_new->getObjectPtr()->sample_time_us				= GC_acq_m1->sample_time_us;
+		GC_acq_m1_new->getObjectPtr()->scan_counter					= GC_acq_m1->scan_counter;
 
 		for (unsigned int i = 0; i < 3; i++) {
-			GC_acq_m1_new->getObjectPtr()->slice_dir[i]				= GC_acq_m1->getObjectPtr()->slice_dir[i];
+			GC_acq_m1_new->getObjectPtr()->slice_dir[i]				= GC_acq_m1->slice_dir[i];
 		}
 
-		GC_acq_m1_new->getObjectPtr()->trajectory_dimensions		= GC_acq_m1->getObjectPtr()->trajectory_dimensions;
+		GC_acq_m1_new->getObjectPtr()->trajectory_dimensions		= GC_acq_m1->trajectory_dimensions;
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_FLOATS; i++) {
-			GC_acq_m1_new->getObjectPtr()->user_float[i]			= GC_acq_m1->getObjectPtr()->user_float[i];
+			GC_acq_m1_new->getObjectPtr()->user_float[i]			= GC_acq_m1->user_float[i];
 		}
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
-			GC_acq_m1_new->getObjectPtr()->user_int[i]				= GC_acq_m1->getObjectPtr()->user_int[i];
+			GC_acq_m1_new->getObjectPtr()->user_int[i]				= GC_acq_m1->user_int[i];
 		}
 
-		GC_acq_m1_new->getObjectPtr()->version						= GC_acq_m1->getObjectPtr()->version;
+		GC_acq_m1_new->getObjectPtr()->version						= GC_acq_m1->version;
 
 		return GADGET_OK;
 	}
 
-	inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, GadgetContainerMessage<ISMRMRD::ImageHeader>* m1)
+	inline int fCopyImageHeader(GadgetContainerMessage<ISMRMRD::ImageHeader> *tmp_m1, const ISMRMRD::ImageHeader *m1)
 	{
-		tmp_m1->getObjectPtr()->average						= m1->getObjectPtr()->average;
-		tmp_m1->getObjectPtr()->channels					= m1->getObjectPtr()->channels;
-		tmp_m1->getObjectPtr()->contrast					= m1->getObjectPtr()->contrast;
+		tmp_m1->getObjectPtr()->average						= m1->average;
+		tmp_m1->getObjectPtr()->channels					= m1->channels;
+		tmp_m1->getObjectPtr()->contrast					= m1->contrast;
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->field_of_view[i]		= m1->getObjectPtr()->field_of_view[i];
+			tmp_m1->getObjectPtr()->field_of_view[i]		= m1->field_of_view[i];
 		}
 
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
-		tmp_m1->getObjectPtr()->data_type					= m1->getObjectPtr()->data_type;
+		tmp_m1->getObjectPtr()->data_type					= m1->data_type;
 #else
-		tmp_m1->getObjectPtr()->image_data_type				= m1->getObjectPtr()->image_data_type;
+		tmp_m1->getObjectPtr()->image_data_type				= m1->image_data_type;
 #endif
 
-		tmp_m1->getObjectPtr()->image_series_index			= m1->getObjectPtr()->image_series_index;
-		tmp_m1->getObjectPtr()->image_index					= m1->getObjectPtr()->image_index;
-		tmp_m1->getObjectPtr()->image_type					= m1->getObjectPtr()->image_type;
+		tmp_m1->getObjectPtr()->image_series_index			= m1->image_series_index;
+		tmp_m1->getObjectPtr()->image_index					= m1->image_index;
+		tmp_m1->getObjectPtr()->image_type					= m1->image_type;
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->matrix_size[i]			= m1->getObjectPtr()->matrix_size[i];
+			tmp_m1->getObjectPtr()->matrix_size[i]			= m1->matrix_size[i];
 		}
 
-		tmp_m1->getObjectPtr()->phase						= m1->getObjectPtr()->phase;
-		tmp_m1->getObjectPtr()->repetition					= m1->getObjectPtr()->repetition;
-		tmp_m1->getObjectPtr()->set							= m1->getObjectPtr()->set;
-		tmp_m1->getObjectPtr()->slice						= m1->getObjectPtr()->slice;
-		tmp_m1->getObjectPtr()->acquisition_time_stamp		= m1->getObjectPtr()->acquisition_time_stamp;
-		tmp_m1->getObjectPtr()->flags						= m1->getObjectPtr()->flags;
-		tmp_m1->getObjectPtr()->measurement_uid				= m1->getObjectPtr()->measurement_uid;
+		tmp_m1->getObjectPtr()->phase						= m1->phase;
+		tmp_m1->getObjectPtr()->repetition					= m1->repetition;
+		tmp_m1->getObjectPtr()->set							= m1->set;
+		tmp_m1->getObjectPtr()->slice						= m1->slice;
+		tmp_m1->getObjectPtr()->acquisition_time_stamp		= m1->acquisition_time_stamp;
+		tmp_m1->getObjectPtr()->flags						= m1->flags;
+		tmp_m1->getObjectPtr()->measurement_uid				= m1->measurement_uid;
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->patient_table_position[i]= m1->getObjectPtr()->patient_table_position[i];
+			tmp_m1->getObjectPtr()->patient_table_position[i]= m1->patient_table_position[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->phase_dir[i]			= m1->getObjectPtr()->phase_dir[i];
+			tmp_m1->getObjectPtr()->phase_dir[i]			= m1->phase_dir[i];
 		}
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_PHYS_STAMPS; i++) {
-			tmp_m1->getObjectPtr()->physiology_time_stamp[i]= m1->getObjectPtr()->physiology_time_stamp[i];
+			tmp_m1->getObjectPtr()->physiology_time_stamp[i]= m1->physiology_time_stamp[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->position[i]				= m1->getObjectPtr()->position[i];
+			tmp_m1->getObjectPtr()->position[i]				= m1->position[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->read_dir[i]				= m1->getObjectPtr()->read_dir[i];
+			tmp_m1->getObjectPtr()->read_dir[i]				= m1->read_dir[i];
 		}
 
 		for (unsigned int i = 0; i < 3; i++) {
-			tmp_m1->getObjectPtr()->slice_dir[i]			= m1->getObjectPtr()->slice_dir[i];
+			tmp_m1->getObjectPtr()->slice_dir[i]			= m1->slice_dir[i];
 		}
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_FLOATS; i++) {
-			tmp_m1->getObjectPtr()->user_float[i]			= m1->getObjectPtr()->user_float[i];
+			tmp_m1->getObjectPtr()->user_float[i]			= m1->user_float[i];
 		}
 
 		for (unsigned int i = 0; i < ISMRMRD::ISMRMRD_USER_INTS; i++) {
-			tmp_m1->getObjectPtr()->user_int[i]				= m1->getObjectPtr()->user_int[i];
+			tmp_m1->getObjectPtr()->user_int[i]				= m1->user_int[i];
 		}
 
-		tmp_m1->getObjectPtr()->version						= m1->getObjectPtr()->version;
+		tmp_m1->getObjectPtr()->version						= m1->version;
 
 		return GADGET_OK;
 	}

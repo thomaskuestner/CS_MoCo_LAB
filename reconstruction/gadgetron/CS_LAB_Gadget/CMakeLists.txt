@@ -307,6 +307,8 @@ set(cs_lab_header_files CS_LAB.h
 	src/RETRO/CS_Retro_AccumulatorGadget.h
 	src/RETRO/CS_Retro_NavigatorGadget.h
 	src/RETRO/CS_Retro_PopulationGadget.h
+	src/RETRO/CS_Retro_PostBARTGadget.h
+	src/RETRO/CS_Retro_PreBARTGadget.h
 )
 
 # set source files
@@ -338,6 +340,8 @@ set(cs_lab_src_files CS_LAB.cpp
 	src/RETRO/CS_Retro_AccumulatorGadget.cpp
 	src/RETRO/CS_Retro_NavigatorGadget.cpp
 	src/RETRO/CS_Retro_PopulationGadget.cpp
+	src/RETRO/CS_Retro_PostBARTGadget.cpp
+	src/RETRO/CS_Retro_PreBARTGadget.cpp
 )
 
 # set some specific header and source files

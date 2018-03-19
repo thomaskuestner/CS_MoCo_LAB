@@ -246,23 +246,23 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	for (int iCha = 0; iCha < iNChannels_; iCha++) {
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
 		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
-		float fTmp;
+		float channel_max_energy;
 
 		if (iNorm_ == 0) {
-			fTmp = fCalcEnergy(hacfEnergyPerChannel);
+			channel_max_energy = fCalcEnergy(hacfEnergyPerChannel);
 		} else if (iNorm_ == 1) {
-			fTmp = abs((float)amax(&hacfEnergyPerChannel));
+			channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
 		} else {
-			fTmp = 1.0;
+			channel_max_energy = 1.0;
 		}
 
-		GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
+		GDEBUG("energy in channel[%i]: %e..\n", iCha, channel_max_energy);
 
 		// fill channel
 		#pragma omp parallel for
 		for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
-			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(fTmp);
-			hacfWWindowed.get_data_ptr()[i+tOffset] /= fTmp;
+			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(channel_max_energy);
+			hacfWWindowed.get_data_ptr()[i+tOffset] /= std::complex<float>(channel_max_energy);
 		}
 	}
 
@@ -445,23 +445,34 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 		// W = abs(rho).^p - p = .5 normalization
 		hacfWWindowed = hacfRho;
+		fAbsPow(hacfWWindowed, fP_);
 
-		// re-calculate channel energy if iNorm == self scaling
 		if (iNorm_ == 1) {
+			#pragma omp parallel for
 			for (int iCha = 0; iCha < iNChannels_; iCha++) {
+				// re-calculate channel energy if iNorm == self scaling
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
 				hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
-				float fTmp = abs((float)amax(&hacfEnergyPerChannel));
+				float channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
 
-				// fill channel
-				#pragma omp parallel for
+				// don't divide by zero
+				if (channel_max_energy == 0.0) {
+					GWARN("channel_max_energy is 0!\n");
+					continue;
+				}
+
+				// perform division at all elements in channel
 				for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
-					hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(fTmp);
+					hacfWWindowed.at(i+tOffset) /= std::complex<float>(channel_max_energy);
 				}
 			}
+		} else if (iNorm_ == 0) {
+			// perform division with total energies
+			divide(hacfWWindowed, hacfTotEnergy, hacfWWindowed);
+		} else {
+			GERROR("Illegal state of iNorm_ (=%d)!", iNorm_);
+			return -1;
 		}
-
-		fAbsPowDivide(hacfWWindowed, fP_, hacfTotEnergy);
 	}
 
 	// rho = W.*q

@@ -386,14 +386,11 @@ int CS_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHea
 	if (bLast_encoding_step1) {
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* GC_acq_tmp = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
 
-		// init image header
-		memset(GC_acq_tmp->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
-	
 		// copy header data
-		fCopyAcqHeader(GC_acq_tmp, m1);
+		fCopyAcqHeader(GC_acq_tmp, m1->getObjectPtr());
 
 		// push header to global header vector
-		GlobalVar::instance()->AcqVec_.push_back(GC_acq_tmp);
+		GlobalVar::instance()->AcqVec_.push_back(GC_acq_tmp->getObjectPtr());
 	}
 
 	// copy data to a new GadgetContainer

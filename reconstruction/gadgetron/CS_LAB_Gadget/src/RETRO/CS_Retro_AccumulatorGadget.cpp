@@ -391,6 +391,9 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 			GWARN("No trajectory description present!\n");
 		}
 
+		// also set global variable
+		GlobalVar::instance()->iNPhases_ = iNPhases_;	// used by CS_Retro_PostBARTGadget to recover gates
+
 		//-------------------------------------------------------------------------
 		//----------------------- Interpret Integer Data  -------------------------
 		//-------------------------------------------------------------------------
@@ -551,11 +554,10 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			return GADGET_FAIL;
 		}
 
-		// copy header information of first acquisition to global variable (create new header, set memory zero, copy header, push onto global vector)
+		// copy header information of first acquisition to global variable (create new header, copy header, push onto global vector)
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *tmp_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
-		memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
-		fCopyAcqHeader(tmp_m1, m1);
-		GlobalVar::instance()->AcqVec_.push_back(tmp_m1);
+		fCopyAcqHeader(tmp_m1, m1->getObjectPtr());
+		GlobalVar::instance()->AcqVec_.push_back(tmp_m1->getObjectPtr());
 		GINFO("Receiving data..\n");
 	}
 

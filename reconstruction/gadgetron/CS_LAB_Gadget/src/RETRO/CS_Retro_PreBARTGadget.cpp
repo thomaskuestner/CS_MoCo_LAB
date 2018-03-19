@@ -1,0 +1,74 @@
+#include "CS_Retro_PreBARTGadget.h"
+
+#include <mri_core_data.h>
+
+using namespace Gadgetron;
+
+// class constructor
+CS_Retro_PreBARTGadget::CS_Retro_PreBARTGadget()
+{
+}
+
+// class destructor
+CS_Retro_PreBARTGadget::~CS_Retro_PreBARTGadget()
+{
+}
+
+int CS_Retro_PreBARTGadget::process_config(ACE_Message_Block *mb)
+{
+	return GADGET_OK;
+}
+
+int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
+{
+	// save image header
+	GlobalVar::instance()->ImgHeadVec_.clear();
+	GlobalVar::instance()->ImgHeadVec_.push_back(m1->getObjectPtr());
+
+	// get the pipeline content
+	ISMRMRD::AcquisitionHeader header = *GlobalVar::instance()->AcqVec_.at(0);
+	hoNDArray<std::complex<float> > data = *m2->getObjectPtr();
+
+	// permute kSpace: kx-ky-kz-t-c -> kx-ky-kz-c-t
+	std::vector<size_t> vtDimOrder;
+	vtDimOrder.push_back(0);
+	vtDimOrder.push_back(1);
+	vtDimOrder.push_back(2);
+	vtDimOrder.push_back(4);
+	vtDimOrder.push_back(3);
+	data = *permute(&data, &vtDimOrder, false);
+
+	// create hoNDArray with header
+	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
+	std::vector<size_t> dim_header_array;
+	dim_header_array.push_back(256);
+	dim_header_array.push_back(72);
+	dim_header_array.push_back(4);
+	dim_header_array.push_back(1);
+	dim_header_array.push_back(1);
+	header_array.create(&dim_header_array);
+
+	for (size_t i = 0; i < header_array.get_number_of_elements(); i++) {
+		header_array.at(i) = header;
+	}
+
+	// pack content together
+	Gadgetron::IsmrmrdDataBuffered buffered_data;
+	buffered_data.data_ = data;
+	buffered_data.headers_ = header_array;
+
+	IsmrmrdReconBit *recon_bit = new IsmrmrdReconBit;
+	recon_bit->data_ = buffered_data;
+
+	// put new recon data on queue
+	GadgetContainerMessage<IsmrmrdReconData> *recon_mc = new GadgetContainerMessage<IsmrmrdReconData>();
+	recon_mc->getObjectPtr()->rbit_.push_back(*recon_bit);
+
+	if (this->next()->putq(recon_mc) < 0) {
+		return GADGET_FAIL;
+	}
+
+	return GADGET_OK;
+}
+
+GADGET_FACTORY_DECLARE(CS_Retro_PreBARTGadget)
