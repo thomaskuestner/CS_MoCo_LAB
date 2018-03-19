@@ -173,12 +173,12 @@
 		<classname>ElastixRegistrationGadget</classname>
 
 		<property>
-			<name>PathProgram</name>
+			<name>PathParam</name>
 			<value>TBD</value>
 		</property>
 		<property>
 			<name>PathLog</name>
-			<value>TBD</value>
+			<value>/tmp/</value>
 		</property>
 	</gadget>-->
 
