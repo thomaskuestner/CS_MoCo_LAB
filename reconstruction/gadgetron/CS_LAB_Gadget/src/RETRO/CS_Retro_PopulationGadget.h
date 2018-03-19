@@ -83,7 +83,6 @@ namespace Gadgetron {
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		// declare gadget properties
-		GADGET_PROPERTY(Gates, int, "Gates", 4);
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
 		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
 		GADGET_PROPERTY(Tolerance, float, "Tolerance", 1.0);
