@@ -192,35 +192,35 @@
 //				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 //
 //				//------------------- cg beta - Polak-Ribiere -------------------------------
-//				std::complex<float> fBetaCha (0.0);
 //				pcfPtr_ = hacfBeta.get_data_ptr();
-//
-//				// loop over channels
 //				for (int iCha = 0; iCha < iNChannels_; iCha++){
 //
 //					// fill sub array with data from higher order data array
 //					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
 //					hoNDArray<std::complex<float> >  hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], hacfG_old.get_data_ptr()+ tOffset, false);
 //					hoNDArray<std::complex<float> >  hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], hacfG.get_data_ptr()+ tOffset, false);
-//					std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
+//					float fNumerator = 0.0;
+// 					float fDenominator = 0.0;
+//					float fBetaCha = 0.0;
 //
 //					// calculate nominator
 //					pcfPtr2_ = hacfSubArrayG.get_data_ptr();
 //					for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++){
-//						fNumerator +=  pcfPtr2_[iI]*pcfPtr2_[iI];
+//						fNumerator +=  std::pow(pcfPtr2_[iI].real(), 2) + std::pow(pcfPtr2_[iI].imag(), 2);		// = std::conj(pcfPtr2_[iI])*pcfPtr2_[iI]
 //					}
 //
 //					// calculate denominator
 //					pcfPtr2_ = hacfSubArrayG_old.get_data_ptr();
 //					for (long iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++){
-//						fDenominator +=  pcfPtr2_[iI]*pcfPtr2_[iI];
+//						fDenominator +=  std::pow(pcfPtr2_[iI].real(), 2) + std::pow(pcfPtr2_[iI].imag(), 2);		// = std::conj(pcfPtr2_[iI])*pcfPtr2_[iI]
 //					}
+//
 //					if (abs(fDenominator) != 0) fBetaCha = fNumerator / fDenominator;
 //
 //					// fill part of the 3D array
 //					#pragma  omp parallel for
 //					for (long lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]; lI++)
-//						pcfPtr_[lI+tOffset] = fBetaCha;
+//						pcfPtr_[lI+tOffset] = std::complex<float>(fBetaCha);
 //				}
 //				//--------------------------------------------------------------------------
 //
