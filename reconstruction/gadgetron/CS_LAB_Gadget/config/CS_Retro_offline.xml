@@ -165,7 +165,7 @@
 		</property>
 	</gadget>
 
-	<!-- image registration - choose either elastix or LAP -->
+<!-- image registration - choose either elastix or LAP -->
 <!-- 	ElastixRegistrationGadget -->
 	<!--<gadget>
 		<name>ElastixRegistration</name>
