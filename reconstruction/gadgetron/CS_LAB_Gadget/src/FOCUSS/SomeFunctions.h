@@ -69,10 +69,6 @@ namespace Gadgetron
 	template <typename T>
 	bool fAbsPowDivide(hoNDArray<T> &a, float b, const hoNDArray<T> &c);
 
-	// multiply: a = a.*b
-	template <typename T>
-	bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b);
-
 	// G: r = -a*b+c*d+e*f+g*h+i*j
 	template <typename T>
 	bool fCalcGradient(const hoNDArray<T> &a, const hoNDArray<T> &b, T c, const hoNDArray<T> &d, T e, const hoNDArray<T> &f, hoNDArray<T> &r);

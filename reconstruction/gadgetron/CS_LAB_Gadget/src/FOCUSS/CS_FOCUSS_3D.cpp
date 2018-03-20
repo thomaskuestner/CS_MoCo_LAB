@@ -306,7 +306,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			// z = Phi.*FFT(W.*d) - x-ky-kz
 			multiply(hacfWWindowed, hacfD, hacfZ);
 			Transform_KernelTransform_->BTransform(hacfZ);
-			fMultiply(hacfZ, hacfFullMask);
+			multiply(hacfZ, hacfFullMask, hacfZ);
 
 			//---------------------------- cg alpha -------------------------------------
 			//alpha(:,:,:,c) = (z_helper(:)'*e_helper(:))/(z_helper(:)'*z_helper(:));

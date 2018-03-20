@@ -214,30 +214,6 @@ namespace Gadgetron
 		return true;
 	}
 
-	// multiply: a = a.*b
-	template <typename T>
-	bool fMultiply(hoNDArray<T> &a, const hoNDArray<T> &b)
-	{
-		T*pA = a.begin();
-		const T* pB = b.begin();
-
-		long long N = a.get_number_of_elements();
-
-		try {
-			long long n;
-
-			#pragma omp parallel for default(none) schedule(static) private(n) shared(N, pA, pB)
-			for (n=0; n < (long long)N; n++) {
-				pA[n] *= pB[n];
-			}
-		} catch (...) {
-			GERROR("Error occurred in pow_abs(hoNDArray<T> &a, const T b) ... ");
-			return false;
-		}
-
-		return true;
-	}
-
 	// G: r = -conj(a)*b+c*d+e*f
 	template <typename T>
 	bool fCalcGradient(const hoNDArray<T> &a, const hoNDArray<T> &b, T c, const hoNDArray<T> &d, T e, const hoNDArray<T> &f, hoNDArray<T> &r)
