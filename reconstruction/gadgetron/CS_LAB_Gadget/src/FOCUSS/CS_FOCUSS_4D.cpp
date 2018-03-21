@@ -195,7 +195,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				Transform_KernelTransform_->BTransform(hacfRho_fft);
 
 				// e = v - Phi*F*rho - e: x-ky-kz
-				fAminusBmultC(hacfKSpace,hacfFullMask,hacfRho_fft,hacfE);
+				multiply(hacfFullMask, hacfRho_fft, hacfE);
+				subtract(hacfKSpace, hacfE, hacfE);
 
 				//l2 norm calculation - check epsilon
 				std::vector<float> vfVec;
@@ -293,7 +294,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			//--------------------------------------------------------------------------
 
 			// d = beta.*d - G and g_old = G
-			fAmultBminusC(hacfBeta, hacfD, hacfG, hacfD);
+			multiply(hacfBeta, hacfD, hacfD);
+			subtract(hacfD, hacfG, hacfD);
 			hacfG_old = hacfG;
 
 			// z = Phi.*FFT(W.*d) - x-ky-kz
@@ -337,7 +339,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			}
 			//--------------------------------------------------------------------------
 			// q = q + alpha.*d
-			fAplusBmultC(hacfQ, hacfAlpha, hacfD, hacfQ);
+			multiply(hacfAlpha, hacfD, hacfD);
+			subtract(hacfQ, hacfD, hacfQ);
 
 			// rho = W.*q
 			multiply(hacfWWindowed, hacfQ, hacfRho);
