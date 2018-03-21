@@ -41,7 +41,7 @@ namespace Gadgetron {
 
 		// number of navigator acquisitions
 		int iNoNav_;
-		
+
 		// navigation method (set by gadget property)
 		int iNavMethod_;
 

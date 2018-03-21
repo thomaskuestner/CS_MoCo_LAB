@@ -23,7 +23,7 @@ void CS_LAB::fExternalControl()
 	//opCS_->iCGResidual_					= iCGResidual_;
 	opCS_->iNChannels_					= iNChannels_;
 	opCS_->fP_							= fP_;
-	opCS_->fEpsilon_					= fEpsilon_;		
+	opCS_->fEpsilon_					= fEpsilon_;
 	opCS_->fCSAccel_					= fCSAccel_;
 	opCS_->hacfFilter_					= hacfFilter_;
 	opCS_->Transform_KernelTransform_	= Transform_KernelTransform_;
