@@ -251,7 +251,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 		if (iNorm_ == 0) {
 			channel_max_energy = fCalcEnergy(hacfEnergyPerChannel);
 		} else if (iNorm_ == 1) {
-			channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
+			// hacfEnergyPerChannel only contains float (imag=0), so taking real part only is enough
+			channel_max_energy = abs(hacfEnergyPerChannel.at(amax(hacfEnergyPerChannel)).real());
 		} else {
 			channel_max_energy = 1.0;
 		}
@@ -451,7 +452,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				// re-calculate channel energy if iNorm == self scaling
 				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
 				hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
-				float channel_max_energy = abs(static_cast<float>(amax(&hacfEnergyPerChannel)));
+				// hacfEnergyPerChannel only contains float (imag=0), so taking real part only is enough
+				float channel_max_energy = abs(hacfEnergyPerChannel.at(amax(hacfEnergyPerChannel)).real());
 
 				// don't divide by zero
 				if (channel_max_energy == 0.0) {
