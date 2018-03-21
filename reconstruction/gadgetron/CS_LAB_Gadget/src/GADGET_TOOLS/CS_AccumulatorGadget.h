@@ -43,6 +43,11 @@ namespace Gadgetron
 		long long image_series_;
 		int iBodyRegion_, iSamplingType_;
 		float fFullySa_, fLESPReSSo_, fLQ_;
+		int iESPReSSoDirection_ = 0;	// ESPReSSo direction (y: 1, z: 2)
+		int iVDMap_ = 0;				// density map
+		int iNPhases_ = 0;
+		float fCSAcc_ = 0;
+		float fPartialFourierVal_ = 0;	// Partial Fourier value (4/8, 5/8, 6/8, 7/8)
 	};
 }
 

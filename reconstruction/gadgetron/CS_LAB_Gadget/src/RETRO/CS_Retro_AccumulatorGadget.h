@@ -56,7 +56,7 @@ namespace Gadgetron {
 
 		// Compressed Sensing variables
 		int iESPReSSoDirection_ = 0;
-		float fPartialFourierVal_ = 0;
+		float fPartialFourierVal_ = 0;			// Partial Fourier value (4/8, 5/8, 6/8, 7/8)
 		int iBodyRegion_ = 0;
 		int iVDMap_ = 0;
 		int iSamplingType_ = 0;

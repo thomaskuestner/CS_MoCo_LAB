@@ -8,7 +8,6 @@ variables	:	bESPRActiveCS_		:	ESPReSSo constraint is active for purely CS data s
 				cfLambdaESPReSSo_	:	Lagrangian multiplier for the ESPReSSo constraint
 				cfLambda_			:	Lagrangian multiplier for the FOCUSS constraint
 				fFullySampled_		:	fully sampled region (in percent)
-				fPartialFourierVal_	:	Partial Fourier value (4/8, 5/8, 6/8, 7/8)
 references	:	http://de.wikibooks.org/wiki/C%2B%2B-Programmierung:_Entwurfsmuster:_Singleton
 */
 
@@ -60,8 +59,6 @@ namespace Gadgetron
 		// FOCUSS parameters
 		int iNOuter_;				//k-t FOCUSS loops
 		int iNInner_;				// CG loops
-		int iVDMap_;				// density map
-		int iESPReSSoDirection_;	// ESPReSSo direction (y: 1, z: 2)
 		int iDimFFT_;
 		int iDimDCTSparse_;
 		int iDimPCASparse_;
@@ -69,9 +66,7 @@ namespace Gadgetron
 		int iScrambleDim_;
 		int iTransformFFTBA_;
 		int ikSpaceOut_;
-		
-		float fPartialFourierVal_;
-		float fCSAcc_;
+
 		float fFullySampled_;		// sequence parameters
 
 		std::complex< float > cfLambdaESPReSSo_;	// lambda for ESPReSSo conjugate similarity
@@ -84,7 +79,6 @@ namespace Gadgetron
 		int iMeasurementTime_;
 		unsigned int iNavPERes_;
 		int iNavPeriod_;
-		int iNPhases_;
 		int iPopulationMode_;		// mode for k-space population (0: closes, 1: average, 2: collect)
 
 	private:

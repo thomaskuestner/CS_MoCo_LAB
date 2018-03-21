@@ -26,8 +26,6 @@ variables	:	pbPtrN_				:	data pointer for boolean variables
 				habMaskLeft_		:	boolean mask for the ESPReSSo algorithm for pure CS data sets
 				habKSpaceCenter_	:	boolean mask, which stores region of the fully sampled k-space center
 				iNChannels_			:	number of active channels
-				iNOuter_			:	number of maximum FOCUSS iterations
-				iNInner_			:	number of maximum CG iterations
 				iESPReSSoDirection_	:	direction the Partial Fourier sampling (1: phase encoding direction, 2: partition encoding direction)
 				vtDim_				:	dimension of the data object
 				fP_					:	p-norm value (default: p = .5 for FOCUSS algorithm)
@@ -178,6 +176,9 @@ namespace Gadgetron
 		// channel/k-space normalization
 		int iNorm_;
 
+		// ESPReSSo direction (y: 1, z: 2)
+		int iESPReSSoDirection_;
+
 	// vector int
 		std::vector<int> viCalibrationSize_;
 
@@ -194,6 +195,9 @@ namespace Gadgetron
 
 		// CS acceleration factor
 		float fCSAccel_;
+
+		// Partial Fourier value (4/8, 5/8, 6/8, 7/8)
+		float fPartialFourierVal_;
 
 	// complex float
 		// data pointer
