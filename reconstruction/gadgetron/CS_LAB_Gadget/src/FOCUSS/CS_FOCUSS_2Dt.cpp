@@ -176,20 +176,20 @@
 //				// if all channels converged -> stop calculation
 //				if (iNom == 0) break;
 //
-//				// e: x-ky-kz --> x-y-z
-//				hacfE_ifft = hacfE;
-//				Transform_KernelTransform_->FTransform(hacfE_ifft);
+// 				//------------------------------------------------------------------------
+// 				//---------------------------- constraints -------------------------------
+// 				//------------------------------------------------------------------------
 //
-//				//------------------------------------------------------------------------
-//				//---------------------------- constraints -------------------------------
-//				//------------------------------------------------------------------------
+// 				// emphasize conjugate similarity - not used in 2Dt
+// 				hoNDArray<std::complex<float> >  hacfGradient_ESPReSSo = hacfRho; hacfGradient_ESPReSSo.fill(0.0);
 //
-//				// emphasize conjugate similarity - not used in 2Dt
-//				hoNDArray<std::complex<float> >  hacfGradient_ESPReSSo = hacfRho; hacfGradient_ESPReSSo.fill(0.0);
+// 				//----------------- gradient -------------------------
+// 				// e: x-ky-kz --> x-y-z
+// 				hacfE_ifft = hacfE;
+// 				Transform_KernelTransform_->FTransform(hacfE_ifft);
 //
-//				//----------------- gradient -------------------------
-//				// G = -conj(W).*IFFT(e)+Lambda.*Q
-//				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
+// 				// G = -conj(W).*IFFT(e)+Lambda.*Q
+// 				fCalcGradient(hacfWWindowed, hacfE_ifft, cfLambda_, hacfQ, cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 //
 //				//------------------- cg beta - Polak-Ribiere -------------------------------
 //				pcfPtr_ = hacfBeta.get_data_ptr();

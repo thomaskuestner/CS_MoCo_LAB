@@ -222,10 +222,6 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				if (iNom == 0) {
 					break;
 				}
-
-				// e: x-ky-kz --> x-y-z
-				hacfE_ifft = hacfE;
-				Transform_KernelTransform_->FTransform(hacfE_ifft);
 			} catch (...) {
 				GERROR("Exception in first part..\n");
 			}
@@ -251,6 +247,10 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			//-------------calculate gradient -------------------------
 			// G = -conj(W).*IFFT(e)+Lambda.*Q + LambdaESPReSSo.*gradESPReSSo
 			try {
+				// e: x-ky-kz --> x-y-z
+				hacfE_ifft = hacfE;
+				Transform_KernelTransform_->FTransform(hacfE_ifft);
+
 				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 			} catch (...) {
 				GERROR("Exception in gradient calculation\n");

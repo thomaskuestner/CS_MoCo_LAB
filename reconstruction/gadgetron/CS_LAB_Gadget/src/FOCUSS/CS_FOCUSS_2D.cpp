@@ -219,10 +219,6 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 					break;
 				}
 
-				// e: x-ky --> x-y
-				hacfE_ifft = hacfE;
-				Transform_KernelTransform_->FTransform(hacfE_ifft);
-
 				//------------------------------------------------------------------------
 				//---------------------------- constraints -------------------------------
 				//------------------------------------------------------------------------
@@ -232,6 +228,10 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				hacfGradient_ESPReSSo.fill(0.0);
 
 				//----------------- gradient -------------------------
+				// e: x-ky --> x-y
+				hacfE_ifft = hacfE;
+				Transform_KernelTransform_->FTransform(hacfE_ifft);
+
 				// G = -conj(W).*IFFT(e)+Lambda.*Q
 				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 
