@@ -42,6 +42,26 @@
 		<classname>CS_Retro_NavigatorGadget</classname>
 
 		<property>
+			<!-- minimal cardial frequency -->
+			<name>MinCardFreq</name>
+			<value>40.0</value>
+		</property>
+		<property>
+			<!-- maximal cardial frequency -->
+			<name>MaxCardFreq</name>
+			<value>150.0</value>
+		</property>
+		<property>
+			<!-- minimal raspiratory frequency -->
+			<name>MinRespFreq</name>
+			<value>7.5</value>
+		</property>
+		<property>
+			<!-- maximal raspiratory frequency -->
+			<name>MaxRespFreq</name>
+			<value>40.0</value>
+		</property>
+		<property>
 			<!-- 0: classical, 1: PCA -->
 			<name>NavigationMethod</name>
 			<value>0</value>

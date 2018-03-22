@@ -24,9 +24,17 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 {
 	// get gadget property
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
-	iNavMethod_ = NavigationMethod.value();
+	min_card_freq_	= MinCardFreq.value();
+	max_card_freq_	= MaxCardFreq.value();
+	min_resp_freq_	= MinRespFreq.value();
+	max_resp_freq_	= MaxRespFreq.value();
+	iNavMethod_		= NavigationMethod.value();
 #else
-	iNavMethod_ = *(get_int_value("NavigationMethod").get());
+	min_card_freq_	= *(get_int_value("MinCardFreq").get());
+	max_card_freq_	= *(get_int_value("MaxCardFreq").get());
+	min_resp_freq_	= *(get_int_value("MinRespFreq").get());
+	max_resp_freq_	= *(get_int_value("MaxRespFreq").get());
+	iNavMethod_		= *(get_int_value("NavigationMethod").get());
 #endif
 
 	// fetch attribute values from header
