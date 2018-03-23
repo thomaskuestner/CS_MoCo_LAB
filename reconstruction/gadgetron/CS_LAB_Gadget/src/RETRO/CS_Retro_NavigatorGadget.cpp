@@ -1,6 +1,10 @@
 #include "CS_Retro_NavigatorGadget.h"
 
+#include <armadillo>
+#include <algorithm>
 #include <cmath>
+
+#include "hoNDArray_math_util.cpp"
 
 using namespace Gadgetron;
 
@@ -691,296 +695,135 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	*/
 	hoNDArray<std::complex<float> > aImg = aNav;
 	hoNDFFT_CS<float>::instance()->ifftshift3D(aImg);
-	hoNDFFT_CS<float>::instance()->ifft1(aImg);
+	hoNDFFT_CS<float>::instance()->ifft3(aImg);
 	hoNDFFT_CS<float>::instance()->fftshift3D(aImg);
 
-	//Concatenate arrays
-	std::vector<size_t> A_dims;
-	A_dims.push_back(iNSamples*iNavRes*iNChannels);
-	A_dims.push_back(iNMeasurement);
+	// ATTENTION: Work with [s] values
+	// dNavPeriod = dNavPeriod/1000; dTR = dTR/1000;
+	min_card_freq_ /= 60;
+	max_card_freq_ /= 60;
+	min_resp_freq_ /= 60;
+	max_resp_freq_ /= 60;
 
-	hoNDArray<std::complex<float> > A;
-	A.create(&A_dims);
+	// 1. Step: Restack
+	// is already done in C++ code
 
-	// check element bounds -> prevent error in for loop
-	if (A.get_number_of_elements() != aImg.get_number_of_elements()) {
-		GWARN("Oops! Size of A (=%d) != size of aImg (=%d)\n", A.get_number_of_elements(), aImg.get_number_of_elements());
-
-		if (A.get_number_of_elements() > aImg.get_number_of_elements()) {
-			GERROR("Segmentation fault prevented! Check sizes of arrays!\n");
-			throw std::runtime_error("A.get_number_of_elements() > aImg.get_number_of_elements()");
-		}
-	}
-
-	for (size_t i = 0; i < A.get_number_of_elements(); i++) {
-		A.at(i) = aImg.at(i);
-	}
-
+	// 2. Step: Compute PCA based on KLT principal components are saved in coeff in descending order
 	std::vector<size_t> coeff_dims;
 	coeff_dims.push_back(iNMeasurement);
 	coeff_dims.push_back(iNMeasurement);
 
 	hoNDArray<std::complex<float> > coeff;
 	coeff.create(&coeff_dims);
+	coeff.delete_data_on_destruct(true);
 
-	//Compute PCA based on KLT principal components are saved in coeff in descending order
+	// prepare aImg for KLT
+	std::vector<size_t> new_aImg_dims;
+	new_aImg_dims.push_back(iNSamples*iNavRes*iNChannels);
+	new_aImg_dims.push_back(iNMeasurement);
+	aImg.reshape(&new_aImg_dims);
+
 	hoNDKLT<std::complex<float> > VT;
-	VT.prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
+	VT.prepare(aImg, static_cast<size_t>(1), static_cast<size_t>(0), true);
 	VT.eigen_vector(coeff);
 
-	double Fs = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0));	// Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
+	// 3. Step: search for respiratory motion
+	// get next base of 2
+	//%dFactorfft = 2.^nextpow2(size(dCoeff,1));
+	int factor_fft = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
 
-	//fft(result, ...,1);
-	// fft only 1 dimensional (first dimension)
-	hoNDFFT<float>::instance()->fft1(coeff);
+	//%dCoeffF = fftshift(fft(ifftshift(dCoeff,2),dFactorfft, 2),2);
+	hoNDFFT_CS<float>::instance()->ifftshift2D(coeff);
 
-	//nfft2 = 2.^nextpow2(nfft);
-	int nfft2 = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
-	hoNDArray<float> absresult;
-	absresult.create(&coeff_dims);
-
-	//fy = fft(y, nfft2);
-	//fy = abs(fy);
-	for (size_t i = 0; i < coeff.get_number_of_elements(); i++) {
-		absresult.at(i) = abs(coeff.at(i));
+	// now zero padd coeff
+	hoNDArray<std::complex<float> > coeff_padded;
+	std::vector<size_t> coeff_padded_dims;
+	coeff_padded_dims.push_back(factor_fft);
+	coeff_padded_dims.push_back(factor_fft);
+	coeff_padded.create(&coeff_padded_dims);
+	for (size_t col = 0; col < coeff.get_size(0); col++) {
+		size_t offset = col * coeff.get_size(0) * sizeof(coeff.at(0));
+		memcpy(coeff_padded.get_data_ptr(), coeff.get_data_ptr(), offset + coeff.get_size(1)*sizeof(coeff.at(0)));
 	}
 
-	int inspectednr = 15; // only search in the first 15 principal components
-	std::vector<size_t> fy_dims;
-	fy_dims.push_back(inspectednr);
-	fy_dims.push_back(nfft2/2-1);
-	hoNDArray<float> fy;
-	fy.create(&fy_dims);
+	// and continue with fft
+	// note: ifftshift2D is done before zero padding, thus none here
+	hoNDFFT_CS<float>::instance()->fft2(coeff_padded);
+	hoNDFFT_CS<float>::instance()->fftshift2D(coeff_padded);
 
-	//fy = fy(1:nfft2/2);
-	for (size_t x = 0; x < fy.get_size(0); x++) {
-		for (size_t i = 0; i < fy.get_size(1); i++) {
-			fy.at(i+(x*fy.get_size(1))) = absresult.at(i+(x*fy.get_size(1)));
+	//%dCoeffF = abs(dCoeffF);
+	hoNDArray<float> coeff_abs;
+	coeff_abs.create(&coeff_padded_dims);
+	for (size_t i = 0; i < coeff_padded.get_number_of_elements(); i++) {
+		coeff_abs.at(i) = abs(coeff_padded.at(i));
+	}
+
+	// filtering
+	//%f = 1./(dNavPeriod/1000)*(-dFactorfft/2:(dFactorfft/2))/dFactorfft;
+	std::vector<float> f;
+	// remember: factor_fft is 2^X, so factor_fft/2 is integer
+	for (int i = -(factor_fft/2); i <= factor_fft/2; i++) {
+		f.push_back(1000/GlobalVar::instance()->iNavPeriod_ * static_cast<float>(i)/factor_fft);
+	}
+
+	//%f=f(2:end);
+	f.erase(f.begin());
+
+	//%lRange = abs(f) >= dCutOffResp(1) & abs(f) < dCutOffResp(2);
+	//%[dVal, ~] = max(dCoeffF(lRange,:),[],1); % rectangular windowing
+	// in other words: take dCoeffF, window each column with resp boundaries and search maximum in that area (value)
+	// first: create new windowed coeff array
+	hoNDArray<float> coeff_windowed;
+	coeff_windowed.create(&coeff_padded_dims);
+	for (size_t i = 0; i < coeff_padded.get_number_of_elements(); i++) {
+		if (coeff_abs.at(i) >= min_resp_freq_ && coeff_abs.at(i) > max_resp_freq_) {
+			coeff_windowed.at(i) = coeff_abs.at(i);
 		}
 	}
 
-	//define the search area here
-	//Fl = nfft2/Fs * 0.66 Hz;
-	//Fu = nfft2/Fs * 1.5 Hz;
-	float Fl = nfft2/Fs * 0.66;
-	float Fu = nfft2/Fs * 1.5;
-
-	//[value, frequency] = max(fy(floor(Fl):floor(Fu),1));
-	//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
-	float maxvalue = 0;
-	int frequency = 0;
-	int searcharea = std::floor(Fu) - std::floor(Fl);
-	size_t column_number = 0;
-	for (size_t x = 0; x < fy.get_size(0); x++) {
-		for (int i = 0; i < searcharea; i++) {
-			size_t pos = i+std::floor(Fl)+(x*fy.get_size(1));
-
-			// break loop if index position is exceeding the limits of fy
-			if (pos > (fy.get_number_of_elements() - 1)) {
-				GWARN("Maximum index position exceeded!\n");
-				break;
-			}
-
-			if (maxvalue < fy.at(pos)) {
-				maxvalue = fy.at(pos);
-				frequency = i+1;
-				column_number = x;
-			}
-		}
+	// now: search for max in windowed array columnwise
+	std::vector<float> val;
+	for (size_t col = 0; col < coeff_windowed.get_size(0); col++) {
+		size_t offset = col * coeff_windowed.get_size(0);
+		val.push_back(coeff_windowed.at(amax(coeff_windowed.get_size(1), coeff_windowed.begin() + offset)));
 	}
 
-	//frequency = ((Fl)+frequency-2)*Fs/nfft2;
-	float realfrequency = (Fl + frequency - 2) * Fs / nfft2;
+	// and get position of maximum of maxima
+	//%[~, iPeak] = max(dVal,[],2);
+	size_t peak_position = std::max_element(val.begin(), val.end())-val.begin();
 
-	// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
-	Fs = 1000.0/GlobalVar::instance()->fTR_;
-
-	// get the real and the imaginary part of the signal
-	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
-	std::vector<float> dECG_real, dECG_imag;
-
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		std::complex<float> coeff_tmp = coeff.at(i+(column_number * iNMeasurement));
-		dECG_real.push_back(coeff_tmp.real());
-		dECG_imag.push_back(coeff_tmp.imag());
+	// now extract navi signal
+	//%dRespNavi = abs(dCoeffF(:,iPeak));
+	std::vector<float> resp_navi;
+	for (size_t i = 0; i < coeff_abs.get_size(1); i++) {
+		resp_navi.push_back(coeff_abs.at(coeff_abs.get_size(1)*peak_position + i));
 	}
 
-	// subtract real and imag part
-	std::vector<float> dECG;
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECG.push_back(dECG_real.at(i) - dECG_imag.at(i));
-	}
+	// and convolute
+	//%dRespNavi = conv(dRespNavi, fGaussianLP(5), 'same');
+	// first build gaussian low pass
+	std::vector<float> gaussian_lowpass = {
+		0.0269,
+		0.2334,
+		0.4794,
+		0.2334,
+		0.0269,
+	};
+	// convolute
+	resp_navi = arma::conv_to<std::vector<float> >::from(arma::conv(arma::Col<float>(resp_navi), arma::Col<float>(gaussian_lowpass), "same"));
 
-	//factor = length(iLC)/size(coeff,1);
-	//dECG = fScale(dECG , factor);
-	std::vector<float> dECGIndtemp;
+	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	std::vector<float> nav_ind_new;
 	for (long i = 0; i < lNoScans_; i++) {
-		dECGIndtemp.push_back(i);
+		nav_ind_new.push_back(i);
 	}
 
-	std::vector<float> dECGInd = GlobalVar::instance()->vNavInd_;
+	std::vector<float> nav_ind = GlobalVar::instance()->vNavInd_;
 
-	std::vector<float> dECGInt;
-	dECGInt = interp1(dECGInd, dECG, dECGIndtemp);
+	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind, resp_navi.size(), nav_ind_new.size());
 
-	// Filter the Signal with a first order butterworth filter
-
-	//===============================================================
-	//calculate the numerator and denominator of a first order butterworth filter. (End of calulation is indicated by =======)
-	//===============================================================
-
-	//ul = 4*tan(pi*fl/2);
-	//uh = 4*tan(pi*fh/2);
-	float ul = 4*tan(M_PI*(realfrequency-0.1)/(Fs/2)/2);
-	float uh = 4*tan(M_PI*(realfrequency+0.1)/(Fs/2)/2);
-
-	//Bandwidth and center frequency
-	float Bw = uh - ul;
-	float Wn = std::sqrt(ul*uh);
-
-	// Matlab:
-	//t1 = [1+(Wn*(-Bw/Wn)/4) Wn/4; -Wn/4 1];
-	//t2 = [1-(Wn*(-Bw/Wn)/4) -Wn/4; Wn/4 1];
-	//ad = inv(t2)*t1;
-	// Note: indexing follows mathematical convention: t1[row number][column number]
-	float t1[2][2], t2[2][2];
-	std::complex<float> ad[2][2];	// note: only real values in ad, but calculation of e later on must be complex
-
-	t1[0][0] = 1+(Wn*(-Bw/Wn)/4);
-	t1[0][1] = Wn/4;
-	t1[1][0] = -Wn/4;
-	t1[1][1] = 1;
-
-	// also transpose
-	t2[0][0]= 1-(Wn*(-Bw/Wn)/4);
-	t2[0][1]= -Wn/4;
-	t2[1][0]= Wn/4;
-	t2[1][1]= 1;
-
-	// matlab: ad = inv(t2)*t1;
-	float det_t2 = t2[0][0]*t2[1][1]-t2[0][1]*t2[1][0];
-	ad[0][0] = (+t2[1][1]*t1[0][0]-t2[0][1]*t1[1][0])/det_t2;
-	ad[0][1] = (+t2[1][1]*t1[0][1]-t2[0][1]*t1[1][1])/det_t2;
-	ad[1][0] = (-t2[1][0]*t1[0][0]+t2[0][0]*t1[1][0])/det_t2;
-	ad[1][1] = (-t2[1][0]*t1[0][1]+t2[0][0]*t1[1][1])/det_t2;
-
-	//%den = poly(ad);
-	//e = eig(ad);
-	std::complex<float> e[2];
-
-	// computate eigenvalues
-	e[0] = (ad[0][0]+ad[1][1]+std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
-	e[1] = (ad[0][0]+ad[1][1]-std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
-
-	std::complex<float> kern[3];
-
-	//den = [1 0 0];
-	float den[] = {1, 0, 0};
-
-	// In Matlab:
-	//% Expand recursion formula
-	//den(2) = den(2) - e(1)*den(1);
-	//den(3) = den(3) - e(2)*den(2);
-	//den(2) = den(2) - e(2)*den(1);
-	//
-	// Some thoughts:
-	//	- e is either real or conjugate complex (see above)
-	//	- in complex case: calculation of den becomes real (because e conjugate complex)
-	//	- then: imaginary part can always be ignored and the matlab calculation reduces to:
-	den[1] = -e[0].real() - e[1].real();
-	den[2] = e[0].real() * e[1].real() + std::pow(e[0].imag(), 2);
-
-	Wn = 2*atan(Wn/4);
-
-	//%  normalize so |H(w)| == 1:
-	//%kern = exp(-1i*Wn*(0:2));
-	for (size_t k = 0; k < ARRAYSIZE(kern); k++) {
-		kern[k] = std::exp(std::complex<float>(0.0, -1.0)*std::complex<float>(Wn)*std::complex<float>(k));
-	}
-
-	//f = (kern(1)*den(1)+kern(2)*den(2)+kern(3)*den(3))/(kern(1)-kern(3));
-	std::complex<float> f = (kern[0]*den[0]+kern[1]*den[1]+kern[2]*den[2])/(kern[0]-kern[2]);
-
-	float num[3] = {f.real(), 0, -f.real()};
-
-	//===========================================================
-	//end of calculating the numerator and denominator of the first order butterworth filter
-	//===========================================================
-
-	//filtfilt() equivalent function. b = num and a = den
-
-	//============================================================
-	//start of zero phase digital filter function
-	//============================================================
-
-	//n    = length(den); always 3 in first order case
-	//z(n) = 0;
-	//num = num / den(1);
-	//den = den / den(1);
-	float z[3] = {0};
-
-	//Y    = zeros(size(X));
-	//for m = 1:length(Y)
-	//  Y(m) = num(1) * X(m) + z(1);
-	//   for i = 2:n
-	//      z(i - 1) = num(i) * X(m) + z(i) - den(i) * Y(m);
-	//   end
-	//end
-	std::vector<float> Y;
-	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
-
-		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
-			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
-		}
-	}
-
-	//clear z
-	//z(n) = 0;
-	z[0] = 0;
-	z[1] = 0;
-	z[2] = 0;
-
-	//flip vector
-	std::reverse(Y.begin(),Y.end());
-	dECGInt.clear();
-	dECGInt = Y;
-
-	//Y    = zeros(size(X));
-	// second round filtering (backward)
-	//for m = 1:length(Y)
-	//   Y(m) = b(1) * X(m) + z(1);
-	//   for i = 2:n
-	//      z(i - 1) = b(i) * X(m) + z(i) - a(i) * Y(m);
-	//   end
-	//end
-	Y.clear();
-	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
-
-		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
-			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
-		}
-	}
-
-	//flip again
-	std::reverse(Y.begin(),Y.end());
-	dECGInt = Y;
-	Y.clear();
-
-	//============================================================
-	//end of zero phase digital filter function
-	//============================================================
-
-	//dECG = diff(dECG);
-	// Note: dECG is vNavInt_ to process data beyond this function
-	vNavInt_.clear();
-	for (size_t i = 0; i < dECGInt.size()-1; i++) {
-		vNavInt_.push_back(dECGInt.at(i+1)-dECGInt.at(i));
-	}
-
-	// push last element twice to recover full size
-	vNavInt_.push_back(vNavInt_.back());
+	// interpolate to output vector
+	vNavInt_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
 
 	return;
 }
