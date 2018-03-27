@@ -42,22 +42,22 @@
 		<classname>CS_Retro_NavigatorGadget</classname>
 
 		<property>
-			<!-- minimal cardial frequency -->
+			<!-- minimal cardial frequency (1/min) (PCA algorithm only) -->
 			<name>MinCardFreq</name>
 			<value>40.0</value>
 		</property>
 		<property>
-			<!-- maximal cardial frequency -->
+			<!-- maximal cardial frequency (1/min) (PCA algorithm only) -->
 			<name>MaxCardFreq</name>
 			<value>150.0</value>
 		</property>
 		<property>
-			<!-- minimal raspiratory frequency -->
+			<!-- minimal raspiratory frequency (1/min) (PCA algorithm only) -->
 			<name>MinRespFreq</name>
-			<value>7.5</value>
+			<value>6</value>
 		</property>
 		<property>
-			<!-- maximal raspiratory frequency -->
+			<!-- maximal raspiratory frequency (1/min) (PCA algorithm only) -->
 			<name>MaxRespFreq</name>
 			<value>40.0</value>
 		</property>
