@@ -835,6 +835,9 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// convolute
 	resp_navi = arma::conv_to<std::vector<float> >::from(arma::conv(arma::Col<float>(resp_navi), arma::Col<float>(gaussian_lowpass), "same"));
 
+	// Note: Matlab implementation: %dRespNavi = -dRespNavi;
+	// is implicitly done during KLT and can be omitted here
+
 	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
 	std::vector<float> nav_ind_new;
 	for (long i = 0; i < lNoScans_; i++) {
