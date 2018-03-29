@@ -734,6 +734,15 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	coeff.delete_data_on_destruct(true);
 
 	// prepare aImg for KLT
+	// first: permute
+	std::vector<size_t> aImg_new_order;
+	aImg_new_order.push_back(0);
+	aImg_new_order.push_back(2);
+	aImg_new_order.push_back(3);
+	aImg_new_order.push_back(1);
+	aImg = *permute(&aImg, &aImg_new_order,false);
+
+	// then reshape
 	std::vector<size_t> new_aImg_dims;
 	new_aImg_dims.push_back(iNSamples*iNavRes*iNChannels);
 	new_aImg_dims.push_back(iNMeasurement);
