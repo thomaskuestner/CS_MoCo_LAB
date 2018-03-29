@@ -748,9 +748,13 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	new_aImg_dims.push_back(iNMeasurement);
 	aImg.reshape(&new_aImg_dims);
 
+	GINFO("Performing KLT (may take a while)\n");
+
 	hoNDKLT<std::complex<float> > VT;
 	VT.prepare(aImg, static_cast<size_t>(1), static_cast<size_t>(0), true);
 	VT.eigen_vector(coeff);
+
+	GINFO("Continuing with search for motion\n");
 
 	// 3. Step: search for respiratory motion
 	// calculate frequency
