@@ -753,12 +753,13 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	VT.eigen_vector(coeff);
 
 	// 3. Step: search for respiratory motion
+	// calculate frequency
+	//%dFs = 1/((length(iLC)*dTR/1000)/(length(coeff)));
+	double f_s = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0)); // Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
+
 	// get next base of 2
 	//%dFactorfft = 2.^nextpow2(size(dCoeff,1));
-	int factor_fft = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
-
-	//%dCoeffF = fftshift(fft(ifftshift(dCoeff,2),dFactorfft, 2),2);
-	hoNDFFT_CS<float>::instance()->ifftshift2D(coeff);
+	unsigned int factor_fft = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
 
 	// first zero padd coeff
 	hoNDArray<std::complex<float> > coeff_padded;
@@ -774,8 +775,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	// and continue with fft
 	// note: ifftshift2D is done before zero padding, thus none here
-	hoNDFFT_CS<float>::instance()->fft2(coeff_padded);
-	hoNDFFT_CS<float>::instance()->fftshift2D(coeff_padded);
+	hoNDFFT_CS<float>::instance()->fft1(coeff_padded);
 
 	//%dCoeffF = abs(dCoeffF);
 	hoNDArray<float> coeff_abs;
@@ -785,44 +785,41 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	}
 
 	// filtering
-	//%f = 1./(dNavPeriod/1000)*(-dFactorfft/2:(dFactorfft/2))/dFactorfft;
-	std::vector<float> f;
-	// remember: factor_fft is 2^X, so factor_fft/2 is integer
-	for (int i = -(factor_fft/2); i <= factor_fft/2; i++) {
-		f.push_back(1000/GlobalVar::instance()->iNavPeriod_ * static_cast<float>(i)/factor_fft);
+	// calculate lower and upper boundary frequency
+	// Note: we only need the floor() value, so we build it directly instead of later on.
+	//%Fl = dFactorfft/dFs * dCutOffResp(1);
+	const unsigned int f_l = std::floor(factor_fft/f_s * min_resp_freq_);
+	//%Fu = dFactorfft/dFs * dCutOffResp(2);
+	const unsigned int f_u = std::floor(factor_fft/f_s * max_resp_freq_);
+
+	if (f_u <= f_l) {
+		GERROR("f_u (=%d) must be greater than f_l (=%d). Please set parameters correct!\n", f_u, f_l);
+		throw runtime_error("Illegal parameters min_resp_freq_ or max_resp_freq_!");
 	}
 
-	//%f=f(2:end);
-	f.erase(f.begin());
+	// now get iPeak (dVal can be omitted). iPeak is the column number where the maximum value occures.
+	// we could either implement it the Matlab way (crop hoNDArray, search max value per line and max col position)
+	// or we do some intelligent data handling to get the position directly:
+	float max_val = std::numeric_limits<float>::min();		// initialize as minimum (it could also be 0 because coeff_abs only contains abs values)
+	size_t peak_position = 0;		// note: -1 is insufficient because size_t is unsigned, so pos is max. But we will rewrite max_val either.
+	for (size_t f = static_cast<size_t>(f_l); f <= static_cast<size_t>(f_u); f++) {
+		for (size_t component_number = search_range_min_-1; component_number < search_range_max_; component_number++) {		// be aware: search_range counts MATLAB like (from 1 to length)
+			size_t pos = component_number * coeff_abs.get_size(0) + f;
 
-	//%lRange = abs(f) >= dCutOffResp(1) & abs(f) < dCutOffResp(2);
-	//%[dVal, ~] = max(dCoeffF(lRange,:),[],1); % rectangular windowing
-	// in other words: take dCoeffF, window each column with resp boundaries and search maximum in that area (value)
-	// first: create new windowed coeff array
-	hoNDArray<float> coeff_windowed;
-	coeff_windowed.create(&coeff_padded_dims);
-	for (size_t i = 0; i < coeff_padded.get_number_of_elements(); i++) {
-		if (coeff_abs.at(i) >= min_resp_freq_ && coeff_abs.at(i) > max_resp_freq_) {
-			coeff_windowed.at(i) = coeff_abs.at(i);
+			if (max_val < coeff_abs.at(pos)) {
+				max_val = coeff_abs.at(pos);
+				peak_position = component_number;
+			}
 		}
 	}
 
-	// now: search for max in windowed array columnwise
-	std::vector<float> val;
-	for (size_t col = 0; col < coeff_windowed.get_size(0); col++) {
-		size_t offset = col * coeff_windowed.get_size(0);
-		val.push_back(coeff_windowed.at(amax(coeff_windowed.get_size(1), coeff_windowed.begin() + offset)));
-	}
-
-	// and get position of maximum of maxima
-	//%[~, iPeak] = max(dVal,[],2);
-	size_t peak_position = std::max_element(val.begin(), val.end())-val.begin();
-
 	// now extract navi signal
-	//%dRespNavi = abs(dCoeffF(:,iPeak));
+	//%dRespNavi = real(dCoeff(:,iPeak)) - imag(dCoeff(:,iPeak));
 	std::vector<float> resp_navi;
-	for (size_t i = 0; i < coeff_abs.get_size(1); i++) {
-		resp_navi.push_back(coeff_abs.at(coeff_abs.get_size(1)*peak_position + i));
+
+	for (size_t f = 0; f < coeff.get_size(0); f++) {
+		size_t pos = peak_position * coeff.get_size(0) + f;
+		resp_navi.push_back(coeff.at(pos).real() - coeff.at(pos).imag());
 	}
 
 	// and convolute
