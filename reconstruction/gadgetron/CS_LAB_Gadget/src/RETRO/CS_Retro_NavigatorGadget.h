@@ -65,6 +65,7 @@ namespace Gadgetron {
 	private:
 		void getNav2D(hoNDArray<std::complex<float> > &aNav);
 		void getNav2DPCA(hoNDArray<std::complex<float> > &aNav);
+		void butterworth_filtering(const double fl, const double fh, std::vector<float> &signal);
 
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__

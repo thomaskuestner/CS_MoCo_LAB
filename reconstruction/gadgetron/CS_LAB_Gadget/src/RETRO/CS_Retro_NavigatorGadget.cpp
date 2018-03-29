@@ -855,4 +855,162 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	return;
 }
 
+/*
+ * WARNING: This code has not been tested yet! You will have some fun trying to get it to work.
+ * For more implementation details, you can look in the GIT history: CS_Retro_PCANavigatorGadget is you friend.
+ * But beware: The code there is erroneous and has already been corrected (watch GIT history if you want to avoid doubled fun)
+ * You may also refer to the Matlab implementation.
+ */
+void CS_Retro_NavigatorGadget::butterworth_filtering(const double fl, const double fh, std::vector<float> &signal)
+{
+	// Filter the Signal with a first order butterworth filter
+
+	//===============================================================
+	//calculate the numerator and denominator of a first order butterworth filter. (End of calulation is indicated by =======)
+	//===============================================================
+
+	//ul = 4*tan(pi*fl/2);
+	//uh = 4*tan(pi*fh/2);
+	float ul = 4*tan(M_PI*fl/2);
+	float uh = 4*tan(M_PI*fh/2);
+
+	//Bandwidth and center frequency
+	float Bw = uh - ul;
+	float Wn = std::sqrt(ul*uh);
+
+	// Matlab:
+	//t1 = [1+(Wn*(-Bw/Wn)/4) Wn/4; -Wn/4 1];
+	//t2 = [1-(Wn*(-Bw/Wn)/4) -Wn/4; Wn/4 1];
+	//ad = inv(t2)*t1;
+	// Note: indexing follows mathematical convention: t1[row number][column number]
+	float t1[2][2], t2[2][2];
+	std::complex<float> ad[2][2];	// note: only real values in ad, but calculation of e later on must be complex
+
+	t1[0][0] = 1+(Wn*(-Bw/Wn)/4);
+	t1[0][1] = Wn/4;
+	t1[1][0] = -Wn/4;
+	t1[1][1] = 1;
+
+	// also transpose
+	t2[0][0]= 1-(Wn*(-Bw/Wn)/4);
+	t2[0][1]= -Wn/4;
+	t2[1][0]= Wn/4;
+	t2[1][1]= 1;
+
+	// matlab: ad = inv(t2)*t1;
+	float det_t2 = t2[0][0]*t2[1][1]-t2[0][1]*t2[1][0];
+	ad[0][0] = (+t2[1][1]*t1[0][0]-t2[0][1]*t1[1][0])/det_t2;
+	ad[0][1] = (+t2[1][1]*t1[0][1]-t2[0][1]*t1[1][1])/det_t2;
+	ad[1][0] = (-t2[1][0]*t1[0][0]+t2[0][0]*t1[1][0])/det_t2;
+	ad[1][1] = (-t2[1][0]*t1[0][1]+t2[0][0]*t1[1][1])/det_t2;
+
+	//%den = poly(ad);
+	//e = eig(ad);
+	std::complex<float> e[2];
+
+	// computate eigenvalues
+	e[0] = (ad[0][0]+ad[1][1]+std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
+	e[1] = (ad[0][0]+ad[1][1]-std::sqrt(std::pow(ad[0][0]+ad[1][1], 2) - std::complex<float>(4)*(ad[0][0]*ad[1][1]-ad[0][1]*ad[1][0])))/std::complex<float>(2);
+
+	std::complex<float> kern[3];
+
+	//den = [1 0 0];
+	float den[] = {1, 0, 0};
+
+	// In Matlab:
+	//% Expand recursion formula
+	//den(2) = den(2) - e(1)*den(1);
+	//den(3) = den(3) - e(2)*den(2);
+	//den(2) = den(2) - e(2)*den(1);
+	//
+	// Some thoughts:
+	//	- e is either real or conjugate complex (see above)
+	//	- in complex case: calculation of den becomes real (because e conjugate complex)
+	//	- then: imaginary part can always be ignored and the matlab calculation reduces to:
+	den[1] = -e[0].real() - e[1].real();
+	den[2] = e[0].real() * e[1].real() + std::pow(e[0].imag(), 2);
+
+	Wn = 2*atan(Wn/4);
+
+	//%  normalize so |H(w)| == 1:
+	//%kern = exp(-1i*Wn*(0:2));
+	for (size_t k = 0; k < ARRAYSIZE(kern); k++) {
+		kern[k] = std::exp(std::complex<float>(0.0, -1.0)*std::complex<float>(Wn)*std::complex<float>(k));
+	}
+
+	//f = (kern(1)*den(1)+kern(2)*den(2)+kern(3)*den(3))/(kern(1)-kern(3));
+	std::complex<float> f = (kern[0]*den[0]+kern[1]*den[1]+kern[2]*den[2])/(kern[0]-kern[2]);
+
+	float num[3] = {f.real(), 0, -f.real()};
+
+	//===========================================================
+	//end of calculating the numerator and denominator of the first order butterworth filter
+	//===========================================================
+
+	//filtfilt() equivalent function. b = num and a = den
+
+	//============================================================
+	//start of zero phase digital filter function
+	//============================================================
+
+	//n    = length(den); always 3 in first order case
+	//z(n) = 0;
+	//num = num / den(1);
+	//den = den / den(1);
+	float z[3] = {0};
+
+	//Y    = zeros(size(X));
+	//for m = 1:length(Y)
+	//  Y(m) = num(1) * X(m) + z(1);
+	//   for i = 2:n
+	//      z(i - 1) = num(i) * X(m) + z(i) - den(i) * Y(m);
+	//   end
+	//end
+	std::vector<float> Y;
+	for (size_t m = 0; m < signal.size(); m++) {
+		Y.push_back(num[0] * signal.at(m) + z[0]);
+
+		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
+			z[i-1] = num[i] * signal.at(m) + z[i] - den[i] * Y.at(m);
+		}
+	}
+
+	//clear z
+	//z(n) = 0;
+	z[0] = 0;
+	z[1] = 0;
+	z[2] = 0;
+
+	//flip vector
+	std::reverse(Y.begin(),Y.end());
+	signal.clear();
+	signal = Y;
+
+	//Y    = zeros(size(X));
+	// second round filtering (backward)
+	//for m = 1:length(Y)
+	//   Y(m) = b(1) * X(m) + z(1);
+	//   for i = 2:n
+	//      z(i - 1) = b(i) * X(m) + z(i) - a(i) * Y(m);
+	//   end
+	//end
+	Y.clear();
+	for (size_t m = 0; m < signal.size(); m++) {
+		Y.push_back(num[0] * signal.at(m) + z[0]);
+
+		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
+			z[i-1] = num[i] * signal.at(m) + z[i] - den[i] * Y.at(m);
+		}
+	}
+
+	//flip again
+	std::reverse(Y.begin(),Y.end());
+	signal = Y;
+	Y.clear();
+
+	//============================================================
+	//end of zero phase digital filter function
+	//============================================================
+}
+
 GADGET_FACTORY_DECLARE(CS_Retro_NavigatorGadget)
