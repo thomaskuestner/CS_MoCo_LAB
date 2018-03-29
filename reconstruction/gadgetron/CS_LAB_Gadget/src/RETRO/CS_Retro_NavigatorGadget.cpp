@@ -760,15 +760,16 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//%dCoeffF = fftshift(fft(ifftshift(dCoeff,2),dFactorfft, 2),2);
 	hoNDFFT_CS<float>::instance()->ifftshift2D(coeff);
 
-	// now zero padd coeff
+	// first zero padd coeff
 	hoNDArray<std::complex<float> > coeff_padded;
 	std::vector<size_t> coeff_padded_dims;
 	coeff_padded_dims.push_back(factor_fft);
-	coeff_padded_dims.push_back(factor_fft);
+	coeff_padded_dims.push_back(coeff.get_size(1));
 	coeff_padded.create(&coeff_padded_dims);
-	for (size_t col = 0; col < coeff.get_size(0); col++) {
-		size_t offset = col * coeff.get_size(0) * sizeof(coeff.at(0));
-		memcpy(coeff_padded.get_data_ptr(), coeff.get_data_ptr(), offset + coeff.get_size(1)*sizeof(coeff.at(0)));
+	for (size_t col = 0; col < coeff.get_size(1); col++) {
+		size_t offset_old = col * coeff.get_size(0);
+		size_t offset_new = col * coeff_padded.get_size(0);
+		memcpy(coeff_padded.get_data_ptr()+offset_new, coeff.get_data_ptr()+offset_old, coeff.get_size(0)*sizeof(coeff.at(0)));
 	}
 
 	// and continue with fft
