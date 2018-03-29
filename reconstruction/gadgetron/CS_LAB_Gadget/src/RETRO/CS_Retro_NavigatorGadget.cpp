@@ -695,11 +695,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// reconstruct the 1-D projections for all measurements and all channels
 	GINFO("domain transformation - k-space to image\n");
 
-	/*assumptions:
-	* iMeasurementTime_ is the total scan time in seconds
-	* lNoScans_ is the same as length(iLC(:,15)) in Matlab
-	* */
-
 	size_t iNSamples		= aNav.get_size(0);
 	size_t iNMeasurement	= aNav.get_size(1);
 	size_t iNavRes	 		= aNav.get_size(2);
