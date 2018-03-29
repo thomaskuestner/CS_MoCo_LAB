@@ -45,6 +45,13 @@ namespace Gadgetron {
 		// navigation method (set by gadget property)
 		int iNavMethod_;
 
+		// min/max frequencies of resp/card
+		float min_card_freq_, max_card_freq_, min_resp_freq_, max_resp_freq_;
+
+		// Principal Component search range (index count MATLAB-like: counting from 1)
+		const size_t search_range_min_ = 1;
+		const size_t search_range_max_ = 15;
+
 	public:
 		CS_Retro_NavigatorGadget();
 		~CS_Retro_NavigatorGadget();
@@ -58,10 +65,15 @@ namespace Gadgetron {
 	private:
 		void getNav2D(hoNDArray<std::complex<float> > &aNav);
 		void getNav2DPCA(hoNDArray<std::complex<float> > &aNav);
+		void butterworth_filtering(const double fl, const double fh, std::vector<float> &signal);
 
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavigationMethod, int, "NavigationMethod", 0);
+		GADGET_PROPERTY(MinRespFreq, float, "MinRespFreq", 7.5);
+		GADGET_PROPERTY(MaxRespFreq, float, "MaxRespFreq", 40.0);
+		GADGET_PROPERTY(MinCardFreq, float, "MinCardFreq", 40.0);
+		GADGET_PROPERTY(MaxCardFreq, float, "MaxCardFreq", 150.0);
 #endif
 	};
 } // close namespace Gadgetron
