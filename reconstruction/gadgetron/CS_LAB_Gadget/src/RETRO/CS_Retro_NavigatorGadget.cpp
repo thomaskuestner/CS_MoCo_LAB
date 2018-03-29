@@ -844,9 +844,10 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 		nav_ind_new.push_back(i);
 	}
 
+	// get navigator indices
 	std::vector<float> nav_ind = GlobalVar::instance()->vNavInd_;
 
-	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind, resp_navi.size(), nav_ind_new.size());
+	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind.size(), resp_navi.size(), nav_ind_new.size());
 
 	// interpolate to output vector
 	vNavInt_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
