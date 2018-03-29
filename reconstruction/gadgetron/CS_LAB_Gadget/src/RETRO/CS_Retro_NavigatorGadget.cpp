@@ -41,6 +41,22 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 	iNavMethod_		= *(get_int_value("NavigationMethod").get());
 #endif
 
+	// some basic error checking for parameters
+	if (min_card_freq_ < 0 || max_card_freq_ < 0 || min_resp_freq_ < 0 || max_resp_freq_ < 0) {
+		GERROR("Given parameters min_card_freq_, max_card_freq_, min_resp_freq_, max_resp_freq_ must not be negative!\n");
+		return GADGET_FAIL;
+	}
+
+	if (min_card_freq_ >= max_card_freq_) {
+		GERROR("max_card_freq_ must be greater than min_card_freq_!\n");
+		return GADGET_FAIL;
+	}
+
+	if (min_resp_freq_ >= max_resp_freq_) {
+		GERROR("max_resp_freq_ must be greater than min_resp_freq_!\n");
+		return GADGET_FAIL;
+	}
+
 	// fetch attribute values from header
 	iNoChannels_ = m1->getObjectPtr()->channels;
 	iNoNav_		 = m1->getObjectPtr()->user_int[5];
