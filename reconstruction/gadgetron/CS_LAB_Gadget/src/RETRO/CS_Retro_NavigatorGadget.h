@@ -48,6 +48,10 @@ namespace Gadgetron {
 		// min/max frequencies of resp/card
 		float min_card_freq_, max_card_freq_, min_resp_freq_, max_resp_freq_;
 
+		// Principal Component search range (index count MATLAB-like: counting from 1)
+		const size_t search_range_min_ = 1;
+		const size_t search_range_max_ = 15;
+
 	public:
 		CS_Retro_NavigatorGadget();
 		~CS_Retro_NavigatorGadget();
