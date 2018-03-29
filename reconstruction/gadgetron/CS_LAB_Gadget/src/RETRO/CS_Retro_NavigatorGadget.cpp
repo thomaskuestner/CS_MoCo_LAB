@@ -711,7 +711,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	*/
 	hoNDArray<std::complex<float> > aImg = aNav;
 	hoNDFFT_CS<float>::instance()->ifftshift3D(aImg);
-	hoNDFFT_CS<float>::instance()->ifft3(aImg);
+	hoNDFFT_CS<float>::instance()->ifft1(aImg);
 	hoNDFFT_CS<float>::instance()->fftshift3D(aImg);
 
 	// ATTENTION: Work with [s] values
