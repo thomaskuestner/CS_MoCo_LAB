@@ -46,3 +46,59 @@ void Gadgetron::print_vector(const std::vector<float> &v)
 
 	file_out.close();
 }
+
+void Gadgetron::load_vector(std::vector<float> &v)
+{
+	v.clear();
+
+	std::ifstream file_in("/tmp/vector_in.txt");
+
+	float value;
+	while (file_in >> value) {
+		v.push_back(value);
+	}
+}
+
+void Gadgetron::print_array(const hoNDArray<std::complex<float> > &array)
+{
+	std::ofstream file_head;
+	file_head.open("/tmp/array_head.txt");
+
+	array.print(file_head);
+
+	file_head.close();
+
+	std::ofstream file_out;
+	file_out.open("/tmp/array_content.txt");
+
+	for (size_t i = 0; i < array.get_number_of_elements(); i++) {
+		file_out << array.at(i).real() << ", " << array.at(i).imag() << std::endl;
+	}
+
+	file_out.close();
+}
+
+void Gadgetron::load_array(hoNDArray<std::complex<float> > &array)
+{
+	std::ifstream file_real("/tmp/array_real.txt");
+	std::ifstream file_imag("/tmp/array_imag.txt");
+
+	float real, imag;
+	size_t counter = 0;
+	while (counter < array.get_number_of_elements() && file_real >> real && file_imag >> imag) {
+		array.at(counter) = std::complex<float>(real, imag);
+		counter++;
+	}
+}
+
+void Gadgetron::load_array(hoNDArray<float> &array)
+{
+	std::ifstream file_real("/tmp/array_in.txt");
+
+	float value;
+	size_t counter = 0;
+	while (counter < array.get_number_of_elements() && file_real >> value) {
+		array.at(counter) = value;
+		counter++;
+	}
+}
