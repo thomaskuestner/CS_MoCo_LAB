@@ -57,8 +57,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	vDim_.push_back(e_space.matrixSize.y);
 	vDim_.push_back(e_space.matrixSize.z);
 
-	GlobalVar::instance()->iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
-	vDim_.push_back(GlobalVar::instance()->iNPhases_);
+	iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
+	vDim_.push_back(iNPhases_);
 #else
 	// read xml header file
 	boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -80,7 +80,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	vDim_.push_back(e_space.matrixSize().z());
 
 	// get no. of phases
-	GlobalVar::instance()->iNPhases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
+	iNPhases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
 	vDim_.push_back(iNPhases_);
 #endif
 
@@ -88,9 +88,9 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	int iESPReSSoY = 0;
 	int iESPReSSoZ = 0;
 	iBodyRegion_ = 0;
-	GlobalVar::instance()->iVDMap_ = 0;
+	iVDMap_ = 0;
 	iSamplingType_ = 0;
-	GlobalVar::instance()->fCSAcc_ = 0;
+	fCSAcc_ = 0;
 	fFullySa_ = 0;
 	try {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
@@ -109,7 +109,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					iSamplingType_ = i->value;
 					GDEBUG("Sampling Type is %i \n", iSamplingType_);
 				} else if (i->name == "VDMap") {
-					GlobalVar::instance()->iVDMap_ = i->value;
+					iVDMap_ = i->value;
 				} else if (i->name == "BodyRegion") {
 					iBodyRegion_ = i->value;
 					GDEBUG("Body Region is %i \n", iBodyRegion_);
@@ -136,7 +136,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 
 			for (std::vector<ISMRMRD::UserParameterDouble>::iterator i (traj_desc.userParameterDouble.begin()); i != traj_desc.userParameterDouble.end(); ++i) {
 				if (i->name == "CS_Accel") {
-					GlobalVar::instance()->fCSAcc_ = i->value;
+					fCSAcc_ = i->value;
 				} else if (i->name == "FullySampled") {
 					GlobalVar::instance()->fFullySampled_ = i->value;
 				} else if (i->name == "lambdaESPReSSo") {
@@ -162,7 +162,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					iSamplingType_ = i->value();
 					GDEBUG("Sampling Type is %i \n", iSamplingType_);
 				} else if (std::strcmp(i->name().c_str(),"VDMap") == 0) {
-					GlobalVar::instance()->iVDMap_ = i->value();
+					iVDMap_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"BodyRegion") == 0) {
 					iBodyRegion_ = i->value();
 					GDEBUG("Body Region is %i \n", iBodyRegion_);
@@ -189,7 +189,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 
 			for (ISMRMRD::trajectoryDescriptionType::userParameterDouble_sequence::iterator i (traj_desc.userParameterDouble().begin ()); i != traj_desc.userParameterDouble().end(); ++i) {
 				if (std::strcmp(i->name().c_str(),"CS_Accel") == 0) {
-					GlobalVar::instance()->fCSAcc_ = i->value();
+					fCSAcc_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"FullySampled") == 0) {
 					GlobalVar::instance()->fFullySampled_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"lambdaESPReSSo") == 0) {
@@ -225,7 +225,7 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 			break;
 		}
 
-		switch (GlobalVar::instance()->iVDMap_) {
+		switch (iVDMap_) {
 		case 1:
 			GDEBUG("VDMap is none\n");
 			break;
@@ -255,8 +255,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 			break;
 		}
 
-		GlobalVar::instance()->iESPReSSoDirection_ = 10;
-		GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+		iESPReSSoDirection_ = 10;
+		fPartialFourierVal_ = 1.0;
 
 		if ((iESPReSSoY > 9 && iESPReSSoY < 14) || (iESPReSSoZ > 9 && iESPReSSoZ < 14)) {
 			GINFO("Partial Fourier data..\n");
@@ -264,52 +264,52 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 
 			// get Partial Fourier dimension
 			if (iESPReSSoY > 9) {
-				GlobalVar::instance()->iESPReSSoDirection_ = 1;
+				iESPReSSoDirection_ = 1;
 
 				// get Partial Fourier value
 				switch (iESPReSSoY) {
 				case 10:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.5;
+					fPartialFourierVal_ = 0.5;
 					break;
 				case 11:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.625;
+					fPartialFourierVal_ = 0.625;
 					break;
 				case 12:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.75;
+					fPartialFourierVal_ = 0.75;
 					break;
 				case 13:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.875;
+					fPartialFourierVal_ = 0.875;
 					break;
 				default:
-					GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+					fPartialFourierVal_ = 1.0;
 					break;
 				}
 			} else if (iESPReSSoZ > 9) {
-				GlobalVar::instance()->iESPReSSoDirection_ = 2;
+				iESPReSSoDirection_ = 2;
 
 				// get Partial Fourier value
 				switch (iESPReSSoZ) {
 				case 10:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.5;
+					fPartialFourierVal_ = 0.5;
 					break;
 				case 11:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.625;
+					fPartialFourierVal_ = 0.625;
 					break;
 				case 12:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.75;
+					fPartialFourierVal_ = 0.75;
 					break;
 				case 13:
-					GlobalVar::instance()->fPartialFourierVal_ = 0.875;
+					fPartialFourierVal_ = 0.875;
 					break;
 				default:
-					GlobalVar::instance()->fPartialFourierVal_ = 1.0;
+					fPartialFourierVal_ = 1.0;
 					break;
 				}
 			}
 		}
 
-		GDEBUG("Partial Fourier is %f \n", GlobalVar::instance()->fPartialFourierVal_);
-		GDEBUG("ESPReSSo Direction is %i \n", GlobalVar::instance()->iESPReSSoDirection_);
+		GDEBUG("Partial Fourier is %f \n", fPartialFourierVal_);
+		GDEBUG("ESPReSSo Direction is %i \n", iESPReSSoDirection_);
 	} catch(...) {
 		GERROR("Cannot find CS entries in trajectory description..\n");
 	}
@@ -457,10 +457,12 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	memcpy(GC_img_hdr_m1->getObjectPtr()->slice_dir,GC_acq_hdr_m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 	memcpy(GC_img_hdr_m1->getObjectPtr()->patient_table_position,GC_acq_hdr_m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
 	
+	GC_img_hdr_m1->getObjectPtr()->user_int[0]		= iNPhases_;
+	GC_img_hdr_m1->getObjectPtr()->user_int[3]		= iVDMap_;
+	GC_img_hdr_m1->getObjectPtr()->user_int[4]		= iESPReSSoDirection_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[6]		= iBodyRegion_;
-	GC_img_hdr_m1->getObjectPtr()->user_int[7]		= GlobalVar::instance()->iESPReSSoDirection_;
-	GC_img_hdr_m1->getObjectPtr()->user_float[3]	= GlobalVar::instance()->fPartialFourierVal_;
-	GC_img_hdr_m1->getObjectPtr()->user_float[4]	= GlobalVar::instance()->fCSAcc_;
+	GC_img_hdr_m1->getObjectPtr()->user_float[0]	= fCSAcc_;
+	GC_img_hdr_m1->getObjectPtr()->user_float[2]	= fPartialFourierVal_;
 	GC_img_hdr_m1->getObjectPtr()->user_float[5]	= fFullySa_;
 	GC_img_hdr_m1->getObjectPtr()->user_float[6]	= fLESPReSSo_;
 	GC_img_hdr_m1->getObjectPtr()->user_float[7]	= fLQ_;

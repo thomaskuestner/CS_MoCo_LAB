@@ -42,6 +42,26 @@
 		<classname>CS_Retro_NavigatorGadget</classname>
 
 		<property>
+			<!-- minimal cardial frequency (1/min) (PCA algorithm only) -->
+			<name>MinCardFreq</name>
+			<value>40.0</value>
+		</property>
+		<property>
+			<!-- maximal cardial frequency (1/min) (PCA algorithm only) -->
+			<name>MaxCardFreq</name>
+			<value>150.0</value>
+		</property>
+		<property>
+			<!-- minimal raspiratory frequency (1/min) (PCA algorithm only) -->
+			<name>MinRespFreq</name>
+			<value>6</value>
+		</property>
+		<property>
+			<!-- maximal raspiratory frequency (1/min) (PCA algorithm only) -->
+			<name>MaxRespFreq</name>
+			<value>40.0</value>
+		</property>
+		<property>
 			<!-- 0: classical, 1: PCA -->
 			<name>NavigationMethod</name>
 			<value>0</value>
@@ -55,6 +75,11 @@
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_PopulationGadget</classname>
 
+		<property>
+			<!-- Overlapping of Gates. Range: 1..2 (1=no overlapping, 2=full overlapping) -->
+			<name>Tolerance</name>
+			<value>1.3</value>
+		</property>
 		<property>
 			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
 			<name>PopulationMode</name>

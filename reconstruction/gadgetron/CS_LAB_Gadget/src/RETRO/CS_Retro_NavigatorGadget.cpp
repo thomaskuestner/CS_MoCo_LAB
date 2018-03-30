@@ -1,6 +1,10 @@
 #include "CS_Retro_NavigatorGadget.h"
 
+#include <armadillo>
+#include <algorithm>
 #include <cmath>
+
+#include "hoNDArray_math_util.cpp"
 
 using namespace Gadgetron;
 
@@ -24,10 +28,34 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 {
 	// get gadget property
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
-	iNavMethod_ = NavigationMethod.value();
+	min_card_freq_	= MinCardFreq.value();
+	max_card_freq_	= MaxCardFreq.value();
+	min_resp_freq_	= MinRespFreq.value();
+	max_resp_freq_	= MaxRespFreq.value();
+	iNavMethod_		= NavigationMethod.value();
 #else
-	iNavMethod_ = *(get_int_value("NavigationMethod").get());
+	min_card_freq_	= *(get_int_value("MinCardFreq").get());
+	max_card_freq_	= *(get_int_value("MaxCardFreq").get());
+	min_resp_freq_	= *(get_int_value("MinRespFreq").get());
+	max_resp_freq_	= *(get_int_value("MaxRespFreq").get());
+	iNavMethod_		= *(get_int_value("NavigationMethod").get());
 #endif
+
+	// some basic error checking for parameters
+	if (min_card_freq_ < 0 || max_card_freq_ < 0 || min_resp_freq_ < 0 || max_resp_freq_ < 0) {
+		GERROR("Given parameters min_card_freq_, max_card_freq_, min_resp_freq_, max_resp_freq_ must not be negative!\n");
+		return GADGET_FAIL;
+	}
+
+	if (min_card_freq_ >= max_card_freq_) {
+		GERROR("max_card_freq_ must be greater than min_card_freq_!\n");
+		return GADGET_FAIL;
+	}
+
+	if (min_resp_freq_ >= max_resp_freq_) {
+		GERROR("max_resp_freq_ must be greater than min_resp_freq_!\n");
+		return GADGET_FAIL;
+	}
 
 	// fetch attribute values from header
 	iNoChannels_ = m1->getObjectPtr()->channels;
@@ -667,11 +695,6 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// reconstruct the 1-D projections for all measurements and all channels
 	GINFO("domain transformation - k-space to image\n");
 
-	/*assumptions:
-	* iMeasurementTime_ is the total scan time in seconds
-	* lNoScans_ is the same as length(iLC(:,15)) in Matlab
-	* */
-
 	size_t iNSamples		= aNav.get_size(0);
 	size_t iNMeasurement	= aNav.get_size(1);
 	size_t iNavRes	 		= aNav.get_size(2);
@@ -686,135 +709,159 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	hoNDFFT_CS<float>::instance()->ifft1(aImg);
 	hoNDFFT_CS<float>::instance()->fftshift3D(aImg);
 
-	//Concatenate arrays
-	std::vector<size_t> A_dims;
-	A_dims.push_back(iNSamples*iNavRes*iNChannels);
-	A_dims.push_back(iNMeasurement);
+	// ATTENTION: Work with [s] values
+	// dNavPeriod = dNavPeriod/1000; dTR = dTR/1000;
+	min_card_freq_ /= 60;
+	max_card_freq_ /= 60;
+	min_resp_freq_ /= 60;
+	max_resp_freq_ /= 60;
 
-	hoNDArray<std::complex<float> > A;
-	A.create(&A_dims);
+	// 1. Step: Restack
+	// is already done in C++ code
 
-	// check element bounds -> prevent error in for loop
-	if (A.get_number_of_elements() != aImg.get_number_of_elements()) {
-		GWARN("Oops! Size of A (=%d) != size of aImg (=%d)\n", A.get_number_of_elements(), aImg.get_number_of_elements());
-
-		if (A.get_number_of_elements() > aImg.get_number_of_elements()) {
-			GERROR("Segmentation fault prevented! Check sizes of arrays!\n");
-			throw std::runtime_error("A.get_number_of_elements() > aImg.get_number_of_elements()");
-		}
-	}
-
-	for (size_t i = 0; i < A.get_number_of_elements(); i++) {
-		A.at(i) = aImg.at(i);
-	}
-
+	// 2. Step: Compute PCA based on KLT principal components are saved in coeff in descending order
 	std::vector<size_t> coeff_dims;
 	coeff_dims.push_back(iNMeasurement);
 	coeff_dims.push_back(iNMeasurement);
 
 	hoNDArray<std::complex<float> > coeff;
 	coeff.create(&coeff_dims);
+	coeff.delete_data_on_destruct(true);
 
-	//Compute PCA based on KLT principal components are saved in coeff in descending order
+	// prepare aImg for KLT
+	// first: permute
+	std::vector<size_t> aImg_new_order;
+	aImg_new_order.push_back(0);
+	aImg_new_order.push_back(2);
+	aImg_new_order.push_back(3);
+	aImg_new_order.push_back(1);
+	aImg = *permute(&aImg, &aImg_new_order,false);
+
+	// then reshape
+	std::vector<size_t> new_aImg_dims;
+	new_aImg_dims.push_back(iNSamples*iNavRes*iNChannels);
+	new_aImg_dims.push_back(iNMeasurement);
+	aImg.reshape(&new_aImg_dims);
+
+	GINFO("Performing KLT (may take a while)\n");
+
 	hoNDKLT<std::complex<float> > VT;
-	VT.prepare(A, static_cast<size_t>(1), static_cast<size_t>(0), true);
+	VT.prepare(aImg, static_cast<size_t>(1), static_cast<size_t>(0), true);
 	VT.eigen_vector(coeff);
 
-	double Fs = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0));	// Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
+	GINFO("Continuing with search for motion\n");
 
-	//fft(result, ...,1);
-	// fft only 1 dimensional (first dimension)
-	hoNDFFT<float>::instance()->fft1(coeff);
+	// 3. Step: search for respiratory motion
+	// calculate frequency
+	//%dFs = 1/((length(iLC)*dTR/1000)/(length(coeff)));
+	double f_s = iNMeasurement/(lNoScans_*(GlobalVar::instance()->fTR_/1000.0)); // Get the sampling frequency (/1000 because fTR_ is in ms, not in s)
 
-	//nfft2 = 2.^nextpow2(nfft);
-	int nfft2 = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
-	hoNDArray<float> absresult;
-	absresult.create(&coeff_dims);
+	// get next base of 2
+	//%dFactorfft = 2.^nextpow2(size(dCoeff,1));
+	unsigned int factor_fft = std::pow(2, std::ceil(log(coeff.get_size(0))/log(2)));
 
-	//fy = fft(y, nfft2);
-	//fy = abs(fy);
-	for (size_t i = 0; i < coeff.get_number_of_elements(); i++) {
-		absresult.at(i) = abs(coeff.at(i));
+	// first zero padd coeff
+	hoNDArray<std::complex<float> > coeff_padded;
+	std::vector<size_t> coeff_padded_dims;
+	coeff_padded_dims.push_back(factor_fft);
+	coeff_padded_dims.push_back(coeff.get_size(1));
+	coeff_padded.create(&coeff_padded_dims);
+	for (size_t col = 0; col < coeff.get_size(1); col++) {
+		size_t offset_old = col * coeff.get_size(0);
+		size_t offset_new = col * coeff_padded.get_size(0);
+		memcpy(coeff_padded.get_data_ptr()+offset_new, coeff.get_data_ptr()+offset_old, coeff.get_size(0)*sizeof(coeff.at(0)));
 	}
 
-	int inspectednr = 15; // only search in the first 15 principal components
-	std::vector<size_t> fy_dims;
-	fy_dims.push_back(inspectednr);
-	fy_dims.push_back(nfft2/2-1);
-	hoNDArray<float> fy;
-	fy.create(&fy_dims);
+	// and continue with fft
+	// note: ifftshift2D is done before zero padding, thus none here
+	hoNDFFT_CS<float>::instance()->fft1(coeff_padded);
 
-	//fy = fy(1:nfft2/2);
-	for (size_t x = 0; x < fy.get_size(0); x++) {
-		for (size_t i = 0; i < fy.get_size(1); i++) {
-			fy.at(i+(x*fy.get_size(1))) = absresult.at(i+(x*fy.get_size(1)));
+	//%dCoeffF = abs(dCoeffF);
+	hoNDArray<float> coeff_abs;
+	coeff_abs.create(&coeff_padded_dims);
+	for (size_t i = 0; i < coeff_padded.get_number_of_elements(); i++) {
+		coeff_abs.at(i) = abs(coeff_padded.at(i));
+	}
+
+	// filtering
+	// calculate lower and upper boundary frequency
+	// Note: we only need the floor() value, so we build it directly instead of later on.
+	//%Fl = dFactorfft/dFs * dCutOffResp(1);
+	const unsigned int f_l = std::floor(factor_fft/f_s * min_resp_freq_);
+	//%Fu = dFactorfft/dFs * dCutOffResp(2);
+	const unsigned int f_u = std::floor(factor_fft/f_s * max_resp_freq_);
+
+	if (f_u <= f_l) {
+		GERROR("f_u (=%d) must be greater than f_l (=%d). Please set parameters correct!\n", f_u, f_l);
+		throw runtime_error("Illegal parameters min_resp_freq_ or max_resp_freq_!");
+	}
+
+	// now get iPeak (dVal can be omitted). iPeak is the column number where the maximum value occures.
+	// we could either implement it the Matlab way (crop hoNDArray, search max value per line and max col position)
+	// or we do some intelligent data handling to get the position directly:
+	float max_val = std::numeric_limits<float>::min();		// initialize as minimum (it could also be 0 because coeff_abs only contains abs values)
+	size_t peak_position = 0;		// note: -1 is insufficient because size_t is unsigned, so pos is max. But we will rewrite max_val either.
+	for (size_t f = static_cast<size_t>(f_l); f <= static_cast<size_t>(f_u); f++) {
+		for (size_t component_number = search_range_min_-1; component_number < search_range_max_; component_number++) {		// be aware: search_range counts MATLAB like (from 1 to length)
+			size_t pos = component_number * coeff_abs.get_size(0) + f;
+
+			if (max_val < coeff_abs.at(pos)) {
+				max_val = coeff_abs.at(pos);
+				peak_position = component_number;
+			}
 		}
 	}
 
-	//define the search area here
-	//Fl = nfft2/Fs * 0.66 Hz;
-	//Fu = nfft2/Fs * 1.5 Hz;
-	float Fl = nfft2/Fs * 0.66;
-	float Fu = nfft2/Fs * 1.5;
+	// now extract navi signal
+	//%dRespNavi = real(dCoeff(:,iPeak)) - imag(dCoeff(:,iPeak));
+	std::vector<float> resp_navi;
 
-	//[value, frequency] = max(fy(floor(Fl):floor(Fu),1));
-	//coeff of pca are already in a descending order. Searching only the first 15 columns is basically enough and does not introduce errors.
-	float maxvalue = 0;
-	int frequency = 0;
-	int searcharea = std::floor(Fu) - std::floor(Fl);
-	size_t column_number = 0;
-	for (size_t x = 0; x < fy.get_size(0); x++) {
-		for (int i = 0; i < searcharea; i++) {
-			size_t pos = i+std::floor(Fl)+(x*fy.get_size(1));
-
-			// break loop if index position is exceeding the limits of fy
-			if (pos > (fy.get_number_of_elements() - 1)) {
-				GWARN("Maximum index position exceeded!\n");
-				break;
-			}
-
-			if (maxvalue < fy.at(pos)) {
-				maxvalue = fy.at(pos);
-				frequency = i+1;
-				column_number = x;
-			}
-		}
+	for (size_t f = 0; f < coeff.get_size(0); f++) {
+		size_t pos = peak_position * coeff.get_size(0) + f;
+		resp_navi.push_back(coeff.at(pos).real() - coeff.at(pos).imag());
 	}
 
-	//frequency = ((Fl)+frequency-2)*Fs/nfft2;
-	float realfrequency = (Fl + frequency - 2) * Fs / nfft2;
+	// and convolute
+	//%dRespNavi = conv(dRespNavi, fGaussianLP(5), 'same');
+	// first build gaussian low pass
+	std::vector<float> gaussian_lowpass = {
+		0.0269,
+		0.2334,
+		0.4794,
+		0.2334,
+		0.0269,
+	};
+	// convolute
+	resp_navi = arma::conv_to<std::vector<float> >::from(arma::conv(arma::Col<float>(resp_navi), arma::Col<float>(gaussian_lowpass), "same"));
 
-	// Fs= 1/dTR changing sampling rate because signal is going to be interpolated
-	Fs = 1000.0/GlobalVar::instance()->fTR_;
+	// Note: Matlab implementation: %dRespNavi = -dRespNavi;
+	// is implicitly done during KLT and can be omitted here
 
-	// get the real and the imaginary part of the signal
-	//dECG = real(coeff(:,coeffnumber)) - imag(coeff(:,coeffnumber));
-	std::vector<float> dECG_real, dECG_imag;
-
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		std::complex<float> coeff_tmp = coeff.at(i+(column_number * iNMeasurement));
-		dECG_real.push_back(coeff_tmp.real());
-		dECG_imag.push_back(coeff_tmp.imag());
-	}
-
-	// subtract real and imag part
-	std::vector<float> dECG;
-	for (size_t i = 0; i < iNMeasurement; i++) {
-		dECG.push_back(dECG_real.at(i) - dECG_imag.at(i));
-	}
-
-	//factor = length(iLC)/size(coeff,1);
-	//dECG = fScale(dECG , factor);
-	std::vector<float> dECGIndtemp;
+	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	std::vector<float> nav_ind_new;
 	for (long i = 0; i < lNoScans_; i++) {
-		dECGIndtemp.push_back(i);
+		nav_ind_new.push_back(i);
 	}
 
-	std::vector<float> dECGInd = GlobalVar::instance()->vNavInd_;
+	// get navigator indices
+	std::vector<float> nav_ind = GlobalVar::instance()->vNavInd_;
 
-	std::vector<float> dECGInt;
-	dECGInt = interp1(dECGInd, dECG, dECGIndtemp);
+	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind.size(), resp_navi.size(), nav_ind_new.size());
 
+	// interpolate to output vector
+	vNavInt_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
+
+	return;
+}
+
+/*
+ * WARNING: This code has not been tested yet! You will have some fun trying to get it to work.
+ * For more implementation details, you can look in the GIT history: CS_Retro_PCANavigatorGadget is you friend.
+ * But beware: The code there is erroneous and has already been corrected (watch GIT history if you want to avoid doubled fun)
+ * You may also refer to the Matlab implementation.
+ */
+void CS_Retro_NavigatorGadget::butterworth_filtering(const double fl, const double fh, std::vector<float> &signal)
+{
 	// Filter the Signal with a first order butterworth filter
 
 	//===============================================================
@@ -823,8 +870,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//ul = 4*tan(pi*fl/2);
 	//uh = 4*tan(pi*fh/2);
-	float ul = 4*tan(M_PI*(realfrequency-0.1)/(Fs/2)/2);
-	float uh = 4*tan(M_PI*(realfrequency+0.1)/(Fs/2)/2);
+	float ul = 4*tan(M_PI*fl/2);
+	float uh = 4*tan(M_PI*fh/2);
 
 	//Bandwidth and center frequency
 	float Bw = uh - ul;
@@ -919,11 +966,11 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//   end
 	//end
 	std::vector<float> Y;
-	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
+	for (size_t m = 0; m < signal.size(); m++) {
+		Y.push_back(num[0] * signal.at(m) + z[0]);
 
 		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
-			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
+			z[i-1] = num[i] * signal.at(m) + z[i] - den[i] * Y.at(m);
 		}
 	}
 
@@ -935,8 +982,8 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 
 	//flip vector
 	std::reverse(Y.begin(),Y.end());
-	dECGInt.clear();
-	dECGInt = Y;
+	signal.clear();
+	signal = Y;
 
 	//Y    = zeros(size(X));
 	// second round filtering (backward)
@@ -947,34 +994,22 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	//   end
 	//end
 	Y.clear();
-	for (size_t m = 0; m < dECGInt.size(); m++) {
-		Y.push_back(num[0] * dECGInt.at(m) + z[0]);
+	for (size_t m = 0; m < signal.size(); m++) {
+		Y.push_back(num[0] * signal.at(m) + z[0]);
 
 		for (size_t i = 1; i < ARRAYSIZE(den); i++) {
-			z[i-1] = num[i] * dECGInt.at(m) + z[i] - den[i] * Y.at(m);
+			z[i-1] = num[i] * signal.at(m) + z[i] - den[i] * Y.at(m);
 		}
 	}
 
 	//flip again
 	std::reverse(Y.begin(),Y.end());
-	dECGInt = Y;
+	signal = Y;
 	Y.clear();
 
 	//============================================================
 	//end of zero phase digital filter function
 	//============================================================
-
-	//dECG = diff(dECG);
-	// Note: dECG is vNavInt_ to process data beyond this function
-	vNavInt_.clear();
-	for (size_t i = 0; i < dECGInt.size()-1; i++) {
-		vNavInt_.push_back(dECGInt.at(i+1)-dECGInt.at(i));
-	}
-
-	// push last element twice to recover full size
-	vNavInt_.push_back(vNavInt_.back());
-
-	return;
 }
 
 GADGET_FACTORY_DECLARE(CS_Retro_NavigatorGadget)

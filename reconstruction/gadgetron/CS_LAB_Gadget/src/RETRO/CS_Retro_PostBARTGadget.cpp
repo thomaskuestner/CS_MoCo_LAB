@@ -44,8 +44,8 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	GadgetContainerMessage<ISMRMRD::ImageHeader> *cm1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 	fCopyImageHeader(cm1, GlobalVar::instance()->ImgHeadVec_.at(0));
 
-	// reset number of gates (otherwise value is lost and no output is performed)
-	cm1->getObjectPtr()->channels = GlobalVar::instance()->iNPhases_;
+	// reset number of gates (otherwise no output is performed) (channels = iNPhases_)
+	cm1->getObjectPtr()->channels = cm1->getObjectPtr()->user_int[0];
 
 	// concatenate data
 	cm1->cont(cm2);

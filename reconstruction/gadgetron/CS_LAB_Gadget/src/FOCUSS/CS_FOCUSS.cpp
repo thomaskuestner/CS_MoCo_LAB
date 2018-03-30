@@ -110,6 +110,9 @@ void CS_FOCUSS::fInitVal(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1)
 			GlobalVar::instance()->KLTVec_.push_back(new hoNDKLT_CS<std::complex<float> >());
 		}
 	}
+
+	fPartialFourierVal_ = m1->getObjectPtr()->user_float[2];
+	iESPReSSoDirection_ = m1->getObjectPtr()->user_int[4];
 }
 
 // init transformations

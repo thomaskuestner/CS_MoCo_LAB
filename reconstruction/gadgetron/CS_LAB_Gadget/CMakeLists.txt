@@ -281,6 +281,7 @@ endif()
 
 # set header files
 set(cs_lab_header_files CS_LAB.h
+	src/debug_functions.h
 	src/FOCUSS/CS_Control.h
 	src/FOCUSS/CS_FOCUSS.h
 	src/FOCUSS/Transform.h
@@ -313,6 +314,7 @@ set(cs_lab_header_files CS_LAB.h
 
 # set source files
 set(cs_lab_src_files CS_LAB.cpp
+	src/debug_functions.cpp
 	src/FOCUSS/CS_Control.cpp
 	src/FOCUSS/CS_FOCUSS.cpp
 	src/FOCUSS/CS_FOCUSS_2D.cpp

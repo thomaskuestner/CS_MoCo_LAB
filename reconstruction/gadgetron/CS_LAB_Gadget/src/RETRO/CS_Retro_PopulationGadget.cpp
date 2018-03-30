@@ -19,9 +19,11 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
 	GlobalVar::instance()->iGatingMode_			= GatingMode.value();
+	fTolerance_ = Tolerance.value();
 #else
 	GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get());
 	GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get());
+	fTolerance_ = *(get_int_value("Tolerance").get());
 #endif
 
 	return GADGET_OK;
@@ -29,7 +31,6 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 
 int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<float> > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3)
 {
-	fTolerance_ = 2;
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
 
 	// get number of phases/gates

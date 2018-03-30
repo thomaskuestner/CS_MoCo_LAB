@@ -191,7 +191,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				Transform_KernelTransform_->BTransform(hacfRho_fft);
 
 				// e = v - Phi*F*rho - e: x-ky
-				fAminusBmultC(hacfKSpace,hacfFullMask,hacfRho_fft,hacfE);
+				multiply(hacfFullMask, hacfRho_fft, hacfE);
+				subtract(hacfKSpace, hacfE, hacfE);
 
 				//l2 norm calculation - check epsilon
 				std::vector<float> vfVec;
@@ -219,10 +220,6 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 					break;
 				}
 
-				// e: x-ky --> x-y
-				hacfE_ifft = hacfE;
-				Transform_KernelTransform_->FTransform(hacfE_ifft);
-
 				//------------------------------------------------------------------------
 				//---------------------------- constraints -------------------------------
 				//------------------------------------------------------------------------
@@ -232,31 +229,34 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				hacfGradient_ESPReSSo.fill(0.0);
 
 				//----------------- gradient -------------------------
+				// e: x-ky --> x-y
+				hacfE_ifft = hacfE;
+				Transform_KernelTransform_->FTransform(hacfE_ifft);
+
 				// G = -conj(W).*IFFT(e)+Lambda.*Q
 				fCalcGradient(hacfWWindowed, hacfE_ifft, GlobalVar::instance()->cfLambda_, hacfQ, GlobalVar::instance()->cfLambdaESPReSSo_, hacfGradient_ESPReSSo, hacfG);
 
 				//------------------- cg beta - Polak-Ribiere -------------------------------
-				std::complex<float> fBetaCha(0.0);
 				pcfPtr_ = hacfBeta.get_data_ptr();
-
-				// loop over channels
 				for (int iCha = 0; iCha < iNChannels_; iCha++) {
 					// fill sub array with data from higher order data array
 					size_t tOffset = vtDim_[0]*vtDim_[1]*iCha;
 					hoNDArray<std::complex<float> > hacfSubArrayG_old(vtDim_[0], vtDim_[1], hacfG_old.get_data_ptr()+ tOffset, false);
 					hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_[0], vtDim_[1], hacfG.get_data_ptr()+ tOffset, false);
-					std::complex<float> fNumerator(0.0), fDenominator(0.0), fRightTerm(0.0);
+					float fBetaCha = 0.0;
+					float fNumerator = 0.0;
+					float fDenominator = 0.0;
 
 					// calculate nominator
 					pcfPtr2_ = hacfSubArrayG.get_data_ptr();
 					for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
-						fNumerator += pcfPtr2_[iI]*pcfPtr2_[iI];
+						fNumerator += std::pow(pcfPtr2_[iI].real(), 2) + std::pow(pcfPtr2_[iI].imag(), 2);		// = std::conj(pcfPtr2_[iI])*pcfPtr2_[iI]
 					}
 
 					// calculate denominator
 					pcfPtr2_ = hacfSubArrayG_old.get_data_ptr();
 					for (size_t iI = 0; iI < hacfSubArrayG.get_number_of_elements(); iI++) {
-						fDenominator += pcfPtr2_[iI]*pcfPtr2_[iI];
+						fDenominator += std::pow(pcfPtr2_[iI].real(), 2) + std::pow(pcfPtr2_[iI].imag(), 2);		// = std::conj(pcfPtr2_[iI])*pcfPtr2_[iI]
 					}
 
 					if (abs(fDenominator) != 0) {
@@ -266,19 +266,20 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 					// fill part of the 3D array
 					#pragma omp parallel for
 					for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]; lI++) {
-						pcfPtr_[lI+tOffset] = fBetaCha;
+						pcfPtr_[lI+tOffset] = std::complex<float>(fBetaCha);
 					}
 				}
 				//--------------------------------------------------------------------------
 
 				// d = beta.*d - G and g_old = G
-				fAmultBminusC(hacfBeta, hacfD, hacfG, hacfD);
+				multiply(hacfBeta, hacfD, hacfD);
+				subtract(hacfD, hacfG, hacfD);
 				hacfG_old = hacfG;
 
 				// z = Phi.*FFT(W.*d) - x-ky-kz
 				multiply(hacfWWindowed, hacfD, hacfZ);
 				Transform_KernelTransform_->BTransform(hacfZ);
-				fMultiply(hacfZ, hacfFullMask);
+				multiply(hacfZ, hacfFullMask, hacfZ);
 
 				//---------------------------- cg alpha -------------------------------------
 				//alpha(:,:,:,c) = (z_helper(:)'*e_helper(:))/(z_helper(:)'*z_helper(:));
@@ -318,7 +319,8 @@ int CS_FOCUSS_2D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				//--------------------------------------------------------------------------
 
 				// q = q + alpha.*d
-				fAplusBmultC(hacfQ, hacfAlpha, hacfD, hacfQ);
+				multiply(hacfAlpha, hacfD, hacfD);
+				subtract(hacfQ, hacfD, hacfQ);
 
 				// rho = W.*q
 				multiply(hacfWWindowed, hacfQ, hacfRho);
