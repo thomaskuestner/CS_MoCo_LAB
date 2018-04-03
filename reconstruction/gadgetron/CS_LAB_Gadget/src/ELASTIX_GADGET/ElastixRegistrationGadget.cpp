@@ -434,6 +434,6 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
 	return 0;
-};
+}
 
 GADGET_FACTORY_DECLARE(ElastixRegistrationGadget)

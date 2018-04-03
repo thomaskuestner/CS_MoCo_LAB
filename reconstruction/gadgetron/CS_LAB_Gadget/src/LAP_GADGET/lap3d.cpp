@@ -8,7 +8,7 @@ Gadgetron::LAP3D::LAP3D()
 
 Gadgetron::LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_, int levelMax_)
 {
-	//Check if images have same size
+	// Check if images have same size
 	if (I1_.n_rows != I2_.n_rows || I1_.n_rows != I2_.n_rows || I1_.n_rows != I2_.n_rows) {
 		throw std::runtime_error("Images must have same size for LAP3D Algorithm");
 	}
@@ -16,20 +16,20 @@ Gadgetron::LAP3D::LAP3D(const CubeType &I1_, const CubeType &I2_, int levelMin_,
 	I1 = I1_;
 	I2 = I2_;
 
-	//Image dimensions
+	// Image dimensions
 	m = I1.n_rows;
 	n = I1.n_cols;
 	p = I1.n_slices;
 	numel = I1.n_elem;
 
-	//Gaussian Smoothing Kernel
+	// Gaussian Smoothing Kernel
 	hGaussian = "0.0545 0.2442 0.4026 0.2442 0.0545";
 
-	//Calculate Filtersizes
+	// Calculate Filtersizes
 	FilterSizes = linspace<ColType>(levelMax_, levelMin_, fabs(levelMax_-levelMin_)+1);
 	FilterSizes = exp2(FilterSizes);
 
-	//Build holders for the estimated flow
+	// Build holders for the estimated flow
 	u_holder.set_size(3);
 	for (int i = 0; i < 3; i++) {
 		u_holder(i).set_size(m,n,p);
@@ -44,23 +44,23 @@ void Gadgetron::LAP3D::setMovingImage(const CubeType &I2_)
 
 field<CubeType> Gadgetron::LAP3D::exec()
 {
-	//Prefilter I1
+	// Prefilter I1
 	I1 = I1 - cs_lab_lap_filter::conv(I1, hGaussian);
 
 	for (size_t l = 0; l < FilterSizes.n_elem; l++) {
 		std::cout << "Level " << l+1 << "/" << FilterSizes.n_elem << endl;
 
-		//Current Filtersize
+		// Current Filtersize
 		int K = FilterSizes(l);
 
-		//Warp Image
+		// Warp Image
 		wall_clock warping_time;
 		warping_time.tic();
 
-		if (l==0) {
-			I2_shifted = I2-cs_lab_lap_filter::conv(I2,hGaussian);
+		if (l == 0) {
+			I2_shifted = I2-cs_lab_lap_filter::conv(I2, hGaussian);
 		} else {
-			//Create Shiftengine
+			// Create Shiftengine
 			ShiftEngine3D shifter(I2, -u_holder(0), -u_holder(1), -u_holder(2));
 			I2_shifted = shifter.execLinShift();
 			I2_shifted = I2_shifted - cs_lab_lap_filter::conv(I2_shifted, hGaussian);
@@ -68,33 +68,33 @@ field<CubeType> Gadgetron::LAP3D::exec()
 
 		cout << "Filter size= " << 2*K+1 << ", Warping time = " << warping_time.toc() << endl;
 
-		//Estimate the Optical Flow
+		// Estimate the Optical Flow
 		wall_clock lap_time;
 		lap_time.tic();
 		field<CubeType> u_est = estimateOpticalFlow3D(I1, I2_shifted, K);
 		cout << "Filter size= " << 2*K+1 << ", LAP Algorithm time = " << lap_time.toc() << endl;
 
-		//Postprocessing
+		// Postprocessing
 		wall_clock post_processing_time;
 		post_processing_time.tic();
 		u_est = cleanOF3D(u_est); //Not completely implemented
 		int R = round(2*K);
 		ColType k1 = linspace<ColType>(-R, R, fabs(-R-R)+1);
 
-		//Smoothing Filter for optical Flow
+		// Smoothing Filter for optical Flow
 		for (int i = 0; i < 3; i++) {
 			u_est(i) = cs_lab_lap_filter::gaussian(u_est(i), R, k1);
 		}
 
 		cout << "Filter size= " << 2*K+1 << ", Post-Processing time = " << post_processing_time.toc() << endl;
 
-		//Add estimatet Flow to overall Flow
+		// Add estimatet Flow to overall Flow
 		for (int i = 0; i < 3; i++) {
 			u_holder(i) = u_holder(i) + u_est(i);
 		}
 
-		if (K<=2) {
-			//Cleaing procedure
+		if (K <= 2) {
+			// Cleaing procedure
 		}
 	}
 
@@ -121,9 +121,11 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3DKSpace(CubeType &I1_k_, C
 field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D(CubeType &I1_, CubeType &I2_, int K_)
 {
 	int N = 4;
-	//Create the GaussianFilterBasis with current Filtersize K
+
+	// Create the GaussianFilterBasis with current Filtersize K
 	GaussianFilterBasis mBasis(K_);
-	//Filter Images, very slow, to be improved
+
+	// Filter Images, very slow, to be improved
 	CubeType A(m,n,p);
 	CubeType B(m,n,p);
 	MatType II(m*n*p, N);
@@ -154,6 +156,7 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D(CubeType &I1_, CubeType 
 	}
 
 	ColType J = II.col(0);
+
 	//matrices needed in linear system
 	A.set_size(m*n*p, N-1, N-1);
 	MatType b(m*n*p, N-1);
@@ -164,7 +167,7 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D(CubeType &I1_, CubeType 
 			A.slice(k).col(l) = A.slice(l).col(k);
 		}
 
-		b.col(k) =average(II.col(k+1) % J, K_);
+		b.col(k) = average(II.col(k+1) % J, K_);
 	}
 
 	MatType coeffs(m*n*p, N-1);
@@ -183,7 +186,7 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D(CubeType &I1_, CubeType 
 		}
 	}
 
-	for (int k = N-2; k >=0; k--) {
+	for (int k = N-2; k >= 0; k--) {
 		coeffs.col(k) = b.col(k);
 
 		for (int m = k+1; m < N-1; m++) {
@@ -233,7 +236,7 @@ field<CubeType> Gadgetron::LAP3D::estimateOpticalFlow3D(CubeType &I1_, CubeType 
 
 field<CubeType> Gadgetron::LAP3D::cleanOF3D(field<CubeType> &u_est)
 {
-	//find nans in flow and replace with zeros
+	// find nans in flow and replace with zeros
 	for (int i = 0; i < 3; i++) {
 		u_est(i).elem(find_nonfinite(u_est(i))).zeros();
 	}
