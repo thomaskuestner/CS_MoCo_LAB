@@ -48,7 +48,7 @@ field<CubeType> Gadgetron::LAP3D::exec()
 	I1 = I1 - cs_lab_lap_filter::conv(I1, hGaussian);
 
 	for (size_t l = 0; l < FilterSizes.n_elem; l++) {
-		std::cout << "Level " << l+1 << "/" << FilterSizes.n_elem << endl;
+		std::cout << "Level " << l+1 << "/" << FilterSizes.n_elem << std::endl;
 
 		// Current Filtersize
 		int K = FilterSizes(l);
@@ -66,13 +66,13 @@ field<CubeType> Gadgetron::LAP3D::exec()
 			I2_shifted = I2_shifted - cs_lab_lap_filter::conv(I2_shifted, hGaussian);
 		}
 
-		cout << "Filter size= " << 2*K+1 << ", Warping time = " << warping_time.toc() << endl;
+		std::cout << "Filter size= " << 2*K+1 << ", Warping time = " << warping_time.toc() << std::endl;
 
 		// Estimate the Optical Flow
 		wall_clock lap_time;
 		lap_time.tic();
 		field<CubeType> u_est = estimateOpticalFlow3D(I1, I2_shifted, K);
-		cout << "Filter size= " << 2*K+1 << ", LAP Algorithm time = " << lap_time.toc() << endl;
+		std::cout << "Filter size= " << 2*K+1 << ", LAP Algorithm time = " << lap_time.toc() << std::endl;
 
 		// Postprocessing
 		wall_clock post_processing_time;
@@ -86,7 +86,7 @@ field<CubeType> Gadgetron::LAP3D::exec()
 			u_est(i) = cs_lab_lap_filter::gaussian(u_est(i), R, k1);
 		}
 
-		cout << "Filter size= " << 2*K+1 << ", Post-Processing time = " << post_processing_time.toc() << endl;
+		std::cout << "Filter size= " << 2*K+1 << ", Post-Processing time = " << post_processing_time.toc() << std::endl;
 
 		// Add estimatet Flow to overall Flow
 		for (int i = 0; i < 3; i++) {
