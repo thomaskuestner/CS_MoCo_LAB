@@ -187,7 +187,7 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 	MN = 1;
 	for (i = 0; i < Xndim; i++) {
 		MN =MN*Xdims[i];
-	};
+	}
 
 	vol = 1;
 	newXndim = Xndim;
@@ -203,7 +203,7 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 		// Copy original dimenstions
 		for (i = 0; i < newXndim; i++) {
 			newdims[i] = Xdims[i];
-		};
+		}
 
 		// Add the number of images as a last dimenstion
 		newdims[newXndim] = dims[3];
@@ -217,7 +217,7 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 
 		for (i = 0; i < newXndim; i++) {
 			newdims[i] = Xdims[i];
-		};
+		}
 	}
 
 	CubeType out(newdims[0], newdims[1], newdims[2], fill::zeros);
