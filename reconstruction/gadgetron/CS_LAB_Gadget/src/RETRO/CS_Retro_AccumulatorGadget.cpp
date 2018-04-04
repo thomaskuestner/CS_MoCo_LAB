@@ -607,7 +607,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 			tmp_m1->release();
 
-			return -1;
+			return GADGET_FAIL;
 		}
 
 		// copy data
@@ -627,7 +627,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 			tmp_m1->release();
 
-			return -1;
+			return GADGET_FAIL;
 		}
 
 		// copy data
