@@ -160,7 +160,7 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 	GINFO("Registration of images..\n");
 
 	// loop over respiration
-	#pragma omp parallel for
+// 	#pragma omp parallel for	// Note: Elastix itselfs parallels quite good. Some serious error can occur if you parallelise here!
 	for (int iState = 1; iState < iNoImages; iState++) {
 		GINFO("%i of %i ...\n", iState, iNoImages-1);
 
@@ -338,7 +338,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 	GINFO("Loop over moving images..\n");
 
 	// loop over respiration
-	#pragma omp parallel for
+// 	#pragma omp parallel for	// Note: Elastix itselfs parallels quite good. Some serious error can occur if you parallelise here!
 	for (int iState = 1; iState < iNoImages; iState++) {
 		GINFO("%i of %i ...\n", iState, iNoImages-1);
 

@@ -106,7 +106,7 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 	/* ------------------------------------------------------------------- */
 	GINFO("Loop over moving images..\n");
 	// loop over respiration
-	#pragma omp parallel for
+// 	#pragma omp parallel for	// Parallelising here may work, but may also introduce errors. Check that befor enabling!
 	for (int iState = 1; iState < iNoImages; iState++) {
 		GINFO("%i of %i ...\n", iState, iNoImages-1);
 
