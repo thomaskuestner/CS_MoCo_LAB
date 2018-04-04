@@ -39,23 +39,17 @@ namespace Gadgetron
 {
 	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float> >
 	{
-		public:
+	public:
 		ElastixRegistrationGadget();
 		~ElastixRegistrationGadget();
 
 		GADGET_DECLARE(ElastixRegistrationGadget);
 
+	protected:
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
 		int process_config(ACE_Message_Block *mb);
 
-		int fRegistration3D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
-		int fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
-
-		std::vector<size_t> vtDim_;
-		bool bIs2D_;
-		bool bIs3D_;
-		bool bIs4D_;
-
+	private:
 		std::string sPathParam_;
 		std::string sPathLog_;
 
