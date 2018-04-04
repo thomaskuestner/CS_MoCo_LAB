@@ -183,7 +183,6 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 	dims[0] = I0.n_rows;
 	dims[1] = I0.n_cols;
 	dims[2] = I0.n_slices;
-	newdims = (int*) calloc(ndim-1, sizeof(int));
 
 	MN = 1;
 	for (i = 0; i < Xndim; i++) {
@@ -222,6 +221,8 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 	}
 
 	CubeType out(newdims[0], newdims[1], newdims[2], fill::zeros);
+
+	free(newdims);
 
 	nrows = dims[0];
 	ncols = dims[1];
