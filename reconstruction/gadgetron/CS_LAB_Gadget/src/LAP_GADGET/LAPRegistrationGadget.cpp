@@ -1,21 +1,16 @@
-/*	
+/*
 file name	: 	LAPRegistrationGadget.cpp
-
-author		: 	Thomas Kuestner	(thomas.kuestner@med.uni-tuebingen.de)
-
+author		: 	Thomas Kuestner (thomas.kuestner@med.uni-tuebingen.de)
 version		: 	1.0
-
 date		: 	15.01.2018
-
 description	: 	implementation of the class LAPRegistrationGadget - only 4D data (x,y,z,t) provided
-
 */
 
 #include "LAPRegistrationGadget.h"
 
 using namespace Gadgetron;
 
-LAPRegistrationGadget::LAPRegistrationGadget():bIs2D_(false), bIs3D_(false), bIs4D_(false), iLvlMin_(0), iLvlMax_(4)
+LAPRegistrationGadget::LAPRegistrationGadget()
 {
 }
 
@@ -38,63 +33,58 @@ int LAPRegistrationGadget::process_config(ACE_Message_Block *mb)
 
 int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
 {
-	/* ------------------------------------------------------------------- */
-	/* --------------- check dimension of incoming dataset --------------- */
-	/* ------------------------------------------------------------------- */
-	std::vector<size_t> dimension = *m2->getObjectPtr()->get_dimensions();
-	size_t num_dims = m2->getObjectPtr()->get_number_of_dimensions();
-
-	// get dimensions flag
-	if (num_dims == 2) {
-		bIs2D_ = true;
-	} else if (num_dims == 3) {
-		bIs3D_ = true;
-	} else if (num_dims == 4) {
-		bIs4D_ = true;
-	}
-
-	/* ------------------------------------------------------------------- */
-	/* ----------------------- call registration ------------------------- */
-	/* ------------------------------------------------------------------- */
-	if (bIs2D_) {
-		GWARN("2D dataset detected..unable to perform registration - step skipped!\n");
-	} else if (bIs3D_) {
-		GWARN("3D dataset detected..unable to perform registration - step skipped!\n");
-	} else if (bIs4D_) {
-		GINFO("4D dataset detected..perform registration in 4th dimension!\n");
-		fRegistration4D(m1, m2);
-	} else {
-		GWARN("unknown dataset detected..unable to perform registration - step skipped!\n");
-	}
-
-	//Now pass on image
-	if (this->next()->putq(m1) < 0) {
-		return GADGET_FAIL;
-	}
-	
-	return GADGET_OK;
-};
-
-int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
-{
+	// create dimension variables
 	// first image is fixed image (end-exhale position) all other images declared to be moving images
-	vtDim_ = *m2->getObjectPtr()->get_dimensions();
+	std::vector<size_t> dimensions = *m2->getObjectPtr()->get_dimensions();
 
-	GDEBUG("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
+	// last dimension is number of images
+	size_t number_of_images = dimensions.at(dimensions.size()-1);
 
-	int iNoImages = vtDim_[3];
-	const unsigned int cuiNumberOfPixels = vtDim_[0]*vtDim_[1]*vtDim_[2];
+	// other dimensions are dimension of one image
+	std::vector<size_t> dimensions_of_image(dimensions.begin(), dimensions.end()-1);
+
+	// check for image dimensions
+	bool skip_registration = false;
+	if (dimensions_of_image.size() != 3) {
+		GWARN("Dataset does not contain a 3D image - Skip registration...\n");
+		skip_registration = true;
+	} else if (number_of_images <= 1) {
+		GWARN("There must be at least to images to register them - Skip registration...\n");
+		skip_registration = true;
+	}
+
+	// skip registration if it cannot be performed
+	if (skip_registration) {
+		if (this->next()->putq(m1) < 0) {
+			return GADGET_FAIL;
+		}
+
+		return GADGET_OK;
+	}
+
+	// print dimensions
+	std::stringstream ss;
+	ss << "size - ";
+	for (size_t i = 0; i < dimensions_of_image.size(); i++) {
+		ss << dimensions_of_image.at(i) << " ";
+	}
+	ss << number_of_images;
+	GDEBUG("%s\n", ss.str().c_str());
+
+	// multiply all other elements in vector (will be number of pixels in one image)
+	const size_t cuiNumberOfPixels = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>());
+
 	float *pfDataset = m2->getObjectPtr()->get_data_ptr();
 
 	// get fixed image from 4D dataset
-	hoNDArray<float> fFixedImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset, false);
+	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
 
 	// registered 4D image
 	hoNDArray<float> fRegisteredImage(m2->getObjectPtr()->get_dimensions());
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 
-	CubeType cFixedImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
-	CubeType cMovingImage = Cube<float>(vtDim_[0], vtDim_[1], vtDim_[2]);
+	CubeType cFixedImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
+	CubeType cMovingImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
 
 	memcpy(cFixedImage.memptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 	
@@ -107,12 +97,12 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 	GINFO("Loop over moving images..\n");
 	// loop over respiration
 // 	#pragma omp parallel for	// Parallelising here may work, but may also introduce errors. Check that befor enabling!
-	for (int iState = 1; iState < iNoImages; iState++) {
-		GINFO("%i of %i ...\n", iState, iNoImages-1);
+	for (size_t iState = 1; iState < number_of_images; iState++) {
+		GINFO("%i of %i ...\n", iState, number_of_images-1);
 
 		// crop moving image from 4D dataset
-		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
-		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
+		size_t tOffset = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>())*iState;	// accumulate() := dimensions_of_image[0]*dimensions_of_image[1]*...
+		hoNDArray<float> fMovingImage(dimensions_of_image, pfDataset + tOffset, false);
 
 		memcpy(cMovingImage.memptr(), fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 		mLAP3D.setMovingImage(cMovingImage);
@@ -121,7 +111,7 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 		field<CubeType> flow_estimation = mLAP3D.exec();
 
 		// get output image
-		//Shift first image according to estimated optical flow
+		// Shift first image according to estimated optical flow
 		ShiftEngine3D shifter(cFixedImage, flow_estimation(0), flow_estimation(1), flow_estimation(2));
 		CubeType cRegisteredImage = shifter.execCubicShift();
 
@@ -137,17 +127,23 @@ int LAPRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::Image
 
 	// create output
 	try {
-		cm2->getObjectPtr()->create(&vtDim_);
+		cm2->getObjectPtr()->create(*fRegisteredImage.get_dimensions());
 	} catch (std::runtime_error &err) {
 		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
-		return -1;
+
+		return GADGET_FAIL;
 	}
 
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
+	// Now pass on image
+	if (this->next()->putq(m1) < 0) {
+		return GADGET_FAIL;
+	}
+
 	return GADGET_OK;
-};
+}
 
 GADGET_FACTORY_DECLARE(LAPRegistrationGadget)
