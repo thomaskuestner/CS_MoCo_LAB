@@ -172,14 +172,15 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 
 	PixelType *Z, *S, *T, *W, *F;
 	int i, MN, nrows, ncols, npages, vol, ndim, newXndim, Xndim, *newdims;
-	int dims[3], Xdims[3];
 
 	Xndim = 3;
+	int Xdims[Xndim];
 	Xdims[0] = x1.n_rows;
 	Xdims[1] = x1.n_cols;
 	Xdims[2] = x1.n_slices;
 
 	ndim = 3;
+	int dims[ndim];
 	dims[0] = I0.n_rows;
 	dims[1] = I0.n_cols;
 	dims[2] = I0.n_slices;
