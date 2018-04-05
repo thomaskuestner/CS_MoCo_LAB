@@ -79,8 +79,10 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	// get fixed image from 4D dataset
 	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
 
-	// registered 4D image
-	hoNDArray<float> fRegisteredImage(m2->getObjectPtr()->get_dimensions());
+	// create registered (output) image. Pattern: [pixels_x px_y px_z images&deformation_fields(im0, im1, im2, im3, df1x, df1y, df1z, df2x,...)]
+	std::vector<size_t> dimensions_registered = *m2->getObjectPtr()->get_dimensions();
+	dimensions_registered.at(dimensions_registered.size()-1) += 3*(number_of_images-1);
+	hoNDArray<float> fRegisteredImage(&dimensions_registered);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 
 	CubeType cFixedImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
@@ -109,6 +111,16 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 		// image registration
 		field<CubeType> flow_estimation = mLAP3D.exec();
+
+		// save deformation fields
+		for (size_t i = 0; i < 3; i++) {
+			// calculate offset
+			size_t offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				number_of_images					// jump over all valid images
+				+ (iState - 1) * 3					// jump to correct deformation field image position (*3 because each DF Image consists of 3 parts (x,y,z))
+				+ i);								// select correct slot
+			memcpy(fRegisteredImage.get_data_ptr()+offset, flow_estimation(i).memptr(), cuiNumberOfPixels*sizeof(float));
+		}
 
 		// get output image
 		// Shift first image according to estimated optical flow
@@ -140,6 +152,9 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
+
+	// correct channels value for MRIImageWriter (last dimension of output array)
+	m1->getObjectPtr()->channels = fRegisteredImage.get_size(fRegisteredImage.get_number_of_dimensions()-1);
 
 	// Now pass on image
 	if (this->next()->putq(m1) < 0) {
