@@ -23,9 +23,17 @@ RUN	git clone -b v4.13.0 http://itk.org/ITK.git \
 	&& cd ../..
 
 RUN	git clone https://github.com/SuperElastix/elastix.git \
-	&& patch elastix/CMakeLists.txt < /tmp/elastix.patch \
 	&& mkdir elastix/build \
 	&& cd elastix/build \
+	&& cmake ../ \
+	&& make -j$(expr $(nproc) + 1)\
+	&& make install \
+	&& cd ../.. \
+	&& patch elastix/CMakeLists.txt < /tmp/elastix.patch \
+	&& cd elastix \
+	&& rm -rf build \
+	&& mkdir build \
+	&& cd build \
 	&& cmake ../ \
 	&& make -j$(expr $(nproc) + 1)\
 	&& make install \
