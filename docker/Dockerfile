@@ -20,7 +20,8 @@ RUN	git clone -b v4.13.0 http://itk.org/ITK.git \
 	&& cmake ../ \
 	&& make -j$(expr $(nproc) + 1)\
 	&& make install \
-	&& cd ../..
+	&& cd ../.. \
+	&& rm -rf ITK/build
 
 RUN	git clone https://github.com/SuperElastix/elastix.git \
 	&& mkdir elastix/build \
@@ -30,18 +31,15 @@ RUN	git clone https://github.com/SuperElastix/elastix.git \
 	&& make install \
 	&& cd ../.. \
 	&& patch elastix/CMakeLists.txt < /tmp/elastix.patch \
-	&& cd elastix \
-	&& rm -rf build \
-	&& mkdir build \
-	&& cd build \
+	&& rm -rf elastix/build \
+	&& mkdir elastix/build \
+	&& cd elastix/build \
 	&& cmake ../ \
 	&& make -j$(expr $(nproc) + 1)\
 	&& make install \
 	&& cd ../.. \
 	&& mkdir /usr/local/lib/cmake/Elastix \
-	&& ln -s /opt/code/elastix/build/ElastixConfig.cmake /usr/local/lib/cmake/Elastix/ElastixConfig.cmake \
-	&& ln -s libelastix-4.8.a /usr/local/lib/libelastix.a \
-	&& ln -s libtransformix-4.8.a /usr/local/lib/libtransformix.a
+	&& ln -s /opt/code/elastix/build/ElastixConfig.cmake /usr/local/lib/cmake/Elastix/ElastixConfig.cmake
 
 RUN	git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git \
     && cd CS_MoCo_LAB/reconstruction/gadgetron/CS_LAB_Gadget \
@@ -50,7 +48,8 @@ RUN	git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git \
 	&& cmake ../ \
 	&& make -j$(expr $(nproc) + 1)\
 	&& make install \
-	&& cd ../../../../..
+	&& cd .. \
+	&& rm -rf build
 
 # Set the shell entry point to the container
 WORKDIR /opt/data
