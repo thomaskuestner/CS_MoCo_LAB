@@ -87,7 +87,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	CubeType cMovingImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
 
 	memcpy(cFixedImage.memptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-	
+
 	//Construct the LocalAllpass Algorithm Object with Level min and max
 	LAP3D mLAP3D(cFixedImage, cMovingImage, iLvlMin_, iLvlMax_);
 
@@ -96,7 +96,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	/* ------------------------------------------------------------------- */
 	GINFO("Loop over moving images..\n");
 	// loop over respiration
-// 	#pragma omp parallel for	// Parallelising here may work, but may also introduce errors. Check that befor enabling!
+// 	#pragma omp parallel for	// Parallelising here may work, but may also introduce errors. Check that before enabling!
 	for (size_t iState = 1; iState < number_of_images; iState++) {
 		GINFO("%i of %i ...\n", iState, number_of_images-1);
 
