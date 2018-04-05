@@ -236,6 +236,9 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 		delete elastix_obj;
 	}
 
+	// free memory
+	m2->release();
+
 	// new GadgetContainer
 	GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
 

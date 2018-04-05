@@ -119,6 +119,9 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 		memcpy(fRegisteredImage.get_data_ptr()+tOffset, cRegisteredImage.memptr(), cuiNumberOfPixels*sizeof(float));
 	}
 
+	// free memory
+	m2->release();
+
 	// new GadgetContainer
 	GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
 

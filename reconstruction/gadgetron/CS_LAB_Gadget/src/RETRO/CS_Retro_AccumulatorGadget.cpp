@@ -22,13 +22,11 @@ CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget()
 // class destructor - delete temporal buffer/memory
 CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget()
 {
-	// Deletion of memory causes problems.
-	// TODO: backtrace them and delete all the allocated memory!
-// 		if (bufferkSpace_)
-// 			delete bufferkSpace_;
-//
-// 		if (bufferNav_)
-// 			delete bufferNav_;
+	if (bufferkSpace_)
+		delete bufferkSpace_;
+
+	if (bufferNav_)
+		delete bufferNav_;
 }
 
 // read flexible data header
@@ -642,6 +640,9 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		return GADGET_OK;
 	}
+
+	// free memory
+	m1->release();
 
 	return GADGET_OK;
 }

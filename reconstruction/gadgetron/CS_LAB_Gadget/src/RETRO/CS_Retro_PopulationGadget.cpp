@@ -46,6 +46,9 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
 	memcpy(hacfKSpace_unordered_.get_data_ptr(), m3->getObjectPtr()->get_data_ptr(), sizeof(std::complex<float>)*m3->getObjectPtr()->get_number_of_elements());
 
+	// free memory (also frees m3)
+	m2->release();
+
 	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x Gates x Channels)
 	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_phases, iNoChannels_);
 
