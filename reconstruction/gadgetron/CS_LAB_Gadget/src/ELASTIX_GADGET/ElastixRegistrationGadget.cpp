@@ -278,6 +278,28 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 		}
 	}
 
+	// clean up the elastix/transformix generated files
+	std::vector<std::string> files_to_remove;
+	files_to_remove.push_back(std::string("deformationField.mhd"));
+	files_to_remove.push_back(std::string("deformationField.raw"));
+	files_to_remove.push_back(std::string("transformix.log"));
+	files_to_remove.push_back(std::string("TransformParameters.0.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R0.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R1.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R2.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R3.txt"));
+
+	while (files_to_remove.size() > 0) {
+		std::string file_to_remove = sPathLog_ + files_to_remove.back();
+
+		if (remove(file_to_remove.c_str()) != 0) {
+			GWARN("Could not remove %s. Please delete it manually!\n", file_to_remove.c_str());
+		}
+
+		// delete last element in list
+		files_to_remove.pop_back();
+	}
+
 	// free memory
 	m2->release();
 
