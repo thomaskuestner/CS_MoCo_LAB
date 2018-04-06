@@ -50,10 +50,12 @@ namespace Gadgetron
 		int process_config(ACE_Message_Block *mb);
 
 	private:
+		bool log_output_;
 		std::string sPathParam_;
 		std::string sPathLog_;
 
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(LogOutput, bool, "LogOutput", false);
 		GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
 		GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
 #endif

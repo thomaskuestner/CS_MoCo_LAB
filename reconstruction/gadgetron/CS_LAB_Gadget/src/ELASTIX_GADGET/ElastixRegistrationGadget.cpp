@@ -31,9 +31,11 @@ ElastixRegistrationGadget::~ElastixRegistrationGadget()
 int ElastixRegistrationGadget::process_config(ACE_Message_Block *mb)
 {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	log_output_	= LogOutput.value();
 	sPathParam_	= PathParam.value();
 	sPathLog_	= PathLog.value();
 #else
+	log_output_	= *(get_bool_value("LogOutput").get());
 	sPathParam_	= *(get_string_value("PathParam").get());
 	sPathLog_	= *(get_string_value("PathLog").get());
 #endif
@@ -195,7 +197,7 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 		try {
 			// perform registration with (FixedImage, MovingImage, ParameterFile, OutputPath, ElastixLog, ConsoleOutput, FixedImageMask, MovingImageMask)
-			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, true, false, 0, 0);
+			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, log_output_, false, 0, 0);
 		} catch (itk::ExitEvent &err) {
 			// error handling - write message and fill array with zeros
 			GERROR("Error event catched directly from elastix\n");

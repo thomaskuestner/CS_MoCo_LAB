@@ -198,6 +198,10 @@
 		<classname>ElastixRegistrationGadget</classname>
 
 		<property>
+			<name>LogOutput</name>
+			<value>false</value>
+		</property>
+		<property>
 			<name>PathParam</name>
 			<value>/usr/local/share/gadgetron/elastix/elastix_DEFAULT.txt</value>
 		</property>
