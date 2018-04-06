@@ -16,6 +16,8 @@ description	: 	implementation of the class ElastixRegistrationGadget - only 3D (
 
 #include "ElastixRegistrationGadget.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+
 using namespace Gadgetron;
 
 ElastixRegistrationGadget::ElastixRegistrationGadget()
@@ -35,6 +37,17 @@ int ElastixRegistrationGadget::process_config(ACE_Message_Block *mb)
 	sPathParam_	= *(get_string_value("PathParam").get());
 	sPathLog_	= *(get_string_value("PathLog").get());
 #endif
+
+	// ensure that path variable ends with dir separator
+#ifdef __WIN32__
+	#define DIR_SEPARATOR "\\"
+#else
+	#define DIR_SEPARATOR "/"
+#endif
+
+	if (boost::algorithm::ends_with(sPathLog_, DIR_SEPARATOR)) {
+		sPathLog_ += DIR_SEPARATOR;
+	}
 
 	return GADGET_OK;
 }
@@ -115,7 +128,9 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
 
 	// and create new registered image
-	hoNDArray<float> fRegisteredImage(m2->getObjectPtr()->get_dimensions());
+	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
+	new_reg_image_dim.at(new_reg_image_dim.size()-1) += (number_of_images - 1);			// append images for deformation fields
+	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 
 	// set itk image parameter
@@ -234,6 +249,31 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 		// clean up
 		delete elastix_obj;
+
+		// calculate deformation field
+		std::string transformix_command = std::string("transformix -def all -out ")+sPathLog_+std::string(" -tp ")+sPathLog_+std::string("TransformParameters.0.txt");
+		int term_status = system(transformix_command.c_str());
+
+		if (WIFEXITED(term_status)) {
+			// transformix completed successfully. Handle case here
+			itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
+			std::string deformation_field_file_name = sPathLog_ + std::string("deformationField.mhd");
+			reader->SetFileName(deformation_field_file_name.c_str());
+
+			try {
+				reader->Update();
+			} catch (itk::ExceptionObject& e) {
+				std::cerr << e.GetDescription() << std::endl;
+				continue;
+			}
+
+			ImageType::Pointer inputImage = reader->GetOutput();
+
+			size_t def_field_offset = cuiNumberOfPixels * (number_of_images + (iState - 1));
+			memcpy(fRegisteredImage.get_data_ptr()+def_field_offset, inputImage->GetBufferPointer(), cuiNumberOfPixels*sizeof(float));
+		} else {
+			GWARN("No deformation field for state %d available (Errors in transformix).\n", iState);
+		}
 	}
 
 	// free memory
@@ -257,6 +297,9 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
+
+	// correct channels value for MRIImageWriter (last dimension of output array)
+	m1->getObjectPtr()->channels = fRegisteredImage.get_size(fRegisteredImage.get_number_of_dimensions()-1);
 
 	// Now pass on image
 	if (this->next()->putq(m1) < 0) {
