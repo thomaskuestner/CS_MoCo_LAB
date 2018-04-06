@@ -7,6 +7,17 @@ WORKDIR /opt/code
 # Copy the current directory contents into the container at /app
 ADD . /tmp
 
+# install newest version of cmake
+RUN apt-get --yes purge cmake \
+	&& wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz \
+	&& tar -xzvf cmake-*.tar.gz \
+	&& cd cmake-3*/ \
+	&& ./bootstrap \
+	&& make -j$(expr $(nproc) + 1)\
+	&& make install \
+	&& cd .. \
+	&& rm -rf cmake-3*
+
 # Fetch, compile & install any needed packages
 RUN	git clone https://github.com/mrirecon/bart.git \
 	&& cd bart \
