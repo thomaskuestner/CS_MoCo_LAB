@@ -17,6 +17,7 @@ description	: 	implementation of the class ElastixRegistrationGadget - only 3D (
 #include "ElastixRegistrationGadget.h"
 
 #include <boost/algorithm/string/predicate.hpp>
+#include "SomeFunctions.h"
 
 using namespace Gadgetron;
 
@@ -131,7 +132,7 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 	// and create new registered image
 	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
-	new_reg_image_dim.at(new_reg_image_dim.size()-1) += (number_of_images - 1);			// append images for deformation fields
+	new_reg_image_dim.at(new_reg_image_dim.size()-1) += (number_of_images - 1) * dimensions_of_image.size();	// append images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
 	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
 
@@ -257,22 +258,50 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 		int term_status = system(transformix_command.c_str());
 
 		if (WIFEXITED(term_status)) {
-			// transformix completed successfully. Handle case here
-			itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
-			std::string deformation_field_file_name = sPathLog_ + std::string("deformationField.mhd");
-			reader->SetFileName(deformation_field_file_name.c_str());
-
-			try {
-				reader->Update();
-			} catch (itk::ExceptionObject& e) {
-				std::cerr << e.GetDescription() << std::endl;
-				continue;
+			// transformix completed successfully. Handle case here.
+			// create new dimension vector for array (dimensions e.g. 3 256 256 72) - should also apply on 2D image
+			std::vector<size_t> deformation_field_dims;
+			deformation_field_dims.push_back(dimensions_of_image.size());
+			for (size_t i = 0; i < dimensions_of_image.size(); i++) {
+				deformation_field_dims.push_back(dimensions_of_image.at(i));
 			}
 
-			ImageType::Pointer inputImage = reader->GetOutput();
+			// create new array for deformation field image
+			hoNDArray<float> deformation_field(&deformation_field_dims);
 
-			size_t def_field_offset = cuiNumberOfPixels * (number_of_images + (iState - 1));
-			memcpy(fRegisteredImage.get_data_ptr()+def_field_offset, inputImage->GetBufferPointer(), cuiNumberOfPixels*sizeof(float));
+			std::string deformation_field_file_name = sPathLog_ + std::string("deformationField.mhd");
+
+			// read out image
+			switch (dimensions_of_image.size()) {
+			case 2:
+				read_itk_to_hondarray<2>(deformation_field, deformation_field_file_name.c_str(), cuiNumberOfPixels);
+				break;
+			case 3:
+				read_itk_to_hondarray<3>(deformation_field, deformation_field_file_name.c_str(), cuiNumberOfPixels);
+				break;
+			default:
+				GERROR("Image dimension (%d) is neither 2D nor 3D! Abort.\n", dimensions_of_image.size());
+				return GADGET_FAIL;
+			}
+
+			// permute data (in ITK dim is: [value_vector size_x size_y size_z])
+			// we want to output: (layer with value_vector X component, layer with Y,...)
+			// so: [value X Y Z] -> [X Y Z value]
+			std::vector<size_t> new_dim_order;
+			new_dim_order.push_back(1);
+			new_dim_order.push_back(2);
+			new_dim_order.push_back(3);
+			new_dim_order.push_back(0);
+			deformation_field = *permute(&deformation_field, &new_dim_order, false);
+
+			// now calculate offset for the great return image
+			size_t def_field_offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				number_of_images							// jump over all valid images
+				+ (iState - 1) * dimensions_of_image.size()	// jump to correct deformation field image position (*dim.size() because each DF Image consists of N parts (x,y[,z]))
+			);
+
+			// and copy permuted data into great return image
+			memcpy(fRegisteredImage.get_data_ptr()+def_field_offset, deformation_field.get_data_ptr(), deformation_field.get_number_of_elements()*sizeof(float));
 		} else {
 			GWARN("No deformation field for state %d available (Errors in transformix).\n", iState);
 		}

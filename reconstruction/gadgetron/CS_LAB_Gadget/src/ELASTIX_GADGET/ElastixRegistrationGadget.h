@@ -50,6 +50,30 @@ namespace Gadgetron
 		int process_config(ACE_Message_Block *mb);
 
 	private:
+		template<size_t DIM> bool read_itk_to_hondarray(hoNDArray<float> &deformation_field, const char *deformation_field_file_name, const size_t pixels_per_image) {
+			using PixelType = itk::Vector<float, DIM>;
+			using ImageType = itk::Image<PixelType, DIM>;
+
+			typename itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
+			reader->SetFileName(deformation_field_file_name);
+
+			try {
+				reader->Update();
+			} catch (itk::ExceptionObject& e) {
+				std::cerr << e.GetDescription() << std::endl;
+				return false;
+			}
+
+			// read image
+			typename ImageType::Pointer inputImage = reader->GetOutput();
+
+			// copy image from ITK to array
+			memcpy(deformation_field.get_data_ptr(), inputImage->GetBufferPointer(), DIM*pixels_per_image*sizeof(float));
+
+			return true;
+		}
+
+	private:
 		bool log_output_;
 		std::string sPathParam_;
 		std::string sPathLog_;
