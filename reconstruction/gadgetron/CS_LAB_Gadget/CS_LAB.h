@@ -38,19 +38,29 @@ namespace Gadgetron
 {
 	class EXPORTCSLAB CS_LAB : public CS_FOCUSS
 	{
-		GADGET_DECLARE(CS_LAB)
 	public:
-		int fRecon(hoNDArray<std::complex<float> >  &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon){ return true; };
+		GADGET_DECLARE(CS_LAB)
+
+		int fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> >  &hacfRecon)
+		{
+			return true;
+		}
 
 		void fExternalControl();
 
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
-		void fGradESPReSSo(hoNDArray<std::complex<float> > & hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ){};
+		void fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDArray<std::complex<float> > &hacfFullMask, hoNDArray<std::complex<float> > &hacfKSpace, hoNDArray<std::complex<float> > &hacfW, hoNDArray<std::complex<float> > &hacfQ)
+		{
+		}
 
-		void fInitESPReSSo(hoNDArray<bool>& habFullMask){};
+		void fInitESPReSSo(hoNDArray<bool> &habFullMask)
+		{
+		}
 
-		void fWindowing(hoNDArray<std::complex<float> > & hacfWWindowed){};
+		void fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
+		{
+		}
 
 		// pointer to CS_FOCUSS class object
 		CS_FOCUSS *opCS_;
@@ -62,8 +72,8 @@ namespace Gadgetron
 		int iDataset_;
 
 		// Matlab transformation parameters..
-		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iScrambleDim_, iFFTBA_, kSpaceOut_, iTime_;
-};
-
+		int iFFT_Sparse_, iDCT_Sparse_, iPCA_Sparse_, iKernel_FFT_dim_, iFFTBA_, kSpaceOut_, iTime_;
+	};
 }
+
 #endif //CS_LAB_H

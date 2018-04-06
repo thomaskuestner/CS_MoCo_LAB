@@ -4,8 +4,6 @@
 #ifndef SP_GPLOT_H
 #define SP_GPLOT_H
 
-#define unix
-
 namespace sp
 {
     ///

@@ -16,13 +16,7 @@ description	: 	Elastix-based image registration
 #ifndef ELASTIXREGISTRATIONGADGET_H
 #define ELASTIXREGISTRATIONGADGET_H
 
-#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-	//#define GET_MACRO(_1,_2,_3,NAME,...) NAME
-	//#define GDEBUG(...) GET_MACRO(__VA_ARGS__, GADGET_DEBUG1, GADGET_DEBUG2)(__VA_ARGS__)
-	#define GADGET_DEBUG1(...) GDEBUG(__VA_ARGS__)
-	#define GADGET_DEBUG2(x, ...) GDEBUG(x, ##__VA_ARGS__)
-	#define GADGET_DEBUG_EXCEPTION(x,y) GEXCEPTION(x,y)
-#endif
+#include "gadgetron_messages.h"
 
 #pragma once
 #include "CS_LAB_export.h"
@@ -38,24 +32,24 @@ description	: 	Elastix-based image registration
 
 typedef elastix::ELASTIX::ParameterMapType RegistrationParametersType;
 typedef itk::ParameterFileParser ParserType;
-typedef itk::Image< float, 3 >  ImageType;
+typedef itk::Image<float, 3> ImageType;
 typedef itk::ImportImageFilter<float, 3> ImportFilterType;
 
 namespace Gadgetron
 {
-	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float>>
+	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float> >
 	{
 		public:
 		ElastixRegistrationGadget();
 		~ElastixRegistrationGadget();
-		
-		GADGET_DECLARE(CS_Retro_NavigatorGadget);
-		
-		int process( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
-		int process_config(ACE_Message_Block* mb);		
 
-		int fRegistration3D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
-		int fRegistration4D( GadgetContainerMessage< ISMRMRD::ImageHeader>* m1, GadgetContainerMessage< hoNDArray< float > >* m2);
+		GADGET_DECLARE(ElastixRegistrationGadget);
+
+		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+		int process_config(ACE_Message_Block *mb);
+
+		int fRegistration3D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+		int fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
 
 		std::vector<size_t> vtDim_;
 		bool bIs2D_;
@@ -65,10 +59,10 @@ namespace Gadgetron
 		std::string sPathParam_;
 		std::string sPathLog_;
 
-		#if __GADGETRON_VERSION_HIGHER_3_6__ == 1
-			GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
-			GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
-		#endif
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
+		GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
+#endif
 	};
 }
 #endif //ELASTIXREGISTRATIONGADGET_H

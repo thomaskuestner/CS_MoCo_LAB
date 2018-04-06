@@ -753,8 +753,6 @@ namespace Gadgetron
     {
         long long n;
 
-        float sum(0);
-
         float sa(0), sb(0);
 
         #pragma omp parallel for private(n) reduction(+:sa) if (N>NumElementsUseThreading)
@@ -776,8 +774,6 @@ namespace Gadgetron
     inline void dotc(size_t N, const  std::complex<double> * x, const  std::complex<double> * y,  std::complex<double> & r)
     {
         long long n;
-
-        double sum(0);
 
         double sa(0), sb(0);
 

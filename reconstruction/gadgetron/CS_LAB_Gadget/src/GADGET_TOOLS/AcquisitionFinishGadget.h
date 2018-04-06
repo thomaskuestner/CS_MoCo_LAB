@@ -12,17 +12,17 @@
 
 #include "GadgetIsmrmrdReadWrite.h"
 
-namespace Gadgetron{
+namespace Gadgetron
+{
+	class EXPORTCSLAB AcquisitionFinishGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
+	{
+	public:
+		GADGET_DECLARE(AcquisitionFinishGadget);
 
-  class EXPORTCSLAB AcquisitionFinishGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray< std::complex<float> > >
-    {
-    public:
-      GADGET_DECLARE(AcquisitionFinishGadget);
-      
-    protected:
-      virtual int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader>* m1,
-			  GadgetContainerMessage< hoNDArray< std::complex<float> > >* m2);
-    };
+	protected:
+		virtual int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1,
+			GadgetContainerMessage<hoNDArray< std::complex<float> > > *m2);
+	};
 }
 
 #endif //ACQUISITIONFINISHGADGET_H
