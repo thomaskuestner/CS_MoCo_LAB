@@ -53,7 +53,7 @@ RUN	git clone https://github.com/SuperElastix/elastix.git \
 	&& ln -s /opt/code/elastix/build/ElastixConfig.cmake /usr/local/lib/cmake/Elastix/ElastixConfig.cmake
 
 RUN	git clone https://github.com/thomaskuestner/CS_MoCo_LAB.git \
-    && cd CS_MoCo_LAB/reconstruction/gadgetron/CS_LAB_Gadget \
+	&& cd CS_MoCo_LAB/reconstruction/gadgetron/CS_LAB_Gadget \
 	&& mkdir build \
 	&& cd build \
 	&& cmake ../ \
