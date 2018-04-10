@@ -370,7 +370,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	/*----------- init buffer for k-space data ----------*/
 	/*---------------------------------------------------*/
 	if (!bufferkSpace_) {
-		iNoChannels_ = m1->getObjectPtr()->active_channels;
+		const size_t channels = m1->getObjectPtr()->active_channels;
 
 		// initialize k-space buffer
 		if (!(bufferkSpace_ = new hoNDArray<std::complex<float> >())) {
@@ -381,12 +381,12 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// get number of samples in acquisition (equals base resolution)
 		iBaseRes_ = m1->getObjectPtr()->number_of_samples;
 
-		GDEBUG("base res.: %d, no. scans: %lu, no. channel: %u\n", iBaseRes_, lNoScans_, iNoChannels_);
+		GDEBUG("base res.: %d, no. scans: %lu, no. channel: %u\n", iBaseRes_, lNoScans_, channels);
 
 		// dimension vector of k-space array
 		dimkSpace_.push_back(iBaseRes_);
 		dimkSpace_.push_back(lNoScans_);
-		dimkSpace_.push_back(iNoChannels_);
+		dimkSpace_.push_back(channels);
 
 		// create buffer array for incoming k-space data (readout, time, channel)
 		try {
@@ -411,6 +411,8 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	/*--------- init buffer for navigator data ----------*/
 	/*---------------------------------------------------*/
 	if (!bufferNav_) {
+		const size_t channels = m1->getObjectPtr()->active_channels;
+
 		// initialize k-space buffer
 		if (!(bufferNav_ = new hoNDArray<std::complex<float> >())) {
 			GERROR("Failed to create navigator buffer\n");
@@ -421,11 +423,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		dimNav_.push_back(iBaseRes_);
 		dimNav_.push_back(lNoScans_);
 		dimNav_.push_back(GlobalVar::instance()->iNavPERes_);
-		dimNav_.push_back(iNoChannels_);
+		dimNav_.push_back(channels);
 		iNoNav_ = 0;
 		iNoNavLine_ = 0;
 
-		GDEBUG("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, GlobalVar::instance()->iNavPERes_, iNoChannels_);
+		GDEBUG("navigator dimensions: base res: %d, no. scans: %lu, PE resolution: %d, no. channels: %u\n", iBaseRes_, lNoScans_, GlobalVar::instance()->iNavPERes_, channels);
 
 		// create buffer array for incoming navigator data (readout, time, PE, channel)
 		try {

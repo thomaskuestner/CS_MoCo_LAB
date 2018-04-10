@@ -42,7 +42,6 @@ namespace Gadgetron {
 		long long image_series_ = 0;
 
 		unsigned long lNoScans_ = 0;
-		unsigned int iNoChannels_ = 0;
 		unsigned int iNoNav_ = 0;
 		unsigned int iNoNavLine_ = 0;
 		int iEchoLine_ = 0;
