@@ -581,8 +581,8 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 #else
 		tmp_m1->getObjectPtr()->image_data_type	= ISMRMRD::DATA_COMPLEX_FLOAT;
 #endif
-		tmp_m1->getObjectPtr()->image_index = static_cast<uint16_t>(++image_counter_);
-		tmp_m1->getObjectPtr()->image_series_index = static_cast<uint16_t>(image_series_);
+		tmp_m1->getObjectPtr()->image_index = 1;
+		tmp_m1->getObjectPtr()->image_series_index = 0;
 
 		// delete header - it is not needed anymore
 		m1->release();

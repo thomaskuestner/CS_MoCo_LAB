@@ -34,8 +34,6 @@ namespace Gadgetron {
 
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
-		long long image_counter_ = 0;
-		long long image_series_ = 0;
 
 		unsigned long lNoScans_ = 0;
 		unsigned int iNoNav_ = 0;
