@@ -551,9 +551,14 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		//tmp_m1->getObjectPtr()->user_int[0] = 7;
 		tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
-		tmp_m1->getObjectPtr()->user_int[1]			= m1->getObjectPtr()->user_int[1];
-		tmp_m1->getObjectPtr()->user_int[2]			= m1->getObjectPtr()->user_int[2];
-		tmp_m1->getObjectPtr()->user_int[3]			= m1->getObjectPtr()->user_int[3];
+		tmp_m1->getObjectPtr()->user_int[1]			= iBodyRegion_;
+		tmp_m1->getObjectPtr()->user_int[2]			= iSamplingType_;
+		tmp_m1->getObjectPtr()->user_int[3]			= iVDMap_;
+		tmp_m1->getObjectPtr()->user_int[4]			= iESPReSSoDirection_;
+		tmp_m1->getObjectPtr()->user_int[5]			= iNoNav_;
+		tmp_m1->getObjectPtr()->user_float[0]		= fCSAcc_;
+		tmp_m1->getObjectPtr()->user_float[1]		= fFullySa_/100;
+		tmp_m1->getObjectPtr()->user_float[2]		= fPartialFourierVal_;
 		tmp_m1->getObjectPtr()->matrix_size[0]		= dimensionsIn_[0];
 		tmp_m1->getObjectPtr()->matrix_size[1]		= dimensionsIn_[1];
 		tmp_m1->getObjectPtr()->matrix_size[2]		= dimensionsIn_[2];
@@ -574,20 +579,6 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 #endif
 		tmp_m1->getObjectPtr()->image_index = static_cast<uint16_t>(++image_counter_);
 		tmp_m1->getObjectPtr()->image_series_index = static_cast<uint16_t>(image_series_);
-
-		// set user values, if Compressed Sensing is active
-		//if(this->get_bool_value("CS_on") == true){
-		tmp_m1->getObjectPtr()->user_float[0] = fCSAcc_;
-		tmp_m1->getObjectPtr()->user_float[1] = fFullySa_/100;
-		tmp_m1->getObjectPtr()->user_float[2] = fPartialFourierVal_;
-
-		tmp_m1->getObjectPtr()->user_int[1] = iBodyRegion_;
-		tmp_m1->getObjectPtr()->user_int[2] = iSamplingType_;
-		tmp_m1->getObjectPtr()->user_int[3] = iVDMap_;
-		tmp_m1->getObjectPtr()->user_int[4] = iESPReSSoDirection_;
-		//}
-
-		tmp_m1->getObjectPtr()->user_int[5] = iNoNav_;
 
 		// navigator
 		GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
