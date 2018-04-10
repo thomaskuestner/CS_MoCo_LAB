@@ -361,7 +361,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 	// only init the buffers in case of real data acquisition (otherwise wrong values (e.g. base resolution) can occur)
 	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
-		GDEBUG("Reject scan with idx.set=%d\n", m1->getObjectPtr()->idx.set);
+		GDEBUG("Reject scan with idx.set=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, current_scan);
 
 		return GADGET_OK;
 	}
