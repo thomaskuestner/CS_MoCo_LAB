@@ -430,7 +430,10 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		if (iNoNavLine_ != 0) {
 			iNoNav_--;
 			GlobalVar::instance()->vNavInd_.pop_back();
-			buffer_nav_.pop_back();
+
+			for (int i = 0; i < iNoNavLine_; i++) {
+				buffer_nav_.pop_back();
+			}
 		}
 
 		// bring GlobalVar::instance()->vNavInd_ to length of iNoNav_ if necessary
