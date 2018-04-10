@@ -386,11 +386,6 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	/*---------------------------------------------------*/
 	/*----------- init buffer for k-space data ----------*/
 	/*---------------------------------------------------*/
-	const size_t channels = m1->getObjectPtr()->active_channels;
-
-	// get number of samples in acquisition (equals base resolution)
-	const size_t base_res = m1->getObjectPtr()->number_of_samples;
-
 	// add pointer to big pointer vector
 	bufferkSpace_.push_back(m2);
 
@@ -503,8 +498,8 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// create output
 		try {
 			std::vector<size_t> nav_dims;
-			nav_dims.push_back(base_res);
-			nav_dims.push_back(channels);
+			nav_dims.push_back(m1->getObjectPtr()->number_of_samples);	// get number of samples in acquisition (equals base resolution)
+			nav_dims.push_back(m1->getObjectPtr()->active_channels);
 			nav_dims.push_back(GlobalVar::instance()->iNavPERes_);
 			nav_dims.push_back(buffer_nav_.size()/GlobalVar::instance()->iNavPERes_);
 			total_nav_array.create(&nav_dims);
