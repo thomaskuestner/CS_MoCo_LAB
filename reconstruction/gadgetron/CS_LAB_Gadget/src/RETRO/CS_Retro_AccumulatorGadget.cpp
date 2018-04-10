@@ -30,12 +30,6 @@ CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget()
 
 		bufferkSpace_.pop_back();
 	}
-
-	// free bufferNav_
-	while (bufferNav_.size() > 0) {
-		delete bufferNav_.at(bufferNav_.size()-1);
-		bufferNav_.pop_back();
-	}
 }
 
 // read flexible data header
@@ -417,53 +411,14 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	GlobalVar::instance()->vPA_.push_back(partition);
 
 	if (bNavigator == true) {
-		if (buffer_nav_ == NULL) {
-			/*---------------------------------------------------*/
-			/*--------- init buffer for navigator data ----------*/
-			/*---------------------------------------------------*/
-			if (!(buffer_nav_ = new hoNDArray<std::complex<float> >())) {
-				GERROR("Failed to create navigator buffer\n");
-				process_lck.unlock();
-				return GADGET_FAIL;
-			}
-
-			// add pointer to big pointer vector
-			bufferNav_.push_back(buffer_nav_);
-
-			// dimension vector of navigator array
-			std::vector<size_t> dim_nav;
-			dim_nav.push_back(base_res);
-			dim_nav.push_back(GlobalVar::instance()->iNavPERes_);
-			dim_nav.push_back(channels);
-
-			// create buffer array for incoming navigator data (readout, time, PE, channel)
-			try {
-				buffer_nav_->create(&dim_nav);
-			} catch (Gadgetron::bad_alloc) {
-				print_not_enough_ram_msg<size_t>(dim_nav, sizeof(std::complex<float>));
-				process_lck.unlock();
-
-				return GADGET_FAIL;
-			} catch (std::runtime_error &err) {
-				GEXCEPTION(err, "Failed to allocate navigator buffer array\n");
-				process_lck.unlock();
-				return GADGET_FAIL;
-			}
-		}
-
-		// copy data
-		uint16_t samples = m1->getObjectPtr()->number_of_samples;
-		for (uint16_t c = 0; c < m1->getObjectPtr()->active_channels; c++) {
-			size_t offset_Nav = c*buffer_nav_->get_size(0)*buffer_nav_->get_size(1) + iNoNavLine_*buffer_nav_->get_size(0) + (buffer_nav_->get_size(0)>>1)-m1->getObjectPtr()->center_sample;
-			memcpy(buffer_nav_->get_data_ptr() + offset_Nav, m2->getObjectPtr()->get_data_ptr()+c*samples, sizeof(std::complex<float>)*samples);
-		}
+		// add pointer to big pointer vector
+		buffer_nav_.push_back(m2->getObjectPtr());
 
 		iNoNavLine_++;
 
 		if (iNoNavLine_ == GlobalVar::instance()->iNavPERes_) {
 			iNoNav_++;
 			iNoNavLine_ = 0;
-			buffer_nav_ = NULL;
 		} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)) {
 			GlobalVar::instance()->vNavInd_.push_back(static_cast<float>(current_scan));
 		}
@@ -480,6 +435,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		if (iNoNavLine_ != 0) {
 			iNoNav_--;
 			GlobalVar::instance()->vNavInd_.pop_back();
+			buffer_nav_.pop_back();
 		}
 
 		// bring GlobalVar::instance()->vNavInd_ to length of iNoNav_ if necessary
@@ -547,10 +503,10 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// create output
 		try {
 			std::vector<size_t> nav_dims;
-			for (size_t i = 0; i < bufferNav_.at(0)->get_number_of_dimensions(); i++) {
-				nav_dims.push_back(bufferNav_.at(0)->get_size(i));
-			}
-			nav_dims.push_back(bufferNav_.size());
+			nav_dims.push_back(base_res);
+			nav_dims.push_back(channels);
+			nav_dims.push_back(GlobalVar::instance()->iNavPERes_);
+			nav_dims.push_back(buffer_nav_.size()/GlobalVar::instance()->iNavPERes_);
 			total_nav_array.create(&nav_dims);
 		} catch (std::runtime_error &err) {
 			GEXCEPTION(err, "Unable to allocate new image array\n");
@@ -561,20 +517,18 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		}
 
 		// copy data
-		size_t nav_elements_copied = 0;
-		size_t nav_elements_to_copy = 0;
-		for (size_t i = 0; i < bufferNav_.size(); i++) {
-			nav_elements_to_copy = bufferNav_.at(i)->get_number_of_elements();
-			memcpy(total_nav_array.get_data_ptr()+nav_elements_copied, bufferNav_.at(i)->get_data_ptr(), bufferNav_.at(i)->get_number_of_bytes());
-			nav_elements_copied += nav_elements_to_copy;
+		for (size_t i = 0; i < buffer_nav_.size(); i++) {
+			size_t offset = (i/total_nav_array.get_size(2))*total_nav_array.get_size(0)*total_nav_array.get_size(1)*total_nav_array.get_size(2)
+				+ (i % total_nav_array.get_size(2))*total_nav_array.get_size(0)*total_nav_array.get_size(1);
+			memcpy(total_nav_array.get_data_ptr()+offset, buffer_nav_.at(i)->get_data_ptr(), buffer_nav_.at(i)->get_number_of_bytes());
 		}
 
-		// permute nav: [baseRes NavPERes channels scans] -> [baseRes scans NavPEREs channels]
+		// permute nav: [baseRes channels NavPERes scans] -> [baseRes scans NavPEREs channels]
 		std::vector<size_t> new_nav_dim;
 		new_nav_dim.push_back(0);
 		new_nav_dim.push_back(3);
-		new_nav_dim.push_back(1);
 		new_nav_dim.push_back(2);
+		new_nav_dim.push_back(1);
 		total_nav_array = *permute(&total_nav_array, &new_nav_dim, false);
 		total_nav_array.delete_data_on_destruct(false);
 

@@ -30,8 +30,7 @@ namespace Gadgetron {
 	{
 	private:
 		std::vector<GadgetContainerMessage<hoNDArray<std::complex<float> > >*> bufferkSpace_;
-		std::vector<hoNDArray<std::complex<float> >*> bufferNav_;
-		hoNDArray<std::complex<float> > *buffer_nav_ = NULL;
+		std::vector<hoNDArray<std::complex<float> >*> buffer_nav_;
 
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
