@@ -461,13 +461,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		bNavigator = true;
 	}
 
-	// get current loop counters
-	uint16_t samples	= m1->getObjectPtr()->number_of_samples;
-	uint16_t line		= m1->getObjectPtr()->idx.kspace_encode_step_1;
-	uint16_t partition	= m1->getObjectPtr()->idx.kspace_encode_step_2;
-
 	// push current loop counters on according vector (temporal)
+	uint16_t line = m1->getObjectPtr()->idx.kspace_encode_step_1;
 	GlobalVar::instance()->vPE_.push_back(line);
+
+	uint16_t partition = m1->getObjectPtr()->idx.kspace_encode_step_2;
 	GlobalVar::instance()->vPA_.push_back(partition);
 
 	// get data pointer
@@ -475,6 +473,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	std::complex<float> *pNav		= bufferNav_->get_data_ptr();
 	std::complex<float>	*pIncoming	= m2->getObjectPtr()->get_data_ptr();
 
+	uint16_t samples = m1->getObjectPtr()->number_of_samples;
 	for (int c = 0; c < m1->getObjectPtr()->active_channels; c++) {
 		size_t offset_kSpace = c*dimkSpace_[0]*dimkSpace_[1] + current_scan*dimkSpace_[0] + (dimkSpace_[0]>>1)-m1->getObjectPtr()->center_sample;
 		memcpy(pkSpace + offset_kSpace, pIncoming+c*samples, sizeof(std::complex<float>)*samples);
