@@ -10,6 +10,7 @@ ImageAccumulatorGadget::~ImageAccumulatorGadget()
 {
 	if (hafBuffer_) {
 		delete hafBuffer_;
+		hafBuffer_ = NULL;
 	}
 }
 

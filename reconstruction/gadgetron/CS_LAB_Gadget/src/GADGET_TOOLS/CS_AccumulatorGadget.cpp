@@ -33,6 +33,7 @@ CS_AccumulatorGadget::~CS_AccumulatorGadget()
 {
 	if (hacfBuffer_) {
 		delete hacfBuffer_;
+		hacfBuffer_ = NULL;
 	}
 }
 

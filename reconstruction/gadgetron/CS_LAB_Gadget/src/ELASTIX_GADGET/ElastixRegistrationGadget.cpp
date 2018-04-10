@@ -252,6 +252,7 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 		// clean up
 		delete elastix_obj;
+		elastix_obj = NULL;
 
 		// calculate deformation field
 		std::string transformix_command = std::string("transformix -def all -out ")+sPathLog_+std::string(" -tp ")+sPathLog_+std::string("TransformParameters.0.txt");
