@@ -29,8 +29,9 @@ namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
 	{
 	private:
-		hoNDArray<std::complex<float> > *bufferkSpace_ = NULL;
-		hoNDArray<std::complex<float> > *bufferNav_ = NULL;
+		std::vector<GadgetContainerMessage<hoNDArray<std::complex<float> > >*> bufferkSpace_;
+		std::vector<hoNDArray<std::complex<float> >*> bufferNav_;
+		hoNDArray<std::complex<float> > *buffer_nav_ = NULL;
 
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
