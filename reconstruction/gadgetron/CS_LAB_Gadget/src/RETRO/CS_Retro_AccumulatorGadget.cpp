@@ -580,6 +580,9 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		tmp_m1->getObjectPtr()->image_index = static_cast<uint16_t>(++image_counter_);
 		tmp_m1->getObjectPtr()->image_series_index = static_cast<uint16_t>(image_series_);
 
+		// delete header - it is not needed anymore
+		m1->release();
+
 		// navigator
 		GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 
