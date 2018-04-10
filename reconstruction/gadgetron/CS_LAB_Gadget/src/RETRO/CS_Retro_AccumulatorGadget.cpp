@@ -566,12 +566,9 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		}
 
 		// copy the data fragments to the big kSpace array
-		size_t kspace_elements_copied = 0;
-		size_t kspace_elements_to_copy = 0;
 		for (size_t i = 0; i < buffer_kspace_.size(); i++) {
-			kspace_elements_to_copy = buffer_kspace_.at(i)->getObjectPtr()->get_number_of_elements();
-			memcpy(total_kspace_array.get_data_ptr()+kspace_elements_copied, buffer_kspace_.at(i)->getObjectPtr()->get_data_ptr(), buffer_kspace_.at(i)->getObjectPtr()->get_number_of_bytes());
-			kspace_elements_copied += kspace_elements_to_copy;
+			size_t offset = i * total_kspace_array.get_size(0) * total_kspace_array.get_size(1);
+			memcpy(total_kspace_array.get_data_ptr()+offset, buffer_kspace_.at(i)->getObjectPtr()->get_data_ptr(), buffer_kspace_.at(i)->getObjectPtr()->get_number_of_bytes());
 
 			// free memory
 			buffer_kspace_.at(i)->release();
