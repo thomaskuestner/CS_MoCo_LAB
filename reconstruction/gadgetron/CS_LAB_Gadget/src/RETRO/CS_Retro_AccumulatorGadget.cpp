@@ -22,13 +22,13 @@ CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget()
 // class destructor - delete temporal buffer/memory
 CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget()
 {
-	// free bufferkSpace_
-	while (bufferkSpace_.size() > 0) {
-		if (bufferkSpace_.at(bufferkSpace_.size()-1)) {
-			bufferkSpace_.at(bufferkSpace_.size()-1)->release();
+	// free buffer_kspace_
+	while (buffer_kspace_.size() > 0) {
+		if (buffer_kspace_.at(buffer_kspace_.size()-1)) {
+			buffer_kspace_.at(buffer_kspace_.size()-1)->release();
 		}
 
-		bufferkSpace_.pop_back();
+		buffer_kspace_.pop_back();
 	}
 }
 
@@ -384,7 +384,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	}
 
 	// add pointer to big pointer vector
-	bufferkSpace_.push_back(m2);
+	buffer_kspace_.push_back(m2);
 
 	// set navigator flag -> is the incoming measurement navigator data?
 	bool bNavigator = false;
@@ -548,12 +548,12 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			std::vector<size_t> kspace_dims;
 
 			// take all the given dimensions (we assume they are all the same, so we can just read the first)
-			for (size_t i = 0; i < bufferkSpace_.at(0)->getObjectPtr()->get_number_of_dimensions(); i++) {
-				kspace_dims.push_back(bufferkSpace_.at(0)->getObjectPtr()->get_size(i));
+			for (size_t i = 0; i < buffer_kspace_.at(0)->getObjectPtr()->get_number_of_dimensions(); i++) {
+				kspace_dims.push_back(buffer_kspace_.at(0)->getObjectPtr()->get_size(i));
 			}
 
 			// and last append the number of measurements
-			kspace_dims.push_back(bufferkSpace_.size());
+			kspace_dims.push_back(buffer_kspace_.size());
 
 			// create the array now
 			total_kspace_array.create(&kspace_dims);
@@ -568,14 +568,14 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// copy the data fragments to the big kSpace array
 		size_t kspace_elements_copied = 0;
 		size_t kspace_elements_to_copy = 0;
-		for (size_t i = 0; i < bufferkSpace_.size(); i++) {
-			kspace_elements_to_copy = bufferkSpace_.at(i)->getObjectPtr()->get_number_of_elements();
-			memcpy(total_kspace_array.get_data_ptr()+kspace_elements_copied, bufferkSpace_.at(i)->getObjectPtr()->get_data_ptr(), bufferkSpace_.at(i)->getObjectPtr()->get_number_of_bytes());
+		for (size_t i = 0; i < buffer_kspace_.size(); i++) {
+			kspace_elements_to_copy = buffer_kspace_.at(i)->getObjectPtr()->get_number_of_elements();
+			memcpy(total_kspace_array.get_data_ptr()+kspace_elements_copied, buffer_kspace_.at(i)->getObjectPtr()->get_data_ptr(), buffer_kspace_.at(i)->getObjectPtr()->get_number_of_bytes());
 			kspace_elements_copied += kspace_elements_to_copy;
 
 			// free memory
-			bufferkSpace_.at(i)->release();
-			bufferkSpace_.at(i) = NULL;
+			buffer_kspace_.at(i)->release();
+			buffer_kspace_.at(i) = NULL;
 		}
 
 		// permute kspace: [baseRes channels scans] -> [baseRes scans channels]
@@ -603,7 +603,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		return GADGET_OK;
 	}
 
-	// free memory (only m1, we need m2 later on (saved in bufferkSpace_)
+	// free memory (only m1, we need m2 later on (saved in buffer_kspace_)
 	m1->cont(NULL);
 	m1->release();
 
