@@ -22,15 +22,13 @@ CS_Retro_AccumulatorGadget::CS_Retro_AccumulatorGadget()
 // class destructor - delete temporal buffer/memory
 CS_Retro_AccumulatorGadget::~CS_Retro_AccumulatorGadget()
 {
-	if (bufferkSpace_) {
-		delete bufferkSpace_;
-		bufferkSpace_ = NULL;
-	}
+	// free bufferkSpace_
+	delete bufferkSpace_;
+	bufferkSpace_ = NULL;
 
-	if (bufferNav_) {
-		delete bufferNav_;
-		bufferNav_ = NULL;
-	}
+	// free bufferNav_
+	delete bufferNav_;
+	bufferNav_ = NULL;
 }
 
 // read flexible data header
