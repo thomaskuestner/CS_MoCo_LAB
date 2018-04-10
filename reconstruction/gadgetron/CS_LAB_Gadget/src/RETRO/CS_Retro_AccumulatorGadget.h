@@ -47,9 +47,6 @@ namespace Gadgetron {
 		int iEchoLine_ = 0;
 		int iEchoPartition_ = 0;
 
-		// CS_Retro variables
-		int iBaseRes_ = 0;
-
 		// number of phases
 		int iNPhases_ = 0;
 
