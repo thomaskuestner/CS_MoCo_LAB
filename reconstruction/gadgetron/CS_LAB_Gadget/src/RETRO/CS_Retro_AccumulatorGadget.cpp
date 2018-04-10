@@ -404,7 +404,6 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *tmp_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
 		fCopyAcqHeader(tmp_m1, m1->getObjectPtr());
 		GlobalVar::instance()->AcqVec_.push_back(tmp_m1->getObjectPtr());
-		GINFO("Receiving data..\n");
 	}
 
 	/*---------------------------------------------------*/
