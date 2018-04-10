@@ -428,7 +428,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			iNoNav_--;
 			GlobalVar::instance()->vNavInd_.pop_back();
 
-			for (int i = 0; i < iNoNavLine_; i++) {
+			for (unsigned int i = 0; i < iNoNavLine_; i++) {
 				buffer_nav_.pop_back();
 			}
 		}
