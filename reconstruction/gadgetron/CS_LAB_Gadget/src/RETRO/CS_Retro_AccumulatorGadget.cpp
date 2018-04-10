@@ -368,7 +368,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		return GADGET_OK;
 	}
 
-	// only init the buffers in case of real data acquisition (otherwise wrong values (e.g. base resolution) can occur)
+	// only handle correct measurements (data and navigator), otherwise some strange things can occur (lengths are probably not the same)
 	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
 		GDEBUG("Reject scan with idx.set=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, current_scan);
 		m1->release();
@@ -376,23 +376,17 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		return GADGET_OK;
 	}
 
+	// copy header information of first acquisition to global variable (create new header, copy header, push onto global vector)
 	if (GlobalVar::instance()->AcqVec_.size() == 0) {
-		// copy header information of first acquisition to global variable (create new header, copy header, push onto global vector)
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *tmp_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
 		fCopyAcqHeader(tmp_m1, m1->getObjectPtr());
 		GlobalVar::instance()->AcqVec_.push_back(tmp_m1->getObjectPtr());
 	}
 
-	/*---------------------------------------------------*/
-	/*----------- init buffer for k-space data ----------*/
-	/*---------------------------------------------------*/
 	// add pointer to big pointer vector
 	bufferkSpace_.push_back(m2);
 
-	/*---------------------------------------------------*/
-	/*----------- store incoming k-space data -----------*/
-	/*---------------------------------------------------*/
-	// navigator flag
+	// set navigator flag -> is the incoming measurement navigator data?
 	bool bNavigator = false;
 	if (is_navigator_dataset(*m1->getObjectPtr())) {
 		bNavigator = true;
@@ -405,12 +399,15 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	uint16_t partition = m1->getObjectPtr()->idx.kspace_encode_step_2;
 	GlobalVar::instance()->vPA_.push_back(partition);
 
+	// save navigator data if it is one
 	if (bNavigator == true) {
 		// add pointer to big pointer vector
 		buffer_nav_.push_back(m2->getObjectPtr());
 
+		// increase line counter
 		iNoNavLine_++;
 
+		// reset line counter and increase full navigation counter if needed
 		if (iNoNavLine_ == GlobalVar::instance()->iNavPERes_) {
 			iNoNav_++;
 			iNoNavLine_ = 0;
@@ -458,9 +455,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		memset(tmp_m1->getObjectPtr(), 0, sizeof(ISMRMRD::ImageHeader));
 
 		// initialize flags
-		tmp_m1->getObjectPtr()->flags = 0;
-
-		//tmp_m1->getObjectPtr()->user_int[0] = 7;
+		tmp_m1->getObjectPtr()->flags				= 0;
 		tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
 		tmp_m1->getObjectPtr()->user_int[1]			= iBodyRegion_;
 		tmp_m1->getObjectPtr()->user_int[2]			= iSamplingType_;
@@ -492,19 +487,22 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		tmp_m1->getObjectPtr()->image_series_index = 0;
 
 		// delete header - it is not needed anymore
-		m1->cont(NULL);
+		m1->cont(NULL);	// only increse header, not the data. THIS IS IMPORTANT!
 		m1->release();
 
-		// navigator
+		// setup navigator array which contains all the data given to next Gadget later on
 		hoNDArray<std::complex<float> > total_nav_array;
 
-		// create output
+		// create navigator array
 		try {
+			// create array dimensions
 			std::vector<size_t> nav_dims;
 			nav_dims.push_back(m1->getObjectPtr()->number_of_samples);	// get number of samples in acquisition (equals base resolution)
 			nav_dims.push_back(m1->getObjectPtr()->active_channels);
 			nav_dims.push_back(GlobalVar::instance()->iNavPERes_);
 			nav_dims.push_back(buffer_nav_.size()/GlobalVar::instance()->iNavPERes_);
+
+			// and create array
 			total_nav_array.create(&nav_dims);
 		} catch (std::runtime_error &err) {
 			GEXCEPTION(err, "Unable to allocate new image array\n");
@@ -514,39 +512,50 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			return GADGET_FAIL;
 		}
 
-		// copy data
+		// copy the data fragments to the big navigator array
+		// some remarks:
+		// 	- in buffer_nav_, there are single [base_res channels] measurements in order [PERes0 PERes1 .. PERes(iNavPERes_-1)] [PERes0 ...] ...
+		// 	- OFFSET: to jump over whole navigator "images" [base_res channels iNavPERes] the formula (i/iNavPERes_) is used
+		// 	- OFFSET: to fill to the navigator "images" [base_res channels iNavPERes] with the navigator lines [base_res channels] (i%iNavPERes) is used
 		for (size_t i = 0; i < buffer_nav_.size(); i++) {
 			size_t offset = (i/total_nav_array.get_size(2))*total_nav_array.get_size(0)*total_nav_array.get_size(1)*total_nav_array.get_size(2)
 				+ (i % total_nav_array.get_size(2))*total_nav_array.get_size(0)*total_nav_array.get_size(1);
 			memcpy(total_nav_array.get_data_ptr()+offset, buffer_nav_.at(i)->get_data_ptr(), buffer_nav_.at(i)->get_number_of_bytes());
 		}
 
-		// permute nav: [baseRes channels NavPERes scans] -> [baseRes scans NavPEREs channels]
+		// permute navigator: [baseRes channels NavPERes scans] -> [baseRes scans NavPEREs channels]
 		std::vector<size_t> new_nav_dim;
 		new_nav_dim.push_back(0);
 		new_nav_dim.push_back(3);
 		new_nav_dim.push_back(2);
 		new_nav_dim.push_back(1);
 		total_nav_array = *permute(&total_nav_array, &new_nav_dim, false);
-		total_nav_array.delete_data_on_destruct(false);
+		total_nav_array.delete_data_on_destruct(false);	// now do not delete the data anymore, it will be directly passed into GadgetContainerMessage!
 
-		// create nav output message
+		// create navigator output message
 		GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 		tmp_m2->getObjectPtr()->create(total_nav_array.get_size(0), total_nav_array.get_size(1), total_nav_array.get_size(2), total_nav_array.get_size(3), total_nav_array.get_data_ptr(), true);
 
 		// concatenate data with header
 		tmp_m1->cont(tmp_m2);
 
-		// kSpace
+		// setup kSpace array which contains all the data given to next Gadget later on
 		hoNDArray<std::complex<float> > total_kspace_array;
 
-		// create output
+		// create kSpace array
 		try {
+			// create array dimensions
 			std::vector<size_t> kspace_dims;
+
+			// take all the given dimensions (we assume they are all the same, so we can just read the first)
 			for (size_t i = 0; i < bufferkSpace_.at(0)->getObjectPtr()->get_number_of_dimensions(); i++) {
 				kspace_dims.push_back(bufferkSpace_.at(0)->getObjectPtr()->get_size(i));
 			}
+
+			// and last append the number of measurements
 			kspace_dims.push_back(bufferkSpace_.size());
+
+			// create the array now
 			total_kspace_array.create(&kspace_dims);
 		} catch (std::runtime_error &err) {
 			GEXCEPTION(err, "Unable to allocate new image array\n");
@@ -556,7 +565,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			return GADGET_FAIL;
 		}
 
-		// copy data
+		// copy the data fragments to the big kSpace array
 		size_t kspace_elements_copied = 0;
 		size_t kspace_elements_to_copy = 0;
 		for (size_t i = 0; i < bufferkSpace_.size(); i++) {
@@ -575,7 +584,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		new_kspace_dim.push_back(2);
 		new_kspace_dim.push_back(1);
 		total_kspace_array = *permute(&total_kspace_array, &new_kspace_dim, false);
-		total_kspace_array.delete_data_on_destruct(false);
+		total_kspace_array.delete_data_on_destruct(false);	// now do not delete the data anymore, it will be directly passed into GadgetContainerMessage!
 
 		// create kspace output message
 		GadgetContainerMessage<hoNDArray<std::complex<float> > > *tmp_m3 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
@@ -584,7 +593,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		// concatenate data
 		tmp_m2->cont(tmp_m3);
 
-		// put on stream
+		// put data on stream
 		if (this->next()->putq(tmp_m1) < 0) {
 			return GADGET_FAIL;
 		}
