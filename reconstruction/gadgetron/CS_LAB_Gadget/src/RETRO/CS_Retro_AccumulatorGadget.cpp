@@ -359,6 +359,13 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	// set scan counter value
 	const uint32_t current_scan = m1->getObjectPtr()->scan_counter-1;
 
+	// protect Gadget from more inputs than expected
+	if (current_scan > lNoScans_) {
+		GDEBUG("Drop scan no. %d (unexpected)\n", current_scan);
+
+		return GADGET_OK;
+	}
+
 	// only init the buffers in case of real data acquisition (otherwise wrong values (e.g. base resolution) can occur)
 	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
 		GDEBUG("Reject scan with idx.set=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, current_scan);
@@ -445,11 +452,6 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		GINFO("bufferNav_:\n");
 		bufferNav_->print(std::cout);
-	}
-
-	// protect Gadget from more inputs than expected
-	if (current_scan > lNoScans_) {
-		return GADGET_OK;
 	}
 
 	/*---------------------------------------------------*/
