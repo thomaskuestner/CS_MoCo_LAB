@@ -32,9 +32,6 @@ namespace Gadgetron {
 		hoNDArray<std::complex<float> > *bufferkSpace_ = NULL;
 		hoNDArray<std::complex<float> > *bufferNav_ = NULL;
 
-		std::vector<size_t> dimkSpace_;
-		std::vector<size_t> dimNav_;
-
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
 		long long image_counter_ = 0;

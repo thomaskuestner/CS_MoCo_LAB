@@ -391,15 +391,16 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		GDEBUG("base res.: %d, no. scans: %lu, no. channel: %u\n", base_res, lNoScans_, channels);
 
 		// dimension vector of k-space array
-		dimkSpace_.push_back(base_res);
-		dimkSpace_.push_back(lNoScans_);
-		dimkSpace_.push_back(channels);
+		std::vector<size_t> dim_kspace;
+		dim_kspace.push_back(base_res);
+		dim_kspace.push_back(lNoScans_);
+		dim_kspace.push_back(channels);
 
 		// create buffer array for incoming k-space data (readout, time, channel)
 		try {
-			bufferkSpace_->create(&dimkSpace_);
+			bufferkSpace_->create(&dim_kspace);
 		} catch (Gadgetron::bad_alloc) {
-			print_not_enough_ram_msg<size_t>(dimkSpace_, sizeof(std::complex<float>));
+			print_not_enough_ram_msg<size_t>(dim_kspace, sizeof(std::complex<float>));
 
 			return GADGET_FAIL;
 		} catch (std::runtime_error &err) {
@@ -429,10 +430,11 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		}
 
 		// dimension vector of navigator array
-		dimNav_.push_back(base_res);
-		dimNav_.push_back(lNoScans_);
-		dimNav_.push_back(GlobalVar::instance()->iNavPERes_);
-		dimNav_.push_back(channels);
+		std::vector<size_t> dim_nav;
+		dim_nav.push_back(base_res);
+		dim_nav.push_back(lNoScans_);
+		dim_nav.push_back(GlobalVar::instance()->iNavPERes_);
+		dim_nav.push_back(channels);
 		iNoNav_ = 0;
 		iNoNavLine_ = 0;
 
@@ -440,9 +442,9 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 
 		// create buffer array for incoming navigator data (readout, time, PE, channel)
 		try {
-			bufferNav_->create(&dimNav_);
+			bufferNav_->create(&dim_nav);
 		} catch (Gadgetron::bad_alloc) {
-			print_not_enough_ram_msg<size_t>(dimNav_, sizeof(std::complex<float>));
+			print_not_enough_ram_msg<size_t>(dim_nav, sizeof(std::complex<float>));
 
 			return GADGET_FAIL;
 		} catch (std::runtime_error &err) {
