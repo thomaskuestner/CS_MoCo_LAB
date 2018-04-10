@@ -468,19 +468,14 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	uint16_t partition = m1->getObjectPtr()->idx.kspace_encode_step_2;
 	GlobalVar::instance()->vPA_.push_back(partition);
 
-	// get data pointer
-	std::complex<float> *pkSpace	= bufferkSpace_->get_data_ptr();
-	std::complex<float> *pNav		= bufferNav_->get_data_ptr();
-	std::complex<float>	*pIncoming	= m2->getObjectPtr()->get_data_ptr();
-
 	uint16_t samples = m1->getObjectPtr()->number_of_samples;
 	for (int c = 0; c < m1->getObjectPtr()->active_channels; c++) {
 		size_t offset_kSpace = c*dimkSpace_[0]*dimkSpace_[1] + current_scan*dimkSpace_[0] + (dimkSpace_[0]>>1)-m1->getObjectPtr()->center_sample;
-		memcpy(pkSpace + offset_kSpace, pIncoming+c*samples, sizeof(std::complex<float>)*samples);
+		memcpy(bufferkSpace_->get_data_ptr() + offset_kSpace, m2->getObjectPtr()->get_data_ptr()+c*samples, sizeof(std::complex<float>)*samples);
 
 		if (bNavigator == true) {
 			size_t offset_Nav = c*dimNav_[0]*dimNav_[1]*dimNav_[2] + iNoNavLine_*dimNav_[0]*dimNav_[1] + iNoNav_*dimNav_[0]+(dimNav_[0]>>1)-m1->getObjectPtr()->center_sample;
-			memcpy(pNav + offset_Nav, pIncoming+c*samples, sizeof(std::complex<float>)*samples);
+			memcpy(bufferNav_->get_data_ptr() + offset_Nav, m2->getObjectPtr()->get_data_ptr()+c*samples, sizeof(std::complex<float>)*samples);
 		}
 	}
 
