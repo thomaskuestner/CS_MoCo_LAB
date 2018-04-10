@@ -356,12 +356,12 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 // process data - incoming unordered k-space(RO,t,c) --> ordered k-space(x,y,z,Phases,c)
 int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
 {
+	// set scan counter value
+	const uint32_t current_scan = m1->getObjectPtr()->scan_counter-1;
+
 	// only init the buffers in case of real data acquisition (otherwise wrong values (e.g. base resolution) can occur)
 	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
 		GDEBUG("Reject scan with idx.set=%d\n", m1->getObjectPtr()->idx.set);
-
-		// increase counter (it is still a measurement)
-		lCurrentScan_++;
 
 		return GADGET_OK;
 	}
@@ -448,7 +448,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	}
 
 	// protect Gadget from more inputs than expected
-	if (lCurrentScan_ >= lNoScans_) {
+	if (current_scan > lNoScans_) {
 		return GADGET_OK;
 	}
 
@@ -476,7 +476,7 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	std::complex<float>	*pIncoming	= m2->getObjectPtr()->get_data_ptr();
 
 	for (int c = 0; c < m1->getObjectPtr()->active_channels; c++) {
-		size_t offset_kSpace = c*dimkSpace_[0]*dimkSpace_[1] + lCurrentScan_*dimkSpace_[0] + (dimkSpace_[0]>>1)-m1->getObjectPtr()->center_sample;
+		size_t offset_kSpace = c*dimkSpace_[0]*dimkSpace_[1] + current_scan*dimkSpace_[0] + (dimkSpace_[0]>>1)-m1->getObjectPtr()->center_sample;
 		memcpy(pkSpace + offset_kSpace, pIncoming+c*samples, sizeof(std::complex<float>)*samples);
 
 		if (bNavigator == true) {
@@ -492,16 +492,14 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 			iNoNav_++;
 			iNoNavLine_ = 0;
 		} else if (iNoNavLine_ == (GlobalVar::instance()->iNavPERes_/2)) {
-			GlobalVar::instance()->vNavInd_.push_back(static_cast<float>(lCurrentScan_));
+			GlobalVar::instance()->vNavInd_.push_back(static_cast<float>(current_scan));
 		}
 	}
-
-	lCurrentScan_++;
 
 	/*---------------------------------------------------*/
 	/*--------------- process sampled data --------------*/
 	/*---------------------------------------------------*/
-	if (lCurrentScan_ == lNoScans_) {
+	if (current_scan == lNoScans_) {
 		GINFO("data received.. try to process data\n");
 
 		// crop non-empty data from navigator array
