@@ -32,10 +32,11 @@ namespace Gadgetron {
 		std::vector<GadgetContainerMessage<hoNDArray<std::complex<float> > >*> buffer_kspace_;
 		std::vector<hoNDArray<std::complex<float> >*> buffer_nav_;
 
+		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *acq_header_ = NULL;
+
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
 
-		unsigned long lNoScans_ = 0;
 		unsigned int iNoNav_ = 0;
 		unsigned int iNoNavLine_ = 0;
 		int iEchoLine_ = 0;
@@ -59,6 +60,8 @@ namespace Gadgetron {
 
 		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
 
+		int close(unsigned long flags) override;
+
 	protected:
 		int process_config(ACE_Message_Block *mb);
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
@@ -74,11 +77,12 @@ namespace Gadgetron {
 			return header.idx.set == 1;
 		}
 
+		bool process_data(void);
+
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
-		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
 		GADGET_PROPERTY(Phases, int, "Phases", 0);
 #endif
 	};

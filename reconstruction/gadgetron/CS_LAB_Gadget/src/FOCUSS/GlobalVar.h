@@ -76,7 +76,6 @@ namespace Gadgetron
 
 		// Retro Vars
 		int iGatingMode_;			// Gating mode (0: percentile, 1: kMeans)
-		int iMeasurementTime_;
 		unsigned int iNavPERes_;
 		int iNavPeriod_;
 		int iPopulationMode_;		// mode for k-space population (0: closes, 1: average, 2: collect)
