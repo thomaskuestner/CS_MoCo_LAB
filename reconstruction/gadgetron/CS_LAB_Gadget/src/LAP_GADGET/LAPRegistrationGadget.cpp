@@ -8,6 +8,8 @@ description	: 	implementation of the class LAPRegistrationGadget - only 4D data 
 
 #include "LAPRegistrationGadget.h"
 
+#include "SomeFunctions.h"
+
 using namespace Gadgetron;
 
 LAPRegistrationGadget::LAPRegistrationGadget()
@@ -76,14 +78,17 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 	float *pfDataset = m2->getObjectPtr()->get_data_ptr();
 
-	// get fixed image from 4D dataset
+	// get fixed image from dataset
 	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
 
-	// create registered (output) image. Pattern: [pixels_x px_y px_z images&deformation_fields(im0, im1, im2, im3, df1x, df1y, df1z, df2x,...)]
-	std::vector<size_t> dimensions_registered = *m2->getObjectPtr()->get_dimensions();
-	dimensions_registered.at(dimensions_registered.size()-1) += 3*(number_of_images-1);
-	hoNDArray<float> fRegisteredImage(&dimensions_registered);
+	// create registered (output) image
+	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
+	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+
+	// create array for deformation field
+	new_reg_image_dim.at(new_reg_image_dim.size()-1) = (number_of_images - 1) * dimensions_of_image.size();	// images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
+	hoNDArray<float> output_deformation_field(&new_reg_image_dim);
 
 	CubeType cFixedImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
 	CubeType cMovingImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
@@ -113,13 +118,12 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 		field<CubeType> flow_estimation = mLAP3D.exec();
 
 		// save deformation fields
-		for (size_t i = 0; i < 3; i++) {
+		for (size_t i = 0; i < dimensions_of_image.size(); i++) {
 			// calculate offset
-			size_t offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
-				number_of_images					// jump over all valid images
-				+ (iState - 1) * 3					// jump to correct deformation field image position (*3 because each DF Image consists of 3 parts (x,y,z))
-				+ i);								// select correct slot
-			memcpy(fRegisteredImage.get_data_ptr()+offset, flow_estimation(i).memptr(), cuiNumberOfPixels*sizeof(float));
+			size_t def_field_offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				+ (iState - 1) * dimensions_of_image.size()	// jump to correct deformation field image position
+				+ i);										// select correct slot
+			memcpy(output_deformation_field.get_data_ptr()+def_field_offset, flow_estimation(i).memptr(), cuiNumberOfPixels*sizeof(float));
 		}
 
 		// get output image
@@ -153,11 +157,43 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
-	// correct channels value for MRIImageWriter (last dimension of output array)
-	m1->getObjectPtr()->channels = fRegisteredImage.get_size(fRegisteredImage.get_number_of_dimensions()-1);
-
 	// Now pass on image
 	if (this->next()->putq(m1) < 0) {
+		return GADGET_FAIL;
+	}
+
+	// ########## create deformation field message ###########
+	// copy header
+	GadgetContainerMessage<ISMRMRD::ImageHeader> *m1_df = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
+	fCopyImageHeader(m1_df, m1->getObjectPtr());
+
+	// correct channels value for MRIImageWriter (last dimension of output array)
+	m1_df->getObjectPtr()->channels = output_deformation_field.get_size(output_deformation_field.get_number_of_dimensions()-1);
+
+	// set new image number
+	m1_df->getObjectPtr()->image_series_index = 1;
+
+	// new GadgetContainer
+	GadgetContainerMessage<hoNDArray<float> > *m2_df = new GadgetContainerMessage<hoNDArray<float> >();
+
+	// concatenate data with header
+	m1_df->cont(m2_df);
+
+	// create output
+	try {
+		m2_df->getObjectPtr()->create(*output_deformation_field.get_dimensions());
+	} catch (std::runtime_error &err) {
+		GEXCEPTION(err,"Unable to allocate new deformation field array\n");
+		m1_df->release();
+
+		return GADGET_FAIL;
+	}
+
+	// copy data
+	memcpy(m2_df->getObjectPtr()->get_data_ptr(), output_deformation_field.begin(), output_deformation_field.get_number_of_bytes());
+
+	// Now pass on deformation field
+	if (this->next()->putq(m1_df) < 0) {
 		return GADGET_FAIL;
 	}
 

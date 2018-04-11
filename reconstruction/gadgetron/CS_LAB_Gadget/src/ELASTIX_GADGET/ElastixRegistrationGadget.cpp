@@ -130,11 +130,14 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	// get fixed image from dataset
 	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
 
-	// and create new registered image
+	// create registered (output) image
 	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
-	new_reg_image_dim.at(new_reg_image_dim.size()-1) += (number_of_images - 1) * dimensions_of_image.size();	// append images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
 	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+
+	// create array for deformation field
+	new_reg_image_dim.at(new_reg_image_dim.size()-1) = (number_of_images - 1) * dimensions_of_image.size();	// images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
+	hoNDArray<float> output_deformation_field(&new_reg_image_dim);
 
 	// set itk image parameter
 	ImportFilterType::Pointer itkImportFilter = ImportFilterType::New();
@@ -296,13 +299,11 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 			deformation_field = *permute(&deformation_field, &new_dim_order, false);
 
 			// now calculate offset for the great return image
-			size_t def_field_offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
-				number_of_images							// jump over all valid images
-				+ (iState - 1) * dimensions_of_image.size()	// jump to correct deformation field image position (*dim.size() because each DF Image consists of N parts (x,y[,z]))
-			);
+			size_t def_field_offset = cuiNumberOfPixels * 	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				(iState - 1) * dimensions_of_image.size();	// jump to correct deformation field image position (*dim.size() because each DF Image consists of N parts (x,y[,z]))
 
 			// and copy permuted data into great return image
-			memcpy(fRegisteredImage.get_data_ptr()+def_field_offset, deformation_field.get_data_ptr(), deformation_field.get_number_of_elements()*sizeof(float));
+			memcpy(output_deformation_field.get_data_ptr()+def_field_offset, deformation_field.get_data_ptr(), deformation_field.get_number_of_elements()*sizeof(float));
 		} else {
 			GWARN("No deformation field for state %d available (Errors in transformix).\n", iState);
 		}
@@ -352,11 +353,43 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
-	// correct channels value for MRIImageWriter (last dimension of output array)
-	m1->getObjectPtr()->channels = fRegisteredImage.get_size(fRegisteredImage.get_number_of_dimensions()-1);
-
 	// Now pass on image
 	if (this->next()->putq(m1) < 0) {
+		return GADGET_FAIL;
+	}
+
+	// ########## create deformation field message ###########
+	// copy header
+	GadgetContainerMessage<ISMRMRD::ImageHeader> *m1_df = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
+	fCopyImageHeader(m1_df, m1->getObjectPtr());
+
+	// correct channels value for MRIImageWriter (last dimension of output array)
+	m1_df->getObjectPtr()->channels = output_deformation_field.get_size(output_deformation_field.get_number_of_dimensions()-1);
+
+	// set new image number
+	m1_df->getObjectPtr()->image_series_index = 1;
+
+	// new GadgetContainer
+	GadgetContainerMessage<hoNDArray<float> > *m2_df = new GadgetContainerMessage<hoNDArray<float> >();
+
+	// concatenate data with header
+	m1_df->cont(m2_df);
+
+	// create output
+	try {
+		m2_df->getObjectPtr()->create(*output_deformation_field.get_dimensions());
+	} catch (std::runtime_error &err) {
+		GEXCEPTION(err,"Unable to allocate new deformation field array\n");
+		m1_df->release();
+
+		return GADGET_FAIL;
+	}
+
+	// copy data
+	memcpy(m2_df->getObjectPtr()->get_data_ptr(), output_deformation_field.begin(), output_deformation_field.get_number_of_bytes());
+
+	// Now pass on deformation field
+	if (this->next()->putq(m1_df) < 0) {
 		return GADGET_FAIL;
 	}
 
