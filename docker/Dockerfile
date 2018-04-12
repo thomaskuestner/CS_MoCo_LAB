@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM gadgetron/ubuntu_1604_cuda80:latest
+FROM gadgetron/ubuntu_1604_cuda75:latest
 
 # Set the working directory
 WORKDIR /opt/code
