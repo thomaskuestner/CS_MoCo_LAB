@@ -99,6 +99,10 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 		return GADGET_FAIL;
 	}
 
+	// free memory
+	m2->cont(NULL);
+	m2->release();
+
 	return GADGET_OK;
 }
 

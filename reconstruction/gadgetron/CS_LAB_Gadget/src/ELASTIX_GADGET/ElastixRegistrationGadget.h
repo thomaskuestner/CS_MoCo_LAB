@@ -39,27 +39,47 @@ namespace Gadgetron
 {
 	class EXPORTCSLAB ElastixRegistrationGadget : public Gadget2<ISMRMRD::ImageHeader, hoNDArray<float> >
 	{
-		public:
+	public:
 		ElastixRegistrationGadget();
 		~ElastixRegistrationGadget();
 
 		GADGET_DECLARE(ElastixRegistrationGadget);
 
+	protected:
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
 		int process_config(ACE_Message_Block *mb);
 
-		int fRegistration3D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
-		int fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2);
+	private:
+		template<size_t DIM> bool read_itk_to_hondarray(hoNDArray<float> &deformation_field, const char *deformation_field_file_name, const size_t pixels_per_image) {
+			using PixelType = itk::Vector<float, DIM>;
+			using ImageType = itk::Image<PixelType, DIM>;
 
-		std::vector<size_t> vtDim_;
-		bool bIs2D_;
-		bool bIs3D_;
-		bool bIs4D_;
+			typename itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
+			reader->SetFileName(deformation_field_file_name);
 
+			try {
+				reader->Update();
+			} catch (itk::ExceptionObject& e) {
+				std::cerr << e.GetDescription() << std::endl;
+				return false;
+			}
+
+			// read image
+			typename ImageType::Pointer inputImage = reader->GetOutput();
+
+			// copy image from ITK to array
+			memcpy(deformation_field.get_data_ptr(), inputImage->GetBufferPointer(), DIM*pixels_per_image*sizeof(float));
+
+			return true;
+		}
+
+	private:
+		bool log_output_;
 		std::string sPathParam_;
 		std::string sPathLog_;
 
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+		GADGET_PROPERTY(LogOutput, bool, "LogOutput", false);
 		GADGET_PROPERTY(PathParam, std::string, "PathParam", "");
 		GADGET_PROPERTY(PathLog, std::string, "PathLog", "");
 #endif

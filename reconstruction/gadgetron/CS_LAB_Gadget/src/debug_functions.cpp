@@ -23,7 +23,7 @@ void Gadgetron::print_acquisition_header(int counter, const ISMRMRD::Acquisition
 	static ISMRMRD::AcquisitionHeader last_header;
 	static bool header_set = false;
 
-	std::cout << "print header " << counter << ":" << std::endl;
+	std::cout << "Header " << counter << ": ";
 	if (!header_set) {
 		// print all
 		std::cout << "version=" << h.version << ", ";
@@ -163,6 +163,9 @@ void Gadgetron::print_acquisition_header(int counter, const ISMRMRD::Acquisition
 			if (h.user_float[i] != last_header.user_float[i])
 				std::cout << "user_float[" << i << "]=" << h.user_float[i] << ", ";
 	}
+
+	std::cout << std::endl;
+
 	// set header
 	last_header = h;
 	header_set = true;

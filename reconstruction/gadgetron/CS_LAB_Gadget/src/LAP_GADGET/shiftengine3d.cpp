@@ -172,23 +172,23 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 
 	PixelType *Z, *S, *T, *W, *F;
 	int i, MN, nrows, ncols, npages, vol, ndim, newXndim, Xndim, *newdims;
-	int dims[3], Xdims[3];
 
 	Xndim = 3;
+	int Xdims[Xndim];
 	Xdims[0] = x1.n_rows;
 	Xdims[1] = x1.n_cols;
 	Xdims[2] = x1.n_slices;
 
 	ndim = 3;
+	int dims[ndim];
 	dims[0] = I0.n_rows;
 	dims[1] = I0.n_cols;
 	dims[2] = I0.n_slices;
-	newdims = (int*) calloc(ndim-1, sizeof(int));
 
 	MN = 1;
 	for (i = 0; i < Xndim; i++) {
 		MN =MN*Xdims[i];
-	};
+	}
 
 	vol = 1;
 	newXndim = Xndim;
@@ -204,7 +204,7 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 		// Copy original dimenstions
 		for (i = 0; i < newXndim; i++) {
 			newdims[i] = Xdims[i];
-		};
+		}
 
 		// Add the number of images as a last dimenstion
 		newdims[newXndim] = dims[3];
@@ -218,10 +218,12 @@ CubeType Gadgetron::ShiftEngine3D::execLinShift()
 
 		for (i = 0; i < newXndim; i++) {
 			newdims[i] = Xdims[i];
-		};
+		}
 	}
 
 	CubeType out(newdims[0], newdims[1], newdims[2], fill::zeros);
+
+	free(newdims);
 
 	nrows = dims[0];
 	ncols = dims[1];

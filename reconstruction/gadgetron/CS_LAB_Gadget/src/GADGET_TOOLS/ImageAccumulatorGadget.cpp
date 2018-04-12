@@ -8,9 +8,9 @@ ImageAccumulatorGadget::ImageAccumulatorGadget()
 
 ImageAccumulatorGadget::~ImageAccumulatorGadget()
 {
-	if (hafBuffer_) {
-		delete hafBuffer_;
-	}
+	// free hafBuffer_
+	delete hafBuffer_;
+	hafBuffer_ = NULL;
 }
 
 // read flexible data header

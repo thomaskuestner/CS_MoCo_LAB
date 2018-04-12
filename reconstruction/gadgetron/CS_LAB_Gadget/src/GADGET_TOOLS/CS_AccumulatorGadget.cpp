@@ -31,9 +31,9 @@ CS_AccumulatorGadget::CS_AccumulatorGadget() : hacfBuffer_(0), image_counter_(0)
 // class destructor
 CS_AccumulatorGadget::~CS_AccumulatorGadget()
 {
-	if (hacfBuffer_) {
-		delete hacfBuffer_;
-	}
+	// free hacfBuffer_
+	delete hacfBuffer_;
+	hacfBuffer_ = NULL;
 }
 
 // read flexible data header

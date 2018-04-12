@@ -24,6 +24,9 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	// get data
 	hoNDArray<std::complex<float> > data = m1->getObjectPtr()->data_;
 
+	// free memory
+	m1->release();
+
 	// permute array: kx-ky-kz-c-t-s-slc -> kx-ky-kz-t-c-s-slc (with c=s=slc=1 - will be cropped later on)
 	std::vector<size_t> vtDimOrder;
 	vtDimOrder.push_back(0);
@@ -43,6 +46,10 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	// restore image header from pre BART state
 	GadgetContainerMessage<ISMRMRD::ImageHeader> *cm1 = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 	fCopyImageHeader(cm1, GlobalVar::instance()->ImgHeadVec_.at(0));
+
+	// free memory in GlobalVar
+	delete GlobalVar::instance()->ImgHeadVec_.at(0);
+	GlobalVar::instance()->ImgHeadVec_.clear();
 
 	// reset number of gates (otherwise no output is performed) (channels = iNPhases_)
 	cm1->getObjectPtr()->channels = cm1->getObjectPtr()->user_int[0];

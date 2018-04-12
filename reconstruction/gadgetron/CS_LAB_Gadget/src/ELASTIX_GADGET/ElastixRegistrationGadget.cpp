@@ -16,9 +16,12 @@ description	: 	implementation of the class ElastixRegistrationGadget - only 3D (
 
 #include "ElastixRegistrationGadget.h"
 
+#include <boost/algorithm/string/predicate.hpp>
+#include "SomeFunctions.h"
+
 using namespace Gadgetron;
 
-ElastixRegistrationGadget::ElastixRegistrationGadget():bIs2D_(false), bIs3D_(false), bIs4D_(false)
+ElastixRegistrationGadget::ElastixRegistrationGadget()
 {
 }
 
@@ -29,58 +32,60 @@ ElastixRegistrationGadget::~ElastixRegistrationGadget()
 int ElastixRegistrationGadget::process_config(ACE_Message_Block *mb)
 {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	log_output_	= LogOutput.value();
 	sPathParam_	= PathParam.value();
 	sPathLog_	= PathLog.value();
 #else
+	log_output_	= *(get_bool_value("LogOutput").get());
 	sPathParam_	= *(get_string_value("PathParam").get());
 	sPathLog_	= *(get_string_value("PathLog").get());
 #endif
+
+	// ensure that path variable ends with dir separator
+#ifdef __WIN32__
+	#define DIR_SEPARATOR "\\"
+#else
+	#define DIR_SEPARATOR "/"
+#endif
+
+	if (boost::algorithm::ends_with(sPathLog_, DIR_SEPARATOR)) {
+		sPathLog_ += DIR_SEPARATOR;
+	}
 
 	return GADGET_OK;
 }
 
 int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
 {
-	/* ------------------------------------------------------------------- */
-	/* --------------- check dimension of incoming dataset --------------- */
-	/* ------------------------------------------------------------------- */
-	std::vector<size_t> dimension = *m2->getObjectPtr()->get_dimensions();
-	size_t num_dims = m2->getObjectPtr()->get_number_of_dimensions();
+	// create dimension variables
+	// first image is fixed image (end-exhale position) all other images declared to be moving images
+	std::vector<size_t> dimensions = *m2->getObjectPtr()->get_dimensions();
 
-	// get dimensions flag
-	if (num_dims == 2) {
-		bIs2D_ = true;
-	} else if (num_dims == 3) {
-		bIs3D_ = true;
-	} else if (num_dims == 4) {
-		bIs4D_ = true;
+	// last dimension is number of images
+	size_t number_of_images = dimensions.at(dimensions.size()-1);
+
+	// other dimensions are dimension of one image
+	std::vector<size_t> dimensions_of_image(dimensions.begin(), dimensions.end()-1);
+
+	// check for image dimensions
+	bool skip_registration = false;
+	if (dimensions_of_image.size() < 2 || dimensions_of_image.size() > 3) {
+		GWARN("Dataset does not contain 2D or 3D images - Skip registration...\n");
+		skip_registration = true;
+	} else if (number_of_images <= 1) {
+		GWARN("There must be at least to images to register them - Skip registration...\n");
+		skip_registration = true;
 	}
 
-	/* ------------------------------------------------------------------- */
-	/* ----------------------- call registration ------------------------- */
-	/* ------------------------------------------------------------------- */
-	if (bIs2D_) {
-		GWARN("2D dataset detected..unable to perform registration - step skipped!\n");
-	} else if (bIs3D_) {
-		GINFO("3D dataset detected..perform registration in 3rd dimension!\n");
-		fRegistration3D(m1, m2);
-	} else if (bIs4D_) {
-		GINFO("4D dataset detected..perform registration in 4th dimension!\n");
-		fRegistration4D(m1, m2);
-	} else {
-		GWARN("unknown dataset detected..unable to perform registration - step skipped!\n");
+	// skip registration if it cannot be performed
+	if (skip_registration) {
+		if (this->next()->putq(m1) < 0) {
+			return GADGET_FAIL;
+		}
+
+		return GADGET_OK;
 	}
 
-	//Now pass on image
-	if (this->next()->putq(m1) < 0) {
-		return GADGET_FAIL;
-	}
-
-	return GADGET_OK;
-};
-
-int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
-{
 	/* ------------------------------------------------------------------- */
 	/* --------------- create registration parameter data ---------------- */
 	/* ------------------------------------------------------------------- */
@@ -93,216 +98,53 @@ int ElastixRegistrationGadget::fRegistration3D(GadgetContainerMessage<ISMRMRD::I
 
 	// Try parsing transform parameters text file.
 	file_parser->SetParameterFileName(sPathParam_);
+
 	try {
 		file_parser->ReadParameterFile();
-	} catch (itk::ExceptionObject & e) {
+	} catch (itk::ExceptionObject &e) {
 		std::cout << e.what() << std::endl;
 	}
-	RegistrationParametersType parameters = file_parser->GetParameterMap();
 
-	GDEBUG("parameter file - %s - loaded..\n", sPathParam_.c_str());
-
-	/* ------------------------------------------------------------------- */
-	/* -------------------- init elastix registration -------------------- */
-	/* ------------------------------------------------------------------- */
-	// first image is fixed image all other images declared to be moving images
-	vtDim_ = *m2->getObjectPtr()->get_dimensions();
-
-	int iNoImages = vtDim_[2];
-	const unsigned int cuiNumberOfPixels = vtDim_[0] * vtDim_[1];
-	float *pfDataset = m2->getObjectPtr()->get_data_ptr();
-
-	// get fixed image from 3D dataset
-	hoNDArray<float> fFixedImage(vtDim_[0], vtDim_[1], pfDataset, false);
-
-	// registered 3D image
-	hoNDArray<float> fRegisteredImage(m2->getObjectPtr()->get_dimensions());
-	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-
-	// set itk image parameter
-	ImportFilterType::Pointer itkImportFilter = ImportFilterType::New();
-	ImportFilterType::SizeType itkSize;
-	itkSize[0] = vtDim_[0];
-	itkSize[1] = vtDim_[1];
-	itkSize[2] = 1;
-
-	ImportFilterType::IndexType itkStart;
-	itkStart.Fill(0);
-
-	ImportFilterType::RegionType itkRegion;
-	itkRegion.SetIndex(itkStart);
-	itkRegion.SetSize(itkSize);
-
-	itkImportFilter->SetRegion(itkRegion);
-
-	double itkOrigin[3];
-	itkOrigin[0] = 0.0;
-	itkOrigin[1] = 0.0;
-	itkOrigin[2] = 0.0;
-	itkImportFilter->SetOrigin(itkOrigin);
-
-	double itkSpacing[3];
-	itkSpacing[0] = m1->getObjectPtr()->field_of_view[0]/m1->getObjectPtr()->matrix_size[0];
-	itkSpacing[1] = m1->getObjectPtr()->field_of_view[1]/m1->getObjectPtr()->matrix_size[1];
-	itkSpacing[2] = m1->getObjectPtr()->field_of_view[2]/m1->getObjectPtr()->matrix_size[2];
-	itkImportFilter->SetSpacing(itkSpacing);
-
-	float *fLocalBuffer = new float[cuiNumberOfPixels];
-	memcpy(fLocalBuffer, fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-	itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);	
-	ImageType::Pointer itkFixedImage = ImageType::New();
-	itkFixedImage = itkImportFilter->GetOutput();
-	itkImportFilter->Update();
-
-	/* ------------------------------------------------------------------- */
-	/* --------- loop over moving images and perform registration -------- */
-	/* ------------------------------------------------------------------- */
-	GINFO("Registration of images..\n");
-
-	// loop over respiration
-	#pragma omp parallel for
-	for (int iState = 1; iState < iNoImages; iState++) {
-		GINFO("%i of %i ...\n", iState, iNoImages-1);
-
-		// crop moving image from 4D dataset
-		size_t tOffset = vtDim_[0]*vtDim_[1]*iState;
-		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], pfDataset + tOffset, false);
-
-		float *fLocalBuffer = new float[cuiNumberOfPixels];
-		memcpy(fLocalBuffer, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-		itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);	
-		ImageType::Pointer itkMovingImage = ImageType::New();
-		itkMovingImage = itkImportFilter->GetOutput();
-		itkImportFilter->Update();
-		
-		// image registration
-		elastix::ELASTIX *elastix_obj = new elastix::ELASTIX();
-		int error = 0;
-
-		try {
-			// perform registration with (FixedImage, MovingImage, ParameterFile, OutputPath, ElastixLog, ConsoleOutput, FixedImageMask, MovingImageMask)
-			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, true, false, 0, 0);
-		} catch (itk::ExitEvent &err) {
-			// error handling - write message and fill array with zeros
-			GERROR("Error event catched directly from elastix\n");
-		}
-
-		// get output image
-		ImageType *itkOutputImage = NULL;
-
-		if (error == 0) {
-			if (elastix_obj->GetResultImage().IsNotNull()) {
-				itkOutputImage = static_cast<ImageType*>(elastix_obj->GetResultImage().GetPointer());
-			} else {
-				GERROR("GetResultImage() is NULL \n", error);
-			}
-		} else {
-			// error handling - write message and fill array with zeros
-			GERROR("array is zero\n", error);
-		}
-
-		// set output image to zeros if non-existent
-		void *memcpy_pointer = NULL;
-		ImageType::Pointer zero_image;
-		if (itkOutputImage != NULL) {
-			memcpy_pointer = itkOutputImage->GetBufferPointer();
-		} else {
-			ImageType::IndexType start;
-			for (size_t i = 0; i < 3; i++) {
-				start[i] = 0;
-			}
-
-			ImageType::SizeType size;
-			for (size_t i = 0; i < vtDim_.size(); i++) {
-				size[i] = vtDim_[i];
-			}
-
-			ImageType::RegionType region;
-			region.SetSize(size);
-			region.SetIndex(start);
-
-			zero_image = ImageType::New();
-			zero_image->SetRegions(region);
-			zero_image->Allocate();
-			zero_image->FillBuffer(0.0);
-
-			memcpy_pointer = zero_image->GetBufferPointer();
-		}
-
-		// copy image to new registered 3D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, memcpy_pointer, cuiNumberOfPixels*sizeof(float));
-
-		// clean up
-		delete elastix_obj;
-	}
-
-	// new GadgetContainer
-	GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
-
-	// concatenate data with header
-	m1->cont(cm2);
-
-	// create output
-	try{
-		cm2->getObjectPtr()->create(&vtDim_);
-	} catch (std::runtime_error &err) {
-		GEXCEPTION(err,"Unable to allocate new image array\n");
-		m1->release();
-
-		return -1;
-	}
-
-	// copy data
-	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
-
-	return 0;
-}
-
-int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
-{
-	/* ------------------------------------------------------------------- */
-	/* --------------- create registration parameter data ---------------- */
-	/* ------------------------------------------------------------------- */
-	GINFO("Load elastix parameter file..\n");
-
-	// Create parser for transform parameters text file.
-	ParserType::Pointer file_parser = ParserType::New();
-
-	GINFO("search for parameter file - %s..\n", sPathParam_.c_str());
-
-	// Try parsing transform parameters text file.
-	file_parser->SetParameterFileName(sPathParam_);
-	try {
-		file_parser->ReadParameterFile();
-	} catch(itk::ExceptionObject & e) {
-		std::cout << e.what() << std::endl;
-	}
 	RegistrationParametersType parameters = file_parser->GetParameterMap();
 
 	GINFO("parameter file - %s - loaded..\n", sPathParam_.c_str());
 
-	// first image is fixed image (end-exhale position) all other images declared to be moving images
-	vtDim_ = *m2->getObjectPtr()->get_dimensions();
+	/* ------------------------------------------------------------------- */
+	/* -------------------- init elastix registration -------------------- */
+	/* ------------------------------------------------------------------- */
 
-	GDEBUG("size - %i %i %i %i\n", vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3]);
+	// print dimensions
+	std::stringstream ss;
+	ss << "size - ";
+	for (size_t i = 0; i < dimensions_of_image.size(); i++) {
+		ss << dimensions_of_image.at(i) << " ";
+	}
+	ss << number_of_images;
+	GDEBUG("%s\n", ss.str().c_str());
 
-	int iNoImages = vtDim_[3];
-	const unsigned int cuiNumberOfPixels = vtDim_[0]*vtDim_[1]*vtDim_[2];
+	// multiply all other elements in vector (will be number of pixels in one image)
+	const size_t cuiNumberOfPixels = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>());
+
 	float *pfDataset = m2->getObjectPtr()->get_data_ptr();
-	
-	// get fixed image from 4D dataset
-	hoNDArray<float> fFixedImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset, false);
 
-	// registered 4D image
-	hoNDArray<float> fRegisteredImage(m2->getObjectPtr()->get_dimensions());
+	// get fixed image from dataset
+	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
+
+	// create registered (output) image
+	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
+	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
 	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+
+	// create array for deformation field
+	new_reg_image_dim.at(new_reg_image_dim.size()-1) = (number_of_images - 1) * dimensions_of_image.size();	// images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
+	hoNDArray<float> output_deformation_field(&new_reg_image_dim);
 
 	// set itk image parameter
 	ImportFilterType::Pointer itkImportFilter = ImportFilterType::New();
 	ImportFilterType::SizeType itkSize;
-	itkSize[0] = vtDim_[0];
-	itkSize[1] = vtDim_[1];
-	itkSize[2] = vtDim_[2];
+	itkSize[0] = dimensions_of_image.at(0);
+	itkSize[1] = dimensions_of_image.at(1);
+	itkSize[2] = dimensions_of_image.size() >= 3 ? dimensions_of_image.at(2) : 1;	// ITK handels 3D image, so if we have a 2D moving image, 3rd dimension=1
 
 	ImportFilterType::IndexType itkStart;
 	itkStart.Fill(0);
@@ -327,7 +169,7 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 
 	float *fLocalBuffer = new float[cuiNumberOfPixels];
 	memcpy(fLocalBuffer, fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-	itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);	
+	itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);
 	ImageType::Pointer itkFixedImage = ImageType::New();
 	itkFixedImage = itkImportFilter->GetOutput();
 	itkImportFilter->Update();
@@ -338,28 +180,28 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 	GINFO("Loop over moving images..\n");
 
 	// loop over respiration
-	#pragma omp parallel for
-	for (int iState = 1; iState < iNoImages; iState++) {
-		GINFO("%i of %i ...\n", iState, iNoImages-1);
+// 	#pragma omp parallel for	// Note: Elastix itselfs parallels quite good. Some serious error can occur if you parallelise here!
+	for (size_t iState = 1; iState < number_of_images; iState++) {
+		GINFO("%i of %i ...\n", iState, number_of_images-1);
 
 		// crop moving image from 4D dataset
-		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iState;
-		hoNDArray<float> fMovingImage(vtDim_[0], vtDim_[1], vtDim_[2], pfDataset + tOffset, false);
+		size_t tOffset = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>())*iState;	// accumulate() := dimensions_of_image[0]*dimensions_of_image[1]*...
+		hoNDArray<float> fMovingImage(dimensions_of_image, pfDataset + tOffset, false);
 
 		float *fLocalBuffer = new float[cuiNumberOfPixels];
 		memcpy(fLocalBuffer, fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
-		itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);	
+		itkImportFilter->SetImportPointer(fLocalBuffer, cuiNumberOfPixels, true);
 		ImageType::Pointer itkMovingImage = ImageType::New();
 		itkMovingImage = itkImportFilter->GetOutput();
 		itkImportFilter->Update();
-		
+
 		// image registration
 		elastix::ELASTIX *elastix_obj = new elastix::ELASTIX();
 		int error = 0;
 
 		try {
 			// perform registration with (FixedImage, MovingImage, ParameterFile, OutputPath, ElastixLog, ConsoleOutput, FixedImageMask, MovingImageMask)
-			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, true, false, 0, 0);
+			error = elastix_obj->RegisterImages(static_cast<itk::DataObject::Pointer>(itkFixedImage.GetPointer()), static_cast<itk::DataObject::Pointer>(itkMovingImage.GetPointer()), parameters, sPathLog_, log_output_, false, 0, 0);
 		} catch (itk::ExitEvent &err) {
 			// error handling - write message and fill array with zeros
 			GERROR("Error event catched directly from elastix\n");
@@ -391,9 +233,10 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 			}
 
 			ImageType::SizeType size;
-			for (size_t i = 0; i < vtDim_.size(); i++) {
-				size[i] = vtDim_[i];
+			for (size_t i = 0; i < dimensions_of_image.size(); i++) {
+				size[i] = dimensions_of_image[i];
 			}
+			size[dimensions_of_image.size()] = number_of_images;
 
 			ImageType::RegionType region;
 			region.SetSize(size);
@@ -407,12 +250,89 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 			memcpy_pointer = zero_image->GetBufferPointer();
 		}
 
-		// copy image to new registered 4D image
+		// copy image to new registered image
 		memcpy(fRegisteredImage.get_data_ptr()+tOffset, memcpy_pointer, cuiNumberOfPixels*sizeof(float));
 
 		// clean up
 		delete elastix_obj;
+		elastix_obj = NULL;
+
+		// calculate deformation field
+		std::string transformix_command = std::string("transformix -def all -out ")+sPathLog_+std::string(" -tp ")+sPathLog_+std::string("TransformParameters.0.txt");
+		int term_status = system(transformix_command.c_str());
+
+		if (WIFEXITED(term_status)) {
+			// transformix completed successfully. Handle case here.
+			// create new dimension vector for array (dimensions e.g. 3 256 256 72) - should also apply on 2D image
+			std::vector<size_t> deformation_field_dims;
+			deformation_field_dims.push_back(dimensions_of_image.size());
+			for (size_t i = 0; i < dimensions_of_image.size(); i++) {
+				deformation_field_dims.push_back(dimensions_of_image.at(i));
+			}
+
+			// create new array for deformation field image
+			hoNDArray<float> deformation_field(&deformation_field_dims);
+
+			std::string deformation_field_file_name = sPathLog_ + std::string("deformationField.mhd");
+
+			// read out image
+			switch (dimensions_of_image.size()) {
+			case 2:
+				read_itk_to_hondarray<2>(deformation_field, deformation_field_file_name.c_str(), cuiNumberOfPixels);
+				break;
+			case 3:
+				read_itk_to_hondarray<3>(deformation_field, deformation_field_file_name.c_str(), cuiNumberOfPixels);
+				break;
+			default:
+				GERROR("Image dimension (%d) is neither 2D nor 3D! Abort.\n", dimensions_of_image.size());
+				return GADGET_FAIL;
+			}
+
+			// permute data (in ITK dim is: [value_vector size_x size_y size_z])
+			// we want to output: (layer with value_vector X component, layer with Y,...)
+			// so: [value X Y Z] -> [X Y Z value]
+			std::vector<size_t> new_dim_order;
+			new_dim_order.push_back(1);
+			new_dim_order.push_back(2);
+			new_dim_order.push_back(3);
+			new_dim_order.push_back(0);
+			deformation_field = *permute(&deformation_field, &new_dim_order, false);
+
+			// now calculate offset for the great return image
+			size_t def_field_offset = cuiNumberOfPixels * 	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				(iState - 1) * dimensions_of_image.size();	// jump to correct deformation field image position (*dim.size() because each DF Image consists of N parts (x,y[,z]))
+
+			// and copy permuted data into great return image
+			memcpy(output_deformation_field.get_data_ptr()+def_field_offset, deformation_field.get_data_ptr(), deformation_field.get_number_of_elements()*sizeof(float));
+		} else {
+			GWARN("No deformation field for state %d available (Errors in transformix).\n", iState);
+		}
 	}
+
+	// clean up the elastix/transformix generated files
+	std::vector<std::string> files_to_remove;
+	files_to_remove.push_back(std::string("deformationField.mhd"));
+	files_to_remove.push_back(std::string("deformationField.raw"));
+	files_to_remove.push_back(std::string("transformix.log"));
+	files_to_remove.push_back(std::string("TransformParameters.0.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R0.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R1.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R2.txt"));
+	files_to_remove.push_back(std::string("IterationInfo.0.R3.txt"));
+
+	while (files_to_remove.size() > 0) {
+		std::string file_to_remove = sPathLog_ + files_to_remove.back();
+
+		if (remove(file_to_remove.c_str()) != 0) {
+			GWARN("Could not remove %s. Please delete it manually!\n", file_to_remove.c_str());
+		}
+
+		// delete last element in list
+		files_to_remove.pop_back();
+	}
+
+	// free memory
+	m2->release();
 
 	// new GadgetContainer
 	GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
@@ -422,18 +342,58 @@ int ElastixRegistrationGadget::fRegistration4D(GadgetContainerMessage<ISMRMRD::I
 
 	// create output
 	try {
-		cm2->getObjectPtr()->create(&vtDim_);
+		cm2->getObjectPtr()->create(*fRegisteredImage.get_dimensions());
 	} catch (std::runtime_error &err) {
 		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 
-		return -1;
+		return GADGET_FAIL;
 	}
 
 	// copy data
 	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
 
-	return 0;
-};
+	// Now pass on image
+	if (this->next()->putq(m1) < 0) {
+		return GADGET_FAIL;
+	}
+
+	// ########## create deformation field message ###########
+	// copy header
+	GadgetContainerMessage<ISMRMRD::ImageHeader> *m1_df = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
+	fCopyImageHeader(m1_df, m1->getObjectPtr());
+
+	// correct channels value for MRIImageWriter (last dimension of output array)
+	m1_df->getObjectPtr()->channels = output_deformation_field.get_size(output_deformation_field.get_number_of_dimensions()-1);
+
+	// set new image number
+	m1_df->getObjectPtr()->image_series_index = 1;
+
+	// new GadgetContainer
+	GadgetContainerMessage<hoNDArray<float> > *m2_df = new GadgetContainerMessage<hoNDArray<float> >();
+
+	// concatenate data with header
+	m1_df->cont(m2_df);
+
+	// create output
+	try {
+		m2_df->getObjectPtr()->create(*output_deformation_field.get_dimensions());
+	} catch (std::runtime_error &err) {
+		GEXCEPTION(err,"Unable to allocate new deformation field array\n");
+		m1_df->release();
+
+		return GADGET_FAIL;
+	}
+
+	// copy data
+	memcpy(m2_df->getObjectPtr()->get_data_ptr(), output_deformation_field.begin(), output_deformation_field.get_number_of_bytes());
+
+	// Now pass on deformation field
+	if (this->next()->putq(m1_df) < 0) {
+		return GADGET_FAIL;
+	}
+
+	return GADGET_OK;
+}
 
 GADGET_FACTORY_DECLARE(ElastixRegistrationGadget)

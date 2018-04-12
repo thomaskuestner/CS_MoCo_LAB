@@ -29,27 +29,18 @@ namespace Gadgetron {
 	class EXPORTCSLAB CS_Retro_AccumulatorGadget : public Gadget2<ISMRMRD::AcquisitionHeader, hoNDArray<std::complex<float> > >
 	{
 	private:
-		hoNDArray<std::complex<float> > *bufferkSpace_ = NULL;
-		hoNDArray<std::complex<float> > *bufferNav_ = NULL;
+		std::vector<GadgetContainerMessage<hoNDArray<std::complex<float> > >*> buffer_kspace_;
+		std::vector<hoNDArray<std::complex<float> >*> buffer_nav_;
 
-		std::vector<size_t> dimkSpace_;
-		std::vector<size_t> dimNav_;
+		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *acq_header_ = NULL;
 
-		unsigned long lCurrentScan_ = 0;
 		size_t dimensionsIn_[3];
 		float field_of_view_[3];
-		long long image_counter_ = 0;
-		long long image_series_ = 0;
 
-		unsigned long lNoScans_ = 0;
-		unsigned int iNoChannels_ = 0;
 		unsigned int iNoNav_ = 0;
 		unsigned int iNoNavLine_ = 0;
 		int iEchoLine_ = 0;
 		int iEchoPartition_ = 0;
-
-		// CS_Retro variables
-		int iBaseRes_ = 0;
 
 		// number of phases
 		int iNPhases_ = 0;
@@ -69,6 +60,8 @@ namespace Gadgetron {
 
 		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
 
+		int close(unsigned long flags) override;
+
 	protected:
 		int process_config(ACE_Message_Block *mb);
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
@@ -84,11 +77,12 @@ namespace Gadgetron {
 			return header.idx.set == 1;
 		}
 
+		bool process_data(void);
+
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
-		GADGET_PROPERTY(MeasurementTime, int, "MeasurementTime", 0);
 		GADGET_PROPERTY(Phases, int, "Phases", 0);
 #endif
 	};

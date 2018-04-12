@@ -158,18 +158,15 @@ namespace Gadgetron
 			}
 		}
 
-		TransformWrapper* f;
 		switch (transformation_type) {
 		case 0:
-			//new FFTWrapper()->KernelFTrafo(Array, dim_to_transform);
+			//(new FFTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 1:
-			f = new DCTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new DCTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 2:
-			f = new KLTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new KLTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		default:
 			break;
@@ -188,18 +185,15 @@ namespace Gadgetron
 			}
 		}
 
-		TransformWrapper* f;
 		switch (transformation_type) {
 		case 0:
-			//new FFTWrapper()->KernelFTrafo(Array, dim_to_transform);
+			//(new FFTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 1:
-			f = new DCTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new DCTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 2:
-			f = new KLTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new KLTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		default:
 			break;
@@ -212,18 +206,15 @@ namespace Gadgetron
 	{
 		std::function<bool(hoNDArray<std::complex<float> > &,int)> fPtr;
 
-		TransformWrapper* f;
 		switch (transformation_type) {
 		case 0:
 			//fPtr = &FFTWrapper::KernelBTrafo;
 			break;
 		case 1:
-			f = new DCTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new DCTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 2:
-			f = new KLTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new KLTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		default:
 			break;
@@ -242,18 +233,15 @@ namespace Gadgetron
 	{
 		std::function<bool(hoNDArray<std::complex<float> > &,int)> fPtr;
 
-		TransformWrapper* f;
 		switch (transformation_type) {
 		case 0:
 			//fPtr = &FFTWrapper::KernelBTrafo;
 			break;
 		case 1:
-			f = new DCTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new DCTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		case 2:
-			f = new KLTWrapper();
-			f->KernelFTrafo(Array, dim_to_transform);
+			(new KLTWrapper())->KernelFTrafo(Array, dim_to_transform);
 			break;
 		default:
 			break;

@@ -1004,6 +1004,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 							}
 
 							delete HanningCoeff;
+							HanningCoeff = NULL;
 						}
 					} else if (iESPReSSoDirection_ == 2)
 						// partition encoding direction
@@ -1017,6 +1018,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 							}
 
 							delete vfHanningCoeff;
+							vfHanningCoeff = NULL;
 						}
 
 					// repetition in x-direction for getting a full 3D array
@@ -1047,6 +1049,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 						}
 
 						delete vfHammingCoeff;
+						vfHammingCoeff = NULL;
 					} else if (iDim == 1) {
 						// y-direction
 						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[0]);
@@ -1062,6 +1065,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 						}
 
 						delete vfHammingCoeff;
+						vfHammingCoeff = NULL;
 					} else if (iDim == 2) {
 						// z-direction
 						std::vector<float> *vfHammingCoeff = fGetHammingWindow(vtDim_[1]);
@@ -1077,6 +1081,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 						}
 
 						delete vfHammingCoeff;
+						vfHammingCoeff = NULL;
 					}
 				}
 

@@ -23,7 +23,13 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 {
 	// save image header
 	GlobalVar::instance()->ImgHeadVec_.clear();
-	GlobalVar::instance()->ImgHeadVec_.push_back(m1->getObjectPtr());
+
+	// make copy of image header to be able to release m1 later
+	ISMRMRD::ImageHeader *m1_cpy = new ISMRMRD::ImageHeader();
+	memcpy(m1_cpy, m1->getObjectPtr(), sizeof(ISMRMRD::ImageHeader));
+
+	// save copy of image header
+	GlobalVar::instance()->ImgHeadVec_.push_back(m1_cpy);
 
 	// get the pipeline content
 	ISMRMRD::AcquisitionHeader header = *GlobalVar::instance()->AcqVec_.at(0);
@@ -67,6 +73,9 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	if (this->next()->putq(recon_mc) < 0) {
 		return GADGET_FAIL;
 	}
+
+	// free memory
+	m1->release();
 
 	return GADGET_OK;
 }
