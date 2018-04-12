@@ -18,6 +18,29 @@ RUN apt-get --yes purge cmake \
 	&& cd .. \
 	&& rm -rf cmake-3*
 
+# update existing software
+RUN	cd ismrmrd \
+	&& git pull \
+	&& rm -rf build \
+	&& mkdir build \
+	&& cd build \
+	&& cmake ../ \
+	&& make -j$(expr $(nproc) + 1)\
+	&& make install \
+	&& cd ../.. \
+	&& rm -rf ismrmrd/build
+
+RUN	cd gadgetron \
+	&& git pull \
+	&& rm -rf build \
+	&& mkdir build \
+	&& cd build \
+	&& cmake ../ \
+	&& make -j$(expr $(nproc) + 1)\
+	&& make install \
+	&& cd ../.. \
+	&& rm -rf gadgetron/build
+
 # Fetch, compile & install any needed packages
 RUN	git clone https://github.com/mrirecon/bart.git \
 	&& cd bart \
