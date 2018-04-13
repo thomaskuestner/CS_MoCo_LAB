@@ -38,7 +38,7 @@ int CS_FOCUSS_4D::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, Gadg
 		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 
-		return -1;
+		return GADGET_FAIL;
 	}
 
 	// copy data
