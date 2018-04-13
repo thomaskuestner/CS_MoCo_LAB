@@ -234,10 +234,10 @@ void Gadgetron::print_array(const hoNDArray<std::complex<float> > &array)
 	file_out.close();
 }
 
-void Gadgetron::load_array(hoNDArray<std::complex<float> > &array)
+void Gadgetron::load_array(hoNDArray<std::complex<float> > &array, std::string &name)
 {
-	std::ifstream file_real("/tmp/array_real.txt");
-	std::ifstream file_imag("/tmp/array_imag.txt");
+	std::ifstream file_real(std::string("/tmp/")+name+std::string("_real.txt"));
+	std::ifstream file_imag(std::string("/tmp/")+name+std::string("_imag.txt"));
 
 	float real, imag;
 	size_t counter = 0;
