@@ -35,7 +35,7 @@ int CS_FOCUSS_3D::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, Gadg
 	fRecon(*m2->getObjectPtr(), hacfOutput);
 
 	// new GadgetContainer
-	GadgetContainerMessage<hoNDArray<std::complex<float> > >* cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
+	GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 
 	// concatenate data with header
 	m1->cont(cm2);
@@ -74,14 +74,6 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 	// number of channels
 	iNChannels_ = (int)vtDim_[3];
-
-	// if Matlab is used, initialize singleton variables
-	/*if (bMatlab_) {
-		for (int iI = 0; iI < 20; iI++) {
-			GlobalVar::instance()->vbStatPrinc_.push_back(false);
-			GlobalVar::instance()->vfPrincipleComponents_.push_back(new hoNDArray<std::complex<float> > ());
-		}
-	}*/
 
 	// const complex values
 	const std::complex<float> cfZero(0.0);
@@ -124,7 +116,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	//---------------- iFFT x direction - x ky kz ^= v (n�) -------------------
 	//-------------------------------------------------------------------------
 	if (Transform_fftBA_->get_active()) {
-		GDEBUG("FFT in read direction..\n");
+		GINFO("FFT in read direction..\n");
 		Transform_fftBA_->FTransform(hacfKSpace);
 	}
 
@@ -163,7 +155,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 	for (int iCha = 0; iCha < iNChannels_; iCha++) {
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr()+ tOffset, false);
+		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], hacfWWindowed.get_data_ptr() + tOffset, false);
 		float fTmp = fCalcEnergy(hacfEnergyPerChannel);
 
 		GDEBUG("energy in channel[%i]: %e..\n",iCha, fTmp);
@@ -210,7 +202,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				std::vector<float> vfVec;
 				for (int iCha = 0; iCha < iNChannels_; iCha++) {
 					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*iCha;
-					hoNDArray<std::complex<float> > eCha(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr()+ tOffset, false);
+					hoNDArray<std::complex<float> > eCha(vtDim_[0], vtDim_[1], vtDim_[2], hacfE.get_data_ptr() + tOffset, false);
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 
@@ -271,8 +263,8 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			for (int iCha = 0; iCha < iNChannels_; iCha++) {
 				// fill sub array with data from higher order data array
 				size_t tOffset = vtDim_.at(0)*vtDim_.at(1)*vtDim_.at(2)*iCha;
-				hoNDArray<std::complex<float> > hacfSubArrayG_old(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfG_old.get_data_ptr()+ tOffset, false);
-				hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfG.get_data_ptr()+ tOffset, false);
+				hoNDArray<std::complex<float> > hacfSubArrayG_old(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfG_old.get_data_ptr() + tOffset, false);
+				hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), hacfG.get_data_ptr() + tOffset, false);
 				float fBetaCha = 0.0;
 				float fNumerator = 0.0;
 				float fDenominator = 0.0;
