@@ -52,6 +52,23 @@ cd CS_MoCo_LAB/matlab/CS_LAB_GUI
 matlab CS_LAB_GUI
 ```
 
+## References
+<b>MR-based respiratory and cardiac motion correction for PET imaging</b>.<br/>
+<i>Medical Image Analysis</i>, 2017.
+<br/>Thomas K&uuml;stner, Martin Schwartz, Petros Martirosian, Sergios Gatidis, Ferdinand Seith, Christopher Gilliam, Thierry Blu, Hadi Fayad, Dimitris Visvikis, F. Schick, B. Yang, H. Schmidt and N.F Schwenzer.
+<br/><a href="http://dx.doi.org/10.1016/j.media.2017.08.002">[doi]</a>&nbsp;<a onclick="toggleBibtex('thomaskuestner', '373a2d347e30bfae4639dd40daaba4f3', 'https://puma.ub.uni-stuttgart.de/bibtex/2373a2d347e30bfae4639dd40daaba4f3/thomaskuestner?format=bibtex'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2373a2d347e30bfae4639dd40daaba4f3/thomaskuestner?format=bibtex">[BibTeX]</a>&nbsp;<a onclick="toggleEndnote('thomaskuestner', '373a2d347e30bfae4639dd40daaba4f3', 'https://puma.ub.uni-stuttgart.de/bibtex/2373a2d347e30bfae4639dd40daaba4f3/thomaskuestner?format=endnote'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2373a2d347e30bfae4639dd40daaba4f3/thomaskuestner?format=endnote">[Endnote]</a>
+
+
+<b>Compressed Sensing LAB: An MR acquisition and reconstruction system</b>. <br/>
+<i>Proceedings of the ISMRM Workshop on Data Sampling and Reconstruction</i>. Sedona, AZ, USA, 2016.
+<br/>Thomas K&uuml;stner, Martin Schwartz, Christian W&uuml;rslin, Petros Martirosian, Nina F. Schwenzer, Bin Yang and Holger Schmidt.
+<br/><a onclick="toggleBibtex('thomaskuestner', 'a2f614af9059696b743e4a8cd0b1f7e4', 'https://puma.ub.uni-stuttgart.de/bibtex/2a2f614af9059696b743e4a8cd0b1f7e4/thomaskuestner?format=bibtex'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2a2f614af9059696b743e4a8cd0b1f7e4/thomaskuestner?format=bibtex">[BibTeX]</a>&nbsp;<a onclick="toggleEndnote('thomaskuestner', 'a2f614af9059696b743e4a8cd0b1f7e4', 'https://puma.ub.uni-stuttgart.de/bibtex/2a2f614af9059696b743e4a8cd0b1f7e4/thomaskuestner?format=endnote'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2a2f614af9059696b743e4a8cd0b1f7e4/thomaskuestner?format=endnote">[Endnote]</a>&nbsp;<div id="abs_a2f614af9059696b743e4a8cd0b1f7e4thomaskuestner" style="display:none;border:1px dotted grey;">
+
+<b>Image Reconstruction System for Compressed Sensing Retrospective Motion Correction for the Application in Clinical Practice</b>. <br/>
+<i>Proceedings of the International Society for Magnetic Resonance in Medicine (ISMRM)</i>. Singapore, 2016.
+<br/>Martin Schwartz, Thomas K&uuml;stner, Christian W&uuml;rslin, Petros Martirosian, Nina F. Schwenzer, Fritz Schick, Bin Yang and Holger Schmidt.
+<br/><a onclick="toggleBibtex('thomaskuestner', 'd4738bfd3b3a4eeefd763dec15715d9d', 'https://puma.ub.uni-stuttgart.de/bibtex/2d4738bfd3b3a4eeefd763dec15715d9d/thomaskuestner?format=bibtex'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2d4738bfd3b3a4eeefd763dec15715d9d/thomaskuestner?format=bibtex">[BibTeX]</a>&nbsp;<a onclick="toggleEndnote('thomaskuestner', 'd4738bfd3b3a4eeefd763dec15715d9d', 'https://puma.ub.uni-stuttgart.de/bibtex/2d4738bfd3b3a4eeefd763dec15715d9d/thomaskuestner?format=endnote'); return false;" href="https://puma.ub.uni-stuttgart.de/bibtex/2d4738bfd3b3a4eeefd763dec15715d9d/thomaskuestner?format=endnote">[Endnote]</a>
+
 --------------------------------------------------------
 Please read LICENSE file for licensing details.
 
