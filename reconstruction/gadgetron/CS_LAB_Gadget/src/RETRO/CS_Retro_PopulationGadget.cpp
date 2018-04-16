@@ -67,7 +67,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	} else {
-		for (unsigned int i = 0; i < vfCentroids_.size(); i++) {
+		for (size_t i = 0; i < vfCentroids_.size(); i++) {
 			GDEBUG("Centroid %i: %f\n", i, vfCentroids_.at(i));
 		}
 	}
@@ -265,251 +265,194 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 	return true;
 }
 
+void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, const int population_mode, const int phase)
+{
+	for (size_t i = 0; i < weights.size(); i++) {
+		switch (population_mode) {
+		// closest
+		case 0:
+			weights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(phase));
+			break;
+
+		// gauss
+		case 3:
+			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(vNavInt_.at(i)-vfCentroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
+			break;
+
+		default:
+			throw runtime_error("Selected population_mode unknown!\n");
+		}
+	}
+}
+
+void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances)
+{
+	// Take shortcut by closest mode if it does not really matter (only 1 entry)
+	int mode = population_mode;
+	if (indices.size() == 1) {
+		mode = 0;
+	}
+
+	switch (mode) {
+	// closest
+	case 0: {
+		// calculate min distance
+		size_t index_min_this_dist = std::min_element(centroid_distances.begin(), centroid_distances.end())-centroid_distances.begin();
+		size_t iIndexMinDist = indices.at(index_min_this_dist);
+
+		// copy data into return array
+		size_t unordered_measurement_offset = iIndexMinDist * unordered.get_size(0);
+		#pragma omp parallel for
+		for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+			size_t populated_channel_offset = channel * populated_data.get_size(0);
+			size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+
+			memcpy(populated_data.get_data_ptr() + populated_channel_offset, unordered.get_data_ptr() + unordered_channel_offset + unordered_measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
+		}
+
+	} break;
+
+	// gauss
+	case 3: {
+		// pre-fill return array with zeros (IMPORTANT STEP)
+		populated_data.fill(std::complex<float>(0.0));
+
+		// take all measurements into account
+		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
+			size_t unordered_measurement_offset = indices.at(measurement) * unordered.get_size(0);
+
+			#pragma omp parallel for
+			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+				size_t populated_channel_offset = channel * populated_data.get_size(0);
+				size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+
+				#pragma omp parallel for
+				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
+					// append weighted value to return array
+					populated_data.at(kx_pixel + populated_channel_offset) += centroid_distances.at(measurement)*unordered.at(kx_pixel + unordered_channel_offset + unordered_measurement_offset);
+				}
+			}
+		}
+
+		// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
+		float normalization_factor = std::accumulate(std::begin(centroid_distances), std::end(centroid_distances), 0.0, std::plus<float>());
+
+		// only divide if possible
+		if (normalization_factor != 0) {
+			// divide all elements by weight sum
+			populated_data /= normalization_factor;
+		}
+	} break;
+
+	default:
+		throw runtime_error("Selected population_mode unknown!\n");
+	}
+}
+
 bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 {
 	GINFO("--- populate k-space ---\n");
 
-	// drecks mdh
-	if (GlobalVar::instance()->vPE_.size() > hacfKSpace_unordered_.get_size(1)) {
-		GlobalVar::instance()->vPE_.pop_back();
-		GlobalVar::instance()->vPA_.pop_back();
-	}
-
-// 	float fDist = std::sqrt(0.065)/2;
-
-	// distinguish population mode
-	switch(GlobalVar::instance()->iPopulationMode_) {
-	// closest
+	// check population mode
+	switch (GlobalVar::instance()->iPopulationMode_) {
 	case 0:
-		GINFO("closest mode..\n");
-
-		GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
-
-		// loop over phases/gates
-		#pragma omp parallel for
-		for (int iPh = 0; iPh < iNoGates; iPh++) {
-			// get weights
-			std::vector<float> vWeights(vNavInt_.size());
-			for (size_t i = 0; i < vWeights.size(); i++) {
-				vWeights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(iPh));
-			}
-
-			GINFO("weights calculated - phase: %i\n", iPh);
-
-			// loop over lines
-			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
-				// loop over partitions
-				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
-					// check if iLine was acquired and push Indices on vector
-					std::vector<size_t> lIndices;
-					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
-						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
-							lIndices.push_back(i);
-						}
-					}
-
-					// check iPar of the found acquisitions
-					std::vector<size_t> lIndices2;
-					for (size_t n = 0; n < lIndices.size(); n++) {
-						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
-							lIndices2.push_back(lIndices.at(n));
-						}
-					}
-
-					// if no index is in the vector --> continue
-					if (lIndices2.size() > 0) {
-						// get weights (if multiple lines were found)
-						std::vector<float> vThisDist;
-						vThisDist.clear();
-
-						for (size_t i = 0; i < lIndices2.size(); i++) {
-							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
-						}
-
-						// min distance
-						size_t index_min_this_dist = std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin();
-						size_t iIndexMinDist = lIndices2.at(index_min_this_dist);
-						float fValMinDist = vThisDist.at(index_min_this_dist);
-
-						if (fValMinDist > vTolerance_.at(iPh)) {// && (abs((float)iLine - (float)iEchoLine_)) > fDist*hacfKSpace_reordered_.get_size(1) || (abs((float)iPar - (float)iEchoPartition_)) > fDist*hacfKSpace_reordered_.get_size(2))
-							continue;
-						}
-
-						// save acquisition into k-space - loop over channels
-						size_t max_offset_reordered, max_offset_unordered;
-						max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
-						max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
-						for (int c = 0; c < iNoChannels_; c++) {
-							size_t tOffset_reordered =
-								iLine * hacfKSpace_reordered_.get_size(0)
-								+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-								+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-								+ c * iNoGates*hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
-
-							size_t tOffset_unordered =
-								c * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1)
-								+ iIndexMinDist * hacfKSpace_unordered_.get_size(0);
-
-							// protection against unallowed memory access
-							if (tOffset_reordered > max_offset_reordered) {
-								GWARN("Ordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_reordered, max_offset_reordered);
-								break;
-							}
-
-							if (tOffset_unordered > max_offset_unordered) {
-								GWARN("Unordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_unordered, max_offset_unordered);
-								break;
-							}
-
-							memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*hacfKSpace_reordered_.get_size(0));
-						}
-					}
-				}
-			}
-
-			GINFO("kspace populated - phase: %i\n", iPh);
-		}
-
+		GINFO("Using closest mode\n");
 		break;
-
-	// average
 	case 1:
 		GERROR("reorder_kSpace: population mode 'average' not implemented in this version\n");
 
 		return false;
 		break;
-
-	// collect
 	case 2:
 		GERROR("reorder_kSpace: population mode 'collect' not implemented in this version\n");
 
 		return false;
 		break;
-
-	// gauss
 	case 3:
-		//% CARDIAC PHASES loop
-		//for icPh = iNPhasesCardLoop
-		// loop over phases/gates
-		#pragma omp parallel for
-		for (int iPh = 0; iPh < iNoGates; iPh++) {
-			//initialize the weighting vector
-			std::vector<float> vWeights(vNavInt_.size());
-
-			//fill Weightvector by Gauss-function
-			// x = vNavInt_; sigma = vTolerance_ µ = cfVentorids_
-			double dWeightAccu = 0;
-			for (size_t k = 0; k < vNavInt_.size(); k++) {
-				vWeights.at(k) = 1/(vTolerance_.at(iPh)*std::sqrt(2*M_PI)) * exp(-(std::pow(vNavInt_.at(k)-vfCentroids_.at(iPh),2))/(2*(std::pow(vTolerance_.at(iPh),2))));
-				dWeightAccu = dWeightAccu + vWeights.at(k);
-			}
-
-			if (dWeightAccu == 0) { //don't divide by 0
-				dWeightAccu = 1;
-			}
-
-			GINFO("weights calculated - phase: %i\n", iPh);
-
-			//	                dKSpace = complex(zeros(iNLines, iBaseRes.*2, iNPartitions, length(iNPhasesLoop), 1, iNChannels,sPrecision), ...
-			//	                      zeros(iNLines, iBaseRes.*2, iNPartitions, length(iNPhasesLoop), 1, iNChannels,sPrecision));
-
-			//	            lCardiacMask = sum(dCardiacPhases == icPh,2) > 0;
-			//
-			//	            % -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
-			//	            % PHASES loop
-			//	            for iPh = iNPhasesLoop
-			//	                lRespMask = dRespPhases == iPh;
-			//	                dWeight = normpdf( dNavInt, dGatePos(iPh) , max(dTolerance(iPh,:))/sigma )';
-
-			//	                for iL = 1:iNLines
-			//	                    lLineMask = iLine == (iL - 1);
-			// loop over lines
-			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
-				// loop over partitions
-				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
-					std::vector<size_t> lIndices;
-					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
-						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
-							lIndices.push_back(i);
-						}
-					}
-
-					std::vector<size_t> lIndices2;
-					for (size_t n = 0; n < lIndices.size(); n++) {
-						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
-							lIndices2.push_back(lIndices.at(n));
-						}
-					}
-
-					// if no index is in the vector --> continue
-					if (lIndices2.size() > 0) {
-						// get weights (if multiple lines were found)
-						std::vector<float> vThisDist;
-						vThisDist.clear();
-						for (size_t i = 0; i < lIndices2.size(); i ++) {
-							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
-							size_t currentindex = lIndices2.at(i);
-							// min distance
-							//int iIndexMinDist = lIndices2.at(std::min_element(vThisDist.begin(), vThisDist.end())-vThisDist.begin());
-							//float fValMinDist = vWeights.at(iIndexMinDist);
-
-							// save acquisition into k-space - loop over channels
-							size_t max_offset_reordered, max_offset_unordered;
-							max_offset_reordered = hacfKSpace_reordered_.get_number_of_elements() - 1;
-							max_offset_unordered = hacfKSpace_unordered_.get_number_of_elements() - 1;
-							for (int c = 0; c < iNoChannels_; c++) {
-								size_t tOffset_reordered =
-									iLine * hacfKSpace_reordered_.get_size(0)
-									+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-									+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-									+ c * iNoGates * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
-
-								size_t tOffset_unordered =
-									c * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1)
-									+ currentindex * hacfKSpace_unordered_.get_size(0);
-
-								// protection against unallowed memory access
-								if (tOffset_reordered > max_offset_reordered) {
-									GWARN("Ordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_reordered, max_offset_reordered);
-									break;
-								}
-
-								if (tOffset_unordered > max_offset_unordered) {
-									GWARN("Unordered offset is larger than allowed! current=%d, max=%d. Data will be corrupted!\n", tOffset_unordered, max_offset_unordered);
-									break;
-								}
-
-								memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, hacfKSpace_unordered_.get_data_ptr() + tOffset_unordered, sizeof(std::complex<float>)*hacfKSpace_reordered_.get_size(0));
-
-								for(size_t x = 0; x < hacfKSpace_reordered_.get_size(0); x++) {
-									// /dWeightAccu added (see loop below)
-									// TODO: Error check here!
-									hacfKSpace_reordered_.at(tOffset_reordered + x) = hacfKSpace_reordered_.at(tOffset_reordered + x) * vWeights.at(lIndices2.at(i)) / static_cast<float>(dWeightAccu);
-								}
-							}
-						}
-					}
-				}
-
-				//dDataAccu = dDataAccu./(dWeightAccu);
-				// brought out to outer loop due to performance reasons.
-				// correct equivalent formulation would be:
-				// 		hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / std::pow(static_cast<float>(dWeightAccu), (hacfKSpace_reordered_.get_size(1)*hacfKSpace_reordered_.get_size(2)));
-				// Guess there's an error in that algorithm!
-				// TODO: Error check here!
-// 					for(long i = 0; i < hacfKSpace_reordered_.get_number_of_elements(); i++) {
-// 						hacfKSpace_reordered_.at(i) = hacfKSpace_reordered_.at(i) / static_cast<float>(dWeightAccu);	// cast dWeightAccu to float in order to match operator /
-// 					}
-			}
-
-			GINFO("kspace populated - phase: %i\n", iPh);
-		}
+		GINFO("Using gauss mode\n");
 		break;
 	default:
 		GERROR("reorder_kSpace: no population mode specified!\n");
 
 		return false;
 		break;
+	}
+
+	// drecks mdh
+	if (GlobalVar::instance()->vPE_.size() > hacfKSpace_unordered_.get_size(1)) {
+		GDEBUG("A vPE_/vPA_ measurement is removed!\n");
+		GlobalVar::instance()->vPE_.pop_back();
+		GlobalVar::instance()->vPA_.pop_back();
+	}
+
+	GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
+
+	// loop over phases/gates
+	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
+	for (int iPh = 0; iPh < iNoGates; iPh++) {
+		// get weights
+		std::vector<float> vWeights(vNavInt_.size());
+		calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, iPh);
+
+		GINFO("weights calculated - phase: %i\n", iPh);
+
+		// loop over lines
+		#pragma omp parallel for
+		for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
+			// loop over partitions
+			#pragma omp parallel for
+			for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
+				// check if iLine was acquired and push Indices on vector
+				std::vector<size_t> lIndices;
+				for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
+					if (GlobalVar::instance()->vPE_.at(i) == iLine) {
+						lIndices.push_back(i);
+					}
+				}
+
+				// check iPar of the found acquisitions
+				std::vector<size_t> lIndices2;
+				for (size_t n = 0; n < lIndices.size(); n++) {
+					if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
+						// only take measurement into account when tolerance is okay
+						if (vWeights.at(lIndices.at(n)) < vTolerance_.at(iPh)) {
+							lIndices2.push_back(lIndices.at(n));
+						}
+					}
+				}
+
+				// if no index is in the vector --> continue
+				if (lIndices2.size() > 0) {
+					// get weights (if multiple lines were found)
+					std::vector<float> vThisDist;
+					vThisDist.clear();
+
+					for (size_t i = 0; i < lIndices2.size(); i++) {
+						vThisDist.push_back(vWeights.at(lIndices2.at(i)));
+					}
+
+					// populate the data
+					hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
+					get_populated_data(populated_data, GlobalVar::instance()->iPopulationMode_, hacfKSpace_unordered_, lIndices2, vThisDist);
+
+					// copy populated data into great reordered kspace
+					#pragma omp parallel for
+					for (int c = 0; c < iNoChannels_; c++) {
+						size_t tOffset_reordered =
+							iLine * hacfKSpace_reordered_.get_size(0)
+							+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+							+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+							+ c * iNoGates*hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+
+						size_t offset_populated = c * populated_data.get_size(0);
+
+						memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
+					}
+				}
+			}
+		}
+
+		GINFO("kspace populated - phase: %i\n", iPh);
 	}
 
 	return true;
