@@ -1,7 +1,5 @@
 #include "CS_FOCUSS.h"
 
-#include "gadgetron_messages.h"
-
 using namespace Gadgetron;
 
 //--------------------------------------------------------------------------
@@ -38,7 +36,7 @@ int CS_FOCUSS_4D::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, Gadg
 		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
 
-		return -1;
+		return GADGET_FAIL;
 	}
 
 	// copy data
@@ -146,7 +144,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	hoNDArray<std::complex<float> > hacfTotEnergy(hacfWWindowed.get_dimensions());
 	for (int iCha = 0; iCha < iNChannels_; iCha++) {
 		size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
-		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr()+ tOffset, false);
+		hoNDArray<std::complex<float> > hacfEnergyPerChannel(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfWWindowed.get_data_ptr() + tOffset, false);
 		float channel_max_energy;
 
 		if (iNorm_ == 0) {
@@ -163,8 +161,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 		// fill channel
 		#pragma omp parallel for
 		for (size_t i = 0; i < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; i++) {
-			hacfTotEnergy.get_data_ptr()[i+tOffset] = std::complex<float>(channel_max_energy);
-			hacfWWindowed.get_data_ptr()[i+tOffset] /= std::complex<float>(channel_max_energy);
+			hacfTotEnergy.at(i+tOffset) = std::complex<float>(channel_max_energy);
+			hacfWWindowed.at(i+tOffset) /= std::complex<float>(channel_max_energy);
 		}
 	}
 
@@ -201,8 +199,8 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 				//l2 norm calculation - check epsilon
 				std::vector<float> vfVec;
 				for (int iCha = 0; iCha < iNChannels_; iCha++) {
-					size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
-					hoNDArray<std::complex<float> > eCha(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfE.get_data_ptr()+ tOffset, false);
+					size_t tOffset = vtDim_.at(0)*vtDim_.at(1)*vtDim_.at(2)*vtDim_.at(3)*iCha;
+					hoNDArray<std::complex<float> > eCha(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), vtDim_.at(3), hacfE.get_data_ptr() + tOffset, false);
 					vfVec.push_back(abs(dot(&eCha, &eCha)));
 					vfVec[iCha] = std::sqrt(vfVec[iCha]);
 
@@ -262,9 +260,9 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 			pcfPtr_ = hacfBeta.get_data_ptr();
 			for (int iCha = 0; iCha < iNChannels_; iCha++) {
 				// fill sub array with data from higher order data array
-				size_t tOffset = vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]*iCha;
-				hoNDArray<std::complex<float> > hacfSubArrayG_old(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfG_old.get_data_ptr()+ tOffset, false);
-				hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], hacfG.get_data_ptr()+ tOffset, false);
+				size_t tOffset = vtDim_.at(0)*vtDim_.at(1)*vtDim_.at(2)*vtDim_.at(3)*iCha;
+				hoNDArray<std::complex<float> > hacfSubArrayG_old(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), vtDim_.at(3), hacfG_old.get_data_ptr() + tOffset, false);
+				hoNDArray<std::complex<float> > hacfSubArrayG(vtDim_.at(0), vtDim_.at(1), vtDim_.at(2), vtDim_.at(3), hacfG.get_data_ptr() + tOffset, false);
 				float fBetaCha = 0.0;
 				float fNumerator = 0.0;
 				float fDenominator = 0.0;
@@ -287,7 +285,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 
 				// fill sub-array of the 4D array
 				#pragma omp parallel for
-				for (size_t lI = 0; lI < vtDim_[0]*vtDim_[1]*vtDim_[2]*vtDim_[3]; lI++) {
+				for (size_t lI = 0; lI < vtDim_.at(0)*vtDim_.at(1)*vtDim_.at(2)*vtDim_.at(3); lI++) {
 					pcfPtr_[lI+tOffset] = std::complex<float>(fBetaCha);
 				}
 			}
