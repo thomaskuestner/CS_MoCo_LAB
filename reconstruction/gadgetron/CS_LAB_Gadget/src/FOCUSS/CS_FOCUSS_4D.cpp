@@ -80,7 +80,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	vtDimOrder.push_back(2);
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(4);
-	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder,false);
+	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder, false);
 
 	// update dim_ vector
 	vtDim_.clear();

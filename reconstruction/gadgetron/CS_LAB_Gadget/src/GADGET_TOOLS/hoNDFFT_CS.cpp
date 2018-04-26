@@ -132,14 +132,12 @@ template<class T> void hoNDFFT_CS<T>::fft_int(hoNDArray<ComplexType> *input, siz
 				fftw_execute_ptr_(fft_plan);
 
 				idx3 = idx2;
-				for (int j = middle_point; j < length2; idx3+=stride2)
-				{
+				for (int j = middle_point; j < length2; idx3+=stride2) {
 					data_ptr[idx3] = fft_buffer[j++]*scale;
 					data_ptr[idx3+1] = fft_buffer[j++]*scale;
 				}
 
-				for (int j = 0; j < middle_point; idx3+=stride2)
-				{
+				for (int j = 0; j < middle_point; idx3+=stride2) {
 					data_ptr[idx3] = fft_buffer[j++]*scale;
 					data_ptr[idx3+1] = fft_buffer[j++]*scale;
 				}

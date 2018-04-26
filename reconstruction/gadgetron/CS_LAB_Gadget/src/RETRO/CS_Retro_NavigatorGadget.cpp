@@ -151,6 +151,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	std::vector<float> fPower(iNoChannels_);
 	hoNDArray<std::complex<float> > aPower = aImg;
 	aPower.fill(std::complex<float>(0,0));
+
 	for (int c = 0; c < iNoChannels_; c++) {
 		size_t offset = aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2)*c;
 		hoNDArray<std::complex<float> > SubArray(aImg.get_size(0), aImg.get_size(1), aImg.get_size(2), aImg.get_data_ptr()+offset, false);
