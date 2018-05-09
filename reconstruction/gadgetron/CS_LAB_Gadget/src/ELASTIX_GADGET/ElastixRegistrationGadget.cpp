@@ -73,7 +73,7 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 		GWARN("Dataset does not contain 2D or 3D images - Skip registration...\n");
 		skip_registration = true;
 	} else if (number_of_images <= 1) {
-		GWARN("There must be at least to images to register them - Skip registration...\n");
+		GWARN("There must be at least two images to register them - Skip registration...\n");
 		skip_registration = true;
 	}
 
