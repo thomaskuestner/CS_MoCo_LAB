@@ -313,7 +313,9 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	std::vector<std::string> files_to_remove;
 	files_to_remove.push_back(std::string("deformationField.mhd"));
 	files_to_remove.push_back(std::string("deformationField.raw"));
-	files_to_remove.push_back(std::string("transformix.log"));
+	if (!log_output_) {
+		files_to_remove.push_back(std::string("transformix.log"));
+	}
 	files_to_remove.push_back(std::string("TransformParameters.0.txt"));
 	files_to_remove.push_back(std::string("IterationInfo.0.R0.txt"));
 	files_to_remove.push_back(std::string("IterationInfo.0.R1.txt"));
