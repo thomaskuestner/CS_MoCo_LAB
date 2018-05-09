@@ -123,6 +123,7 @@
 		<property><name>transformFftBaDim</name><value>4</value></property>
 		<property><name>kSpaceOutDim</name><value>0</value></property>
 		<property><name>CSESPReSSo</name><value>0</value></property>
+		<property><name>norm</name><value>1</value></property>
 	</gadget>
 	<gadget>
 		<name>Combine</name>

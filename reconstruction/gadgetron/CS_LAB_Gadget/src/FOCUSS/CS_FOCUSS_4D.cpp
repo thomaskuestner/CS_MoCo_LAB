@@ -58,8 +58,6 @@ int CS_FOCUSS_4D::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, Gadg
 //--------------------------------------------------------------------------
 int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<std::complex<float> > &hacfRecon)
 {
-	iNorm_ = 1;
-
 	// input dimensions (x-y-z-t-c)
 	vtDim_ = *hacfInput.get_dimensions();
 
