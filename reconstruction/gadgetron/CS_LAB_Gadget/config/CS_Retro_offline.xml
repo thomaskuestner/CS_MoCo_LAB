@@ -129,10 +129,10 @@
 		<name>Combine</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_CombineGadget</classname>
-	</gadget>-->
+	</gadget>
 
 <!-- 	BART-Toolchain -->
-	<!-- Notes on CS_MRIImageToAcquisitonGadget -->
+	<!-- Notes on CS_MRIImageToAcquisitionGadget -->
 		<!-- Reset AcquisitionHeader instead of ImageHeader -->
 	<!-- Notes on CS_Retro_PreBARTGadget -->
 		<!-- Convert Gadget2 to Gadget1 -->
