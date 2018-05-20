@@ -234,16 +234,31 @@ void Gadgetron::print_array(const hoNDArray<std::complex<float> > &array)
 	file_out.close();
 }
 
-void Gadgetron::load_array(hoNDArray<std::complex<float> > &array, std::string &name)
+void Gadgetron::load_array(hoNDArray<std::complex<float> > &array, const std::string &name, const bool is_boolean)
 {
-	std::ifstream file_real(std::string("/tmp/")+name+std::string("_real.txt"));
-	std::ifstream file_imag(std::string("/tmp/")+name+std::string("_imag.txt"));
+	if (is_boolean) {
+		std::ifstream file_real(std::string("/opt/data/")+name+std::string(".txt"));
 
-	float real, imag;
-	size_t counter = 0;
-	while (counter < array.get_number_of_elements() && file_real >> real && file_imag >> imag) {
-		array.at(counter) = std::complex<float>(real, imag);
-		counter++;
+		bool value;
+		size_t counter = 0;
+		while (counter < array.get_number_of_elements() && file_real >> value) {
+			if (value) {
+				array.at(counter) = std::complex<float>(1, 0);
+			} else {
+				array.at(counter) = std::complex<float>(0, 0);
+			}
+			counter++;
+		}
+	} else {
+		std::ifstream file_real(std::string("/opt/data/")+name+std::string("_real.txt"));
+		std::ifstream file_imag(std::string("/opt/data/")+name+std::string("_imag.txt"));
+
+		float real, imag;
+		size_t counter = 0;
+		while (counter < array.get_number_of_elements() && file_real >> real && file_imag >> imag) {
+			array.at(counter) = std::complex<float>(real, imag);
+			counter++;
+		}
 	}
 }
 

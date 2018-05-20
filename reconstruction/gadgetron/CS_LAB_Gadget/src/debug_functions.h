@@ -13,7 +13,7 @@ namespace Gadgetron {
 	void print_vector(const std::vector<float> &v);
 	void load_vector(std::vector<float> &v);
 	void print_array(const hoNDArray<std::complex<float> > &array);
-	void load_array(hoNDArray<std::complex<float> > &array, std::string &name);
+	void load_array(hoNDArray<std::complex<float> > &array, const std::string &name, const bool is_boolean);
 	void load_array(hoNDArray<float> &array);
 }
 

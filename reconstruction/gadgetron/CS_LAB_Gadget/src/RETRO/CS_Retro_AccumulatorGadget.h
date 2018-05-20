@@ -83,7 +83,7 @@ namespace Gadgetron {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
-		GADGET_PROPERTY(Phases, int, "Phases", 0);
+		GADGET_PROPERTY(Phases, int, "Phases", 1);
 #endif
 	};
 } // close namespace Gadgetron

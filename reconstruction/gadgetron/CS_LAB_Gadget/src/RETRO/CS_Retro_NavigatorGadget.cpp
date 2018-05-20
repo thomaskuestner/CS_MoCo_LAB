@@ -21,11 +21,6 @@ CS_Retro_NavigatorGadget::~CS_Retro_NavigatorGadget()
 // read flexible data header
 int CS_Retro_NavigatorGadget::process_config(ACE_Message_Block *mb)
 {
-	return GADGET_OK;
-}
-
-int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3)
-{
 	// get gadget property
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	min_card_freq_	= MinCardFreq.value();
@@ -57,6 +52,11 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 		return GADGET_FAIL;
 	}
 
+	return GADGET_OK;
+}
+
+int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3)
+{
 	// fetch attribute values from header
 	iNoChannels_ = m1->getObjectPtr()->channels;
 	iNoNav_		 = m1->getObjectPtr()->user_int[5];
@@ -151,6 +151,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	std::vector<float> fPower(iNoChannels_);
 	hoNDArray<std::complex<float> > aPower = aImg;
 	aPower.fill(std::complex<float>(0,0));
+
 	for (int c = 0; c < iNoChannels_; c++) {
 		size_t offset = aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2)*c;
 		hoNDArray<std::complex<float> > SubArray(aImg.get_size(0), aImg.get_size(1), aImg.get_size(2), aImg.get_data_ptr()+offset, false);

@@ -92,7 +92,7 @@ namespace Gadgetron
 		std::vector<int> dims_to_trans_sparsity_;
 
 		// vector containing the dimensions to transform (FFT)
-		std::vector<int> dims_to_trans_FFT_;	
+		std::vector<int> dims_to_trans_FFT_;
 
 		// vector containing the dimensions to scramble in FFT
 		std::vector<bool> dims_to_scramble_;

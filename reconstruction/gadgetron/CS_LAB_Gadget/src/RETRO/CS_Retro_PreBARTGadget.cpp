@@ -46,13 +46,7 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 
 	// create hoNDArray with header
 	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
-	std::vector<size_t> dim_header_array;
-	dim_header_array.push_back(256);
-	dim_header_array.push_back(72);
-	dim_header_array.push_back(4);
-	dim_header_array.push_back(1);
-	dim_header_array.push_back(1);
-	header_array.create(&dim_header_array);
+	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4));
 
 	for (size_t i = 0; i < header_array.get_number_of_elements(); i++) {
 		header_array.at(i) = header;

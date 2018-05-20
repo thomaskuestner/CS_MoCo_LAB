@@ -197,8 +197,11 @@ namespace Gadgetron
 			fftw_cleanup_ptr_();
 		}
 
-		void fft_int(hoNDArray<ComplexType> *input, size_t dim_to_transform, int sign);
 		void fft_int(hoNDArray<ComplexType> *input, size_t dim_to_transform, int sign, bool bScramble);
+		void fft_int(hoNDArray<ComplexType> *input, size_t dim_to_transform, int sign)
+		{
+			fft_int(input, dim_to_transform, sign, true);
+		}
 
 		void set_function_pointers();
 
