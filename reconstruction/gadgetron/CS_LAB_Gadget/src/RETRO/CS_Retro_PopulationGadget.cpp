@@ -269,8 +269,9 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 {
 	for (size_t i = 0; i < weights.size(); i++) {
 		switch (population_mode) {
-		// closest
+		// closest & average (weights are only needed for tolerance window)
 		case 0:
+		case 1:
 			weights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(phase));
 			break;
 
@@ -310,6 +311,37 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 			memcpy(populated_data.get_data_ptr() + populated_channel_offset, unordered.get_data_ptr() + unordered_channel_offset + unordered_measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
 		}
 
+	} break;
+
+	// average
+	case 1: {
+		// pre-filling step with zeros may be omitted here because we set the data below (=) and do not just append (+=)
+
+		// take all measurements into account
+		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
+			size_t unordered_measurement_offset = indices.at(measurement) * unordered.get_size(0);
+
+			#pragma omp parallel for
+			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+				size_t populated_channel_offset = channel * populated_data.get_size(0);
+				size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+
+				#pragma omp parallel for
+				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
+					// append weighted value to return array
+					populated_data.at(kx_pixel + populated_channel_offset) = unordered.at(kx_pixel + unordered_channel_offset + unordered_measurement_offset);
+				}
+			}
+		}
+
+		// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
+		float normalization_factor = indices.size();
+
+		// only divide if possible
+		if (normalization_factor != 0) {
+			// divide all elements by weight sum
+			populated_data /= normalization_factor;
+		}
 	} break;
 
 	// gauss
@@ -359,9 +391,8 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 		GINFO("Using closest mode\n");
 		break;
 	case 1:
-		GERROR("reorder_kSpace: population mode 'average' not implemented in this version\n");
+		GINFO("Using average mode\n");
 
-		return false;
 		break;
 	case 2:
 		GERROR("reorder_kSpace: population mode 'collect' not implemented in this version\n");
