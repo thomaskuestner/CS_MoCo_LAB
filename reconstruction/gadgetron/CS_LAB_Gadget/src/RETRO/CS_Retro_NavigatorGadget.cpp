@@ -71,11 +71,23 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 	// 1: PCA
 	switch (iNavMethod_) {
 	case 0:
-		getNav2D(*m2->getObjectPtr());
+		try {
+			getNav2D(*m2->getObjectPtr());
+		} catch ( ... ) {
+			GERROR("An exception occurred\n");
+			return GADGET_FAIL;
+		}
+
 		break;
 
 	case 1:
-		getNav2DPCA(*m2->getObjectPtr());
+		try {
+			getNav2DPCA(*m2->getObjectPtr());
+		} catch ( ... ) {
+			GERROR("An exception occurred\n");
+			return GADGET_FAIL;
+		}
+
 		break;
 
 	default:
@@ -224,7 +236,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	if ((iMaxIndex < 20) || (iMaxIndex > static_cast<int>(aPowerInChan.get_size(0))-20)) {
 		GERROR("Error: iMaxIndex out of bounds..\n");
 
-		return;
+		throw std::range_error("iMaxIndex out of bounds\n");
 	}
 
 	//-------------------------------------------------------------------------
