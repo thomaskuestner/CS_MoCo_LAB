@@ -538,9 +538,9 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		vIdx.push_back(i);
 	}
 
-	vNav_.clear();
+	std::vector<float> navigator_resp;
 	for (size_t i = 0; i < aRefImg.get_size(1); i++) {
-		vNav_.push_back(0);
+		navigator_resp.push_back(0);
 	}
 
 	hoNDArray<float> aRMSImg;
@@ -658,11 +658,11 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		int iMinVal = amin(&aRMSImg);
 
 		//MATLAB: dDisplacement + 1 - dNav(i)
-		vNav_.at(i) = iDisplacement - iMinVal;
+		navigator_resp.at(i) = iDisplacement - iMinVal;
 
 		//MATLAB: circshift(dSOSImg(:,idx(i)), dNav(i))
 		hoNDArray<float> aTmp3 = aTmp;
-		circshift(aTmp3, vNav_.at(i), 0);
+		circshift(aTmp3, navigator_resp.at(i), 0);
 
 		if (i%20 == 0) {
 			GINFO("Getting Navigator - %.1f %%\n", static_cast<float>(aRefImg.get_size(1)-2-i)/static_cast<float>(aRefImg.get_size(1)-2)*100);
@@ -672,27 +672,27 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		memcpy(aRefImg.get_data_ptr()+vIdx.at(i)*aRefImg.get_size(0), aTmp3.get_data_ptr(), sizeof(float)*aTmp3.get_size(0));
 	}
 
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) *= -1;
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) *= -1;
 	}
 
 	// get Gaussian filter kernel and calculate convolution with navigator data
 	vGaussian.clear();
 	filter1DGaussian(vGaussian, 5);
-	vectorConv(vNav_, vGaussian, 0);
+	vectorConv(navigator_resp, vGaussian, 0);
 
 	//-------------------------------------------------------------------------
 	// interpolate navigator data signal to TR intervals
 	GINFO("interpolation of navigator data to TR intervals..\n");
 
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) = -vNav_.at(i);
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) = -navigator_resp.at(i);
 	}
 
-	int iMin = std::min_element(vNav_.begin(), vNav_.end())-vNav_.begin();
-	float fMin = vNav_.at(iMin);
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) -= fMin;
+	int iMin = std::min_element(navigator_resp.begin(), navigator_resp.end())-navigator_resp.begin();
+	float fMin = navigator_resp.at(iMin);
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) -= fMin;
 	}
 
 	// build vector with elements 0..lNoScans_ to interpolate navigator_resp_interpolated_ below
@@ -701,10 +701,10 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		vNavIndNew.push_back(i);
 	}
 
-	GDEBUG("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
+	GDEBUG("vNavInd size: %i, navigator_resp size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), navigator_resp.size(), vNavIndNew.size());
 
 	std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
-	navigator_resp_interpolated_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
+	navigator_resp_interpolated_ = interp1<float>(vNavInd, navigator_resp, vNavIndNew);
 
 	return;
 }
