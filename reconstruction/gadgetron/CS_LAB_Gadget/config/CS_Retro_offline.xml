@@ -129,7 +129,7 @@
 		<name>Combine</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_CombineGadget</classname>
-	</gadget>
+	</gadget>-->
 
 <!-- 	BART-Toolchain -->
 	<!-- Notes on CS_MRIImageToAcquisitionGadget -->
