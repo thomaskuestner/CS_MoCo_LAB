@@ -24,6 +24,15 @@
 		<classname>RemoveROOversamplingGadget</classname>
 	</gadget>
 
+	<!-- Coil reduction for further processing -->
+	<gadget>
+		<name>CoilReduction</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>CoilReductionGadget</classname>
+		<!-- Keep a max of 16 coils -->
+		<property><name>coils_out</name><value>16</value></property>
+	</gadget>
+
 	<!-- first try - normal AccumulatorGadget -->
 	<gadget>
 		<name>Accumulator</name>
