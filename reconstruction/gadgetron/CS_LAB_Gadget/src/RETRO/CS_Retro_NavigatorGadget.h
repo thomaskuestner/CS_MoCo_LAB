@@ -25,7 +25,7 @@ namespace Gadgetron {
 	{
 	private:
 		// navigator signal interpolated to TRs
-		std::vector<float> navigator_resp_interpolated_;
+		std::vector<float> navigator_resp_interpolated_, navigator_card_interpolated_;
 
 		// field of view
 		float field_of_view_[3];
