@@ -96,12 +96,12 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 	}
 
 	GadgetContainerMessage<hoNDArray<float> > *tmp_m2 = new GadgetContainerMessage<hoNDArray<float> >();
-	tmp_m2->getObjectPtr()->create(vNavInt_.size());
+	tmp_m2->getObjectPtr()->create(navigator_resp_interpolated_.size());
 
 	// convert vector to array
 	float *fPtr = tmp_m2->getObjectPtr()->get_data_ptr();
-	for (size_t iI = 0; iI < vNavInt_.size(); iI++) {
-		fPtr[iI] = vNavInt_.at(iI);
+	for (size_t iI = 0; iI < navigator_resp_interpolated_.size(); iI++) {
+		fPtr[iI] = navigator_resp_interpolated_.at(iI);
 	}
 
 	m1->cont(tmp_m2);
@@ -695,7 +695,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		vNav_.at(i) -= fMin;
 	}
 
-	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	// build vector with elements 0..lNoScans_ to interpolate navigator_resp_interpolated_ below
 	std::vector<float> vNavIndNew;
 	for (long i = 0; i < lNoScans_; i++) {
 		vNavIndNew.push_back(i);
@@ -704,7 +704,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	GDEBUG("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
 
 	std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
-	vNavInt_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
+	navigator_resp_interpolated_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
 
 	return;
 }
@@ -859,7 +859,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// Note: Matlab implementation: %dRespNavi = -dRespNavi;
 	// is implicitly done during KLT and can be omitted here
 
-	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	// build vector with elements 0..lNoScans_ to interpolate navigator_resp_interpolated_ below
 	std::vector<float> nav_ind_new;
 	for (long i = 0; i < lNoScans_; i++) {
 		nav_ind_new.push_back(i);
@@ -871,7 +871,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind.size(), resp_navi.size(), nav_ind_new.size());
 
 	// interpolate to output vector
-	vNavInt_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
+	navigator_resp_interpolated_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
 
 	return;
 }
