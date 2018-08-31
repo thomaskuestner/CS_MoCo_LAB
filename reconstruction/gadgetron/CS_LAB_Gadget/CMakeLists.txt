@@ -17,7 +17,7 @@ if (NOT CMAKE_BUILD_TYPE)
 		FORCE)
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
 # build options for 64 bits system
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
