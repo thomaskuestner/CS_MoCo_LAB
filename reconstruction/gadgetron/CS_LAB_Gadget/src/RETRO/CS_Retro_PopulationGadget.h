@@ -83,7 +83,7 @@ namespace Gadgetron {
 
 		template <typename T>
 		void discard_empty_elements_from_back(std::vector<T> &v) {
-			while (v.at(v.size()-1) == 0) {
+			while (v.size() > 0 && v.at(v.size()-1) == 0) {
 				v.pop_back();
 			}
 		}
