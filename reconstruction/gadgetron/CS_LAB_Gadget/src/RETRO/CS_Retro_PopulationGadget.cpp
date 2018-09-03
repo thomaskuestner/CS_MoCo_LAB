@@ -37,10 +37,14 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	unsigned int number_of_phases = m1->getObjectPtr()->user_int[0];
 
 	// get navigator and convert to std::vector
-	//hafNav_ = *m2->getObjectPtr();
-	for (unsigned int iI = 0; iI < m2->getObjectPtr()->get_size(0); iI++) {
-		vNavInt_.push_back(m2->getObjectPtr()->at(iI));//hafNav_(iI));
+	for (unsigned int iI = 0; iI < m2->getObjectPtr()->get_number_of_elements();) {
+		navigator_resp_interpolated_.push_back(m2->getObjectPtr()->at(iI++));
+		navigator_card_interpolated_.push_back(m2->getObjectPtr()->at(iI++));
 	}
+
+	// discard empty values from the end
+	discard_empty_elements_from_back(navigator_resp_interpolated_);
+	discard_empty_elements_from_back(navigator_card_interpolated_);
 
 	// get unordered kspace data
 	hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
@@ -121,10 +125,10 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	}
 
 	// only erase data when there is enough
-	if (vNavInt_.size() >= static_cast<size_t>(iStartIndex)) {
-		vNavInt_.erase(vNavInt_.begin(), vNavInt_.begin()+iStartIndex);
+	if (navigator_resp_interpolated_.size() >= static_cast<size_t>(iStartIndex)) {
+		navigator_resp_interpolated_.erase(navigator_resp_interpolated_.begin(), navigator_resp_interpolated_.begin()+iStartIndex);
 	} else {
-		GWARN("more elements should be delete than there were actually in vNavInt_. Nothing is done!\n");
+		GWARN("more elements should be delete than there were actually in navigator_resp_interpolated_. Nothing is done!\n");
 	}
 
 	if (GlobalVar::instance()->vPA_.size() >= static_cast<size_t>(iStartIndex)) {
@@ -179,9 +183,9 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 	case 0:
 		GINFO("get inhale/exhale borders by 10th and 90th percentile..\n");
 
-		if (vNavInt_.size() > 0) {
-			fNavMin = vNavInt_.at(std::min_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
-			fNavMax = vNavInt_.at(std::max_element(vNavInt_.begin(), vNavInt_.end())-vNavInt_.begin());
+		if (navigator_resp_interpolated_.size() > 0) {
+			fNavMin = navigator_resp_interpolated_.at(std::min_element(navigator_resp_interpolated_.begin(), navigator_resp_interpolated_.end())-navigator_resp_interpolated_.begin());
+			fNavMax = navigator_resp_interpolated_.at(std::max_element(navigator_resp_interpolated_.begin(), navigator_resp_interpolated_.end())-navigator_resp_interpolated_.begin());
 		}
 
 		GDEBUG("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
@@ -198,8 +202,8 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 				histogram.at(i) = 0;
 			}
 
-			for (size_t i = 0; i < vNavInt_.size(); i++) {
-				unsigned int bin = static_cast<unsigned int>(std::floor(vNavInt_.at(i)/((fNavMax-fNavMin)/iNumberBins)));
+			for (size_t i = 0; i < navigator_resp_interpolated_.size(); i++) {
+				unsigned int bin = static_cast<unsigned int>(std::floor(navigator_resp_interpolated_.at(i)/((fNavMax-fNavMin)/iNumberBins)));
 
 				if (bin >= iNumberBins) {
 					bin = iNumberBins - 1;
@@ -215,7 +219,7 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 			// find 90th percentile
 			long long cumsum = 0;
 			size_t counter = 0;
-			while (cumsum < (.90*vNavInt_.size())) {
+			while (cumsum < (.90*navigator_resp_interpolated_.size())) {
 				cumsum += static_cast<long long>(histogram.at(counter++));
 			}
 
@@ -224,7 +228,7 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 			// find 10th percentile
 			counter = 0;
 			cumsum = 0;
-			while (cumsum < (.10*vNavInt_.size())) {
+			while (cumsum < (.10*navigator_resp_interpolated_.size())) {
 				cumsum += static_cast<long long>(histogram[counter++]);
 			}
 
@@ -272,12 +276,12 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 		// closest & average (weights are only needed for tolerance window)
 		case 0:
 		case 1:
-			weights.at(i) = abs(vNavInt_.at(i) - vfCentroids_.at(phase));
+			weights.at(i) = abs(navigator_resp_interpolated_.at(i) - vfCentroids_.at(phase));
 			break;
 
 		// gauss
 		case 3:
-			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(vNavInt_.at(i)-vfCentroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
+			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-vfCentroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
 			break;
 
 		default:
@@ -422,7 +426,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
 	for (int iPh = 0; iPh < iNoGates; iPh++) {
 		// get weights
-		std::vector<float> vWeights(vNavInt_.size());
+		std::vector<float> vWeights(navigator_resp_interpolated_.size());
 		calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, iPh);
 
 		GINFO("weights calculated - phase: %i\n", iPh);

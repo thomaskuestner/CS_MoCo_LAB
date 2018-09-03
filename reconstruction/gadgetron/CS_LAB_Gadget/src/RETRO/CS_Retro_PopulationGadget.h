@@ -60,7 +60,7 @@ namespace Gadgetron {
 		float fTolerance_;
 
 		// navigator signal
-		std::vector<float> vNavInt_;
+		std::vector<float> navigator_card_interpolated_, navigator_resp_interpolated_;
 
 		// centroids of gates
 		std::vector<float> vfCentroids_;
@@ -80,6 +80,13 @@ namespace Gadgetron {
 		bool fCalcCentroids(int iNoGates);
 		bool fPopulatekSpace(int iNoGates);
 		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
+
+		template <typename T>
+		void discard_empty_elements_from_back(std::vector<T> &v) {
+			while (v.at(v.size()-1) == 0) {
+				v.pop_back();
+			}
+		}
 
 		/**
 		* @brief returns populated data as hoNDArray via first argument. Dimensions: [RX Channels] (e.g. [256 10])
