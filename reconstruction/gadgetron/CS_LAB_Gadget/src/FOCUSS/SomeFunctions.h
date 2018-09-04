@@ -170,6 +170,23 @@ namespace Gadgetron
 	*/
 	template <typename T>
 	void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
+
+	/**
+	 * @brief Function to read number of gates out of integer.
+	 *
+	 * @param storage Integer where the information is stored.
+	 * @param phase_type Type of phase (0=respiratory, 1=cardiac)
+	 */
+	inline size_t get_number_of_gates(const int storage, const int phase_type);
+
+	/**
+	 * @brief Function to write number of gates out of integer.
+	 *
+	 * @param storage Pointer to an integer where the information is stored.
+	 * @param phase_type Type of phase (0=respiratory, 1=cardiac)
+	 * @param phase_value Value which should be written in storage.
+	 */
+	inline void set_number_of_gates(int * const storage, const int phase_type, const size_t phase_value);
 }
 
 #include "SomeFunctions.hxx"

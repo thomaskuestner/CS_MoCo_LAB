@@ -34,7 +34,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
 
 	// get number of phases/gates
-	unsigned int number_of_respiratory_phases = m1->getObjectPtr()->user_int[0];
+	unsigned int number_of_respiratory_phases = get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
 
 	// get navigator and convert to std::vector
 	for (unsigned int iI = 0; iI < m2->getObjectPtr()->get_number_of_elements();) {

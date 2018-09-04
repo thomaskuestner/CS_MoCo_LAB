@@ -1548,4 +1548,16 @@ namespace Gadgetron
 		int needed_ram = (m * bytes_per_element)/std::pow(1024, 3);
 		GERROR("Not enough RAM to calculate! You need at least %dGiB of RAM.\n", needed_ram);
 	}
+
+	size_t get_number_of_gates(const int storage, const int phase_type) {
+		return (storage >> (8*phase_type)) & 0xFF;
+	}
+
+	void set_number_of_gates(int * const storage, const int phase_type, const size_t phase_value) {
+		// delete existing value if necessary
+		*storage &= ~(0xFF << (8*phase_type));
+
+		// set new value
+		*storage |= (phase_value & 0xFF) << (8*phase_type);
+	}
 }

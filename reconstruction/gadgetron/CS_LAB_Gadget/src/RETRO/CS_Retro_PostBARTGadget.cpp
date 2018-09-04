@@ -52,7 +52,7 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	GlobalVar::instance()->ImgHeadVec_.clear();
 
 	// reset number of gates (otherwise no output is performed) (channels = respiratory_phases_)
-	cm1->getObjectPtr()->channels = cm1->getObjectPtr()->user_int[0];
+	cm1->getObjectPtr()->channels = get_number_of_gates(cm1->getObjectPtr()->user_int[0], 0);
 
 	// concatenate data
 	cm1->cont(cm2);
