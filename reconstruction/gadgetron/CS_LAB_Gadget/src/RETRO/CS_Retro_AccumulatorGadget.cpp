@@ -1,10 +1,10 @@
 ﻿/*
-file name	:	CS_Retro.cpp
+file name	:	CS_Retro_AccumulatorGadget.cpp
 author		:	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 version		:	v1.0
 date		:	08.02.2015
 description	:
-references	:	 AccumulatorGadget.cpp (origial Gadgetron - mri_core project)
+references	:	AccumulatorGadget.cpp (origial Gadgetron - mri_core project)
 changes		:
 */
 
