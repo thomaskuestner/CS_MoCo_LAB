@@ -57,8 +57,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	vDim_.push_back(e_space.matrixSize.y);
 	vDim_.push_back(e_space.matrixSize.z);
 
-	iNPhases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
-	vDim_.push_back(iNPhases_);
+	respiratory_phases_ = e_limits.slice? e_limits.slice->maximum+1 : 1;
+	vDim_.push_back(respiratory_phases_);
 #else
 	// read xml header file
 	boost::shared_ptr<ISMRMRD::ismrmrdHeader> cfg = parseIsmrmrdXMLHeader(std::string(mb->rd_ptr()));
@@ -80,8 +80,8 @@ int CS_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 	vDim_.push_back(e_space.matrixSize().z());
 
 	// get no. of phases
-	iNPhases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
-	vDim_.push_back(iNPhases_);
+	respiratory_phases_ = e_limits.phase().present() ? e_limits.phase().get().maximum() : 1;
+	vDim_.push_back(respiratory_phases_);
 #endif
 
 	// read CS/ESPReSSo data and interpret integer values
@@ -457,7 +457,7 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	memcpy(GC_img_hdr_m1->getObjectPtr()->slice_dir,GC_acq_hdr_m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 	memcpy(GC_img_hdr_m1->getObjectPtr()->patient_table_position,GC_acq_hdr_m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
 	
-	GC_img_hdr_m1->getObjectPtr()->user_int[0]		= iNPhases_;
+	GC_img_hdr_m1->getObjectPtr()->user_int[0]		= respiratory_phases_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[3]		= iVDMap_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[4]		= iESPReSSoDirection_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[6]		= iBodyRegion_;

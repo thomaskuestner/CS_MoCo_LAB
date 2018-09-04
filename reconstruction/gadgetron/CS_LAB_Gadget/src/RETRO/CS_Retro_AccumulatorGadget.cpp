@@ -97,11 +97,11 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
 	GlobalVar::instance()->iNavPERes_			= NavPERes.value();
-	iNPhases_									= Phases.value();
+	respiratory_phases_							= RespiratoryPhases.value();
 #else
 	GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get());
 	GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get());
-	iNPhases_									= *(get_int_value("Phases").get());
+	respiratory_phases_							= *(get_int_value("RespiratoryPhases").get());
 #endif
 
 	int iESPReSSoY = 0;
@@ -150,8 +150,8 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					GlobalVar::instance()->iNavPeriod_ = i->value;
 				} else if (i->name == "NavPERes") {
 					GlobalVar::instance()->iNavPERes_ = i->value;
-				} else if (i->name == "Phases") {
-					iNPhases_ = i->value;
+				} else if (i->name == "RespiratoryPhases") {
+					respiratory_phases_ = i->value;
 				} else if (i->name == "PopulationMode") {
 					GlobalVar::instance()->iPopulationMode_ = i->value;
 				} else if (i->name == "GatingMode") {
@@ -209,8 +209,8 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					GlobalVar::instance()->iNavPeriod_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"NavPERes") == 0) {
 					GlobalVar::instance()->iNavPERes_ = i->value();
-				} else if (std::strcmp(i->name().c_str(),"Phases") == 0) {
-					iNPhases_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"RespiratoryPhases") == 0) {
+					respiratory_phases_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"PopulationMode") == 0) {
 					GlobalVar::instance()->iPopulationMode_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"GatingMode") == 0) {
@@ -461,7 +461,7 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 
 	// initialize flags
 	tmp_m1->getObjectPtr()->flags				= 0;
-	tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
+	tmp_m1->getObjectPtr()->user_int[0]			= respiratory_phases_;
 	tmp_m1->getObjectPtr()->user_int[1]			= iBodyRegion_;
 	tmp_m1->getObjectPtr()->user_int[2]			= iSamplingType_;
 	tmp_m1->getObjectPtr()->user_int[3]			= iVDMap_;

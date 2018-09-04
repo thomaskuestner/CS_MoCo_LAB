@@ -34,7 +34,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	iNoChannels_ = m3->getObjectPtr()->get_size(2);
 
 	// get number of phases/gates
-	unsigned int number_of_phases = m1->getObjectPtr()->user_int[0];
+	unsigned int number_of_respiratory_phases = m1->getObjectPtr()->user_int[0];
 
 	// get navigator and convert to std::vector
 	for (unsigned int iI = 0; iI < m2->getObjectPtr()->get_number_of_elements();) {
@@ -54,7 +54,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	m2->release();
 
 	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x Gates x Channels)
-	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_phases, iNoChannels_);
+	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_respiratory_phases, iNoChannels_);
 
 	//-------------------------------------------------------------------------
 	// discard first seconds of the acquisitions and wait for steady-state
@@ -67,7 +67,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// get centroids
 	//-------------------------------------------------------------------------
-	if (!fCalcCentroids(number_of_phases)) {
+	if (!get_respiratory_gates(number_of_respiratory_phases)) {
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	} else {
@@ -79,7 +79,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// populate k-space: mode: closest, gates: 4
 	//-------------------------------------------------------------------------
-	if (!fPopulatekSpace(number_of_phases)) {
+	if (!fPopulatekSpace(number_of_respiratory_phases)) {
 		GERROR("process aborted\n");
 	}
 
@@ -172,7 +172,7 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	return true;
 }
 
-bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
+bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count)
 {
 	// get centroids
 	float fNavMin, fNavMax;
@@ -234,11 +234,11 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 
 			float f10p = counter*((fNavMax-fNavMin)/iNumberBins);
 
-			GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, nPhases: %i\n", f10p, f90p, iNoGates);
+			GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, respiratory phases: %i\n", f10p, f90p, respiratory_gate_count);
 
 			// eqully spaced gate positions
-			float fDistance = (f90p-f10p)/(iNoGates-1);
-			for (long iI = 0; iI < iNoGates; iI++) {
+			float fDistance = (f90p-f10p)/(respiratory_gate_count-1);
+			for (long iI = 0; iI < respiratory_gate_count; iI++) {
 				vfCentroids_.push_back(f10p + iI*fDistance);
 			}
 
@@ -246,7 +246,7 @@ bool CS_Retro_PopulationGadget::fCalcCentroids(int iNoGates)
 			float fTolerance = std::abs(vfCentroids_.at(0)-vfCentroids_.at(1))*fTolerance_/2.0;
 
 			// fill tolerance vector
-			for (int i = 0; i < iNoGates; i++) {
+			for (int i = 0; i < respiratory_gate_count; i++) {
 				vTolerance_.push_back(fTolerance);
 			}
 		}

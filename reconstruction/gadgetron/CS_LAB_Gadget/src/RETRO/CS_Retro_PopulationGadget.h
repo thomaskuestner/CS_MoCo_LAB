@@ -77,7 +77,7 @@ namespace Gadgetron {
 
 	private:
 		bool fDiscard();
-		bool fCalcCentroids(int iNoGates);
+		bool get_respiratory_gates(int respiratory_gate_count);
 		bool fPopulatekSpace(int iNoGates);
 		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
 
