@@ -508,7 +508,7 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 	}
 
 	// delete header - it is not needed anymore
-	acq_header_->cont(NULL);	// only increse header, not the data. THIS IS IMPORTANT!
+	acq_header_->cont(NULL);	// only release header, not the data. THIS IS IMPORTANT!
 	acq_header_->release();
 	acq_header_ = NULL;
 
