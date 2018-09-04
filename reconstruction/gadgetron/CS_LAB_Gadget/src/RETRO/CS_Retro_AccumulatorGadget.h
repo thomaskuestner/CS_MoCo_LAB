@@ -67,7 +67,7 @@ namespace Gadgetron {
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 	private:
-		bool is_content_dataset(ISMRMRD::AcquisitionHeader &header)
+		bool is_image_dataset(ISMRMRD::AcquisitionHeader &header)
 		{
 			return header.idx.set == 0;
 		}

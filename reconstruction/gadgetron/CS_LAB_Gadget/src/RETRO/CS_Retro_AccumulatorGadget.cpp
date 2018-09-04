@@ -352,8 +352,8 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	const uint32_t current_scan = m1->getObjectPtr()->scan_counter-1;
 
 	// only handle correct measurements (data and navigator), otherwise some strange things can occur (lengths are probably not the same)
-	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
-		GDEBUG("Reject scan with idx.set=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, current_scan);
+	if (!(is_image_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
+		GDEBUG("Reject scan with idx.set=%d, samples=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, m1->getObjectPtr()->number_of_samples, current_scan);
 		m1->release();
 
 		return GADGET_OK;
