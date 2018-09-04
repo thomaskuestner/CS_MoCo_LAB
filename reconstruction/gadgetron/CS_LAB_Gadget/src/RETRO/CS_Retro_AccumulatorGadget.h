@@ -69,12 +69,26 @@ namespace Gadgetron {
 	private:
 		bool is_image_dataset(ISMRMRD::AcquisitionHeader &header)
 		{
-			return header.idx.set == 0;
+			// if sample length is > 20, then it is image data
+			return header.number_of_samples > 20;
 		}
 
 		bool is_navigator_dataset(ISMRMRD::AcquisitionHeader &header)
 		{
-			return header.idx.set == 1;
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 0));
+		}
+
+		bool is_belt_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 1));
+		}
+
+		bool is_ecg_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 2));
 		}
 
 		bool process_data(void);

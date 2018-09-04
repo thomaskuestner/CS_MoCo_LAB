@@ -359,6 +359,12 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 		return GADGET_OK;
 	}
 
+	// ignore belt signal for now
+	if (is_belt_dataset(*m1->getObjectPtr())) {
+		m1->release();
+		return GADGET_OK;
+	}
+
 	// copy header information of first acquisition to global variable (create new header, copy header, push onto global vector)
 	if (GlobalVar::instance()->AcqVec_.size() == 0) {
 		GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *tmp_m1 = new GadgetContainerMessage<ISMRMRD::AcquisitionHeader>();
