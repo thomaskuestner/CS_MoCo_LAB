@@ -95,7 +95,7 @@
 			<value>2.0</value>
 		</property>
 		<property>
-			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
+			<!-- 0: closest, 1: average, 2: collect (not impl.), 3: gauss -->
 			<name>PopulationMode</name>
 			<value>0</value>
 		</property>
