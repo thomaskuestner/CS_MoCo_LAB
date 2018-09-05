@@ -63,7 +63,7 @@ namespace Gadgetron {
 		std::vector<float> navigator_card_interpolated_, navigator_resp_interpolated_;
 
 		// centroids of gates
-		std::vector<float> vfCentroids_;
+		std::vector<float> respiratory_centroids_, cardiac_centroids_;
 
 	public:
 		CS_Retro_PopulationGadget();
@@ -77,6 +77,7 @@ namespace Gadgetron {
 
 	private:
 		bool fDiscard();
+		bool get_cardiac_gates(int cardiac_gate_count);
 		bool get_respiratory_gates(int respiratory_gate_count);
 		bool fPopulatekSpace(int iNoGates);
 		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);

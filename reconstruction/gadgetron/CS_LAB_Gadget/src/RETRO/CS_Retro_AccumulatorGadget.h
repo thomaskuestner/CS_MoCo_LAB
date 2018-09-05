@@ -43,7 +43,7 @@ namespace Gadgetron {
 		int iEchoPartition_ = 0;
 
 		// number of phases
-		int respiratory_phases_ = 0;
+		int respiratory_phases_ = 0, cardiac_phases_ = 0;
 
 		// Compressed Sensing variables
 		int iESPReSSoDirection_ = 0;
@@ -98,6 +98,7 @@ namespace Gadgetron {
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
 		GADGET_PROPERTY(RespiratoryPhases, int, "RespiratoryPhases", 1);
+		GADGET_PROPERTY(CardiacPhases, int, "CardiacPhases", 1);
 #endif
 	};
 } // close namespace Gadgetron

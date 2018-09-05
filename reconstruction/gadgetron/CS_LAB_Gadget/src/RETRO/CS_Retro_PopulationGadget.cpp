@@ -35,6 +35,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 
 	// get number of phases/gates
 	unsigned int number_of_respiratory_phases = get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
+	unsigned int number_of_cardiac_phases = get_number_of_gates(m1->getObjectPtr()->user_int[0], 1);
 
 	// get navigator and convert to std::vector
 	for (unsigned int iI = 0; iI < m2->getObjectPtr()->get_number_of_elements();) {
@@ -53,8 +54,8 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	// free memory (also frees m3)
 	m2->release();
 
-	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x Gates x Channels)
-	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_respiratory_phases, iNoChannels_);
+	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x RespiratoryGates x CardiacGates x Channels)
+	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_respiratory_phases, number_of_cardiac_phases, iNoChannels_);
 
 	//-------------------------------------------------------------------------
 	// discard first seconds of the acquisitions and wait for steady-state
@@ -65,14 +66,26 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	}
 
 	//-------------------------------------------------------------------------
-	// get centroids
+	// get respiratory centroids
 	//-------------------------------------------------------------------------
 	if (!get_respiratory_gates(number_of_respiratory_phases)) {
 		GERROR("process aborted\n");
 		return GADGET_FAIL;
 	} else {
-		for (size_t i = 0; i < vfCentroids_.size(); i++) {
-			GDEBUG("Centroid %i: %f\n", i, vfCentroids_.at(i));
+		for (size_t i = 0; i < respiratory_centroids_.size(); i++) {
+			GDEBUG("Respiratory Centroid %i: %f\n", i, respiratory_centroids_.at(i));
+		}
+	}
+
+	//-------------------------------------------------------------------------
+	// get cardiac centroids
+	//-------------------------------------------------------------------------
+	if (!get_cardiac_gates(number_of_cardiac_phases)) {
+		GERROR("process aborted\n");
+		return GADGET_FAIL;
+	} else {
+		for (size_t i = 0; i < respiratory_centroids_.size(); i++) {
+			GDEBUG("Cardiac Centroid %i: %f\n", i, respiratory_centroids_.at(i));
 		}
 	}
 
@@ -172,6 +185,12 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	return true;
 }
 
+bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
+{
+
+	return true;
+}
+
 bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count)
 {
 	// get centroids
@@ -191,7 +210,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count
 		GDEBUG("navigator min: %.1f, max: %.1f\n", fNavMin, fNavMax);
 
 		if (fNavMin == fNavMax) {
-			vfCentroids_.push_back(fNavMin);
+			respiratory_centroids_.push_back(fNavMin);
 		} else {
 			// get histogram
 			unsigned int iNumberBins = 256;
@@ -239,11 +258,11 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count
 			// eqully spaced gate positions
 			float fDistance = (f90p-f10p)/(respiratory_gate_count-1);
 			for (long iI = 0; iI < respiratory_gate_count; iI++) {
-				vfCentroids_.push_back(f10p + iI*fDistance);
+				respiratory_centroids_.push_back(f10p + iI*fDistance);
 			}
 
 			// get tolerance of the gate positions
-			float fTolerance = std::abs(vfCentroids_.at(0)-vfCentroids_.at(1))*fTolerance_/2.0;
+			float fTolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*fTolerance_/2.0;
 
 			// fill tolerance vector
 			for (int i = 0; i < respiratory_gate_count; i++) {
@@ -276,12 +295,12 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 		// closest & average (weights are only needed for tolerance window)
 		case 0:
 		case 1:
-			weights.at(i) = abs(navigator_resp_interpolated_.at(i) - vfCentroids_.at(phase));
+			weights.at(i) = abs(navigator_resp_interpolated_.at(i) - respiratory_centroids_.at(phase));
 			break;
 
 		// gauss
 		case 3:
-			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-vfCentroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
+			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-respiratory_centroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
 			break;
 
 		default:
