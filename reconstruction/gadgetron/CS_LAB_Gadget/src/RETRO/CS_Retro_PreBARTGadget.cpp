@@ -35,18 +35,19 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	ISMRMRD::AcquisitionHeader header = *GlobalVar::instance()->AcqVec_.at(0);
 	hoNDArray<std::complex<float> > data = *m2->getObjectPtr();
 
-	// permute kSpace: kx-ky-kz-t-c -> kx-ky-kz-c-t
+	// permute kSpace: kx-ky-kz-g1-g2-c -> kx-ky-kz-c-g1-g2
 	std::vector<size_t> vtDimOrder;
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(1);
 	vtDimOrder.push_back(2);
-	vtDimOrder.push_back(4);
+	vtDimOrder.push_back(5);
 	vtDimOrder.push_back(3);
+	vtDimOrder.push_back(4);
 	data = *permute(&data, &vtDimOrder, false);
 
 	// create hoNDArray with header
 	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
-	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4));
+	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4), data.get_size(5));
 
 	for (size_t i = 0; i < header_array.get_number_of_elements(); i++) {
 		header_array.at(i) = header;
