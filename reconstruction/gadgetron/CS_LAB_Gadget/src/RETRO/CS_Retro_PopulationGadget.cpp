@@ -113,6 +113,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	if (!fPopulatekSpace(number_of_cardiac_phases, number_of_respiratory_phases)) {
 		GERROR("process aborted\n");
+		return GADGET_FAIL;
 	}
 
 	GINFO("kSpace populated and ready to stream..\n");
