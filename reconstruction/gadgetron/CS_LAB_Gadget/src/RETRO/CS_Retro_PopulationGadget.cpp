@@ -47,6 +47,17 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	discard_empty_elements_from_back(navigator_resp_interpolated_);
 	discard_empty_elements_from_back(navigator_card_interpolated_);
 
+	// correct number of phases if necessary
+	if (navigator_card_interpolated_.size() == 0) {
+		GWARN("No cardiac navigator signal found. Cardiac motion correction is disabled.\n");
+		number_of_cardiac_phases = 1;
+	}
+
+	if (navigator_resp_interpolated_.size() == 0) {
+		GWARN("No respiratory navigator signal found. Respiratory motion correction is disabled.\n");
+		number_of_respiratory_phases = 1;
+	}
+
 	// get unordered kspace data
 	hacfKSpace_unordered_.create(m3->getObjectPtr()->get_dimensions());
 	memcpy(hacfKSpace_unordered_.get_data_ptr(), m3->getObjectPtr()->get_data_ptr(), sizeof(std::complex<float>)*m3->getObjectPtr()->get_number_of_elements());
