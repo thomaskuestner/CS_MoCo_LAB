@@ -17,13 +17,17 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 {
 	// set properties
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
-	GlobalVar::instance()->iPopulationMode_		= PopulationMode.value();
-	GlobalVar::instance()->iGatingMode_			= GatingMode.value();
-	fTolerance_ = Tolerance.value();
+	GlobalVar::instance()->iPopulationMode_			= PopulationMode.value();
+	GlobalVar::instance()->cardiac_gating_mode_		= CardiacGatingMode.value();
+	GlobalVar::instance()->respiratory_gating_mode_	= RespiratoryGatingMode.value();
+	cardiac_tolerance_parameter_					= CardiacTolerance.value();
+	respiratory_tolerance_parameter_				= RespiratoryTolerance.value();
 #else
-	GlobalVar::instance()->iPopulationMode_		= *(get_int_value("PopulationMode").get());
-	GlobalVar::instance()->iGatingMode_			= *(get_int_value("GatingMode").get());
-	fTolerance_ = *(get_int_value("Tolerance").get());
+	GlobalVar::instance()->iPopulationMode_			= *(get_int_value("PopulationMode").get());
+	GlobalVar::instance()->cardiac_gating_mode_		= *(get_int_value("CardiacGatingMode").get());
+	GlobalVar::instance()->respiratory_gating_mode_	= *(get_int_value("RespiratoryGatingMode").get());
+	cardiac_tolerance_parameter_					= *(get_int_value("CardiacTolerance").get());
+	respiratory_tolerance_parameter_				= *(get_int_value("RespiratoryTolerance").get());
 #endif
 
 	return GADGET_OK;
@@ -79,31 +83,35 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	//-------------------------------------------------------------------------
 	// get respiratory centroids
 	//-------------------------------------------------------------------------
-	if (!get_respiratory_gates(number_of_respiratory_phases)) {
-		GERROR("process aborted\n");
-		return GADGET_FAIL;
-	} else {
-		for (size_t i = 0; i < respiratory_centroids_.size(); i++) {
-			GDEBUG("Respiratory Centroid %i: %f\n", i, respiratory_centroids_.at(i));
+	if (number_of_respiratory_phases > 1) {
+		if (!get_respiratory_gates(number_of_respiratory_phases)) {
+			GERROR("process aborted\n");
+			return GADGET_FAIL;
+		} else {
+			for (size_t i = 0; i < respiratory_centroids_.size(); i++) {
+				GDEBUG("Respiratory Centroid %i: %f\n", i, respiratory_centroids_.at(i));
+			}
 		}
 	}
 
 	//-------------------------------------------------------------------------
 	// get cardiac centroids
 	//-------------------------------------------------------------------------
-	if (!get_cardiac_gates(number_of_cardiac_phases)) {
-		GERROR("process aborted\n");
-		return GADGET_FAIL;
-	} else {
-		for (size_t i = 0; i < respiratory_centroids_.size(); i++) {
-			GDEBUG("Cardiac Centroid %i: %f\n", i, respiratory_centroids_.at(i));
+	if (number_of_cardiac_phases > 1) {
+		if (!get_cardiac_gates(number_of_cardiac_phases)) {
+			GERROR("process aborted\n");
+			return GADGET_FAIL;
+		} else {
+			for (size_t i = 0; i < cardiac_centroids_.size(); i++) {
+				GDEBUG("Cardiac Centroid %i: %f\n", i, cardiac_centroids_.at(i));
+			}
 		}
 	}
 
 	//-------------------------------------------------------------------------
-	// populate k-space: mode: closest, gates: 4
+	// populate k-space
 	//-------------------------------------------------------------------------
-	if (!fPopulatekSpace(number_of_respiratory_phases)) {
+	if (!fPopulatekSpace(number_of_cardiac_phases, number_of_respiratory_phases)) {
 		GERROR("process aborted\n");
 	}
 
@@ -198,6 +206,34 @@ bool CS_Retro_PopulationGadget::fDiscard()
 
 bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
 {
+	switch (GlobalVar::instance()->cardiac_gating_mode_) {
+	// PanTompkin
+	case 0:
+		GERROR("reorder_kSpace: PanTompkin cardiac gating is not implemented in this version!\n");
+
+		return false;
+		break;
+
+	// Wavelet
+	case 1:
+		GERROR("reorder_kSpace: Wavelet cardiac gating is not implemented in this version!\n");
+
+		return false;
+		break;
+
+	// WaveletPanTomp
+	case 2:
+		GERROR("reorder_kSpace: WaveletPanTompkin cardiac gating is not implemented in this version!\n");
+
+		return false;
+		break;
+
+	default:
+		GERROR("reorder_kSpace: no cardiac gating mode specified!\n");
+
+		return false;
+		break;
+	}
 
 	return true;
 }
@@ -208,7 +244,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count
 	float fNavMin, fNavMax;
 	fNavMin = fNavMax = 0;
 
-	switch (GlobalVar::instance()->iGatingMode_) {
+	switch (GlobalVar::instance()->respiratory_gating_mode_) {
 	// percentile
 	case 0:
 		GINFO("get inhale/exhale borders by 10th and 90th percentile..\n");
@@ -273,24 +309,24 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count
 			}
 
 			// get tolerance of the gate positions
-			float fTolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*fTolerance_/2.0;
+			float tolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*respiratory_tolerance_parameter_/2.0;
 
 			// fill tolerance vector
 			for (int i = 0; i < respiratory_gate_count; i++) {
-				vTolerance_.push_back(fTolerance);
+				respiratory_tolerance_vector_.push_back(tolerance);
 			}
 		}
 		break;
 
 	// k-means
 	case 1:
-		GERROR("reorder_kSpace: k-means gating is not implemented in this version!\n");
+		GERROR("reorder_kSpace: k-means respiratory gating is not implemented in this version!\n");
 
 		return false;
 		break;
 
 	default:
-		GERROR("reorder_kSpace: no gating mode specified!\n");
+		GERROR("reorder_kSpace: no respiratory gating mode specified!\n");
 
 		return false;
 		break;
@@ -311,7 +347,7 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 
 		// gauss
 		case 3:
-			weights.at(i) = 1/(vTolerance_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-respiratory_centroids_.at(phase),2))/(2*(std::pow(vTolerance_.at(phase),2))));
+			weights.at(i) = 1/(respiratory_tolerance_vector_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-respiratory_centroids_.at(phase),2))/(2*(std::pow(respiratory_tolerance_vector_.at(phase),2))));
 			break;
 
 		default:
@@ -415,7 +451,7 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 	}
 }
 
-bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
+bool CS_Retro_PopulationGadget::fPopulatekSpace(int cardiac_gate_count, int respiratory_gate_count)
 {
 	GINFO("--- populate k-space ---\n");
 
@@ -426,7 +462,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 		break;
 	case 1:
 		GINFO("Using average mode\n");
-
 		break;
 	case 2:
 		GERROR("reorder_kSpace: population mode 'collect' not implemented in this version\n");
@@ -454,70 +489,73 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int iNoGates)
 
 	// loop over phases/gates
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
-	for (int iPh = 0; iPh < iNoGates; iPh++) {
-		// get weights
-		std::vector<float> vWeights(navigator_resp_interpolated_.size());
-		calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, iPh);
+	for (int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
+		for (int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
+			// get weights
+			std::vector<float> vWeights(navigator_resp_interpolated_.size());
+			calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, respiratory_phase);
 
-		GINFO("weights calculated - phase: %i\n", iPh);
+			GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
-		// loop over lines
-		#pragma omp parallel for
-		for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
-			// loop over partitions
+			// loop over lines
 			#pragma omp parallel for
-			for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
-				// check if iLine was acquired and push Indices on vector
-				std::vector<size_t> lIndices;
-				for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
-					if (GlobalVar::instance()->vPE_.at(i) == iLine) {
-						lIndices.push_back(i);
+			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
+				// loop over partitions
+				#pragma omp parallel for
+				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
+					// check if iLine was acquired and push Indices on vector
+					std::vector<size_t> lIndices;
+					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
+						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
+							lIndices.push_back(i);
+						}
 					}
-				}
 
-				// check iPar of the found acquisitions
-				std::vector<size_t> lIndices2;
-				for (size_t n = 0; n < lIndices.size(); n++) {
-					if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
-						// only take measurement into account when tolerance is okay
-						if (vWeights.at(lIndices.at(n)) < vTolerance_.at(iPh)) {
-							lIndices2.push_back(lIndices.at(n));
+					// check iPar of the found acquisitions
+					std::vector<size_t> lIndices2;
+					for (size_t n = 0; n < lIndices.size(); n++) {
+						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
+							// only take measurement into account when tolerance is okay
+							if (vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
+								lIndices2.push_back(lIndices.at(n));
+							}
+						}
+					}
+
+					// if no index is in the vector --> continue
+					if (lIndices2.size() > 0) {
+						// get weights (if multiple lines were found)
+						std::vector<float> vThisDist;
+						vThisDist.clear();
+
+						for (size_t i = 0; i < lIndices2.size(); i++) {
+							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
+						}
+
+						// populate the data
+						hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
+						get_populated_data(populated_data, GlobalVar::instance()->iPopulationMode_, hacfKSpace_unordered_, lIndices2, vThisDist);
+
+						// copy populated data into great reordered kspace
+						#pragma omp parallel for
+						for (int c = 0; c < iNoChannels_; c++) {
+							size_t tOffset_reordered =
+								iLine * hacfKSpace_reordered_.get_size(0)
+								+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+								+ respiratory_phase * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+								+ cardiac_phase * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+								+ c * hacfKSpace_reordered_.get_size(4) * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+
+							size_t offset_populated = c * populated_data.get_size(0);
+
+							memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
 						}
 					}
 				}
-
-				// if no index is in the vector --> continue
-				if (lIndices2.size() > 0) {
-					// get weights (if multiple lines were found)
-					std::vector<float> vThisDist;
-					vThisDist.clear();
-
-					for (size_t i = 0; i < lIndices2.size(); i++) {
-						vThisDist.push_back(vWeights.at(lIndices2.at(i)));
-					}
-
-					// populate the data
-					hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
-					get_populated_data(populated_data, GlobalVar::instance()->iPopulationMode_, hacfKSpace_unordered_, lIndices2, vThisDist);
-
-					// copy populated data into great reordered kspace
-					#pragma omp parallel for
-					for (int c = 0; c < iNoChannels_; c++) {
-						size_t tOffset_reordered =
-							iLine * hacfKSpace_reordered_.get_size(0)
-							+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-							+ iPh * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-							+ c * iNoGates*hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
-
-						size_t offset_populated = c * populated_data.get_size(0);
-
-						memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
-					}
-				}
 			}
-		}
 
-		GINFO("kspace populated - phase: %i\n", iPh);
+			GINFO("kspace populated - cardiac phase: %d, respiratory phase: %d\n", cardiac_phase, respiratory_phase);
+		}
 	}
 
 	return true;

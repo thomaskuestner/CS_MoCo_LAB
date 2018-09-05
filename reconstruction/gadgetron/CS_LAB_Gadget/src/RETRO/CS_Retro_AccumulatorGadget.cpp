@@ -158,8 +158,10 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					cardiac_phases_ = i->value;
 				} else if (i->name == "PopulationMode") {
 					GlobalVar::instance()->iPopulationMode_ = i->value;
-				} else if (i->name == "GatingMode") {
-					GlobalVar::instance()->iGatingMode_ = i->value;
+				} else if (i->name == "CardiacGatingMode") {
+					GlobalVar::instance()->cardiac_gating_mode_ = i->value;
+				} else if (i->name == "RespiratoryGatingMode") {
+					GlobalVar::instance()->respiratory_gating_mode_ = i->value;
 				}
 			}
 
@@ -219,8 +221,10 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					cardiac_phases_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"PopulationMode") == 0) {
 					GlobalVar::instance()->iPopulationMode_ = i->value();
-				} else if (std::strcmp(i->name().c_str(),"GatingMode") == 0) {
-					GlobalVar::instance()->iGatingMode_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"CardiacGatingMode") == 0) {
+					GlobalVar::instance()->cardiac_gating_mode_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"RespiratoryGatingMode") == 0) {
+					GlobalVar::instance()->respiratory_gating_mode_ = i->value();
 				}
 			}
 

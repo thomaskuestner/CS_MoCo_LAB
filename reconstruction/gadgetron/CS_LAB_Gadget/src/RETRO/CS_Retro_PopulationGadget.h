@@ -54,10 +54,10 @@ namespace Gadgetron {
 		int iEchoPartition_;
 
 		// vector containing the tolerance values
-		std::vector<float> vTolerance_;
+		std::vector<float> respiratory_tolerance_vector_;
 
 		// tolerance/blending factor
-		float fTolerance_;
+		float cardiac_tolerance_parameter_, respiratory_tolerance_parameter_;
 
 		// navigator signal
 		std::vector<float> navigator_card_interpolated_, navigator_resp_interpolated_;
@@ -79,7 +79,7 @@ namespace Gadgetron {
 		bool fDiscard();
 		bool get_cardiac_gates(int cardiac_gate_count);
 		bool get_respiratory_gates(int respiratory_gate_count);
-		bool fPopulatekSpace(int iNoGates);
+		bool fPopulatekSpace(int cardiac_gate_count, int respiratory_gate_count);
 		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
 
 		template <typename T>
@@ -98,8 +98,10 @@ namespace Gadgetron {
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		// declare gadget properties
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
-		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
-		GADGET_PROPERTY(Tolerance, float, "Tolerance", 1.0);
+		GADGET_PROPERTY(CardiacGatingMode, int, "CardiacGatingMode", 0);
+		GADGET_PROPERTY(RespiratoryGatingMode, int, "RespiratoryGatingMode", 0);
+		GADGET_PROPERTY(CardiacTolerance, float, "CardiacTolerance", 1.0);
+		GADGET_PROPERTY(RespiratoryTolerance, float, "RespiratoryTolerance", 1.0);
 #endif
 	};
 } // close namespace Gadgetron

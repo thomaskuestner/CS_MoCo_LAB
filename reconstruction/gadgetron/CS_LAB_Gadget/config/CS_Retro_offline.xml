@@ -85,8 +85,13 @@
 		<classname>CS_Retro_PopulationGadget</classname>
 
 		<property>
-			<!-- weighting tolerance factor -->
-			<name>Tolerance</name>
+			<!-- cardiac weighting tolerance factor -->
+			<name>CardiacTolerance</name>
+			<value>2.0</value>
+		</property>
+		<property>
+			<!-- respiratory weighting tolerance factor -->
+			<name>RespiratoryTolerance</name>
 			<value>2.0</value>
 		</property>
 		<property>
@@ -95,8 +100,13 @@
 			<value>0</value>
 		</property>
 		<property>
+			<!-- 0: PanTompkin (not impl.), 1: Wavelet (not impl.), 2: WaveletPanTomp (not impl.) -->
+			<name>CardiacGatingMode</name>
+			<value>0</value>
+		</property>
+		<property>
 			<!-- 0: percentile, 1: k-means (not impl.) -->
-			<name>GatingMode</name>
+			<name>RespiratoryGatingMode</name>
 			<value>0</value>
 		</property>
 	</gadget>
