@@ -472,8 +472,8 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 	// initialize flags
 	tmp_m1->getObjectPtr()->flags				= 0;
 	// stores different phases (cardiac, respiratory) in one integer using different nibbles. Only access variable by provided functions!
-	set_number_of_gates(&tmp_m1->getObjectPtr()->user_int[0], 0, respiratory_phases_);
-	set_number_of_gates(&tmp_m1->getObjectPtr()->user_int[0], 1, cardiac_phases_);
+	set_number_of_gates(tmp_m1->getObjectPtr()->user_int[0], 0, respiratory_phases_);
+	set_number_of_gates(tmp_m1->getObjectPtr()->user_int[0], 1, cardiac_phases_);
 	tmp_m1->getObjectPtr()->user_int[1]			= iBodyRegion_;
 	tmp_m1->getObjectPtr()->user_int[2]			= iSamplingType_;
 	tmp_m1->getObjectPtr()->user_int[3]			= iVDMap_;

@@ -94,6 +94,9 @@ namespace Gadgetron {
 		*/
 		void get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances);
 
+		template <typename T> void remove_high_peaks(std::vector<T> &signal);
+		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos, std::vector<T> &y_pos);
+
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 		// declare gadget properties

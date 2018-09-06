@@ -186,7 +186,23 @@ namespace Gadgetron
 	 * @param phase_type Type of phase (0=respiratory, 1=cardiac)
 	 * @param phase_value Value which should be written in storage.
 	 */
-	inline void set_number_of_gates(int * const storage, const int phase_type, const size_t phase_value);
+	inline void set_number_of_gates(int &storage, const int phase_type, const size_t phase_value);
+
+	/**
+	 * @brief Function to remove a bias from a signal
+	 *
+	 * @param signal vector containing the signal
+	 */
+	template <typename T>
+	void remove_signal_bias(std::vector<T> &signal);
+
+	/**
+	 * @brief Implementation of the signum function
+	 *
+	 * @param value the value where the sign is taken into account.
+	 */
+	template <typename T>
+	inline int sgn(T value);
 }
 
 #include "SomeFunctions.hxx"

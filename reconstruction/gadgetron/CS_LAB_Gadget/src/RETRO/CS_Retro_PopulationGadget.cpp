@@ -207,12 +207,18 @@ bool CS_Retro_PopulationGadget::fDiscard()
 
 bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
 {
+	std::vector<size_t> x_pos;
+	std::vector<float> y_pos;
+
 	switch (GlobalVar::instance()->cardiac_gating_mode_) {
 	// PanTompkin
 	case 0:
-		GERROR("reorder_kSpace: PanTompkin cardiac gating is not implemented in this version!\n");
+		//%%Remove Outlier Peaks
+		//%dEcg = fRemoveHighPeaks( dEcg, 'global',lDebug);
+		//%[peak_r, loc_r, hfig_peak] = rpeak_detect(dEcg,fs,lDebug);
+		remove_high_peaks(navigator_card_interpolated_);
+		search_peaks(navigator_card_interpolated_, x_pos, y_pos);
 
-		return false;
 		break;
 
 	// Wavelet
@@ -560,6 +566,116 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int cardiac_gate_count, int resp
 	}
 
 	return true;
+}
+
+template <typename T>
+void CS_Retro_PopulationGadget::remove_high_peaks(std::vector<T> &signal)
+{
+	//%% Check if the ecg signal has a bias and remove it
+	//%if (abs(mean(ecg)) > 1e-4)
+	//%	ecg = ecg - mean(ecg);
+	//%end
+	remove_signal_bias(signal);
+
+	//%globalAK(1): Multiplier of the standard deviation
+	//%globalAK(2): Number of searching iterations
+	//globalAK = [4.5 2];
+	const float global_ak_1 = 4.5;
+	const unsigned int global_ak_2 = 2;
+
+	//%pIdx = zeros(length(ecg),1);
+	std::vector<bool> p_idx;
+	for (size_t i = 0; i < signal.size(); i++) {
+		p_idx.push_back(false);
+	}
+
+	for (unsigned int i = 0; i < global_ak_2; i++) {
+		//%globalTh = (globalAK(1)) *std( ecgRem );
+		std::vector<T> global_th = signal;
+		float std_dev = arma::stddev(arma::Col<T>(signal));
+		std::transform(std::begin(global_th), std::end(global_th), std::begin(global_th), bind2nd(std::multiplies<T>(), global_ak_1*std_dev));
+
+		//%pIdx = pIdx | (abs(ecgRem) > globalTh);
+		//%ecgRem( pIdx ) = globalTh.*sign(ecg(pIdx));
+		#pragma omp parallel for
+		for (size_t i = 0; i < signal.size(); i++) {
+			p_idx.at(i) = p_idx.at(i) | (std::abs(signal.at(i) > global_th.at(i)));
+			if (p_idx.at(i)) {
+				signal.at(i) = global_th.at(i) * sgn(signal.at(i));
+			}
+		}
+	}
+
+	//%% Remove offset
+	//%ecgRem = ecgRem-mean(ecgRem);
+	remove_signal_bias(signal);
+}
+
+template <typename T>
+void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos, std::vector<T> &y_pos)
+{
+	//%xdiff = diff(x);
+	std::vector<T> diff_signal = arma::conv_to<std::vector<T> >::from(arma::diff(arma::Col<T>(signal)));
+
+	//%for i=1:length(xdiff)
+	//%	if(xdiff(i) <= 0)
+	//%		if(i ~= 1)
+	//%			if((xdiff(i-1)) >= 0)
+	//%				% max found
+	//%				k = k + 1;
+	//%				xpos(k) = i;
+	//%				ypos(k) = x(i);
+	//%				sumy = sumy + ypos(k);
+	//%				if(k == 1)
+	//%					sumx = xpos(k);
+	//%				else
+	//%					sumx = sumx + (xpos(k) - xpos(k-1));
+	//%				end
+	//%			end
+	//%		end
+	//%	end
+	//%end
+	for (size_t i = 0; i < diff_signal.size(); i++) {
+		if (diff_signal.at(i) <= 0) {
+			if (i != 0) {
+				if (diff_signal.at(i-1) >= 0) {
+					// max found
+					x_pos.push_back(i);
+					y_pos.push_back(signal.at(i));
+				}
+			}
+		}
+	}
+
+	//%averagey = sumy / length(xpos);
+	//%averagey = averagey / 1.5;
+	float average_y = static_cast<float>(std::accumulate(std::begin(y_pos), std::end(y_pos), static_cast<T>(0), std::plus<T>())) / y_pos.size();
+	average_y /= 1.5;
+
+	//%averagex = sumx / length(xpos);
+	// beware: strange sum calculation ;)
+	float average_x = static_cast<float>(x_pos.at(x_pos.size()-1)) / x_pos.size();
+
+	//%z = 0;
+	//%for i=1:length(xpos)-1
+	//%	if(ypos(i-z) < averagey && (xpos(i+1-z) - xpos(i-z)) < averagex)
+	//%		% max found
+	//%		xpos(i-z) = []; % get rid of outlayers that are not part of the cardiac motion
+	//%		ypos(i-z) = [];
+	//%		z = z + 1;
+	//%	end
+	//%end
+	// NOTE: in C++ implementation, i is counted differently, so that no z is needed
+	size_t i = 0;
+	while (i < x_pos.size()-1) {
+		if (y_pos.at(i) < average_y && (x_pos.at(i+1) - x_pos.at(i) < average_x)) {
+			// max found
+			x_pos.erase(x_pos.begin()+i);
+			y_pos.erase(y_pos.begin()+i);
+		} else {
+			i++;
+		}
+	}
 }
 
 GADGET_FACTORY_DECLARE(CS_Retro_PopulationGadget)

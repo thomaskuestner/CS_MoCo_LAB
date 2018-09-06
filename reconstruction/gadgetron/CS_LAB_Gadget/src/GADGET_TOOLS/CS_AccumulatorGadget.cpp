@@ -457,7 +457,7 @@ int CS_AccumulatorGadget::fCopyData(GadgetContainerMessage<ISMRMRD::AcquisitionH
 	memcpy(GC_img_hdr_m1->getObjectPtr()->slice_dir,GC_acq_hdr_m1->getObjectPtr()->slice_dir, sizeof(float)*3);
 	memcpy(GC_img_hdr_m1->getObjectPtr()->patient_table_position,GC_acq_hdr_m1->getObjectPtr()->patient_table_position, sizeof(float)*3);
 	
-	set_number_of_gates(&GC_img_hdr_m1->getObjectPtr()->user_int[0], 0, respiratory_phases_);
+	set_number_of_gates(GC_img_hdr_m1->getObjectPtr()->user_int[0], 0, respiratory_phases_);
 	GC_img_hdr_m1->getObjectPtr()->user_int[3]		= iVDMap_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[4]		= iESPReSSoDirection_;
 	GC_img_hdr_m1->getObjectPtr()->user_int[6]		= iBodyRegion_;

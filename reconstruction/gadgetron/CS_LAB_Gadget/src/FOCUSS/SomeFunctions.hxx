@@ -1549,15 +1549,43 @@ namespace Gadgetron
 		GERROR("Not enough RAM to calculate! You need at least %dGiB of RAM.\n", needed_ram);
 	}
 
-	size_t get_number_of_gates(const int storage, const int phase_type) {
+	size_t get_number_of_gates(const int storage, const int phase_type)
+	{
 		return (storage >> (8*phase_type)) & 0xFF;
 	}
 
-	void set_number_of_gates(int * const storage, const int phase_type, const size_t phase_value) {
+	void set_number_of_gates(int &storage, const int phase_type, const size_t phase_value)
+	{
 		// delete existing value if necessary
-		*storage &= ~(0xFF << (8*phase_type));
+		storage &= ~(0xFF << (8*phase_type));
 
 		// set new value
-		*storage |= (phase_value & 0xFF) << (8*phase_type);
+		storage |= (phase_value & 0xFF) << (8*phase_type);
+	}
+
+	template <typename T>
+	void remove_signal_bias(std::vector<T> &signal)
+	{
+		// Calculate sum and mean
+		// WARNING: static_cast ist needed. If e.g. T=float (likely) and 0 is int, wrong results occur!
+		float sum = std::accumulate(std::begin(signal), std::end(signal), static_cast<T>(0), std::plus<T>());
+		float mean = sum/static_cast<float>(signal.size());
+
+		if (std::abs(mean) > 1e-4) {
+			// decrement signal by mean
+			std::transform(std::begin(signal), std::end(signal), std::begin(signal), bind2nd(std::minus<T>(), mean));
+		}
+	}
+
+	template <typename T>
+	int sgn(T value)
+	{
+		if (value < 0) {
+			return -1;
+		} else if (value > 0) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }
