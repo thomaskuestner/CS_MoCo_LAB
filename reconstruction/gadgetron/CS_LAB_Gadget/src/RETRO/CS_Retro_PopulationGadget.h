@@ -63,7 +63,8 @@ namespace Gadgetron {
 		std::vector<float> navigator_card_interpolated_, navigator_resp_interpolated_;
 
 		// centroids of gates
-		std::vector<float> respiratory_centroids_, cardiac_centroids_;
+		std::vector<float> respiratory_centroids_;
+		std::vector<int> cardiac_gates_;
 
 	public:
 		CS_Retro_PopulationGadget();
@@ -77,9 +78,9 @@ namespace Gadgetron {
 
 	private:
 		bool fDiscard();
-		bool get_cardiac_gates(int cardiac_gate_count);
-		bool get_respiratory_gates(int respiratory_gate_count);
-		bool fPopulatekSpace(int cardiac_gate_count, int respiratory_gate_count);
+		bool get_cardiac_gates(const unsigned int cardiac_gate_count, const float f_s);
+		bool get_respiratory_gates(const unsigned int respiratory_gate_count);
+		bool fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count);
 		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
 
 		template <typename T>
@@ -95,7 +96,7 @@ namespace Gadgetron {
 		void get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances);
 
 		template <typename T> void remove_high_peaks(std::vector<T> &signal);
-		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos, std::vector<T> &y_pos);
+		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);
 
 	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__

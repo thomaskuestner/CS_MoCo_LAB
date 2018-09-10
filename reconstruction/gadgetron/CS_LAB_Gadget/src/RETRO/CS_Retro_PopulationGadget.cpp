@@ -98,13 +98,11 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	// get cardiac centroids
 	//-------------------------------------------------------------------------
 	if (number_of_cardiac_phases > 1) {
-		if (!get_cardiac_gates(number_of_cardiac_phases)) {
+		// f_s = 1000 -> ms raster
+		//%fs = 1000; % ECGInt_ms on ms raster
+		if (!get_cardiac_gates(number_of_cardiac_phases, 1000)) {
 			GERROR("process aborted\n");
 			return GADGET_FAIL;
-		} else {
-			for (size_t i = 0; i < cardiac_centroids_.size(); i++) {
-				GDEBUG("Cardiac Centroid %i: %f\n", i, cardiac_centroids_.at(i));
-			}
 		}
 	}
 
@@ -205,10 +203,10 @@ bool CS_Retro_PopulationGadget::fDiscard()
 	return true;
 }
 
-bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
+bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gate_count, const float f_s)
 {
 	std::vector<size_t> x_pos;
-	std::vector<float> y_pos;
+	cardiac_gates_.clear();
 
 	switch (GlobalVar::instance()->cardiac_gating_mode_) {
 	// PanTompkin
@@ -217,7 +215,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
 		//%dEcg = fRemoveHighPeaks( dEcg, 'global',lDebug);
 		//%[peak_r, loc_r, hfig_peak] = rpeak_detect(dEcg,fs,lDebug);
 		remove_high_peaks(navigator_card_interpolated_);
-		search_peaks(navigator_card_interpolated_, x_pos, y_pos);
+		search_peaks(navigator_card_interpolated_, x_pos);
 
 		break;
 
@@ -242,10 +240,110 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(int cardiac_gate_count)
 		break;
 	}
 
+	//%% find RR-intervalls, HR & Ratio
+	//%rr_int = diff(loc_r);
+	std::vector<int> rr;// = arma::conv_to<std::vector<int> >::from(arma::diff(arma::Col<size_t>(x_pos)));
+
+	//%% prevent a wrong RR interval detection
+	//%lInd = rr_int >= 60/300 * fs; % hr is tob o large
+	//%% rr_int = rr_int(lInd);
+	//%lInd = find(lInd == 0)+1;
+	//%loc_r(lInd) = [];
+	//%peak_r(lInd) = [];
+	//%rr_int = diff(loc_r);
+	int deleted_elements = 0;
+	for (size_t i = 0; i < rr.size(); i++) {
+		if (rr.at(i) < 60.0/300.0 * f_s) {
+			x_pos.erase(x_pos.begin() + i - deleted_elements + 1);
+			deleted_elements++;
+		}
+	}
+	rr = arma::conv_to<std::vector<int> >::from(arma::diff(arma::Col<size_t>(x_pos)));
+
+	//%rr_mean = round(median(rr_int));
+	int rr_mean = static_cast<int>(std::round(arma::median(arma::Col<int>(rr))));
+
+	//%%Heartrate (1 / rr_int)
+	//%hr = round(60./(rr_int./fs));
+	std::vector<int> hr;
+	for (size_t i = 0; i < rr.size(); i++) {
+		hr.push_back(static_cast<int>(std::round(60.0/(rr.at(i)/f_s))));
+	}
+
+	switch (GlobalVar::instance()->cardiac_gating_mode_) {
+	// linear
+	case 0:
+		//%dCardiacPhases = zeros(length(dEcg),1);
+		//%for i=1:length(loc_r)-1
+		//%	x = ceil(linspace(1,rr_int(i),iNcPhases+1));
+		//%	y = [1:1:iNcPhases iNcPhases];
+		//%	xy_sys = [1:rr_int(i)];
+		//%	dCardiacPhases(loc_r(i):loc_r(i+1)-1) = floor(interp1(x,y,xy_sys,'linear'));
+		//%end
+
+		// fill up with zeros until the first interpolation
+		for (size_t i = 1; i < x_pos.at(0); i++) {
+			cardiac_gates_.push_back(0);
+		}
+
+		for (size_t i = 0; i < x_pos.size()-1; i++) {
+			arma::vec x = arma::linspace(1, rr.at(i), cardiac_gate_count+1);
+			for (size_t j = 0; j < x.n_elem; j++) {
+				x.at(j) = std::ceil(x.at(j));
+			}
+
+			arma::vec y(cardiac_gate_count+1);
+			for (unsigned int j = 0; j < cardiac_gate_count; j++) {
+				y.at(j) = j+1;
+			}
+			y.at(y.n_elem-1) = cardiac_gate_count;
+
+			arma::vec xy_sys(rr.at(i));
+			for (int j = 0; j < rr.at(i); j++) {
+				xy_sys.at(j) = j+1;
+			}
+
+			arma::vec interpolation;
+			arma::interp1(x, y, xy_sys, interpolation, "*linear");
+
+			for (size_t j = 0; j < interpolation.size(); j++) {
+				cardiac_gates_.push_back(interpolation.at(j));
+			}
+		}
+
+		// fill up with zeros
+		while (cardiac_gates_.size() < navigator_card_interpolated_.size()) {
+			cardiac_gates_.push_back(0);
+		}
+
+		break;
+
+	// diastole
+	case 1:
+		//%%specifiy systole/RR-ratio depending on heartrate
+		//%rr_ratio = [linspace(0.33,0.33,60) linspace(0.33,0.5,61) linspace(0.5,0.5,120), linspace(0.5,0.5,max(hr)-241)];
+		break;
+
+
+	default:
+		GERROR("reorder_kSpace: no cardiac gating mode specified!\n");
+
+		return false;
+		break;
+	}
+
+	if (cardiac_tolerance_parameter_ > 0.0) {
+		// TODO: Make implementation
+	}
+
+	// TODO: implement rejection
+
+	// TODO: implement crop
+
 	return true;
 }
 
-bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count)
+bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respiratory_gate_count)
 {
 	// get centroids
 	float fNavMin, fNavMax;
@@ -319,7 +417,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(int respiratory_gate_count
 			float tolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*respiratory_tolerance_parameter_/2.0;
 
 			// fill tolerance vector
-			for (int i = 0; i < respiratory_gate_count; i++) {
+			for (unsigned int i = 0; i < respiratory_gate_count; i++) {
 				respiratory_tolerance_vector_.push_back(tolerance);
 			}
 		}
@@ -458,7 +556,7 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 	}
 }
 
-bool CS_Retro_PopulationGadget::fPopulatekSpace(int cardiac_gate_count, int respiratory_gate_count)
+bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count)
 {
 	GINFO("--- populate k-space ---\n");
 
@@ -496,73 +594,73 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(int cardiac_gate_count, int resp
 
 	// loop over phases/gates
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
-	for (int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
-		for (int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
-			// get weights
-			std::vector<float> vWeights(navigator_resp_interpolated_.size());
-			calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, respiratory_phase);
+	for (unsigned int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
+		// get weights
+		std::vector<float> vWeights(navigator_resp_interpolated_.size());
+		calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, respiratory_phase);
 
-			GINFO("weights calculated - phase: %i\n", respiratory_phase);
+		GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
-			// loop over lines
+		// loop over lines
+		#pragma omp parallel for
+		for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
+			// loop over partitions
 			#pragma omp parallel for
-			for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
-				// loop over partitions
-				#pragma omp parallel for
-				for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
-					// check if iLine was acquired and push Indices on vector
-					std::vector<size_t> lIndices;
-					for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
-						if (GlobalVar::instance()->vPE_.at(i) == iLine) {
-							lIndices.push_back(i);
-						}
+			for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
+				// check if iLine was acquired and push Indices on vector
+				std::vector<size_t> lIndices;
+				for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
+					if (GlobalVar::instance()->vPE_.at(i) == iLine) {
+						lIndices.push_back(i);
 					}
+				}
 
-					// check iPar of the found acquisitions
-					std::vector<size_t> lIndices2;
-					for (size_t n = 0; n < lIndices.size(); n++) {
-						if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
-							// only take measurement into account when tolerance is okay
-							if (vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
-								lIndices2.push_back(lIndices.at(n));
-							}
-						}
-					}
-
-					// if no index is in the vector --> continue
-					if (lIndices2.size() > 0) {
-						// get weights (if multiple lines were found)
-						std::vector<float> vThisDist;
-						vThisDist.clear();
-
-						for (size_t i = 0; i < lIndices2.size(); i++) {
-							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
-						}
-
-						// populate the data
-						hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
-						get_populated_data(populated_data, GlobalVar::instance()->iPopulationMode_, hacfKSpace_unordered_, lIndices2, vThisDist);
-
-						// copy populated data into great reordered kspace
-						#pragma omp parallel for
-						for (int c = 0; c < iNoChannels_; c++) {
-							size_t tOffset_reordered =
-								iLine * hacfKSpace_reordered_.get_size(0)
-								+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-								+ respiratory_phase * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-								+ cardiac_phase * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-								+ c * hacfKSpace_reordered_.get_size(4) * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
-
-							size_t offset_populated = c * populated_data.get_size(0);
-
-							memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
+				// check iPar of the found acquisitions
+				std::vector<size_t> lIndices2;
+				for (size_t n = 0; n < lIndices.size(); n++) {
+					if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
+						// only take measurement into account when tolerance is okay
+						if (vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
+							lIndices2.push_back(lIndices.at(n));
 						}
 					}
 				}
-			}
 
-			GINFO("kspace populated - cardiac phase: %d, respiratory phase: %d\n", cardiac_phase, respiratory_phase);
+				// if no index is in the vector --> continue
+				if (lIndices2.size() > 0) {
+					// get weights (if multiple lines were found)
+					std::vector<float> vThisDist;
+
+					for (size_t i = 0; i < lIndices2.size(); i++) {
+						vThisDist.push_back(vWeights.at(lIndices2.at(i)));
+					}
+
+					// populate the data
+					hoNDArray<std::complex<float> > populated_data = get_populated_data(lIndices2, vThisDist);
+
+					// choose cardiac phase
+					unsigned int cardiac_phase = 0;
+
+					// copy populated data into great reordered kspace
+					#pragma omp parallel for
+					for (int c = 0; c < iNoChannels_; c++) {
+						size_t tOffset_reordered =
+							iLine * hacfKSpace_reordered_.get_size(0)
+							+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+							+ respiratory_phase * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+							+ cardiac_phase * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
+							+ c * hacfKSpace_reordered_.get_size(4) * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+
+						size_t offset_populated = c * populated_data.get_size(0);
+
+						memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
+					}
+				}
+			}
 		}
+
+		const unsigned int cardiac_phase = 0;
+		GINFO("kspace populated - cardiac phase: %d, respiratory phase: %d\n", cardiac_phase, respiratory_phase);
 	}
 
 	return true;
@@ -612,10 +710,11 @@ void CS_Retro_PopulationGadget::remove_high_peaks(std::vector<T> &signal)
 }
 
 template <typename T>
-void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos, std::vector<T> &y_pos)
+void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos)
 {
 	//%xdiff = diff(x);
 	std::vector<T> diff_signal = arma::conv_to<std::vector<T> >::from(arma::diff(arma::Col<T>(signal)));
+	std::vector<T> y_pos;
 
 	//%for i=1:length(xdiff)
 	//%	if(xdiff(i) <= 0)
@@ -654,7 +753,8 @@ void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::
 
 	//%averagex = sumx / length(xpos);
 	// beware: strange sum calculation ;)
-	float average_x = static_cast<float>(x_pos.at(x_pos.size()-1)) / x_pos.size();
+	float average_x = static_cast<float>(std::accumulate(std::begin(x_pos), std::end(x_pos), static_cast<T>(0), std::plus<T>())) / x_pos.size();
+// 	float average_x = static_cast<float>(x_pos.at(x_pos.size()-1)) / x_pos.size();
 
 	//%z = 0;
 	//%for i=1:length(xpos)-1
