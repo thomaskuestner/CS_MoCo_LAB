@@ -49,6 +49,7 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
 	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4), data.get_size(5));
 
+	#pragma omp parallel for
 	for (size_t i = 0; i < header_array.get_number_of_elements(); i++) {
 		header_array.at(i) = header;
 	}
