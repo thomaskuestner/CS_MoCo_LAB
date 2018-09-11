@@ -93,7 +93,7 @@ namespace Gadgetron {
 		/**
 		* @brief returns populated data as hoNDArray via first argument. Dimensions: [RX Channels] (e.g. [256 10])
 		*/
-		void get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances);
+		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances);
 
 		template <typename T> void remove_high_peaks(std::vector<T> &signal);
 		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);

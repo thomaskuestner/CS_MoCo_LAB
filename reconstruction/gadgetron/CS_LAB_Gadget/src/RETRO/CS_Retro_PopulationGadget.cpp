@@ -461,10 +461,12 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 	}
 }
 
-void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances)
+hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances)
 {
+	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
+
 	// Take shortcut by closest mode if it does not really matter (only 1 entry)
-	int mode = population_mode;
+	int mode = GlobalVar::instance()->iPopulationMode_;
 	if (indices.size() == 1) {
 		mode = 0;
 	}
@@ -477,15 +479,14 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 		size_t iIndexMinDist = indices.at(index_min_this_dist);
 
 		// copy data into return array
-		size_t unordered_measurement_offset = iIndexMinDist * unordered.get_size(0);
+		size_t hacfKSpace_unordered__measurement_offset = iIndexMinDist * hacfKSpace_unordered_.get_size(0);
 		#pragma omp parallel for
 		for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
 			size_t populated_channel_offset = channel * populated_data.get_size(0);
-			size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+			size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
 
-			memcpy(populated_data.get_data_ptr() + populated_channel_offset, unordered.get_data_ptr() + unordered_channel_offset + unordered_measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
+			memcpy(populated_data.get_data_ptr() + populated_channel_offset, hacfKSpace_unordered_.get_data_ptr() + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
 		}
-
 	} break;
 
 	// average
@@ -494,17 +495,17 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 
 		// take all measurements into account
 		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
-			size_t unordered_measurement_offset = indices.at(measurement) * unordered.get_size(0);
+			size_t hacfKSpace_unordered__measurement_offset = indices.at(measurement) * hacfKSpace_unordered_.get_size(0);
 
 			#pragma omp parallel for
 			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
 				size_t populated_channel_offset = channel * populated_data.get_size(0);
-				size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+				size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
 
 				#pragma omp parallel for
 				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
 					// append weighted value to return array
-					populated_data.at(kx_pixel + populated_channel_offset) = unordered.at(kx_pixel + unordered_channel_offset + unordered_measurement_offset);
+					populated_data.at(kx_pixel + populated_channel_offset) = hacfKSpace_unordered_.at(kx_pixel + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset);
 				}
 			}
 		}
@@ -526,17 +527,17 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 
 		// take all measurements into account
 		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
-			size_t unordered_measurement_offset = indices.at(measurement) * unordered.get_size(0);
+			size_t hacfKSpace_unordered__measurement_offset = indices.at(measurement) * hacfKSpace_unordered_.get_size(0);
 
 			#pragma omp parallel for
 			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
 				size_t populated_channel_offset = channel * populated_data.get_size(0);
-				size_t unordered_channel_offset = channel * unordered.get_size(0) * unordered.get_size(1);
+				size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
 
 				#pragma omp parallel for
 				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
 					// append weighted value to return array
-					populated_data.at(kx_pixel + populated_channel_offset) += centroid_distances.at(measurement)*unordered.at(kx_pixel + unordered_channel_offset + unordered_measurement_offset);
+					populated_data.at(kx_pixel + populated_channel_offset) += centroid_distances.at(measurement)*hacfKSpace_unordered_.at(kx_pixel + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset);
 				}
 			}
 		}
@@ -554,6 +555,8 @@ void CS_Retro_PopulationGadget::get_populated_data(hoNDArray<std::complex<float>
 	default:
 		throw runtime_error("Selected population_mode unknown!\n");
 	}
+
+	return populated_data;
 }
 
 bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count)
