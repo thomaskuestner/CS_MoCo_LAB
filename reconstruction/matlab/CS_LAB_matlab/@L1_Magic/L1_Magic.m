@@ -27,6 +27,7 @@ classdef L1_Magic < handle
         lSense % apply SENSE mask for channel weighting
         kSpace % store kSpace in object
         espresso % ESPReSSo parameter
+        dRecontime % recon time
     end
     
     methods
