@@ -159,7 +159,7 @@ elseif(strcmp(obj.measPara.dimension,'3D'))
     
     else
         fprintf('ESPIRiT reconstruction\n');
-        if(ispc)
+        if(ispc || ismac)
             eval(sprintf('ESP = bart(''ecalib -r %d:%d -k %d:%d -m %d'',kSpaceL);', obj.calibSize(1), obj.calibSize(2), obj.kernelSize(1), obj.kernelSize(2), obj.n_maps ));
             if(strcmp(obj.solver,'L1'))
                 eval(sprintf('image = permute(squeeze(bart(''pics -l1 -r %f'', kSpaceL, ESP)),[1 3 2 4]);', obj.trafo.wavWeight));
