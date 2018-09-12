@@ -81,7 +81,7 @@ namespace Gadgetron {
 		bool get_cardiac_gates(const unsigned int cardiac_gate_count, const float f_s);
 		bool get_respiratory_gates(const unsigned int respiratory_gate_count);
 		bool fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count);
-		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
+		std::vector<float> calculate_weights(const int population_mode, const unsigned int phase);
 
 		template <typename T>
 		void discard_empty_elements_from_back(std::vector<T> &v) {

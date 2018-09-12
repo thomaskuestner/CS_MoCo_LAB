@@ -440,8 +440,16 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 	return true;
 }
 
-void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, const int population_mode, const int phase)
+std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int population_mode, const unsigned int phase)
 {
+	std::vector<float> weights;
+
+	if (respiratory_centroids_.size() <= phase) {
+		return weights;
+	} else {
+		weights.resize(navigator_resp_interpolated_.size());
+	}
+
 	for (size_t i = 0; i < weights.size(); i++) {
 		switch (population_mode) {
 		// closest & average (weights are only needed for tolerance window)
@@ -459,6 +467,8 @@ void CS_Retro_PopulationGadget::calculate_weights(std::vector<float> &weights, c
 			throw runtime_error("Selected population_mode unknown!\n");
 		}
 	}
+
+	return weights;
 }
 
 hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances)
@@ -467,7 +477,7 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 
 	// Take shortcut by closest mode if it does not really matter (only 1 entry)
 	int mode = GlobalVar::instance()->iPopulationMode_;
-	if (indices.size() == 1) {
+	if (centroid_distances.size() == 0 || indices.size() == 1) {
 		mode = 0;
 	}
 
@@ -475,7 +485,12 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 	// closest
 	case 0: {
 		// calculate min distance
-		size_t index_min_this_dist = std::min_element(centroid_distances.begin(), centroid_distances.end())-centroid_distances.begin();
+		size_t index_min_this_dist;
+		if (centroid_distances.size() > 0) {
+			index_min_this_dist = std::min_element(centroid_distances.begin(), centroid_distances.end())-centroid_distances.begin();
+		} else {
+			index_min_this_dist = 0;
+		}
 		size_t iIndexMinDist = indices.at(index_min_this_dist);
 
 		// copy data into return array
@@ -599,8 +614,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
 	for (unsigned int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
 		// get weights
-		std::vector<float> vWeights(navigator_resp_interpolated_.size());
-		calculate_weights(vWeights, GlobalVar::instance()->iPopulationMode_, respiratory_phase);
+		std::vector<float> vWeights = calculate_weights(GlobalVar::instance()->iPopulationMode_, respiratory_phase);
 
 		GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
@@ -623,7 +637,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 				for (size_t n = 0; n < lIndices.size(); n++) {
 					if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
 						// only take measurement into account when tolerance is okay
-						if (vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
+						if (vWeights.size() == 0 || vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
 							lIndices2.push_back(lIndices.at(n));
 						}
 					}
@@ -634,8 +648,10 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 					// get weights (if multiple lines were found)
 					std::vector<float> vThisDist;
 
-					for (size_t i = 0; i < lIndices2.size(); i++) {
-						vThisDist.push_back(vWeights.at(lIndices2.at(i)));
+					if (vWeights.size() > 0) {
+						for (size_t i = 0; i < lIndices2.size(); i++) {
+							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
+						}
 					}
 
 					// populate the data
