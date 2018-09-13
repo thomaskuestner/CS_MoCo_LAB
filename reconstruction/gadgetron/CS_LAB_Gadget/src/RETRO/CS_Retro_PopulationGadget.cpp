@@ -48,18 +48,29 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	}
 
 	// discard empty values from the end
-	discard_empty_elements_from_back(navigator_resp_interpolated_);
-	discard_empty_elements_from_back(navigator_card_interpolated_);
+	if (number_of_respiratory_phases == 1) {
+		navigator_resp_interpolated_.clear();
+	} else {
+		discard_empty_elements_from_back(navigator_resp_interpolated_);
+	}
+
+	if (number_of_cardiac_phases == 1) {
+		navigator_card_interpolated_.clear();
+	} else {
+		discard_empty_elements_from_back(navigator_card_interpolated_);
+	}
 
 	// correct number of phases if necessary
 	if (navigator_card_interpolated_.size() == 0) {
 		GWARN("No cardiac navigator signal found. Cardiac motion correction is disabled.\n");
 		number_of_cardiac_phases = 1;
+		set_number_of_gates(m1->getObjectPtr()->user_int[0], 1, 1);
 	}
 
 	if (navigator_resp_interpolated_.size() == 0) {
 		GWARN("No respiratory navigator signal found. Respiratory motion correction is disabled.\n");
 		number_of_respiratory_phases = 1;
+		set_number_of_gates(m1->getObjectPtr()->user_int[0], 0, 1);
 	}
 
 	// get unordered kspace data

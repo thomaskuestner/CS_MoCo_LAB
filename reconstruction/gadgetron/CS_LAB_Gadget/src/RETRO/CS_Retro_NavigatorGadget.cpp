@@ -95,6 +95,11 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 		return GADGET_FAIL;
 	}
 
+	// update cardiac gates to 1 if no signal is present
+	if (navigator_card_interpolated_.size() == 0) {
+		set_number_of_gates(m1->getObjectPtr()->user_int[0], 1, 1);
+	}
+
 	// equalize vector lengths (zero-padding)
 	while (navigator_card_interpolated_.size() < navigator_resp_interpolated_.size()) {
 		navigator_card_interpolated_.push_back(0);
