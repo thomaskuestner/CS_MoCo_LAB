@@ -51,8 +51,25 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	delete GlobalVar::instance()->ImgHeadVec_.at(0);
 	GlobalVar::instance()->ImgHeadVec_.clear();
 
+	// get phase counts
+	unsigned int respiratory_phases	= get_number_of_gates(cm1->getObjectPtr()->user_int[0], 0);
+	unsigned int cardiac_phases		= get_number_of_gates(cm1->getObjectPtr()->user_int[0], 1);
+
+	// reshape data array
+	if (cm2->getObjectPtr()->get_size(3) == respiratory_phases * cardiac_phases) {
+		std::vector<size_t> reshape_vector;
+		reshape_vector.push_back(cm2->getObjectPtr()->get_size(0));
+		reshape_vector.push_back(cm2->getObjectPtr()->get_size(1));
+		reshape_vector.push_back(cm2->getObjectPtr()->get_size(2));
+		reshape_vector.push_back(respiratory_phases);
+		reshape_vector.push_back(cardiac_phases);
+		cm2->getObjectPtr()->reshape(reshape_vector);
+	} else {
+		GERROR("Reshape impossible (%d * %d not equal to %d). Data may be corrupt or be in wrong shape.\n", respiratory_phases, cardiac_phases, cm2->getObjectPtr()->get_size(3));
+	}
+
 	// reset number of gates (otherwise no output is performed) (channels = respiratory_phases_)
-	cm1->getObjectPtr()->channels = get_number_of_gates(cm1->getObjectPtr()->user_int[0], 0);
+	cm1->getObjectPtr()->channels = respiratory_phases * cardiac_phases;
 
 	// concatenate data
 	cm1->cont(cm2);
