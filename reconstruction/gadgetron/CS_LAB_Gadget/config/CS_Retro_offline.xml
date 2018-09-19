@@ -111,6 +111,12 @@
 		</property>
 	</gadget>
 
+	<gadget>
+		<name>Splitter</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageSplitterGadget</classname>
+	</gadget>
+
 <!-- CS reconstruction - Choose either FOCUSS or BART -->
 <!-- 	FOCUSS-Toolchain -->
 	<!-- Notes on FOCUSS-Gadget -->
@@ -197,6 +203,12 @@
 		<name>Post BART</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_PostBARTGadget</classname>
+	</gadget>
+
+	<gadget>
+		<name>Combiner</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageCombinerGadget</classname>
 	</gadget>
 
 	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->
