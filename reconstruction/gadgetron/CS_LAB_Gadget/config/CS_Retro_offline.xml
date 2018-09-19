@@ -247,6 +247,13 @@
 		</property>
 	</gadget>
 
+	<!-- brings the 5D image [x y z resp_phases card_phases] to a format which can be saved by Gadgetron -->
+	<gadget>
+		<name>ImageFormatForSaving</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageFormatForSavingGadget</classname>
+	</gadget>
+
 	<gadget>
 		<name>ImageFinish</name>
 		<dll>gadgetron_mricore</dll>

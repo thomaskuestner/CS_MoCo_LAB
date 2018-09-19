@@ -365,12 +365,6 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	GadgetContainerMessage<ISMRMRD::ImageHeader> *m1_df = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 	fCopyImageHeader(m1_df, m1->getObjectPtr());
 
-	// correct channels value for MRIImageWriter (last dimension of output array)
-	m1_df->getObjectPtr()->channels = output_deformation_field.get_size(output_deformation_field.get_number_of_dimensions()-1);
-
-	// set new image number
-	m1_df->getObjectPtr()->image_series_index = 1;
-
 	// new GadgetContainer
 	GadgetContainerMessage<hoNDArray<float> > *m2_df = new GadgetContainerMessage<hoNDArray<float> >();
 

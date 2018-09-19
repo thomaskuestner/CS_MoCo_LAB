@@ -68,9 +68,6 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 		GERROR("Reshape impossible (%d * %d not equal to %d). Data may be corrupt or be in wrong shape.\n", respiratory_phases, cardiac_phases, cm2->getObjectPtr()->get_size(3));
 	}
 
-	// reset number of gates (otherwise no output is performed) (channels = respiratory_phases_)
-	cm1->getObjectPtr()->channels = respiratory_phases * cardiac_phases;
-
 	// concatenate data
 	cm1->cont(cm2);
 
