@@ -64,8 +64,8 @@ namespace Gadgetron {
 		void getNav2DPCA(hoNDArray<std::complex<float> > &aNav);
 		void butterworth_filtering(const double fl, const double fh, std::vector<float> &signal);
 
-	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
 		GADGET_PROPERTY(NavigationMethod, int, "NavigationMethod", 0);
 		GADGET_PROPERTY(MinRespFreq, float, "MinRespFreq", 7.5);
 		GADGET_PROPERTY(MaxRespFreq, float, "MaxRespFreq", 40.0);

@@ -98,8 +98,8 @@ namespace Gadgetron {
 		template <typename T> void remove_high_peaks(std::vector<T> &signal);
 		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);
 
-	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
 		// declare gadget properties
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
 		GADGET_PROPERTY(CardiacGatingMode, int, "CardiacGatingMode", 0);

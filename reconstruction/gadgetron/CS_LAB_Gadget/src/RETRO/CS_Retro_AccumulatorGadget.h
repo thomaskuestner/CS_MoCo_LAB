@@ -93,8 +93,8 @@ namespace Gadgetron {
 
 		bool process_data(void);
 
-	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
 		GADGET_PROPERTY(RespiratoryPhases, int, "RespiratoryPhases", 1);
