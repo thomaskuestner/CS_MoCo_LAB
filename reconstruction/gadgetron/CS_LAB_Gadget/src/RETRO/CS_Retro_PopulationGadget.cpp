@@ -318,7 +318,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 			arma::interp1(x, y, xy_sys, interpolation, "*linear");
 
 			for (size_t j = 0; j < interpolation.size(); j++) {
-				cardiac_gates_.push_back(interpolation.at(j));
+				cardiac_gates_.push_back(interpolation.at(j)-1);
 			}
 		}
 
