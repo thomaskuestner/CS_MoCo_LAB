@@ -24,6 +24,15 @@ namespace Gadgetron
 	protected:
 		int process_config(ACE_Message_Block *mb);
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
+
+	private:
+		unsigned int simultaneous_cardiac_phases_, simultaneous_respiratory_phases_;
+
+#ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
+		GADGET_PROPERTY(SimultaneousCardiacPhases, int, "SimultaneousCardiacPhases", 0);
+		GADGET_PROPERTY(SimultaneousRespiratoryPhases, int, "SimultaneousRespiratoryPhases", 0);
+#endif
 	};
 }
 

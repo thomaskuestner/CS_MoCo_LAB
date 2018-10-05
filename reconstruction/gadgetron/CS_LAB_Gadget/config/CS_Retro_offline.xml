@@ -115,6 +115,17 @@
 		<name>Splitter</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_ImageSplitterGadget</classname>
+
+		<property>
+			<!-- Amout of simultaneous cardiac phases. 0 means all at once -->
+			<name>SimultaneousCardiacPhases</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- Amout of simultaneous respiratory phases. 0 means all at once -->
+			<name>SimultaneousRespiratoryPhases</name>
+			<value>0</value>
+		</property>
 	</gadget>
 
 <!-- CS reconstruction - Choose either FOCUSS or BART -->
