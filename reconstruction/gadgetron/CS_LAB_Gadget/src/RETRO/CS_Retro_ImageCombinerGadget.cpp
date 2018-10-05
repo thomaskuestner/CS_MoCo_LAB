@@ -30,6 +30,18 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 		number_of_respiratory_phases_	= get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
 		number_of_cardiac_phases_		= get_number_of_gates(m1->getObjectPtr()->user_int[0], 1);
 
+		// just pass if whole data is processed at once
+		if (received_data.get_size(3) == number_of_respiratory_phases_ &&  received_data.get_size(4) == number_of_cardiac_phases_) {
+			GINFO("Whole data was processed at once, so nothing has to be combined. Gadget is bypassed.\n");
+
+			// put data on pipeline
+			if (this->next()->putq(m1) < 0) {
+				return GADGET_FAIL;
+			}
+
+			return GADGET_OK;
+		}
+
 		// order of array: [x y z c resp_phases card_phases]
 		data = new hoNDArray<std::complex<float> >(received_data.get_size(0), received_data.get_size(1), received_data.get_size(2), received_data.get_size(5), number_of_respiratory_phases_, number_of_cardiac_phases_);
 	}
