@@ -482,7 +482,7 @@ std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int popula
 	return weights;
 }
 
-hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances)
+hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, int &cardiac_phase)
 {
 	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
 
@@ -502,16 +502,23 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 		} else {
 			index_min_this_dist = 0;
 		}
-		size_t iIndexMinDist = indices.at(index_min_this_dist);
+		size_t index_min_dist = indices.at(index_min_this_dist);
 
 		// copy data into return array
-		size_t hacfKSpace_unordered__measurement_offset = iIndexMinDist * hacfKSpace_unordered_.get_size(0);
+		size_t hacfKSpace_unordered__measurement_offset = index_min_dist * hacfKSpace_unordered_.get_size(0);
 		#pragma omp parallel for
 		for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
 			size_t populated_channel_offset = channel * populated_data.get_size(0);
 			size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
 
 			memcpy(populated_data.get_data_ptr() + populated_channel_offset, hacfKSpace_unordered_.get_data_ptr() + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
+		}
+
+		// set cardiac phase
+		if (cardiac_gates_.size() > index_min_dist) {
+			cardiac_phase = cardiac_gates_.at(index_min_dist);
+		} else {
+			cardiac_phase = 0;
 		}
 	} break;
 
@@ -544,6 +551,17 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 			// divide all elements by weight sum
 			populated_data /= normalization_factor;
 		}
+
+		// set cardiac phase
+		// fill histogram
+		size_t cardiac_phases[256] = {0};	// assume max 256 phases
+		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
+			// increase count for present phase
+			cardiac_phases[cardiac_gates_.at(indices.at(measurement))]++;
+		}
+
+		// choose maximum
+		cardiac_phase = *std::max_element(cardiac_phases, cardiac_phases+ARRAYSIZE(cardiac_phases));
 	} break;
 
 	// gauss
@@ -576,6 +594,9 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 			// divide all elements by weight sum
 			populated_data /= normalization_factor;
 		}
+
+		// set cardiac phase
+		// TODO: set phase
 	} break;
 
 	default:
@@ -666,10 +687,14 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 					}
 
 					// populate the data
-					hoNDArray<std::complex<float> > populated_data = get_populated_data(lIndices2, vThisDist);
+					int cardiac_phase;
+					hoNDArray<std::complex<float> > populated_data = get_populated_data(lIndices2, vThisDist, cardiac_phase);
 
-					// choose cardiac phase
-					unsigned int cardiac_phase = 0;
+					// correct cardiac phase if necessary
+					if (cardiac_phase < 0) {
+						GERROR("cardiac_phase (=%d) < 0. This should not happen!\n", cardiac_phase);
+						cardiac_phase = 0;
+					}
 
 					// copy populated data into great reordered kspace
 					#pragma omp parallel for
