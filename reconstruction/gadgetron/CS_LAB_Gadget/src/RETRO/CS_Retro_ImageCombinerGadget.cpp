@@ -25,9 +25,6 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	// receive [x y z resp_phases card_phases c]
 	hoNDArray<std::complex<float> > &received_data = *m2->getObjectPtr();
 
-	// increase receive counter
-	receive_counter_++;
-
 	// handle first initialization
 	if (data == NULL) {
 		number_of_respiratory_phases_	= get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
@@ -45,6 +42,9 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	size_t offset = current_resp_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3)
 		+ current_card_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3) * data->get_size(4);
 	memcpy(data->get_data_ptr()+offset, received_data.get_data_ptr(), received_data.get_number_of_bytes());
+
+	// increase receive counter
+	receive_counter_ += received_data.get_size(3)*received_data.get_size(4);
 
 	// continue sending when finished
 	if (receive_counter_ >= number_of_respiratory_phases_*number_of_cardiac_phases_) {
