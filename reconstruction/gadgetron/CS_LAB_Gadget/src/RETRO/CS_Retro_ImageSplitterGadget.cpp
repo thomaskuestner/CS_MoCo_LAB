@@ -33,6 +33,18 @@ int CS_Retro_ImageSplitterGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	// input: kx-ky-kz-g1-g2-c
 	hoNDArray<std::complex<float> > &data = *m2->getObjectPtr();
 
+	// bypass Gadget if nothing has to be done
+	if (simultaneous_cardiac_phases_ == 0 && simultaneous_respiratory_phases_ == 0) {
+		GINFO("Whole data will be processed at once, so nothing has to be splitted. Gadget is bypassed.\n");
+
+		// put data on pipeline
+		if (this->next()->putq(m1) < 0) {
+			return GADGET_FAIL;
+		}
+
+		return GADGET_OK;
+	}
+
 	// permute kSpace: kx-ky-kz-g1-g2-c -> kx-ky-kz-c-g1-g2
 	std::vector<size_t> vtDimOrder;
 	vtDimOrder.push_back(0);
