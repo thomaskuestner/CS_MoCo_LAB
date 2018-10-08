@@ -96,7 +96,7 @@ int CS_Retro_ImageSplitterGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 			// create data message
 			GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 			cm2->getObjectPtr()->create(data_slice.get_dimensions());
-			memcpy(cm2->getObjectPtr()->get_data_ptr(), data.get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
+			memcpy(cm2->getObjectPtr()->get_data_ptr(), data_slice.get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
 
 			// send data
 			cm1->cont(cm2);
