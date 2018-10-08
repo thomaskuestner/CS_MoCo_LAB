@@ -45,18 +45,9 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	vtDimOrder.push_back(4);
 	data = *permute(&data, &vtDimOrder, false);
 
-	// now combine temporal dimensions:
-	std::vector<size_t> new_shape;
-	new_shape.push_back(data.get_size(0));
-	new_shape.push_back(data.get_size(1));
-	new_shape.push_back(data.get_size(2));
-	new_shape.push_back(data.get_size(3));
-	new_shape.push_back(data.get_size(4)*data.get_size(5));
-	data.reshape(new_shape);
-
 	// create hoNDArray with header
 	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
-	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4));
+	header_array.create(data.get_size(1), data.get_size(2), data.get_size(4), data.get_size(5));
 
 	#pragma omp parallel for
 	for (size_t i = 0; i < header_array.get_number_of_elements(); i++) {
