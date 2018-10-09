@@ -21,9 +21,6 @@ int CS_Retro_PreBARTGadget::process_config(ACE_Message_Block *mb)
 
 int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
 {
-	// save image header
-	GlobalVar::instance()->ImgHeadVec_.clear();
-
 	// make copy of image header to be able to release m1 later
 	ISMRMRD::ImageHeader *m1_cpy = new ISMRMRD::ImageHeader();
 	memcpy(m1_cpy, m1->getObjectPtr(), sizeof(ISMRMRD::ImageHeader));
@@ -34,6 +31,10 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	// get the pipeline content
 	ISMRMRD::AcquisitionHeader header = *GlobalVar::instance()->AcqVec_.at(0);
 	hoNDArray<std::complex<float> > data = *m2->getObjectPtr();
+
+	// save image indices
+	header.user_int[0] = m1->getObjectPtr()->image_index;
+	header.user_int[1] = m1->getObjectPtr()->image_series_index;
 
 	// permute kSpace: kx-ky-kz-g1-g2-c -> kx-ky-kz-c-g1-g2
 	std::vector<size_t> vtDimOrder;
