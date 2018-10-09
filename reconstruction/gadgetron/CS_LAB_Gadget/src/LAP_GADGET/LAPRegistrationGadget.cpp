@@ -37,7 +37,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 {
 	// create dimension variables
 	// first image is fixed image (end-exhale position) all other images declared to be moving images
-	std::vector<size_t> dimensions = *m2->getObjectPtr()->get_dimensions();
+	std::vector<size_t> &dimensions = *m2->getObjectPtr()->get_dimensions();
 
 	// last dimension is number of images
 	size_t number_of_images = dimensions.at(dimensions.size()-1);
