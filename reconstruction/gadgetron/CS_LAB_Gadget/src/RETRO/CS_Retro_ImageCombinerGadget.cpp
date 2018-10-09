@@ -22,7 +22,7 @@ int CS_Retro_ImageCombinerGadget::process_config(ACE_Message_Block *mb)
 
 int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2)
 {
-	// receive [x y z resp_phases card_phases c]
+	// receive [x y z resp_phases card_phases]
 	hoNDArray<std::complex<float> > &received_data = *m2->getObjectPtr();
 
 	// handle first initialization
@@ -42,8 +42,8 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 			return GADGET_OK;
 		}
 
-		// order of array: [x y z c resp_phases card_phases]
-		data = new hoNDArray<std::complex<float> >(received_data.get_size(0), received_data.get_size(1), received_data.get_size(2), received_data.get_size(5), number_of_respiratory_phases_, number_of_cardiac_phases_);
+		// order of array: [x y z resp_phases card_phases]
+		data = new hoNDArray<std::complex<float> >(received_data.get_size(0), received_data.get_size(1), received_data.get_size(2), number_of_respiratory_phases_, number_of_cardiac_phases_);
 	}
 
 	// get current image position (which phase?)
@@ -51,8 +51,8 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	const unsigned int current_card_phase = m1->getObjectPtr()->image_series_index;
 
 	// copy data to position
-	size_t offset = current_resp_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3)
-		+ current_card_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3) * data->get_size(4);
+	size_t offset = current_resp_phase * data->get_size(0) * data->get_size(1) * data->get_size(2)
+		+ current_card_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3);
 	memcpy(data->get_data_ptr()+offset, received_data.get_data_ptr(), received_data.get_number_of_bytes());
 
 	// increase receive counter
@@ -65,7 +65,7 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 		fCopyImageHeader(cm1, m1->getObjectPtr());
 
 		// create data element
-		GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
+		GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
 		cm2->getObjectPtr()->create(data->get_dimensions());
 		memcpy(cm2->getObjectPtr()->get_data_ptr(), data->get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
 
