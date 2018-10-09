@@ -45,28 +45,18 @@ int CS_Retro_ImageSplitterGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 		return GADGET_OK;
 	}
 
-	// permute kSpace: kx-ky-kz-g1-g2-c -> kx-ky-kz-c-g1-g2
-	std::vector<size_t> vtDimOrder;
-	vtDimOrder.push_back(0);
-	vtDimOrder.push_back(1);
-	vtDimOrder.push_back(2);
-	vtDimOrder.push_back(5);
-	vtDimOrder.push_back(3);
-	vtDimOrder.push_back(4);
-	data = *permute(&data, &vtDimOrder, false);
-
 	// set parameters to all dimensions if zero
 	if (simultaneous_cardiac_phases_ == 0) {
-		simultaneous_cardiac_phases_ = data.get_size(5);
+		simultaneous_cardiac_phases_ = data.get_size(4);
 	}
 
 	if (simultaneous_respiratory_phases_ == 0) {
-		simultaneous_respiratory_phases_ = data.get_size(4);
+		simultaneous_respiratory_phases_ = data.get_size(3);
 	}
 
 	// get loop counts (add +1 additionally if block won't match exactly (--> + X != 0))
-	const size_t card_loop_amount = data.get_size(5)/simultaneous_cardiac_phases_ + (data.get_size(5) % simultaneous_cardiac_phases_ != 0);
-	const size_t resp_loop_amount = data.get_size(4)/simultaneous_respiratory_phases_ + (data.get_size(4) % simultaneous_respiratory_phases_ != 0);
+	const size_t card_loop_amount = data.get_size(4)/simultaneous_cardiac_phases_ + (data.get_size(4) % simultaneous_cardiac_phases_ != 0);
+	const size_t resp_loop_amount = data.get_size(3)/simultaneous_respiratory_phases_ + (data.get_size(3) % simultaneous_respiratory_phases_ != 0);
 
 	for (size_t card_phase = 0; card_phase < card_loop_amount; card_phase++) {
 		for (size_t resp_phase = 0; resp_phase < resp_loop_amount; resp_phase++) {
@@ -79,31 +69,17 @@ int CS_Retro_ImageSplitterGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 			cm1->getObjectPtr()->image_series_index = card_phase*simultaneous_cardiac_phases_;
 
 			// determine block size (if last iteration is reached: set block size to rest if there is a rest, otherwise keep standard length)
-			const size_t card_block_size = card_phase == (card_loop_amount-1) ? (data.get_size(5) % simultaneous_cardiac_phases_ == 0 ? simultaneous_cardiac_phases_ : data.get_size(5) % simultaneous_cardiac_phases_) : simultaneous_cardiac_phases_;
-			const size_t resp_block_size = resp_phase == (resp_loop_amount-1) ? (data.get_size(4) % simultaneous_respiratory_phases_ == 0 ? simultaneous_respiratory_phases_ : data.get_size(4) % simultaneous_respiratory_phases_) : simultaneous_respiratory_phases_;
+			const size_t card_block_size = card_phase == (card_loop_amount-1) ? (data.get_size(4) % simultaneous_cardiac_phases_ == 0 ? simultaneous_cardiac_phases_ : data.get_size(4) % simultaneous_cardiac_phases_) : simultaneous_cardiac_phases_;
+			const size_t resp_block_size = resp_phase == (resp_loop_amount-1) ? (data.get_size(3) % simultaneous_respiratory_phases_ == 0 ? simultaneous_respiratory_phases_ : data.get_size(3) % simultaneous_respiratory_phases_) : simultaneous_respiratory_phases_;
 
-			// create data element [kx ky kz c resp_phases card_phases]
+			// create data element [kx ky kz resp_phases card_phases c]
 			hoNDArray<std::complex<float> > data_slice;
-			data_slice.create(data.get_size(0), data.get_size(1), data.get_size(2), data.get_size(3), resp_block_size, card_block_size);
+			data_slice.create(data.get_size(0), data.get_size(1), data.get_size(2), resp_block_size, card_block_size, data.get_size(5));
 
-			// copy elements
-			for (size_t card_block_cnt = 0; card_block_cnt < card_block_size; card_block_cnt++) {
-				const size_t origin_offset = card_phase*simultaneous_cardiac_phases_*data.get_size(0)*data.get_size(1)*data.get_size(2)*data.get_size(3)*data.get_size(4)
-					+ resp_phase*simultaneous_respiratory_phases_*data.get_size(0)*data.get_size(1)*data.get_size(2)*data.get_size(3);
-				const size_t copy_offset = card_block_cnt*data.get_size(0)*data.get_size(1)*data.get_size(2)*data.get_size(3)*data.get_size(4);
-				const size_t target_offset = card_block_cnt*data_slice.get_size(0)*data_slice.get_size(1)*data_slice.get_size(2)*data_slice.get_size(3)*data_slice.get_size(4);
-				memcpy(data_slice.get_data_ptr()+target_offset, data.get_data_ptr()+origin_offset+copy_offset, sizeof(std::complex<float>)*data_slice.get_size(0)*data_slice.get_size(1)*data_slice.get_size(2)*data_slice.get_size(3)*resp_block_size);
-			}
-
-			// re-permute data to [kx ky kz resp_phases card_phases c]
-			std::vector<size_t> repermute_vector;
-			repermute_vector.push_back(0);
-			repermute_vector.push_back(1);
-			repermute_vector.push_back(2);
-			repermute_vector.push_back(4);
-			repermute_vector.push_back(5);
-			repermute_vector.push_back(3);
-			data_slice = *permute(&data_slice, &repermute_vector, false);
+			// copy sub image
+			const vector_td<size_t, 6> crop_offset = { static_cast<size_t>(0), static_cast<size_t>(0), static_cast<size_t>(0), resp_phase*simultaneous_respiratory_phases_, card_phase*simultaneous_cardiac_phases_, static_cast<size_t>(0) };
+			const vector_td<size_t, 6> crop_size = { data_slice.get_size(0), data_slice.get_size(1), data_slice.get_size(2), data_slice.get_size(3), data_slice.get_size(4), data_slice.get_size(5) };
+			crop(crop_offset, crop_size, &data, &data_slice);
 
 			// create data message
 			GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
