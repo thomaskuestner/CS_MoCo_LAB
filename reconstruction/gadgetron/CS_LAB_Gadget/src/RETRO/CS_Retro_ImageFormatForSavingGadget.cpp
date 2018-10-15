@@ -26,7 +26,7 @@ int CS_Retro_ImageFormatForSavingGadget::process(GadgetContainerMessage<ISMRMRD:
 	// set shortcut
 	const hoNDArray<float> &data = *m2->getObjectPtr();
 
-	// incoming image is [x y z resp_gates card_gates]
+	// incoming image is: receive_counter_=0: [x y z resp_gates card_gates], receive_counter_=1: [x y z combined_gates vector_components]
 	// handle each card_gate separately
 	for (size_t i = 0; i < data.get_size(4); i++) {
 		// create new header
@@ -43,7 +43,7 @@ int CS_Retro_ImageFormatForSavingGadget::process(GadgetContainerMessage<ISMRMRD:
 		// create data element
 		GadgetContainerMessage<hoNDArray<float> > *cm2 = new GadgetContainerMessage<hoNDArray<float> >();
 		cm2->getObjectPtr()->create(data.get_size(0), data.get_size(1), data.get_size(2), data.get_size(3));
-		memcpy(cm2->getObjectPtr()->get_data_ptr(), data.get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
+		memcpy(cm2->getObjectPtr()->get_data_ptr(), data.get_data_ptr()+i*cm2->getObjectPtr()->get_number_of_elements(), cm2->getObjectPtr()->get_number_of_bytes());
 
 		// concatenate data
 		cm1->cont(cm2);
