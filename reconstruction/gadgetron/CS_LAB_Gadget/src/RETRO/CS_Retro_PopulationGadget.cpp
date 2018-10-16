@@ -650,6 +650,9 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 
 		GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
+		// declare variable for later usage
+		int cardiac_phase;
+
 		// loop over lines
 		#pragma omp parallel for
 		for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
@@ -687,7 +690,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 					}
 
 					// populate the data
-					int cardiac_phase;
 					hoNDArray<std::complex<float> > populated_data = get_populated_data(lIndices2, vThisDist, cardiac_phase);
 
 					// correct cardiac phase if necessary
@@ -714,7 +716,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 			}
 		}
 
-		const unsigned int cardiac_phase = 0;
 		GINFO("kspace populated - cardiac phase: %d, respiratory phase: %d\n", cardiac_phase, respiratory_phase);
 	}
 
