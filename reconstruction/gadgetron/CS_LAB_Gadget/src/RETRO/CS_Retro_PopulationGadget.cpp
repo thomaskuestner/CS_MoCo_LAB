@@ -385,13 +385,15 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 			}
 
 			for (size_t i = 0; i < navigator_resp_interpolated_.size(); i++) {
-				unsigned int bin = static_cast<unsigned int>(std::floor(navigator_resp_interpolated_.at(i)/((fNavMax-fNavMin)/iNumberBins)));
+				int bin = static_cast<int>(std::floor((navigator_resp_interpolated_.at(i)-fNavMin)/((fNavMax-fNavMin)/iNumberBins)));
 
-				if (bin >= iNumberBins) {
+				if (bin >= static_cast<int>(iNumberBins)) {
+					GWARN("Found bin %d >= %d. Corrected to bin = %d. navigator_resp_interpolated_ is %f\n", bin, iNumberBins, iNumberBins-1, navigator_resp_interpolated_.at(i));
 					bin = iNumberBins - 1;
 				}
 
 				if (bin < 0) {
+					GWARN("Found bin %d < 0. Corrected to bin = 0.\n", bin);
 					bin = 0;
 				}
 
