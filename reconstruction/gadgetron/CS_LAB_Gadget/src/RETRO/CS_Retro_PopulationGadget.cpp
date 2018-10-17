@@ -378,11 +378,6 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 			// get histogram
 			std::vector<size_t> histogram = std::vector<size_t>(256);
 
-			// init 0
-			for (size_t i = 0; i < histogram.size(); i++) {
-				histogram.at(i) = 0;
-			}
-
 			for (size_t i = 0; i < navigator_resp_interpolated_.size(); i++) {
 				int bin = static_cast<int>(std::floor((navigator_resp_interpolated_.at(i)-fNavMin)/((fNavMax-fNavMin)/histogram.size())));
 
