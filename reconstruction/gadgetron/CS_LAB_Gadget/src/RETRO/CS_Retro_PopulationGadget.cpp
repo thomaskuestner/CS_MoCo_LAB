@@ -376,20 +376,19 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 			respiratory_centroids_.push_back(fNavMin);
 		} else {
 			// get histogram
-			unsigned int iNumberBins = 256;
-			std::vector<size_t> histogram = std::vector<size_t>(iNumberBins);
+			std::vector<size_t> histogram = std::vector<size_t>(256);
 
 			// init 0
-			for (size_t i = 0; i < iNumberBins; i++) {
+			for (size_t i = 0; i < histogram.size(); i++) {
 				histogram.at(i) = 0;
 			}
 
 			for (size_t i = 0; i < navigator_resp_interpolated_.size(); i++) {
-				int bin = static_cast<int>(std::floor((navigator_resp_interpolated_.at(i)-fNavMin)/((fNavMax-fNavMin)/iNumberBins)));
+				int bin = static_cast<int>(std::floor((navigator_resp_interpolated_.at(i)-fNavMin)/((fNavMax-fNavMin)/histogram.size())));
 
-				if (bin >= static_cast<int>(iNumberBins)) {
-					GWARN("Found bin %d >= %d. Corrected to bin = %d. navigator_resp_interpolated_ is %f\n", bin, iNumberBins, iNumberBins-1, navigator_resp_interpolated_.at(i));
-					bin = iNumberBins - 1;
+				if (bin >= static_cast<int>(histogram.size())) {
+					GWARN("Found bin %d >= %d. Corrected to bin = %d. navigator_resp_interpolated_ is %f\n", bin, histogram.size(), histogram.size()-1, navigator_resp_interpolated_.at(i));
+					bin = histogram.size() - 1;
 				}
 
 				if (bin < 0) {
@@ -407,7 +406,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 				cumsum += static_cast<long long>(histogram.at(counter++));
 			}
 
-			float f90p = counter*((fNavMax-fNavMin)/iNumberBins);
+			float f90p = counter*((fNavMax-fNavMin)/histogram.size());
 
 			// find 10th percentile
 			counter = 0;
@@ -416,7 +415,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 				cumsum += static_cast<long long>(histogram[counter++]);
 			}
 
-			float f10p = counter*((fNavMax-fNavMin)/iNumberBins);
+			float f10p = counter*((fNavMax-fNavMin)/histogram.size());
 
 			GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, respiratory phases: %i\n", f10p, f90p, respiratory_gate_count);
 
@@ -469,6 +468,7 @@ std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int popula
 		case 0:
 		case 1:
 			weights.at(i) = abs(navigator_resp_interpolated_.at(i) - respiratory_centroids_.at(phase));
+
 			break;
 
 		// gauss
