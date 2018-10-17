@@ -394,34 +394,40 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 				histogram.at(bin)++;
 			}
 
-			// find 90th percentile
-			long long cumsum = 0;
-			size_t counter = 0;
-			while (cumsum < (.90*navigator_resp_interpolated_.size())) {
-				cumsum += static_cast<long long>(histogram.at(counter++));
+			//%iSum = sum(iHist);
+			unsigned int sum = std::accumulate(histogram.begin(), histogram.end(), 0, std::plus<unsigned int>());
+
+			//%iLowerLim = 1;
+			//%while sum(iHist(iLowerLim:end))/iSum > 0.9
+			//%	iLowerLim = iLowerLim + 1;
+			//%end
+			//%iUpperLim = 256;
+			//%while sum(iHist(1:iUpperLim))/iSum > 0.9
+			//%	iUpperLim = iUpperLim - 1;
+			//%end
+			unsigned int lower_limit = 0;
+			while (static_cast<float>(std::accumulate(histogram.begin()+lower_limit, histogram.end(), 0, std::plus<unsigned int>()))/static_cast<float>(sum) > 0.9) {
+				lower_limit++;
 			}
 
-			float f90p = counter*((fNavMax-fNavMin)/histogram.size());
-
-			// find 10th percentile
-			counter = 0;
-			cumsum = 0;
-			while (cumsum < (.10*navigator_resp_interpolated_.size())) {
-				cumsum += static_cast<long long>(histogram[counter++]);
+			unsigned int upper_limit = histogram.size()-1;
+			while (static_cast<float>(std::accumulate(histogram.begin(), histogram.begin()+upper_limit, 0, std::plus<unsigned int>()))/static_cast<float>(sum) > 0.9) {
+				upper_limit--;
 			}
 
-			float f10p = counter*((fNavMax-fNavMin)/histogram.size());
+			//%dMin = dX(iLowerLim);
+			//%dMax = dX(iUpperLim);
+			const float stepsize = (fNavMax - fNavMin)/static_cast<float>(histogram.size());
+			const float min = fNavMin + stepsize * lower_limit;
+			const float max = fNavMin + stepsize * upper_limit;
 
-			GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, respiratory phases: %i\n", f10p, f90p, respiratory_gate_count);
+			GINFO("get equally spaced gate position - 10th: %.2f, 90th: %.2f, respiratory phases: %i\n", min, max, respiratory_gate_count);
 
-			// eqully spaced gate positions
-			float fDistance = (f90p-f10p)/(respiratory_gate_count-1);
-			for (long iI = 0; iI < respiratory_gate_count; iI++) {
-				respiratory_centroids_.push_back(f10p + iI*fDistance);
-			}
+			//%dGatePos = linspace(dMax, dMin, iNPhasesOld)';
+			respiratory_centroids_ = arma::conv_to<std::vector<float> >::from(arma::linspace(max, min, respiratory_gate_count));
 
 			// get tolerance of the gate positions
-			float tolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*respiratory_tolerance_parameter_/2.0;
+			const float tolerance = std::abs(respiratory_centroids_.at(0)-respiratory_centroids_.at(1))*respiratory_tolerance_parameter_/2.0;
 
 			// fill tolerance vector
 			for (unsigned int i = 0; i < respiratory_gate_count; i++) {
