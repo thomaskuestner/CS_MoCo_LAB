@@ -49,14 +49,6 @@ RUN	cd /opt/code \
 # Fix compiler error with CUDA for now
 RUN	sed -i "s;#error -- unsupported GNU version! gcc versions later than 4.9 are not supported!;//#error -- unsupported GNU version! gcc versions later than 4.9 are not supported!;g" /usr/local/cuda/include/host_config.h
 
-# install BART
-RUN	cd /opt/code \
-	&& git clone ${BART_URL} \
-	&& cd bart \
-	&& make -j$(expr $(nproc) + 1)\
-	&& make install \
-	&& cd ..
-
 # install GADGETRON
 RUN	cd /opt/code \
 	&& git clone ${GADGETRON_URL} --branch ${GADGETRON_BRANCH} --single-branch \
