@@ -44,6 +44,13 @@ namespace Gadgetron {
 		// unordered k-space
 		hoNDArray<std::complex<float> > hacfKSpace_unordered_;
 
+		// center mask
+		hoNDArray<bool> mask_center_;
+
+		// parameters for center mask
+		float low_res_vs_;			//% low-resolution view-sharing [0,1] (0: none, 1: use complete fully sampled center)
+		bool omit_center_vs_;		//% omit DC component (1D navigator) to be shared amongst all motion states
+
 		// number of channels
 		int iNoChannels_;
 
@@ -109,6 +116,8 @@ namespace Gadgetron {
 		GADGET_PROPERTY(RespiratoryGatingMode, int, "RespiratoryGatingMode", 0);
 		GADGET_PROPERTY(CardiacTolerance, float, "CardiacTolerance", 1.0);
 		GADGET_PROPERTY(RespiratoryTolerance, float, "RespiratoryTolerance", 1.0);
+		GADGET_PROPERTY(LowResVS, float, "LowResVS", 0.0);
+		GADGET_PROPERTY(OmitCenterVS, int, "OmitCenterVS", 0);
 #endif
 	};
 } // close namespace Gadgetron

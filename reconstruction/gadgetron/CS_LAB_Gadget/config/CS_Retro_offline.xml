@@ -109,6 +109,16 @@
 			<name>RespiratoryGatingMode</name>
 			<value>0</value>
 		</property>
+		<property>
+			<!-- [0,1] (0: none, 1: use complete fully sampled center) -->
+			<name>LowResVS</name>
+			<value>0.5</value>
+		</property>
+		<property>
+			<!-- 0: False, 1: True -->
+			<name>OmitCenterVS</name>
+			<value>1</value>
+		</property>
 	</gadget>
 
 	<gadget>

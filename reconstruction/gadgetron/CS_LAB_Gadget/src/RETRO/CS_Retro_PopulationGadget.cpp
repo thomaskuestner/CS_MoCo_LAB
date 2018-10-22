@@ -22,12 +22,16 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 	GlobalVar::instance()->respiratory_gating_mode_	= RespiratoryGatingMode.value();
 	cardiac_tolerance_parameter_					= CardiacTolerance.value();
 	respiratory_tolerance_parameter_				= RespiratoryTolerance.value();
+	low_res_vs_										= LowResVS.value();
+	omit_center_vs_									= OmitCenterVS.value();
 #else
 	GlobalVar::instance()->iPopulationMode_			= *(get_int_value("PopulationMode").get());
 	GlobalVar::instance()->cardiac_gating_mode_		= *(get_int_value("CardiacGatingMode").get());
 	GlobalVar::instance()->respiratory_gating_mode_	= *(get_int_value("RespiratoryGatingMode").get());
 	cardiac_tolerance_parameter_					= *(get_int_value("CardiacTolerance").get());
 	respiratory_tolerance_parameter_				= *(get_int_value("RespiratoryTolerance").get());
+	low_res_vs_										= *(get_float_value("LowResVS").get());;
+	omit_center_vs_									= *(get_float_value("OmitCenterVS").get());;
 #endif
 
 	return GADGET_OK;
