@@ -122,6 +122,46 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	}
 
 	//-------------------------------------------------------------------------
+	// determine center mask
+	//-------------------------------------------------------------------------
+	// create array
+	mask_center_.create(hacfKSpace_reordered_.get_size(1), hacfKSpace_reordered_.get_size(2));
+	mask_center_.fill(false);
+
+	//%r_center = sBin.lLowResVS * sRaw.dCenterPercent/100 * sqrt(1 + (-1 + (2*(floor(nKy/2)-3))/(nKy-1))*(-1 + (2*(floor(nKy/2)-3))/(nKy-1))); % ellipse
+	const float center_percent = 20;
+	float r_center = low_res_vs_ * center_percent/100 * std::pow(std::sqrt(1 + (-1 + static_cast<float>(2*(mask_center_.get_size(0)/2-3))/static_cast<float>(mask_center_.get_size(0)-1))), 2);	// ellipse
+
+	//%for iL = 0:nKy-1
+	//%	for iP = 0:nKz-1
+	for (size_t line = 0; line < mask_center_.get_size(0); line++) {
+		for (size_t partition = 0; partition < mask_center_.get_size(1); partition++) {
+			//%kyidx = -1 + 2*iL/(nKy-1); % circle
+			//%kzidx = -1 + 2*iP/(nKz-1); % circle
+			float kyidx = -1 + 2*static_cast<float>(line)/static_cast<float>(mask_center_.get_size(0)-1);			// circle
+			float kzidx = -1 + 2*static_cast<float>(partition)/static_cast<float>(mask_center_.get_size(1)-1);	// circle
+
+			//%rcurr = sqrt(kyidx*kyidx + kzidx*kzidx); % circle
+			float r_curr = sqrt(kyidx*kyidx + kzidx*kzidx);	// circle
+
+			//%if(rcurr < r_center)
+			//%	lMaskCenter(iL+1,iP+1) = true;
+			//%	lMaskLow(sRaw.kY == iL+1 & sRaw.kZ == iP+1) = true;
+			//%end
+			if (r_curr < r_center) {
+				mask_center_.at(mask_center_.calculate_offset(line, partition)) = true;
+			}
+		}
+	}
+
+	//%if(sBin.lOmitCenterVS)
+	//%	lMaskCenter(centreKy,centreKz) = false;
+	//%end
+	if (omit_center_vs_) {
+		mask_center_.at(mask_center_.calculate_offset(mask_center_.get_size(0)/2, mask_center_.get_size(1)/2)) = false;
+	}
+
+	//-------------------------------------------------------------------------
 	// populate k-space
 	//-------------------------------------------------------------------------
 	if (!fPopulatekSpace(number_of_cardiac_phases, number_of_respiratory_phases)) {
@@ -489,125 +529,148 @@ std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int popula
 	return weights;
 }
 
-hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, int &cardiac_phase)
+hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition)
 {
-	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_);
+	// dimensions: [kx channels card_gates]
+	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_, cardiac_gate_count);
 
-	// Take shortcut by closest mode if it does not really matter (only 1 entry)
-	int mode = GlobalVar::instance()->iPopulationMode_;
-	if (centroid_distances.size() == 0 || indices.size() == 1) {
-		mode = 0;
-	}
+	for (unsigned int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
+		std::vector<size_t> local_indices = indices;
+		std::vector<float> local_centroid_distances = centroid_distances;
 
-	switch (mode) {
-	// closest
-	case 0: {
-		// calculate min distance
-		size_t index_min_this_dist;
-		if (centroid_distances.size() > 0) {
-			index_min_this_dist = std::min_element(centroid_distances.begin(), centroid_distances.end())-centroid_distances.begin();
-		} else {
-			index_min_this_dist = 0;
-		}
-		size_t index_min_dist = indices.at(index_min_this_dist);
-
-		// copy data into return array
-		size_t hacfKSpace_unordered__measurement_offset = index_min_dist * hacfKSpace_unordered_.get_size(0);
-		#pragma omp parallel for
-		for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
-			size_t populated_channel_offset = channel * populated_data.get_size(0);
-			size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
-
-			memcpy(populated_data.get_data_ptr() + populated_channel_offset, hacfKSpace_unordered_.get_data_ptr() + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
-		}
-
-		// set cardiac phase
-		if (cardiac_gates_.size() > index_min_dist) {
-			cardiac_phase = cardiac_gates_.at(index_min_dist);
-		} else {
-			cardiac_phase = 0;
-		}
-	} break;
-
-	// average
-	case 1: {
-		// pre-filling step with zeros may be omitted here because we set the data below (=) and do not just append (+=)
-
-		// take all measurements into account
-		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
-			size_t hacfKSpace_unordered__measurement_offset = indices.at(measurement) * hacfKSpace_unordered_.get_size(0);
-
-			#pragma omp parallel for
-			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
-				size_t populated_channel_offset = channel * populated_data.get_size(0);
-				size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
-
-				#pragma omp parallel for
-				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
-					// append weighted value to return array
-					populated_data.at(kx_pixel + populated_channel_offset) = hacfKSpace_unordered_.at(kx_pixel + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset);
-				}
+		// filter samples for cardiac phase
+		for (size_t i = 0; i < local_indices.size(); /* incrementation is done in loop */) {
+			if (cardiac_gates_.at(local_indices.at(i)) == cardiac_phase) {
+				i++;
+			} else {
+				local_indices.erase(local_indices.begin()+i);
+				local_centroid_distances.erase(local_centroid_distances.begin()+i);
 			}
 		}
 
-		// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
-		float normalization_factor = indices.size();
+		// In case no data is found: copy zeros into space or fill with center sample and continue
+		if (local_indices.size() == 0 || local_centroid_distances.size() == 0) {
+			if (mask_center_.at(mask_center_.calculate_offset(line, partition))) {
+				// fill with center sample
+				const size_t source_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
+				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
 
-		// only divide if possible
-		if (normalization_factor != 0) {
-			// divide all elements by weight sum
-			populated_data /= normalization_factor;
-		}
+				memcpy(populated_data.get_data_ptr() + target_offset, center_samples_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*center_samples_.get_size(0)*center_samples_.get_size(1));
+			} else {
+				// fill with zero
+				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+				memset(populated_data.get_data_ptr() + target_offset, 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
+			}
+		} else {
+			// At least one sample wants to be handled
 
-		// set cardiac phase
-		// fill histogram
-		size_t cardiac_phases[256] = {0};	// assume max 256 phases
-		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
-			// increase count for present phase
-			cardiac_phases[cardiac_gates_.at(indices.at(measurement))]++;
-		}
+			// Take shortcut by closest mode if it does not really matter (only 1 entry)
+			int mode = GlobalVar::instance()->iPopulationMode_;
+			if (local_indices.size() <= 1) {
+				mode = 0;
+			}
 
-		// choose maximum
-		cardiac_phase = *std::max_element(cardiac_phases, cardiac_phases+ARRAYSIZE(cardiac_phases));
-	} break;
-
-	// gauss
-	case 3: {
-		// pre-fill return array with zeros (IMPORTANT STEP)
-		populated_data.fill(std::complex<float>(0.0));
-
-		// take all measurements into account
-		for (size_t measurement = 0; measurement < indices.size(); measurement++) {
-			size_t hacfKSpace_unordered__measurement_offset = indices.at(measurement) * hacfKSpace_unordered_.get_size(0);
-
-			#pragma omp parallel for
-			for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
-				size_t populated_channel_offset = channel * populated_data.get_size(0);
-				size_t hacfKSpace_unordered__channel_offset = channel * hacfKSpace_unordered_.get_size(0) * hacfKSpace_unordered_.get_size(1);
-
-				#pragma omp parallel for
-				for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
-					// append weighted value to return array
-					populated_data.at(kx_pixel + populated_channel_offset) += centroid_distances.at(measurement)*hacfKSpace_unordered_.at(kx_pixel + hacfKSpace_unordered__channel_offset + hacfKSpace_unordered__measurement_offset);
+			switch (mode) {
+			// closest
+			case 0: {
+				// calculate min distance
+				size_t index_min_this_dist;
+				if (local_centroid_distances.size() > 1) {
+					index_min_this_dist = std::min_element(local_centroid_distances.begin(), local_centroid_distances.end())-local_centroid_distances.begin();
+				} else {
+					index_min_this_dist = 0;
 				}
+
+				const size_t index_min_dist = local_indices.at(index_min_this_dist);
+
+				// copy data into return array
+				#pragma omp parallel for
+				for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+					const size_t target_offset = populated_data.calculate_offset(0, channel, cardiac_phase);
+					const size_t source_offset = hacfKSpace_unordered_.calculate_offset(0, index_min_dist, channel);
+
+					memcpy(populated_data.get_data_ptr() + target_offset, hacfKSpace_unordered_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*populated_data.get_size(0));
+				}
+			} break;
+
+			// average
+			case 1: {
+				// pre-fill data with zeros (IMPORTANT STEP). Note that only current phase should be filled!
+				memset(populated_data.get_data_ptr() + populated_data.calculate_offset(0, 0, cardiac_phase), 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
+
+				// take all measurements into account
+				for (size_t measurement = 0; measurement < local_indices.size(); measurement++) {
+					const size_t index = local_indices.at(measurement);
+
+					#pragma omp parallel for
+					for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+						const size_t target_offset = populated_data.calculate_offset(0, channel, cardiac_phase);
+						const size_t source_offset = hacfKSpace_unordered_.calculate_offset(0, index, channel);
+
+						#pragma omp parallel for
+						for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
+							// append weighted value to return array
+							populated_data.at(kx_pixel + target_offset) += hacfKSpace_unordered_.at(kx_pixel + source_offset);
+						}
+					}
+				}
+
+				// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
+				const float normalization_factor = local_indices.size();
+
+				// only divide if possible
+				if (normalization_factor != 0) {
+					// divide all elements of phase by weight sum
+					const size_t phase_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+					#pragma omp parallel for
+					for (size_t element = 0; element < populated_data.get_size(0)*populated_data.get_size(1); element++) {
+						// append weighted value to return array
+						populated_data.at(element + phase_offset) /= normalization_factor;
+					}
+				}
+			} break;
+
+			// gauss
+			case 3: {
+				// pre-fill data with zeros (IMPORTANT STEP). Note that only current phase should be filled!
+				memset(populated_data.get_data_ptr() + populated_data.calculate_offset(0, 0, cardiac_phase), 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
+
+				// take all measurements into account
+				for (size_t measurement = 0; measurement < local_indices.size(); measurement++) {
+					const size_t index = local_indices.at(measurement);
+
+					#pragma omp parallel for
+					for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
+						const size_t target_offset = populated_data.calculate_offset(0, channel, cardiac_phase);
+						const size_t source_offset = hacfKSpace_unordered_.calculate_offset(0, index, channel);
+
+						#pragma omp parallel for
+						for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
+							// append weighted value to return array
+							populated_data.at(kx_pixel + target_offset) += local_centroid_distances.at(measurement)*hacfKSpace_unordered_.at(kx_pixel + source_offset);
+						}
+					}
+				}
+
+				// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
+				const float normalization_factor = std::accumulate(local_centroid_distances.begin(), local_centroid_distances.end(), 0.0, std::plus<float>());
+
+				// only divide if possible
+				if (normalization_factor != 0) {
+					// divide all elements of phase by weight sum
+					const size_t phase_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+					#pragma omp parallel for
+					for (size_t element = 0; element < populated_data.get_size(0)*populated_data.get_size(1); element++) {
+						// append weighted value to return array
+						populated_data.at(element + phase_offset) /= normalization_factor;
+					}
+				}
+			} break;
+
+			default:
+				throw runtime_error("Selected population_mode unknown!\n");
 			}
 		}
-
-		// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
-		float normalization_factor = std::accumulate(std::begin(centroid_distances), std::end(centroid_distances), 0.0, std::plus<float>());
-
-		// only divide if possible
-		if (normalization_factor != 0) {
-			// divide all elements by weight sum
-			populated_data /= normalization_factor;
-		}
-
-		// set cardiac phase
-		// TODO: set phase
-	} break;
-
-	default:
-		throw runtime_error("Selected population_mode unknown!\n");
 	}
 
 	return populated_data;
@@ -649,81 +712,89 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 
 	GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
+	// sort samples by cardiac gate
+	std::vector<size_t> samples_of_card_gate[cardiac_gate_count];
+	for (size_t i = 0; i < cardiac_gates_.size(); i++) {
+		samples_of_card_gate[cardiac_gates_.at(i)].push_back(i);
+	}
+
+	// create array for center samples
+	// dimension [kx channels card_gates]
+	center_samples_.create(hacfKSpace_unordered_.get_size(0), hacfKSpace_unordered_.get_size(2), cardiac_gate_count);
+
 	// loop over phases/gates
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
 	for (unsigned int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
 		// get weights
-		std::vector<float> vWeights = calculate_weights(GlobalVar::instance()->iPopulationMode_, respiratory_phase);
+		std::vector<float> respiratory_weights = calculate_weights(GlobalVar::instance()->iPopulationMode_, respiratory_phase);
 
 		GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
-		// declare variable for later usage
-		int cardiac_phase;
+		// get nearest samples of respiratory gate
+		for (unsigned int cardiac_phase = 0; cardiac_phase < center_samples_.get_size(2); cardiac_phase++) {
+			const size_t min_dist_element_index = std::distance(respiratory_weights.begin(), std::min_element(respiratory_weights.begin(), respiratory_weights.end()));
+
+			// copy data channel-wise
+			for (size_t channel = 0; channel < hacfKSpace_unordered_.get_size(2); channel++) {
+				const size_t target_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
+				const size_t source_offset = hacfKSpace_unordered_.calculate_offset(0, min_dist_element_index, channel);
+
+				memcpy(center_samples_.get_data_ptr()+target_offset, hacfKSpace_unordered_.get_data_ptr()+source_offset, sizeof(std::complex<float>)*hacfKSpace_unordered_.get_size(0));
+			}
+		}
 
 		// loop over lines
 		#pragma omp parallel for
-		for (size_t iLine = 0; iLine < hacfKSpace_reordered_.get_size(1); iLine++) {
+		for (size_t line = 0; line < hacfKSpace_reordered_.get_size(1); line++) {
 			// loop over partitions
 			#pragma omp parallel for
-			for (size_t iPar = 0; iPar < hacfKSpace_reordered_.get_size(2); iPar++) {
-				// check if iLine was acquired and push Indices on vector
-				std::vector<size_t> lIndices;
+			for (size_t partition = 0; partition < hacfKSpace_reordered_.get_size(2); partition++) {
+				// check if line was acquired and push Indices on vector
+				std::vector<size_t> line_indices;
 				for (size_t i = 0; i < GlobalVar::instance()->vPE_.size(); i++) {
-					if (GlobalVar::instance()->vPE_.at(i) == iLine) {
-						lIndices.push_back(i);
+					if (GlobalVar::instance()->vPE_.at(i) == line) {
+						line_indices.push_back(i);
 					}
 				}
 
-				// check iPar of the found acquisitions
-				std::vector<size_t> lIndices2;
-				for (size_t n = 0; n < lIndices.size(); n++) {
-					if (GlobalVar::instance()->vPA_.at(lIndices.at(n)) == iPar) {
+				// check partition of the found acquisitions
+				std::vector<size_t> line_and_partition_indices;
+				for (size_t n = 0; n < line_indices.size(); n++) {
+					if (GlobalVar::instance()->vPA_.at(line_indices.at(n)) == partition) {
 						// only take measurement into account when tolerance is okay
-						if (vWeights.size() == 0 || vWeights.at(lIndices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
-							lIndices2.push_back(lIndices.at(n));
+						if (respiratory_weights.size() == 0 || respiratory_weights.at(line_indices.at(n)) < respiratory_tolerance_vector_.at(respiratory_phase)) {
+							line_and_partition_indices.push_back(line_indices.at(n));
 						}
 					}
 				}
 
-				// if no index is in the vector --> continue
-				if (lIndices2.size() > 0) {
-					// get weights (if multiple lines were found)
-					std::vector<float> vThisDist;
+				// get weights (if multiple lines were found)
+				std::vector<float> respiratory_distances;
 
-					if (vWeights.size() > 0) {
-						for (size_t i = 0; i < lIndices2.size(); i++) {
-							vThisDist.push_back(vWeights.at(lIndices2.at(i)));
-						}
+				if (respiratory_weights.size() > 0) {
+					for (size_t i = 0; i < line_and_partition_indices.size(); i++) {
+						respiratory_distances.push_back(respiratory_weights.at(line_and_partition_indices.at(i)));
 					}
+				}
 
-					// populate the data
-					hoNDArray<std::complex<float> > populated_data = get_populated_data(lIndices2, vThisDist, cardiac_phase);
+				// populate the data
+				hoNDArray<std::complex<float> > populated_data = get_populated_data(line_and_partition_indices, respiratory_distances, cardiac_gate_count, line, partition);
 
-					// correct cardiac phase if necessary
-					if (cardiac_phase < 0) {
-						GERROR("cardiac_phase (=%d) < 0. This should not happen!\n", cardiac_phase);
-						cardiac_phase = 0;
-					}
-
-					// copy populated data into great reordered kspace
+				// copy populated data into great reordered kspace
+				#pragma omp parallel for
+				for (unsigned int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
 					#pragma omp parallel for
 					for (int c = 0; c < iNoChannels_; c++) {
-						size_t tOffset_reordered =
-							iLine * hacfKSpace_reordered_.get_size(0)
-							+ iPar * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-							+ respiratory_phase * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-							+ cardiac_phase * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0)
-							+ c * hacfKSpace_reordered_.get_size(4) * hacfKSpace_reordered_.get_size(3) * hacfKSpace_reordered_.get_size(2) * hacfKSpace_reordered_.get_size(1) * hacfKSpace_reordered_.get_size(0);
+						const size_t offset_populated = populated_data.calculate_offset(0, c, cardiac_phase);
+						const size_t offset_reordered = hacfKSpace_reordered_.calculate_offset(0, line, partition, respiratory_phase, cardiac_phase, c);
 
-						size_t offset_populated = c * populated_data.get_size(0);
-
-						memcpy(hacfKSpace_reordered_.get_data_ptr() + tOffset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
+						memcpy(hacfKSpace_reordered_.get_data_ptr() + offset_reordered, populated_data.get_data_ptr() + offset_populated, sizeof(std::complex<float>)*populated_data.get_size(0));
 					}
 				}
 			}
 		}
 
-		GINFO("kspace populated - cardiac phase: %d, respiratory phase: %d\n", cardiac_phase, respiratory_phase);
+		GINFO("kspace populated - respiratory phase: %d\n", respiratory_phase);
 	}
 
 	return true;

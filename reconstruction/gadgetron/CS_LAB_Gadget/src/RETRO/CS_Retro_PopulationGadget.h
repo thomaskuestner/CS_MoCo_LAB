@@ -47,6 +47,9 @@ namespace Gadgetron {
 		// center mask
 		hoNDArray<bool> mask_center_;
 
+		// samples to fill center
+		hoNDArray<std::complex<float> > center_samples_;
+
 		// parameters for center mask
 		float low_res_vs_;			//% low-resolution view-sharing [0,1] (0: none, 1: use complete fully sampled center)
 		bool omit_center_vs_;		//% omit DC component (1D navigator) to be shared amongst all motion states
@@ -71,7 +74,7 @@ namespace Gadgetron {
 
 		// centroids of gates
 		std::vector<float> respiratory_centroids_;
-		std::vector<int> cardiac_gates_;
+		std::vector<unsigned int> cardiac_gates_;
 
 	public:
 		CS_Retro_PopulationGadget();
@@ -101,9 +104,11 @@ namespace Gadgetron {
 		* @brief returns populated data as hoNDArray via first argument. Dimensions: [RX Channels] (e.g. [256 10])
 		* @param indices The indices of the interesting data
 		* @param centroid_distances Distances of respiratory phase centroid
-		* @param cardiac_phase The corresponding cardiac_phase.
+		* @param cardiac_gate_count Number of cardiac gates
+		* @param line Ky in which the data should be copied (important for view sharing)
+		* @param partition Kz in which the data should be copied (important for view sharing)
 		*/
-		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, int &cardiac_phase);
+		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition);
 
 		template <typename T> void remove_high_peaks(std::vector<T> &signal);
 		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);
