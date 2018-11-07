@@ -91,7 +91,7 @@ namespace Gadgetron {
 		bool get_cardiac_gates(const unsigned int cardiac_gate_count, const float f_s);
 		bool get_respiratory_gates(const unsigned int respiratory_gate_count);
 		bool fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count);
-		std::vector<float> calculate_weights(const int population_mode, const unsigned int phase);
+		std::vector<float> calculate_weights(const unsigned int phase);
 
 		template <typename T>
 		void discard_empty_elements_from_back(std::vector<T> &v) {
@@ -107,8 +107,9 @@ namespace Gadgetron {
 		* @param cardiac_gate_count Number of cardiac gates
 		* @param line Ky in which the data should be copied (important for view sharing)
 		* @param partition Kz in which the data should be copied (important for view sharing)
+		* @param respiratory_phase The respiratory phase the data is populated for
 		*/
-		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition);
+		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition, const unsigned int respiratory_phase);
 
 		template <typename T> void remove_high_peaks(std::vector<T> &signal);
 		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);

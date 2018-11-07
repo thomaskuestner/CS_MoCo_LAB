@@ -497,7 +497,7 @@ bool CS_Retro_PopulationGadget::get_respiratory_gates(const unsigned int respira
 	return true;
 }
 
-std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int population_mode, const unsigned int phase)
+std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const unsigned int phase)
 {
 	std::vector<float> weights;
 
@@ -508,28 +508,13 @@ std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const int popula
 	}
 
 	for (size_t i = 0; i < weights.size(); i++) {
-		switch (population_mode) {
-		// closest & average (weights are only needed for tolerance window)
-		case 0:
-		case 1:
-			weights.at(i) = abs(navigator_resp_interpolated_.at(i) - respiratory_centroids_.at(phase));
-
-			break;
-
-		// gauss
-		case 3:
-			weights.at(i) = 1/(respiratory_tolerance_vector_.at(phase)*std::sqrt(2*M_PI)) * exp(-(std::pow(navigator_resp_interpolated_.at(i)-respiratory_centroids_.at(phase),2))/(2*(std::pow(respiratory_tolerance_vector_.at(phase),2))));
-			break;
-
-		default:
-			throw runtime_error("Selected population_mode unknown!\n");
-		}
+		weights.at(i) = abs(navigator_resp_interpolated_.at(i) - respiratory_centroids_.at(phase));
 	}
 
 	return weights;
 }
 
-hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition)
+hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition, const unsigned int respiratory_phase)
 {
 	// dimensions: [kx channels card_gates]
 	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_, cardiac_gate_count);
@@ -551,11 +536,16 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 		// In case no data is found: copy zeros into space or fill with center sample and continue
 		if (local_indices.size() == 0 || local_centroid_distances.size() == 0) {
 			if (mask_center_.at(mask_center_.calculate_offset(line, partition))) {
-				// fill with center sample
-				const size_t source_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
+				// fill with zero
 				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+				memset(populated_data.get_data_ptr() + target_offset, 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
 
-				memcpy(populated_data.get_data_ptr() + target_offset, center_samples_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*center_samples_.get_size(0)*center_samples_.get_size(1));
+				// fill with center sample
+				// TODO: implement fill with correct data and not 0
+// 				const size_t source_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
+// 				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+//
+// 				memcpy(populated_data.get_data_ptr() + target_offset, center_samples_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*center_samples_.get_size(0)*center_samples_.get_size(1));
 			} else {
 				// fill with zero
 				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
@@ -635,9 +625,14 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 				// pre-fill data with zeros (IMPORTANT STEP). Note that only current phase should be filled!
 				memset(populated_data.get_data_ptr() + populated_data.calculate_offset(0, 0, cardiac_phase), 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
 
+				std::vector<float> all_gauss_factors;
+
 				// take all measurements into account
 				for (size_t measurement = 0; measurement < local_indices.size(); measurement++) {
 					const size_t index = local_indices.at(measurement);
+
+					const float gauss_factor = 1/(respiratory_tolerance_vector_.at(respiratory_phase)*std::sqrt(2*M_PI)) * std::exp(-std::pow(navigator_resp_interpolated_.at(index)-respiratory_centroids_.at(respiratory_phase), 2)/(2*std::pow(respiratory_tolerance_vector_.at(respiratory_phase), 2)));
+					all_gauss_factors.push_back(gauss_factor);
 
 					#pragma omp parallel for
 					for (size_t channel = 0; channel < populated_data.get_size(1); channel++) {
@@ -647,13 +642,13 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 						#pragma omp parallel for
 						for (size_t kx_pixel = 0; kx_pixel < populated_data.get_size(0); kx_pixel++) {
 							// append weighted value to return array
-							populated_data.at(kx_pixel + target_offset) += local_centroid_distances.at(measurement)*hacfKSpace_unordered_.at(kx_pixel + source_offset);
+							populated_data.at(kx_pixel + target_offset) += gauss_factor*hacfKSpace_unordered_.at(kx_pixel + source_offset);
 						}
 					}
 				}
 
 				// calculate overall weight sum and divide by it (weighted addition must be 1 at end)
-				const float normalization_factor = std::accumulate(local_centroid_distances.begin(), local_centroid_distances.end(), 0.0, std::plus<float>());
+				const float normalization_factor = std::accumulate(all_gauss_factors.begin(), all_gauss_factors.end(), 0.0, std::plus<float>());
 
 				// only divide if possible
 				if (normalization_factor != 0) {
@@ -726,7 +721,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 	//#pragma omp parallel for (parallelizing line loop is more efficient and keeps output prints in order)
 	for (unsigned int respiratory_phase = 0; respiratory_phase < respiratory_gate_count; respiratory_phase++) {
 		// get weights
-		std::vector<float> respiratory_weights = calculate_weights(GlobalVar::instance()->iPopulationMode_, respiratory_phase);
+		std::vector<float> respiratory_weights = calculate_weights(respiratory_phase);
 
 		GINFO("weights calculated - phase: %i\n", respiratory_phase);
 
@@ -778,7 +773,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 				}
 
 				// populate the data
-				hoNDArray<std::complex<float> > populated_data = get_populated_data(line_and_partition_indices, respiratory_distances, cardiac_gate_count, line, partition);
+				hoNDArray<std::complex<float> > populated_data = get_populated_data(line_and_partition_indices, respiratory_distances, cardiac_gate_count, line, partition, respiratory_phase);
 
 				// copy populated data into great reordered kspace
 				#pragma omp parallel for
