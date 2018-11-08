@@ -846,6 +846,7 @@ void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::
 	//%xdiff = diff(x);
 	std::vector<T> diff_signal = arma::conv_to<std::vector<T> >::from(arma::diff(arma::Col<T>(signal)));
 	std::vector<T> y_pos;
+	x_pos.clear();
 
 	//%for i=1:length(xdiff)
 	//%	if(xdiff(i) <= 0)
