@@ -20,6 +20,7 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 	GlobalVar::instance()->iPopulationMode_			= PopulationMode.value();
 	GlobalVar::instance()->cardiac_gating_mode_		= CardiacGatingMode.value();
 	GlobalVar::instance()->respiratory_gating_mode_	= RespiratoryGatingMode.value();
+	rpeak_detection_algorithm_						= RPeakDetection.value();
 	cardiac_tolerance_parameter_					= CardiacTolerance.value();
 	respiratory_tolerance_parameter_				= RespiratoryTolerance.value();
 	low_res_vs_										= LowResVS.value();
@@ -28,6 +29,7 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 	GlobalVar::instance()->iPopulationMode_			= *(get_int_value("PopulationMode").get());
 	GlobalVar::instance()->cardiac_gating_mode_		= *(get_int_value("CardiacGatingMode").get());
 	GlobalVar::instance()->respiratory_gating_mode_	= *(get_int_value("RespiratoryGatingMode").get());
+	rpeak_detection_algorithm_						= *(get_int_value("RPeakDetection").get());
 	cardiac_tolerance_parameter_					= *(get_float_value("CardiacTolerance").get());
 	respiratory_tolerance_parameter_				= *(get_float_value("RespiratoryTolerance").get());
 	low_res_vs_										= *(get_float_value("LowResVS").get());;
@@ -263,7 +265,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 	std::vector<size_t> x_pos;
 	cardiac_gates_.clear();
 
-	switch (GlobalVar::instance()->cardiac_gating_mode_) {
+	switch (rpeak_detection_algorithm_) {
 	// PanTompkin
 	case 0:
 		//%%Remove Outlier Peaks

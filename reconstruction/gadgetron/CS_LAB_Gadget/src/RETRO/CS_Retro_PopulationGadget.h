@@ -54,6 +54,9 @@ namespace Gadgetron {
 		float low_res_vs_;			//% low-resolution view-sharing [0,1] (0: none, 1: use complete fully sampled center)
 		bool omit_center_vs_;		//% omit DC component (1D navigator) to be shared amongst all motion states
 
+		// R peak detection algorithm
+		unsigned int rpeak_detection_algorithm_;
+
 		// number of channels
 		int iNoChannels_;
 
@@ -120,6 +123,7 @@ namespace Gadgetron {
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
 		GADGET_PROPERTY(CardiacGatingMode, int, "CardiacGatingMode", 0);
 		GADGET_PROPERTY(RespiratoryGatingMode, int, "RespiratoryGatingMode", 0);
+		GADGET_PROPERTY(RPeakDetection, int, "RPeakDetection", 0);
 		GADGET_PROPERTY(CardiacTolerance, float, "CardiacTolerance", 1.0);
 		GADGET_PROPERTY(RespiratoryTolerance, float, "RespiratoryTolerance", 1.0);
 		GADGET_PROPERTY(LowResVS, float, "LowResVS", 0.0);

@@ -101,6 +101,11 @@
 		</property>
 		<property>
 			<!-- 0: PanTompkin, 1: Wavelet (not impl.), 2: WaveletPanTomp (not impl.) -->
+			<name>RPeakDetection</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- 0: linear, 1: diastole -->
 			<name>CardiacGatingMode</name>
 			<value>0</value>
 		</property>
