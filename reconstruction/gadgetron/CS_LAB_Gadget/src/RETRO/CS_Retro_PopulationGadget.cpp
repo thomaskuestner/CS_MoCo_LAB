@@ -356,7 +356,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 			y.at(y.n_elem-1) = cardiac_gate_count;
 
 			arma::vec xy_sys(rr.at(i));
-			for (int j = 0; j < rr.at(i); j++) {
+			for (int j = 0; j < xy_sys.n_elem; j++) {
 				xy_sys.at(j) = j+1;
 			}
 
