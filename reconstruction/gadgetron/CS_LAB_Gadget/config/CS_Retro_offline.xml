@@ -100,7 +100,7 @@
 			<value>0</value>
 		</property>
 		<property>
-			<!-- 0: PanTompkin (not impl.), 1: Wavelet (not impl.), 2: WaveletPanTomp (not impl.) -->
+			<!-- 0: PanTompkin, 1: Wavelet (not impl.), 2: WaveletPanTomp (not impl.) -->
 			<name>CardiacGatingMode</name>
 			<value>0</value>
 		</property>
