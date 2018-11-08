@@ -327,10 +327,15 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 		hr.push_back(static_cast<int>(std::round(60.0/(rr.at(i)/f_s))));
 	}
 
+	//%dCardiacPhases = zeros(length(dEcg),1);
+	// fill up with zeros until the first interpolation
+	for (size_t i = 1; i < x_pos.at(0); i++) {
+		cardiac_gates_.push_back(0);
+	}
+
 	switch (GlobalVar::instance()->cardiac_gating_mode_) {
 	// linear
-	case 0:
-		//%dCardiacPhases = zeros(length(dEcg),1);
+	case 0: {
 		//%for i=1:length(loc_r)-1
 		//%	x = ceil(linspace(1,rr_int(i),iNcPhases+1));
 		//%	y = [1:1:iNcPhases iNcPhases];
@@ -338,12 +343,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 		//%	dCardiacPhases(loc_r(i):loc_r(i+1)-1) = floor(interp1(x,y,xy_sys,'linear'));
 		//%end
 
-		// fill up with zeros until the first interpolation
-		for (size_t i = 1; i < x_pos.at(0); i++) {
-			cardiac_gates_.push_back(0);
-		}
-
-		for (size_t i = 0; i < x_pos.size()-1; i++) {
+		for (size_t i = 0; i < rr.size(); i++) {
 			arma::vec x = arma::linspace(1, rr.at(i), cardiac_gate_count+1);
 			for (size_t j = 0; j < x.n_elem; j++) {
 				x.at(j) = std::ceil(x.at(j));
@@ -356,7 +356,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 			y.at(y.n_elem-1) = cardiac_gate_count;
 
 			arma::vec xy_sys(rr.at(i));
-			for (int j = 0; j < xy_sys.n_elem; j++) {
+			for (unsigned int j = 0; j < xy_sys.n_elem; j++) {
 				xy_sys.at(j) = j+1;
 			}
 
@@ -368,25 +368,100 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 			}
 		}
 
-		// fill up with zeros
-		while (cardiac_gates_.size() < navigator_card_interpolated_.size()) {
-			cardiac_gates_.push_back(0);
+		break;
+	}
+
+	// diastole
+	case 1: {
+		//%%specifiy systole/RR-ratio depending on heartrate
+		//%rr_ratio = [linspace(0.33,0.33,60) linspace(0.33,0.5,61) linspace(0.5,0.5,120), linspace(0.5,0.5,max(hr)-241)];
+		std::vector<float> rr_ratio;
+		arma::vec linspace_vector = arma::linspace(0.33, 0.33, 60);
+		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
+			rr_ratio.push_back(linspace_vector.at(i));
+		}
+		linspace_vector = arma::linspace(0.33, 0.5, 61);
+		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
+			rr_ratio.push_back(linspace_vector.at(i));
+		}
+		linspace_vector = arma::linspace(0.5, 0.5, 120);
+		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
+			rr_ratio.push_back(linspace_vector.at(i));
+		}
+		linspace_vector = arma::linspace(0.5, 0.5, *std::max_element(hr.begin(), hr.end())-241);
+		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
+			rr_ratio.push_back(linspace_vector.at(i));
+		}
+
+		//%for i=1:length(loc_r)-1
+		//%	rr_sys = round(rr_int(i)*rr_ratio(hr(i)));
+		for (size_t i = 0; i < rr.size(); i++) {
+			int rr_sys = std::round(rr.at(i)*rr_ratio.at(hr.at(i)-1));
+
+			//%	x_sys = floor(linspace(1,rr_sys+1,floor(iNcPhases/2)+1));
+			arma::vec x_sys = arma::linspace(1, rr_sys+1, cardiac_gate_count/2+1);
+			for (size_t j = 0; j < x_sys.n_elem; j++) {
+				x_sys.at(j) = std::floor(x_sys.at(j));
+			}
+
+			//%	y_sys = [1:1:floor(iNcPhases/2) floor(iNcPhases/2)];
+			arma::vec y_sys(cardiac_gate_count/2+1);
+			for (unsigned int j = 0; j < y_sys.n_elem-1; j++) {
+				y_sys.at(j) = j+1;
+			}
+			y_sys.at(y_sys.n_elem-1) = cardiac_gate_count/2;
+
+			//%	xy_sys = [1:rr_sys+1];
+			arma::vec xy_sys(rr_sys+1);
+			for (unsigned int j = 0; j < xy_sys.n_elem; j++) {
+				xy_sys.at(j) = j+1;
+			}
+
+			//%	dCardiacPhases(loc_r(i):loc_r(i)+rr_sys) = floor(interp1(x_sys,y_sys,xy_sys,'linear'));
+			arma::vec interpolation;
+			arma::interp1(x_sys, y_sys, xy_sys, interpolation, "*linear");
+			for (size_t j = 0; j < interpolation.size(); j++) {
+				cardiac_gates_.push_back(interpolation.at(j)-1);
+			}
+
+			//%	x_dia = floor(linspace(1,rr_int(i) - rr_sys -1,iNcPhases - floor(iNcPhases/2) +1));
+			arma::vec x_dia = arma::linspace(1, rr.at(i) - rr_sys - 1, cardiac_gate_count - cardiac_gate_count/2 + 1);
+
+			//%	y_dia = [floor(iNcPhases/2)+1:1:iNcPhases iNcPhases];
+			arma::vec y_dia(cardiac_gate_count/2 + !(cardiac_gate_count % 2));
+			for (unsigned int j = 0; j < y_dia.n_elem-1; j++) {
+				y_dia.at(j) = cardiac_gate_count/2+j+1;
+			}
+			y_dia.at(y_dia.n_elem-1) = cardiac_gate_count;
+
+			//%	xy_dia = [1:rr_int(i)-rr_sys-1];
+			arma::vec xy_dia(rr.at(i)-rr_sys-1);
+			for (unsigned int j = 0; j < xy_dia.n_elem; j++) {
+				xy_dia.at(j) = j+1;
+			}
+
+			//%	dCardiacPhases(loc_r(i)+rr_sys+1:loc_r(i+1)-1) = floor(interp1(x_dia,y_dia,xy_dia,'linear'));
+			arma::interp1(x_dia, y_dia, xy_dia, interpolation, "*linear");
+			for (size_t j = 0; j < interpolation.size(); j++) {
+				cardiac_gates_.push_back(interpolation.at(j)-1);
+			}
+
+			//%end
 		}
 
 		break;
-
-	// diastole
-	case 1:
-		//%%specifiy systole/RR-ratio depending on heartrate
-		//%rr_ratio = [linspace(0.33,0.33,60) linspace(0.33,0.5,61) linspace(0.5,0.5,120), linspace(0.5,0.5,max(hr)-241)];
-		break;
-
+	}
 
 	default:
 		GERROR("reorder_kSpace: no cardiac gating mode specified!\n");
 
 		return false;
 		break;
+	}
+
+	// fill up with zeros
+	while (cardiac_gates_.size() < navigator_card_interpolated_.size()) {
+		cardiac_gates_.push_back(0);
 	}
 
 	if (cardiac_tolerance_parameter_ > 0.0) {
