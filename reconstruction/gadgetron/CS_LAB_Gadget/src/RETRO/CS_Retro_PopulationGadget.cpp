@@ -943,7 +943,7 @@ void CS_Retro_PopulationGadget::search_peaks(const std::vector<T> &signal, std::
 	//%end
 	for (size_t i = 0; i < diff_signal.size(); i++) {
 		if (diff_signal.at(i) <= 0) {
-			if (i != 0) {
+			if (i > 0) {
 				if (diff_signal.at(i-1) >= 0) {
 					// max found
 					x_pos.push_back(i);
