@@ -57,9 +57,6 @@ namespace Gadgetron {
 		// R peak detection algorithm
 		unsigned int rpeak_detection_algorithm_;
 
-		// number of channels
-		int iNoChannels_;
-
 		// echo in k-space line
 		int iEchoLine_;
 

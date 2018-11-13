@@ -41,8 +41,6 @@ int CS_Retro_PopulationGadget::process_config(ACE_Message_Block *mb)
 
 int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1,GadgetContainerMessage<hoNDArray<float> > *m2, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m3)
 {
-	iNoChannels_ = m3->getObjectPtr()->get_size(2);
-
 	// get number of phases/gates
 	unsigned int number_of_respiratory_phases = get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
 	unsigned int number_of_cardiac_phases = get_number_of_gates(m1->getObjectPtr()->user_int[0], 1);
@@ -87,7 +85,7 @@ int CS_Retro_PopulationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 	m2->release();
 
 	// initialize output k-space array (ReadOut x PhaseEncoding x PArtitionencoding x RespiratoryGates x CardiacGates x Channels)
-	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_respiratory_phases, number_of_cardiac_phases, iNoChannels_);
+	hacfKSpace_reordered_.create(hacfKSpace_unordered_.get_size(0), m1->getObjectPtr()->matrix_size[1], m1->getObjectPtr()->matrix_size[2], number_of_respiratory_phases, number_of_cardiac_phases, m3->getObjectPtr()->get_size(2));
 
 	//-------------------------------------------------------------------------
 	// discard first seconds of the acquisitions and wait for steady-state
@@ -594,7 +592,7 @@ std::vector<float> CS_Retro_PopulationGadget::calculate_weights(const unsigned i
 hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition, const unsigned int respiratory_phase)
 {
 	// dimensions: [kx channels card_gates]
-	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), iNoChannels_, cardiac_gate_count);
+	hoNDArray<std::complex<float> > populated_data(hacfKSpace_unordered_.get_size(0), hacfKSpace_unordered_.get_size(2), cardiac_gate_count);
 
 	for (unsigned int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
 		std::vector<size_t> local_indices = indices;
@@ -856,7 +854,7 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 				#pragma omp parallel for
 				for (unsigned int cardiac_phase = 0; cardiac_phase < cardiac_gate_count; cardiac_phase++) {
 					#pragma omp parallel for
-					for (int c = 0; c < iNoChannels_; c++) {
+					for (size_t c = 0; c < populated_data.get_size(1); c++) {
 						const size_t offset_populated = populated_data.calculate_offset(0, c, cardiac_phase);
 						const size_t offset_reordered = hacfKSpace_reordered_.calculate_offset(0, line, partition, respiratory_phase, cardiac_phase, c);
 
