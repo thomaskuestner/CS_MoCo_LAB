@@ -386,9 +386,12 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
 			rr_ratio.push_back(linspace_vector.at(i));
 		}
-		linspace_vector = arma::linspace(0.5, 0.5, *std::max_element(hr.begin(), hr.end())-241);
-		for (size_t i = 0; i < linspace_vector.n_elem; i++) {
-			rr_ratio.push_back(linspace_vector.at(i));
+		const int hr_max = *std::max_element(hr.begin(), hr.end());
+		if (hr_max > 241) {
+			linspace_vector = arma::linspace(0.5, 0.5, hr_max-241);
+			for (size_t i = 0; i < linspace_vector.n_elem; i++) {
+				rr_ratio.push_back(linspace_vector.at(i));
+			}
 		}
 
 		//%for i=1:length(loc_r)-1
