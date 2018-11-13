@@ -599,12 +599,14 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 		std::vector<float> local_centroid_distances = centroid_distances;
 
 		// filter samples for cardiac phase
-		for (size_t i = 0; i < local_indices.size(); /* incrementation is done in loop */) {
-			if (cardiac_gates_.at(local_indices.at(i)) == cardiac_phase) {
-				i++;
-			} else {
-				local_indices.erase(local_indices.begin()+i);
-				local_centroid_distances.erase(local_centroid_distances.begin()+i);
+		if (cardiac_gates_.size() > 0) {					// only handle when cardiac signal is present
+			for (size_t i = 0; i < local_indices.size(); /* incrementation is done in loop */) {
+				if (cardiac_gates_.at(local_indices.at(i)) == cardiac_phase) {
+					i++;
+				} else {
+					local_indices.erase(local_indices.begin()+i);
+					local_centroid_distances.erase(local_centroid_distances.begin()+i);
+				}
 			}
 		}
 
