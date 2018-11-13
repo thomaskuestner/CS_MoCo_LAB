@@ -297,7 +297,7 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 
 	//%% find RR-intervalls, HR & Ratio
 	//%rr_int = diff(loc_r);
-	std::vector<int> rr;// = arma::conv_to<std::vector<int> >::from(arma::diff(arma::Col<size_t>(x_pos)));
+	std::vector<int> rr = arma::conv_to<std::vector<int> >::from(arma::diff(arma::Col<size_t>(x_pos)));
 
 	//%% prevent a wrong RR interval detection
 	//%lInd = rr_int >= 60/300 * fs; % hr is tob o large
