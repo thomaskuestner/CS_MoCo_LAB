@@ -28,6 +28,8 @@ RUN	apt-get --yes purge cmake \
 	&& make install \
 	&& cd .. \
 	&& rm -rf cmake-3* \
+	# install NumPy dependency
+	&& apt-get --yes install python-numpy \
 	# install other software
 	&& apt-get --yes install gcc-6 g++-6 gfortran \
 	# and cleanup
