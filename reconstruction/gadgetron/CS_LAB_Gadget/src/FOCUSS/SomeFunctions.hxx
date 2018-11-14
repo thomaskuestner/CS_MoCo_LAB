@@ -235,11 +235,9 @@ namespace Gadgetron
 		result.create(y,z);
 
 		// fill output
-		T* PtrIn = Array.get_data_ptr();
-		T* PtrOut= result.get_data_ptr();
 		for (size_t iy = iBorderY_Lower; iy <= iBorderY_Upper; iy++) {
 			for(size_t iz = iBorderZ_Lower; iz <= iBorderZ_Upper; iz++) {
-				PtrOut[(iy-iBorderY_Lower)+(iz-iBorderZ_Lower)*y] = PtrIn[iy + iz*dims[0] + iCenterX*dims[0]*dims[1]];
+				result.at((iy-iBorderY_Lower)+(iz-iBorderZ_Lower)*y) = Array.at(iy + iz*dims[0] + iCenterX*dims[0]*dims[1]);
 			}
 		}
 
@@ -279,7 +277,7 @@ namespace Gadgetron
 	inline bool fAllZero(const hoNDArray<bool> &Array)
 	{
 		bool isAllZero = true;
-		bool *PtrIn = Array.get_data_ptr();
+		const bool *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != false) {
@@ -294,7 +292,7 @@ namespace Gadgetron
 	inline bool fAllZero(const hoNDArray<std::complex<float> > &Array)
 	{
 		bool isAllZero = true;
-		std::complex<float> *PtrIn = Array.get_data_ptr();
+		const std::complex<float> *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != std::complex<float>(0, 0)) {
@@ -309,7 +307,7 @@ namespace Gadgetron
 	// function, which checks if all elements are one (bool)
 	inline bool fAllOne(const hoNDArray<bool> &Array)
 	{
-		bool *PtrIn = Array.get_data_ptr();
+		const bool *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] == false) {

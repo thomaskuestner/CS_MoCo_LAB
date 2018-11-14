@@ -36,10 +36,10 @@ int CS_Retro_PostBARTGadget::process(GadgetContainerMessage<IsmrmrdImageArray> *
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(1);
 	vtDimOrder.push_back(2);
-	vtDimOrder.push_back(4);
 	vtDimOrder.push_back(5);
-	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(6);
+	vtDimOrder.push_back(4);
+	vtDimOrder.push_back(3);
 	data = *permute(&data, &vtDimOrder, false);
 	
 	// crop array and convert to GadgetContainerMessage

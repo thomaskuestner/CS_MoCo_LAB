@@ -222,8 +222,6 @@
 		<property><name>BartCommandScript_name</name><value>CS_LAB_BART_Recon.sh</value></property>
 		<property><name>isBartFileBeingStored</name><value>false</value></property>
 		<property><name>image_series</name><value>0</value></property>
-		<property><name>isBartFolderBeingCachedToVM</name><value>false</value></property>
-		<property><name>AllocateMemorySizeInMegabytes</name><value>50</value></property>
 	</gadget>
 	<gadget>
 		<name>Post BART</name>

@@ -81,7 +81,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 	// get fixed image from dataset
 	std::vector<size_t> fixed_image_dimensions = dimensions_of_image;
-	const hoNDArray<float> fixed_image(fixed_image_dimensions, data.get_data_ptr(), false);
+	const hoNDArray<float> fixed_image(fixed_image_dimensions, const_cast<float*>(data.get_data_ptr()), false);
 
 	// create registered (output) image
 	hoNDArray<float> output_image(*data.get_dimensions());
@@ -115,7 +115,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 		// crop moving image from 4D dataset
 		std::vector<size_t> moving_image_dimensions = dimensions_of_image;
-		hoNDArray<float> moving_image(moving_image_dimensions, data.get_data_ptr() + moving_image_offset, false);
+		hoNDArray<float> moving_image(moving_image_dimensions, const_cast<float*>(data.get_data_ptr()) + moving_image_offset, false);
 
 		memcpy(cMovingImage.memptr(), moving_image.get_data_ptr(), moving_image.get_number_of_bytes());
 		mLAP3D.setMovingImage(cMovingImage);
