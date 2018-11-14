@@ -616,16 +616,11 @@ hoNDArray<std::complex<float> > CS_Retro_PopulationGadget::get_populated_data(co
 		// In case no data is found: copy zeros into space or fill with center sample and continue
 		if (local_indices.size() == 0 || local_centroid_distances.size() == 0) {
 			if (mask_center_.at(mask_center_.calculate_offset(line, partition))) {
-				// fill with zero
-				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
-				memset(populated_data.get_data_ptr() + target_offset, 0, sizeof(std::complex<float>)*populated_data.get_size(0)*populated_data.get_size(1));
-
 				// fill with center sample
-				// TODO: implement fill with correct data and not 0
-// 				const size_t source_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
-// 				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
-//
-// 				memcpy(populated_data.get_data_ptr() + target_offset, center_samples_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*center_samples_.get_size(0)*center_samples_.get_size(1));
+				const size_t source_offset = center_samples_.calculate_offset(0, 0, cardiac_phase);
+				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
+
+				memcpy(populated_data.get_data_ptr() + target_offset, center_samples_.get_data_ptr() + source_offset, sizeof(std::complex<float>)*center_samples_.get_size(0)*center_samples_.get_size(1));
 			} else {
 				// fill with zero
 				const size_t target_offset = populated_data.calculate_offset(0, 0, cardiac_phase);
@@ -807,7 +802,20 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 
 		// get nearest samples of respiratory gate
 		for (unsigned int cardiac_phase = 0; cardiac_phase < center_samples_.get_size(2); cardiac_phase++) {
-			const size_t min_dist_element_index = std::distance(respiratory_weights.begin(), std::min_element(respiratory_weights.begin(), respiratory_weights.end()));
+			float min_dist_element = std::numeric_limits<float>::max();
+			size_t min_dist_element_index = 0;
+
+			// delete weights not in current phase
+			if (cardiac_gates_.size() > 0) {										// only handle when cardiac signal is present
+				for (size_t i = 0; i < respiratory_weights.size(); i++) {			// check all weights
+					if (cardiac_gates_.at(i) == cardiac_phase) {	// only handle current phase
+						if (respiratory_weights.at(i) < min_dist_element) {			// check if element is minimal
+							min_dist_element = respiratory_weights.at(i);			// set new values
+							min_dist_element_index = i;
+						}
+					}
+				}
+			}
 
 			// copy data channel-wise
 			for (size_t channel = 0; channel < hacfKSpace_unordered_.get_size(2); channel++) {
