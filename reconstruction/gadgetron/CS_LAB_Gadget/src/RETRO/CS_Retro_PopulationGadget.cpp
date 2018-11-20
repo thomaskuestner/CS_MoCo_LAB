@@ -316,7 +316,8 @@ bool CS_Retro_PopulationGadget::get_cardiac_gates(const unsigned int cardiac_gat
 	rr = arma::conv_to<std::vector<int> >::from(arma::diff(arma::Col<size_t>(x_pos)));
 
 	//%rr_mean = round(median(rr_int));
-	int rr_mean = static_cast<int>(std::round(arma::median(arma::Col<int>(rr))));
+// 	TODO: Enable when implementation is added
+// 	int rr_mean = static_cast<int>(std::round(arma::median(arma::Col<int>(rr))));
 
 	//%%Heartrate (1 / rr_int)
 	//%hr = round(60./(rr_int./fs));
