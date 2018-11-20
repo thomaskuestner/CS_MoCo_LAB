@@ -783,12 +783,6 @@ bool CS_Retro_PopulationGadget::fPopulatekSpace(const unsigned int cardiac_gate_
 
 	GDEBUG("global PE: %i, PA: %i\n", GlobalVar::instance()->vPE_.size(), GlobalVar::instance()->vPA_.size());
 
-	// sort samples by cardiac gate
-	std::vector<size_t> samples_of_card_gate[cardiac_gate_count];
-	for (size_t i = 0; i < cardiac_gates_.size(); i++) {
-		samples_of_card_gate[cardiac_gates_.at(i)].push_back(i);
-	}
-
 	// create array for center samples
 	// dimension [kx channels card_gates]
 	center_samples_.create(hacfKSpace_unordered_.get_size(0), hacfKSpace_unordered_.get_size(2), cardiac_gate_count);
