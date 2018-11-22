@@ -3,7 +3,6 @@ FROM gadgetron/ubuntu_1804_cuda92_cudnn7_base:latest
 
 # set arguments
 ARG GADGETRON_URL=https://github.com/gadgetron/gadgetron
-ARG GADGETRON_BRANCH=v3.17.0
 ARG ISMRMRD_URL=https://github.com/ismrmrd/ismrmrd.git
 ARG ISMRMRD_PYTHON_API_URL=https://github.com/ismrmrd/ismrmrd-python.git
 ARG ISMRMRD_PYTHON_TOOLS_URL=https://github.com/ismrmrd/ismrmrd-python-tools.git
@@ -66,7 +65,7 @@ RUN	cd /opt/code \
 
 # install GADGETRON
 RUN	cd /opt/code \
-	&& git clone ${GADGETRON_URL} --branch ${GADGETRON_BRANCH} --single-branch \
+	&& git clone ${GADGETRON_URL} \
 	&& cd gadgetron \
 	&& mkdir build \
 	&& cd build \
