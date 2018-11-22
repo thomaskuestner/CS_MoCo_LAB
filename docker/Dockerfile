@@ -28,6 +28,8 @@ RUN	apt-get --yes purge cmake \
 	&& make install \
 	&& cd .. \
 	&& rm -rf cmake-3* \
+	# install NumPy dependency
+	&& apt-get --yes install python-numpy \
 	# install other software
 	&& apt-get --yes install gcc-6 g++-6 gfortran \
 	# and cleanup
@@ -53,9 +55,13 @@ RUN	sed -i "s;#error -- unsupported GNU version! gcc versions later than 4.9 are
 RUN	cd /opt/code \
 	&& git clone ${BART_URL} \
 	&& cd bart \
-	&& make -j$(expr $(nproc) + 1)\
+	&& mkdir build \
+	&& cd build \
+	&& cmake .. -DBART_FPIC=ON -DBART_ENABLE_MEM_CFL=ON -DBART_REDEFINE_PRINTF_FOR_TRACE=ON -DBART_LOG_BACKEND=ON -DBART_LOG_GADGETRON_BACKEND=ON \
+	&& make -j$(expr $(nproc) + 1) \
 	&& make install \
-	&& cd ..
+	&& cd ../.. \
+	&& rm -rf bart/build
 
 # install GADGETRON
 RUN	cd /opt/code \
