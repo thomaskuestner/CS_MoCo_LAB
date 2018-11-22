@@ -20,7 +20,7 @@ ADD . /tmp
 
 # install newest version of cmake
 RUN	apt-get --yes purge cmake \
-	&& wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz \
+	&& wget https://cmake.org/files/v3.13/cmake-3.13.0.tar.gz \
 	&& tar -xzvf cmake-*.tar.gz \
 	&& cd cmake-3*/ \
 	&& ./bootstrap \
