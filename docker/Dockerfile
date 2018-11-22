@@ -18,7 +18,7 @@ ARG CSMOCO_URL=https://github.com/thomaskuestner/CS_MoCo_LAB.git
 ADD . /tmp
 
 # install newest version of cmake
-RUN	apt-get --yes purge cmake \
+RUN	apt-get -y purge cmake \
 	&& wget https://cmake.org/files/v3.13/cmake-3.13.0.tar.gz \
 	&& tar -xzvf cmake-*.tar.gz \
 	&& cd cmake-3*/ \
@@ -28,9 +28,9 @@ RUN	apt-get --yes purge cmake \
 	&& cd .. \
 	&& rm -rf cmake-3* \
 	# install NumPy dependency
-	&& apt-get --yes install python-numpy \
+	&& apt-get -y install python-numpy \
 	# install other software
-	&& apt-get --yes install gcc-6 g++-6 gfortran \
+	&& apt-get -y install gcc-6 g++-6 gfortran \
 	# and cleanup
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
