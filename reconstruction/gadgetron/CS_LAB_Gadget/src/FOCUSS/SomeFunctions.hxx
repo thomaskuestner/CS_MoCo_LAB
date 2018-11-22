@@ -235,11 +235,9 @@ namespace Gadgetron
 		result.create(y,z);
 
 		// fill output
-		T* PtrIn = Array.get_data_ptr();
-		T* PtrOut= result.get_data_ptr();
 		for (size_t iy = iBorderY_Lower; iy <= iBorderY_Upper; iy++) {
 			for(size_t iz = iBorderZ_Lower; iz <= iBorderZ_Upper; iz++) {
-				PtrOut[(iy-iBorderY_Lower)+(iz-iBorderZ_Lower)*y] = PtrIn[iy + iz*dims[0] + iCenterX*dims[0]*dims[1]];
+				result.at((iy-iBorderY_Lower)+(iz-iBorderZ_Lower)*y) = Array.at(iy + iz*dims[0] + iCenterX*dims[0]*dims[1]);
 			}
 		}
 
@@ -279,7 +277,7 @@ namespace Gadgetron
 	inline bool fAllZero(const hoNDArray<bool> &Array)
 	{
 		bool isAllZero = true;
-		bool *PtrIn = Array.get_data_ptr();
+		const bool *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != false) {
@@ -294,7 +292,7 @@ namespace Gadgetron
 	inline bool fAllZero(const hoNDArray<std::complex<float> > &Array)
 	{
 		bool isAllZero = true;
-		std::complex<float> *PtrIn = Array.get_data_ptr();
+		const std::complex<float> *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] != std::complex<float>(0, 0)) {
@@ -309,7 +307,7 @@ namespace Gadgetron
 	// function, which checks if all elements are one (bool)
 	inline bool fAllOne(const hoNDArray<bool> &Array)
 	{
-		bool *PtrIn = Array.get_data_ptr();
+		const bool *PtrIn = Array.get_data_ptr();
 
 		for (size_t i = 0; i < Array.get_number_of_elements(); i++) {
 			if (PtrIn[i] == false) {
@@ -1547,5 +1545,45 @@ namespace Gadgetron
 		// calculate needed RAM in GiB
 		int needed_ram = (m * bytes_per_element)/std::pow(1024, 3);
 		GERROR("Not enough RAM to calculate! You need at least %dGiB of RAM.\n", needed_ram);
+	}
+
+	size_t get_number_of_gates(const int storage, const int phase_type)
+	{
+		return (storage >> (8*phase_type)) & 0xFF;
+	}
+
+	void set_number_of_gates(int &storage, const int phase_type, const size_t phase_value)
+	{
+		// delete existing value if necessary
+		storage &= ~(0xFF << (8*phase_type));
+
+		// set new value
+		storage |= (phase_value & 0xFF) << (8*phase_type);
+	}
+
+	template <typename T>
+	void remove_signal_bias(std::vector<T> &signal)
+	{
+		// Calculate sum and mean
+		// WARNING: static_cast ist needed. If e.g. T=float (likely) and 0 is int, wrong results occur!
+		float sum = std::accumulate(std::begin(signal), std::end(signal), static_cast<T>(0), std::plus<T>());
+		float mean = sum/static_cast<float>(signal.size());
+
+		if (std::abs(mean) > 1e-4) {
+			// decrement signal by mean
+			std::transform(std::begin(signal), std::end(signal), std::begin(signal), bind2nd(std::minus<T>(), mean));
+		}
+	}
+
+	template <typename T>
+	int sgn(T value)
+	{
+		if (value < 0) {
+			return -1;
+		} else if (value > 0) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 }

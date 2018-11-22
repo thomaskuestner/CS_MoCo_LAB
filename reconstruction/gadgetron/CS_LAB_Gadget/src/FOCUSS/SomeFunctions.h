@@ -170,6 +170,39 @@ namespace Gadgetron
 	*/
 	template <typename T>
 	void print_not_enough_ram_msg(const std::vector<T> &sizes, const int bytes_per_element);
+
+	/**
+	 * @brief Function to read number of gates out of integer.
+	 *
+	 * @param storage Integer where the information is stored.
+	 * @param phase_type Type of phase (0=respiratory, 1=cardiac)
+	 */
+	inline size_t get_number_of_gates(const int storage, const int phase_type);
+
+	/**
+	 * @brief Function to write number of gates out of integer.
+	 *
+	 * @param storage Pointer to an integer where the information is stored.
+	 * @param phase_type Type of phase (0=respiratory, 1=cardiac)
+	 * @param phase_value Value which should be written in storage.
+	 */
+	inline void set_number_of_gates(int &storage, const int phase_type, const size_t phase_value);
+
+	/**
+	 * @brief Function to remove a bias from a signal
+	 *
+	 * @param signal vector containing the signal
+	 */
+	template <typename T>
+	void remove_signal_bias(std::vector<T> &signal);
+
+	/**
+	 * @brief Implementation of the signum function
+	 *
+	 * @param value the value where the sign is taken into account.
+	 */
+	template <typename T>
+	inline int sgn(T value);
 }
 
 #include "SomeFunctions.hxx"

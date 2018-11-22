@@ -43,7 +43,7 @@ namespace Gadgetron {
 		int iEchoPartition_ = 0;
 
 		// number of phases
-		int iNPhases_ = 0;
+		int respiratory_phases_ = 0, cardiac_phases_ = 0;
 
 		// Compressed Sensing variables
 		int iESPReSSoDirection_ = 0;
@@ -67,23 +67,38 @@ namespace Gadgetron {
 		int process(GadgetContainerMessage<ISMRMRD::AcquisitionHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 	private:
-		bool is_content_dataset(ISMRMRD::AcquisitionHeader &header)
+		bool is_image_dataset(ISMRMRD::AcquisitionHeader &header)
 		{
-			return header.idx.set == 0;
+			// if sample length is > 20, then it is image data
+			return header.number_of_samples > 20;
 		}
 
 		bool is_navigator_dataset(ISMRMRD::AcquisitionHeader &header)
 		{
-			return header.idx.set == 1;
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 0));
+		}
+
+		bool is_belt_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 1));
+		}
+
+		bool is_ecg_dataset(ISMRMRD::AcquisitionHeader &header)
+		{
+			// set loop counter is binary encoded
+			return is_image_dataset(header) && (header.idx.set & (1 << 2));
 		}
 
 		bool process_data(void);
 
-	public:
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
 		GADGET_PROPERTY(NavPeriod, int, "NavPeriod", 0);
 		GADGET_PROPERTY(NavPERes, int, "NavPERes", 0);
-		GADGET_PROPERTY(Phases, int, "Phases", 1);
+		GADGET_PROPERTY(RespiratoryPhases, int, "RespiratoryPhases", 1);
+		GADGET_PROPERTY(CardiacPhases, int, "CardiacPhases", 1);
 #endif
 	};
 } // close namespace Gadgetron

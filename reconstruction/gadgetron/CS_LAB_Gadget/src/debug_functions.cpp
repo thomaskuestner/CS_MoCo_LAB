@@ -191,23 +191,23 @@ void Gadgetron::print_non_zero_elements(const hoNDArray<std::complex<float> > &a
 	counter++;
 }
 
-void Gadgetron::print_vector(const std::vector<float> &v)
+void Gadgetron::print_vector(const std::string &file_name, const std::vector<float> &v)
 {
 	std::ofstream file_out;
-	file_out.open("/tmp/vector_out.txt");
+	file_out.open(file_name);
 
-	for (std::vector<float>::const_iterator i = v.begin(); i != v.end(); ++i) {
+	for (auto i = v.begin(); i != v.end(); ++i) {
 		file_out << *i << std::endl;
 	}
 
 	file_out.close();
 }
 
-void Gadgetron::load_vector(std::vector<float> &v)
+void Gadgetron::load_vector(const std::string &file_name, std::vector<float> &v)
 {
 	v.clear();
 
-	std::ifstream file_in("/tmp/vector_in.txt");
+	std::ifstream file_in(file_name);
 
 	float value;
 	while (file_in >> value) {

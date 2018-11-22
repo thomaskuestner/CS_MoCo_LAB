@@ -1,10 +1,10 @@
 ﻿/*
-file name	:	CS_Retro.cpp
+file name	:	CS_Retro_AccumulatorGadget.cpp
 author		:	Martin Schwartz	(martin.schwartz@med.uni-tuebingen.de)
 version		:	v1.0
 date		:	08.02.2015
 description	:
-references	:	 AccumulatorGadget.cpp (origial Gadgetron - mri_core project)
+references	:	AccumulatorGadget.cpp (origial Gadgetron - mri_core project)
 changes		:
 */
 
@@ -97,11 +97,13 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
 	GlobalVar::instance()->iNavPeriod_			= NavPeriod.value();
 	GlobalVar::instance()->iNavPERes_			= NavPERes.value();
-	iNPhases_									= Phases.value();
+	respiratory_phases_							= RespiratoryPhases.value();
+	cardiac_phases_								= CardiacPhases.value();
 #else
 	GlobalVar::instance()->iNavPeriod_			= *(get_int_value("NavPeriod").get());
 	GlobalVar::instance()->iNavPERes_			= *(get_int_value("NavPERes").get());
-	iNPhases_									= *(get_int_value("Phases").get());
+	respiratory_phases_							= *(get_int_value("RespiratoryPhases").get());
+	cardiac_phases_								= *(get_int_value("CardiacPhases").get());
 #endif
 
 	int iESPReSSoY = 0;
@@ -150,12 +152,16 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					GlobalVar::instance()->iNavPeriod_ = i->value;
 				} else if (i->name == "NavPERes") {
 					GlobalVar::instance()->iNavPERes_ = i->value;
-				} else if (i->name == "Phases") {
-					iNPhases_ = i->value;
+				} else if (i->name == "RespiratoryPhases") {
+					respiratory_phases_ = i->value;
+				} else if (i->name == "CardiacPhases") {
+					cardiac_phases_ = i->value;
 				} else if (i->name == "PopulationMode") {
 					GlobalVar::instance()->iPopulationMode_ = i->value;
-				} else if (i->name == "GatingMode") {
-					GlobalVar::instance()->iGatingMode_ = i->value;
+				} else if (i->name == "CardiacGatingMode") {
+					GlobalVar::instance()->cardiac_gating_mode_ = i->value;
+				} else if (i->name == "RespiratoryGatingMode") {
+					GlobalVar::instance()->respiratory_gating_mode_ = i->value;
 				}
 			}
 
@@ -209,12 +215,16 @@ int CS_Retro_AccumulatorGadget::process_config(ACE_Message_Block *mb)
 					GlobalVar::instance()->iNavPeriod_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"NavPERes") == 0) {
 					GlobalVar::instance()->iNavPERes_ = i->value();
-				} else if (std::strcmp(i->name().c_str(),"Phases") == 0) {
-					iNPhases_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"RespiratoryPhases") == 0) {
+					respiratory_phases_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"CardiacPhases") == 0) {
+					cardiac_phases_ = i->value();
 				} else if (std::strcmp(i->name().c_str(),"PopulationMode") == 0) {
 					GlobalVar::instance()->iPopulationMode_ = i->value();
-				} else if (std::strcmp(i->name().c_str(),"GatingMode") == 0) {
-					GlobalVar::instance()->iGatingMode_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"CardiacGatingMode") == 0) {
+					GlobalVar::instance()->cardiac_gating_mode_ = i->value();
+				} else if (std::strcmp(i->name().c_str(),"RespiratoryGatingMode") == 0) {
+					GlobalVar::instance()->respiratory_gating_mode_ = i->value();
 				}
 			}
 
@@ -352,10 +362,16 @@ int CS_Retro_AccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::Acquisit
 	const uint32_t current_scan = m1->getObjectPtr()->scan_counter-1;
 
 	// only handle correct measurements (data and navigator), otherwise some strange things can occur (lengths are probably not the same)
-	if (!(is_content_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
-		GDEBUG("Reject scan with idx.set=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, current_scan);
+	if (!(is_image_dataset(*m1->getObjectPtr()) || is_navigator_dataset(*m1->getObjectPtr()))) {
+		GDEBUG("Reject scan with idx.set=%d, samples=%d, scan no. %d\n", m1->getObjectPtr()->idx.set, m1->getObjectPtr()->number_of_samples, current_scan);
 		m1->release();
 
+		return GADGET_OK;
+	}
+
+	// ignore belt signal for now
+	if (is_belt_dataset(*m1->getObjectPtr())) {
+		m1->release();
 		return GADGET_OK;
 	}
 
@@ -455,7 +471,9 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 
 	// initialize flags
 	tmp_m1->getObjectPtr()->flags				= 0;
-	tmp_m1->getObjectPtr()->user_int[0]			= iNPhases_;
+	// stores different phases (cardiac, respiratory) in one integer using different nibbles. Only access variable by provided functions!
+	set_number_of_gates(tmp_m1->getObjectPtr()->user_int[0], 0, respiratory_phases_);
+	set_number_of_gates(tmp_m1->getObjectPtr()->user_int[0], 1, cardiac_phases_);
 	tmp_m1->getObjectPtr()->user_int[1]			= iBodyRegion_;
 	tmp_m1->getObjectPtr()->user_int[2]			= iSamplingType_;
 	tmp_m1->getObjectPtr()->user_int[3]			= iVDMap_;
@@ -508,7 +526,7 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 	}
 
 	// delete header - it is not needed anymore
-	acq_header_->cont(NULL);	// only increse header, not the data. THIS IS IMPORTANT!
+	acq_header_->cont(NULL);	// only release header, not the data. THIS IS IMPORTANT!
 	acq_header_->release();
 	acq_header_ = NULL;
 

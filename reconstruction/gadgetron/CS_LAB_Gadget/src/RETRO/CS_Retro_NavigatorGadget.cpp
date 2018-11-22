@@ -95,13 +95,28 @@ int CS_Retro_NavigatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeade
 		return GADGET_FAIL;
 	}
 
-	GadgetContainerMessage<hoNDArray<float> > *tmp_m2 = new GadgetContainerMessage<hoNDArray<float> >();
-	tmp_m2->getObjectPtr()->create(vNavInt_.size());
+	// update cardiac gates to 1 if no signal is present
+	if (navigator_card_interpolated_.size() == 0) {
+		set_number_of_gates(m1->getObjectPtr()->user_int[0], 1, 1);
+	}
 
-	// convert vector to array
+	// equalize vector lengths (zero-padding)
+	while (navigator_card_interpolated_.size() < navigator_resp_interpolated_.size()) {
+		navigator_card_interpolated_.push_back(0);
+	}
+	while (navigator_resp_interpolated_.size() < navigator_card_interpolated_.size()) {
+		navigator_resp_interpolated_.push_back(0);
+	}
+
+	// achieve message format [respiratory navigator, cardiac navigator]
+	GadgetContainerMessage<hoNDArray<float> > *tmp_m2 = new GadgetContainerMessage<hoNDArray<float> >();
+	tmp_m2->getObjectPtr()->create(navigator_resp_interpolated_.size(), 2);
+
+	// copy data to array (resp, card, resp, card,... - therefore Indices 2*iI [+1]
 	float *fPtr = tmp_m2->getObjectPtr()->get_data_ptr();
-	for (size_t iI = 0; iI < vNavInt_.size(); iI++) {
-		fPtr[iI] = vNavInt_.at(iI);
+	for (size_t iI = 0; iI < navigator_resp_interpolated_.size(); iI++) {
+		fPtr[2*iI] = navigator_resp_interpolated_.at(iI);
+		fPtr[2*iI+1] = navigator_card_interpolated_.at(iI);
 	}
 
 	m1->cont(tmp_m2);
@@ -232,6 +247,11 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	int iMaxIndex = amax(&aPowerAcrossChan);
 
 	GINFO("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
+
+	if (iMaxIndex < 20) {
+		GWARN("iMaxIndex=%d < 20! It is set to 20 to be able to perform further computing. Errors may occur.\n", iMaxIndex);
+		iMaxIndex = 20;
+	}
 
 	if ((iMaxIndex < 20) || (iMaxIndex > static_cast<int>(aPowerInChan.get_size(0))-20)) {
 		GERROR("Error: iMaxIndex out of bounds..\n");
@@ -533,9 +553,9 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		vIdx.push_back(i);
 	}
 
-	vNav_.clear();
+	std::vector<float> navigator_resp;
 	for (size_t i = 0; i < aRefImg.get_size(1); i++) {
-		vNav_.push_back(0);
+		navigator_resp.push_back(0);
 	}
 
 	hoNDArray<float> aRMSImg;
@@ -653,11 +673,11 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		int iMinVal = amin(&aRMSImg);
 
 		//MATLAB: dDisplacement + 1 - dNav(i)
-		vNav_.at(i) = iDisplacement - iMinVal;
+		navigator_resp.at(i) = iDisplacement - iMinVal;
 
 		//MATLAB: circshift(dSOSImg(:,idx(i)), dNav(i))
 		hoNDArray<float> aTmp3 = aTmp;
-		circshift(aTmp3, vNav_.at(i), 0);
+		circshift(aTmp3, navigator_resp.at(i), 0);
 
 		if (i%20 == 0) {
 			GINFO("Getting Navigator - %.1f %%\n", static_cast<float>(aRefImg.get_size(1)-2-i)/static_cast<float>(aRefImg.get_size(1)-2)*100);
@@ -667,39 +687,39 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		memcpy(aRefImg.get_data_ptr()+vIdx.at(i)*aRefImg.get_size(0), aTmp3.get_data_ptr(), sizeof(float)*aTmp3.get_size(0));
 	}
 
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) *= -1;
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) *= -1;
 	}
 
 	// get Gaussian filter kernel and calculate convolution with navigator data
 	vGaussian.clear();
 	filter1DGaussian(vGaussian, 5);
-	vectorConv(vNav_, vGaussian, 0);
+	vectorConv(navigator_resp, vGaussian, 0);
 
 	//-------------------------------------------------------------------------
 	// interpolate navigator data signal to TR intervals
 	GINFO("interpolation of navigator data to TR intervals..\n");
 
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) = -vNav_.at(i);
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) = -navigator_resp.at(i);
 	}
 
-	int iMin = std::min_element(vNav_.begin(), vNav_.end())-vNav_.begin();
-	float fMin = vNav_.at(iMin);
-	for (size_t i = 0; i < vNav_.size(); i++) {
-		vNav_.at(i) -= fMin;
+	int iMin = std::min_element(navigator_resp.begin(), navigator_resp.end())-navigator_resp.begin();
+	float fMin = navigator_resp.at(iMin);
+	for (size_t i = 0; i < navigator_resp.size(); i++) {
+		navigator_resp.at(i) -= fMin;
 	}
 
-	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	// build vector with elements 0..lNoScans_ to interpolate navigator_resp_interpolated_ below
 	std::vector<float> vNavIndNew;
 	for (long i = 0; i < lNoScans_; i++) {
 		vNavIndNew.push_back(i);
 	}
 
-	GDEBUG("vNavInd size: %i, vNav_ size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), vNav_.size(), vNavIndNew.size());
+	GDEBUG("vNavInd size: %i, navigator_resp size: %i, vNavIndNew size: %i\n", GlobalVar::instance()->vNavInd_.size(), navigator_resp.size(), vNavIndNew.size());
 
 	std::vector<float> vNavInd = GlobalVar::instance()->vNavInd_;
-	vNavInt_ = interp1<float>(vNavInd, vNav_, vNavIndNew);
+	navigator_resp_interpolated_ = interp1<float>(vNavInd, navigator_resp, vNavIndNew);
 
 	return;
 }
@@ -804,12 +824,12 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// calculate lower and upper boundary frequency
 	// Note: we only need the floor() value, so we build it directly instead of later on.
 	//%Fl = dFactorfft/dFs * dCutOffResp(1);
-	const unsigned int f_l = std::floor(factor_fft/f_s * min_resp_freq_);
+	const unsigned int resp_f_l = std::floor(factor_fft/f_s * min_resp_freq_);
 	//%Fu = dFactorfft/dFs * dCutOffResp(2);
-	const unsigned int f_u = std::floor(factor_fft/f_s * max_resp_freq_);
+	const unsigned int resp_f_u = std::floor(factor_fft/f_s * max_resp_freq_);
 
-	if (f_u <= f_l) {
-		GERROR("f_u (=%d) must be greater than f_l (=%d). Please set parameters correct!\n", f_u, f_l);
+	if (resp_f_u <= resp_f_l) {
+		GERROR("resp_f_u (=%d) must be greater than resp_f_l (=%d). Please set parameters correct!\n", resp_f_u, resp_f_l);
 		throw runtime_error("Illegal parameters min_resp_freq_ or max_resp_freq_!");
 	}
 
@@ -818,7 +838,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// or we do some intelligent data handling to get the position directly:
 	float max_val = std::numeric_limits<float>::min();		// initialize as minimum (it could also be 0 because coeff_abs only contains abs values)
 	size_t peak_position = 0;		// note: -1 is insufficient because size_t is unsigned, so pos is max. But we will rewrite max_val either.
-	for (size_t f = static_cast<size_t>(f_l); f <= static_cast<size_t>(f_u); f++) {
+	for (size_t f = static_cast<size_t>(resp_f_l); f <= static_cast<size_t>(resp_f_u); f++) {
 		for (size_t component_number = search_range_min_-1; component_number < search_range_max_; component_number++) {		// be aware: search_range counts MATLAB like (from 1 to length)
 			size_t pos = component_number * coeff_abs.get_size(0) + f;
 
@@ -854,7 +874,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	// Note: Matlab implementation: %dRespNavi = -dRespNavi;
 	// is implicitly done during KLT and can be omitted here
 
-	// build vector with elements 0..lNoScans_ to interpolate vNavInt_ below
+	// build vector with elements 0..lNoScans_ to interpolate navigator_resp_interpolated_ below
 	std::vector<float> nav_ind_new;
 	for (long i = 0; i < lNoScans_; i++) {
 		nav_ind_new.push_back(i);
@@ -866,17 +886,79 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	GDEBUG("nav_ind size: %i, resp_navi size: %i, nav_ind_new size: %i\n", nav_ind.size(), resp_navi.size(), nav_ind_new.size());
 
 	// interpolate to output vector
-	vNavInt_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
+	navigator_resp_interpolated_ = interp1<float>(nav_ind, resp_navi, nav_ind_new);
 
-	return;
+	// 4. Step: search for cardiac motion
+	//%Fl = dFactorfft/dFs * dCutOffCard(1);
+	const unsigned int card_f_l = std::floor(factor_fft/f_s * min_card_freq_);
+	//%Fu = dFactorfft/dFs * dCutOffCard(2);
+	const unsigned int card_f_u = std::floor(factor_fft/f_s * max_card_freq_);
+
+	if (card_f_u <= card_f_l) {
+		GERROR("card_f_u (=%d) must be greater than card_f_l (=%d). Please set parameters correct!\n", card_f_u, card_f_l);
+		throw runtime_error("Illegal parameters min_resp_freq_ or max_resp_freq_!");
+	}
+
+	// now get iPeak (dVal can be omitted). iPeak is the column number where the maximum value occures.
+	// we could either implement it the Matlab way (crop hoNDArray, search max value per line and max col position)
+	// or we do some intelligent data handling to get the position directly:
+	max_val = std::numeric_limits<float>::min();		// initialize as minimum (it could also be 0 because coeff_abs only contains abs values)
+	peak_position = 0;		// note: -1 is insufficient because size_t is unsigned, so pos is max. But we will rewrite max_val either.
+	for (size_t f = static_cast<size_t>(card_f_l); f <= static_cast<size_t>(card_f_u); f++) {
+		for (size_t component_number = search_range_min_-1; component_number < search_range_max_; component_number++) {		// be aware: search_range counts MATLAB like (from 1 to length)
+			size_t pos = component_number * coeff_abs.get_size(0) + f;
+
+			if (max_val < coeff_abs.at(pos)) {
+				max_val = coeff_abs.at(pos);
+				peak_position = component_number;
+			}
+		}
+	}
+
+	// now extract navi signal
+	//%dCardNavi = real(dCoeff(:,iPeak)) - imag(dCoeff(:,iPeak));
+	for (size_t f = 0; f < coeff.get_size(0); f++) {
+		size_t pos = peak_position * coeff.get_size(0) + f;
+		navigator_card_interpolated_.push_back(coeff.at(pos).real() - coeff.at(pos).imag());
+	}
+
+	// interpolate signal
+	//%dCardNavi = interp1(0:dNavPeriod:dNavPeriod*(size(dCoeff,1)-1), dCardNavi, 0:dTR:dTR*(length(iLC)-1), 'pchip');
+	// first build new interpolation indices
+	nav_ind.clear();
+	nav_ind_new.clear();
+	for (unsigned int i = 0; i < GlobalVar::instance()->iNavPeriod_*(coeff.get_size(0)-1); i += GlobalVar::instance()->iNavPeriod_) {
+		nav_ind.push_back(i);
+	}
+	for (int counter = 0; counter < lNoScans_; counter++) {
+		nav_ind_new.push_back(counter*GlobalVar::instance()->fTR_);
+	}
+	navigator_card_interpolated_ = interp1<float>(nav_ind, navigator_card_interpolated_, nav_ind_new);
+
+	// change f_s
+	//%dFs = 1./(dTR/1000); % now interpolated to TR level
+	f_s = 1.0f/(GlobalVar::instance()->fTR_/1000);
+
+	// butterworth filtering
+	// % smoothing and R-peak detection
+	//%[b,a] = fButterself(dCutOffCard(1)/(dFs/2), dCutOffCard(2)/(dFs/2));
+	//%dCardNavi = FiltFiltSelf(b,a,double(dCardNavi));
+	butterworth_filtering(min_card_freq_/(f_s/2.0f), max_card_freq_/(f_s/2.0f), navigator_card_interpolated_);
+
+	//%dCardNavi = diff(dCardNavi); % search R-peak and differential signal
+	navigator_card_interpolated_ = arma::conv_to<std::vector<float> >::from(arma::diff(arma::Col<float>(navigator_card_interpolated_)));
+
+	//%dECGInt_ms = (dCardNavi-min(dCardNavi(floor(length(dCardNavi)/10):floor(length(dCardNavi)*8/10))))/(max(dCardNavi(floor(length(dCardNavi)/10):floor(length(dCardNavi)*8/10)))-min(dCardNavi(floor(length(dCardNavi)/10):floor(length(dCardNavi)*8/10))));
+	// first get correction factors
+	float factor_subtract	= *std::min_element(std::begin(navigator_card_interpolated_)+(navigator_card_interpolated_.size()/10), std::begin(navigator_card_interpolated_)+(navigator_card_interpolated_.size()*8/10));	// note: integer divisions ensure std::floor()
+	float factor_divide		= *std::max_element(std::begin(navigator_card_interpolated_)+(navigator_card_interpolated_.size()/10), std::begin(navigator_card_interpolated_)+(navigator_card_interpolated_.size()*8/10)) - factor_subtract;
+
+	// apply factors
+	for (size_t i = 0; i < navigator_card_interpolated_.size(); i++) {
+		navigator_card_interpolated_.at(i) = (navigator_card_interpolated_.at(i)-factor_subtract) / factor_divide;
+	}
 }
 
-/*
- * WARNING: This code has not been tested yet! You will have some fun trying to get it to work.
- * For more implementation details, you can look in the GIT history: CS_Retro_PCANavigatorGadget is you friend.
- * But beware: The code there is erroneous and has already been corrected (watch GIT history if you want to avoid doubled fun)
- * You may also refer to the Matlab implementation.
- */
 void CS_Retro_NavigatorGadget::butterworth_filtering(const double fl, const double fh, std::vector<float> &signal)
 {
 	// Filter the Signal with a first order butterworth filter

@@ -1703,18 +1703,6 @@ namespace Gadgetron
     template EXPORTCPUCOREMATH void asum( const hoNDArray< std::complex<float> >& x, float& r);
     template EXPORTCPUCOREMATH void asum( const hoNDArray< std::complex<double> >& x, double& r);
 
-    template<class T> typename realType<T>::Type asum(const hoNDArray<T>& x)
-    {
-        typename realType<T>::Type r;
-        asum(x, r);
-        return r;
-    }
-
-    template EXPORTCPUCOREMATH float asum( const hoNDArray<float>& x);
-    template EXPORTCPUCOREMATH double asum( const hoNDArray<double>& x);
-    template EXPORTCPUCOREMATH float asum( const hoNDArray< std::complex<float> >& x);
-    template EXPORTCPUCOREMATH double asum( const hoNDArray< std::complex<double> >& x);
-
     // --------------------------------------------------------------------------------
 
     inline size_t amax(size_t N, const float* x)
@@ -1748,16 +1736,6 @@ namespace Gadgetron
 
         return izamax_(&num, (lapack_complex_double*)(x), &incx);
     }
-
-    template<class T> size_t amax(const hoNDArray<T>& x)
-    {
-        return amax(x.get_number_of_elements(), x.begin());
-    }
-
-    template EXPORTCPUCOREMATH size_t amax( const hoNDArray<float>& x);
-    template EXPORTCPUCOREMATH size_t amax( const hoNDArray<double>& x);
-    template EXPORTCPUCOREMATH size_t amax( const hoNDArray< std::complex<float> >& x);
-    template EXPORTCPUCOREMATH size_t amax( const hoNDArray< std::complex<double> >& x);
 
     // --------------------------------------------------------------------------------
 

@@ -31,7 +31,7 @@ int ImageAccumulatorGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 		vtDimensions_.push_back(m1->getObjectPtr()->matrix_size[2]);
 
 		// extend dimensions by number of phases
-		vtDimensions_.push_back(m1->getObjectPtr()->user_int[0]);
+		vtDimensions_.push_back(get_number_of_gates(m1->getObjectPtr()->user_int[0], 0));
 		for (size_t iI = 0; iI < vtDimensions_.size(); iI++) {
 			GDEBUG("image size - %i: %i\n", iI, vtDimensions_.at(iI));
 		}

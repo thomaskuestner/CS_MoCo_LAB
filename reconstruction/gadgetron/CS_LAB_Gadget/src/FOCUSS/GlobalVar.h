@@ -75,7 +75,7 @@ namespace Gadgetron
 		bool bESPRActiveCS_;		// using ESPReSSo constraint for non-ESPReSSo acquisitions
 
 		// Retro Vars
-		int iGatingMode_;			// Gating mode (0: percentile, 1: kMeans)
+		int cardiac_gating_mode_, respiratory_gating_mode_;		// Gating mode (0: percentile, 1: kMeans)
 		unsigned int iNavPERes_;
 		int iNavPeriod_;
 		int iPopulationMode_;		// mode for k-space population (0: closes, 1: average, 2: collect)

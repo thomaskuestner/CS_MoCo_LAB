@@ -44,8 +44,18 @@ namespace Gadgetron {
 		// unordered k-space
 		hoNDArray<std::complex<float> > hacfKSpace_unordered_;
 
-		// number of channels
-		int iNoChannels_;
+		// center mask
+		hoNDArray<bool> mask_center_;
+
+		// samples to fill center
+		hoNDArray<std::complex<float> > center_samples_;
+
+		// parameters for center mask
+		float low_res_vs_;			//% low-resolution view-sharing [0,1] (0: none, 1: use complete fully sampled center)
+		bool omit_center_vs_;		//% omit DC component (1D navigator) to be shared amongst all motion states
+
+		// R peak detection algorithm
+		unsigned int rpeak_detection_algorithm_;
 
 		// echo in k-space line
 		int iEchoLine_;
@@ -54,16 +64,17 @@ namespace Gadgetron {
 		int iEchoPartition_;
 
 		// vector containing the tolerance values
-		std::vector<float> vTolerance_;
+		std::vector<float> respiratory_tolerance_vector_;
 
 		// tolerance/blending factor
-		float fTolerance_;
+		float cardiac_tolerance_parameter_, respiratory_tolerance_parameter_;
 
 		// navigator signal
-		std::vector<float> vNavInt_;
+		std::vector<float> navigator_card_interpolated_, navigator_resp_interpolated_;
 
 		// centroids of gates
-		std::vector<float> vfCentroids_;
+		std::vector<float> respiratory_centroids_;
+		std::vector<unsigned int> cardiac_gates_;
 
 	public:
 		CS_Retro_PopulationGadget();
@@ -77,21 +88,43 @@ namespace Gadgetron {
 
 	private:
 		bool fDiscard();
-		bool fCalcCentroids(int iNoGates);
-		bool fPopulatekSpace(int iNoGates);
-		void calculate_weights(std::vector<float> &weights, const int population_mode, const int phase);
+		bool get_cardiac_gates(const unsigned int cardiac_gate_count, const float f_s);
+		bool get_respiratory_gates(const unsigned int respiratory_gate_count);
+		bool fPopulatekSpace(const unsigned int cardiac_gate_count, const unsigned int respiratory_gate_count);
+		std::vector<float> calculate_weights(const unsigned int phase);
+
+		template <typename T>
+		void discard_empty_elements_from_back(std::vector<T> &v) {
+			while (v.size() > 0 && v.at(v.size()-1) == 0) {
+				v.pop_back();
+			}
+		}
 
 		/**
 		* @brief returns populated data as hoNDArray via first argument. Dimensions: [RX Channels] (e.g. [256 10])
+		* @param indices The indices of the interesting data
+		* @param centroid_distances Distances of respiratory phase centroid
+		* @param cardiac_gate_count Number of cardiac gates
+		* @param line Ky in which the data should be copied (important for view sharing)
+		* @param partition Kz in which the data should be copied (important for view sharing)
+		* @param respiratory_phase The respiratory phase the data is populated for
 		*/
-		void get_populated_data(hoNDArray<std::complex<float> > &populated_data, const int population_mode, const hoNDArray<std::complex<float> > &unordered, const std::vector<size_t> &indices, const std::vector<float> &centroid_distances);
+		hoNDArray<std::complex<float> > get_populated_data(const std::vector<size_t> &indices, const std::vector<float> &centroid_distances, const unsigned int cardiac_gate_count, const unsigned int line, const unsigned int partition, const unsigned int respiratory_phase);
 
-	public:
+		template <typename T> void remove_high_peaks(std::vector<T> &signal);
+		template <typename T> void search_peaks(const std::vector<T> &signal, std::vector<size_t> &x_pos);
+
 #ifdef __GADGETRON_VERSION_HIGHER_3_6__
+	public:
 		// declare gadget properties
 		GADGET_PROPERTY(PopulationMode, int, "PopulationMode", 0);
-		GADGET_PROPERTY(GatingMode, int, "GatingMode", 0);
-		GADGET_PROPERTY(Tolerance, float, "Tolerance", 1.0);
+		GADGET_PROPERTY(CardiacGatingMode, int, "CardiacGatingMode", 0);
+		GADGET_PROPERTY(RespiratoryGatingMode, int, "RespiratoryGatingMode", 0);
+		GADGET_PROPERTY(RPeakDetection, int, "RPeakDetection", 0);
+		GADGET_PROPERTY(CardiacTolerance, float, "CardiacTolerance", 1.0);
+		GADGET_PROPERTY(RespiratoryTolerance, float, "RespiratoryTolerance", 1.0);
+		GADGET_PROPERTY(LowResVS, float, "LowResVS", 0.0);
+		GADGET_PROPERTY(OmitCenterVS, int, "OmitCenterVS", 0);
 #endif
 	};
 } // close namespace Gadgetron

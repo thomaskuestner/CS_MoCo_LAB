@@ -35,20 +35,26 @@ int LAPRegistrationGadget::process_config(ACE_Message_Block *mb)
 
 int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<float> > *m2)
 {
-	// create dimension variables
-	// first image is fixed image (end-exhale position) all other images declared to be moving images
-	std::vector<size_t> dimensions = *m2->getObjectPtr()->get_dimensions();
+	// create references for easier usage
+	const hoNDArray<float> &data = *m2->getObjectPtr();
+	std::vector<size_t> dimensions = *data.get_dimensions();
 
-	// last dimension is number of images
-	size_t number_of_images = dimensions.at(dimensions.size()-1);
+	// determine number of gate dimensions
+	const size_t number_of_gate_dimensions = data.get_number_of_dimensions() > 3 ? data.get_number_of_dimensions()-3 : data.get_number_of_dimensions()-1;
+
+	// get gate dimensions
+	const std::vector<size_t> gate_dimensions(dimensions.end()-number_of_gate_dimensions, dimensions.end());
+
+	// determine number of images
+	const size_t number_of_images = std::accumulate(dimensions.end()-number_of_gate_dimensions, dimensions.end(), 1, std::multiplies<size_t>());
 
 	// other dimensions are dimension of one image
-	std::vector<size_t> dimensions_of_image(dimensions.begin(), dimensions.end()-1);
+	const std::vector<size_t> dimensions_of_image(dimensions.begin(), dimensions.end()-number_of_gate_dimensions);
 
 	// check for image dimensions
 	bool skip_registration = false;
-	if (dimensions_of_image.size() != 3) {
-		GWARN("Dataset does not contain a 3D image - Skip registration...\n");
+	if (dimensions_of_image.size() < 2 || dimensions_of_image.size() > 3) {
+		GWARN("Dataset does not contain 2D or 3D images - Skip registration...\n");
 		skip_registration = true;
 	} else if (number_of_images <= 1) {
 		GWARN("There must be at least to images to register them - Skip registration...\n");
@@ -73,27 +79,24 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	ss << number_of_images;
 	GDEBUG("%s\n", ss.str().c_str());
 
-	// multiply all other elements in vector (will be number of pixels in one image)
-	const size_t cuiNumberOfPixels = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>());
-
-	float *pfDataset = m2->getObjectPtr()->get_data_ptr();
-
 	// get fixed image from dataset
-	hoNDArray<float> fFixedImage(dimensions_of_image, pfDataset, false);
+	std::vector<size_t> fixed_image_dimensions = dimensions_of_image;
+	const hoNDArray<float> fixed_image(fixed_image_dimensions, const_cast<float*>(data.get_data_ptr()), false);
 
 	// create registered (output) image
-	std::vector<size_t> new_reg_image_dim = *m2->getObjectPtr()->get_dimensions();
-	hoNDArray<float> fRegisteredImage(&new_reg_image_dim);
-	memcpy(fRegisteredImage.get_data_ptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+	hoNDArray<float> output_image(*data.get_dimensions());
+	memcpy(output_image.get_data_ptr(), fixed_image.get_data_ptr(), fixed_image.get_number_of_bytes());
 
-	// create array for deformation field
-	new_reg_image_dim.at(new_reg_image_dim.size()-1) = (number_of_images - 1) * dimensions_of_image.size();	// images for deformation fields (images - fixedImage) * dimensions per image (2D/3D)
-	hoNDArray<float> output_deformation_field(&new_reg_image_dim);
+	// create array for deformation field with dimensions [X Y Z CombinedPhases VectorComponents(2 or 3)]
+	std::vector<size_t> output_df_dimensions = dimensions_of_image;
+	output_df_dimensions.push_back(number_of_images - 1);
+	output_df_dimensions.push_back(dimensions_of_image.size());
+	hoNDArray<float> output_deformation_field(&output_df_dimensions);
 
 	CubeType cFixedImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
 	CubeType cMovingImage = Cube<float>(dimensions_of_image.at(0), dimensions_of_image.at(1), dimensions_of_image.at(2));
 
-	memcpy(cFixedImage.memptr(), fFixedImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+	memcpy(cFixedImage.memptr(), fixed_image.get_data_ptr(), fixed_image.get_number_of_bytes());
 
 	//Construct the LocalAllpass Algorithm Object with Level min and max
 	LAP3D mLAP3D(cFixedImage, cMovingImage, iLvlMin_, iLvlMax_);
@@ -102,16 +105,19 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	/* --------- loop over moving images and perform registration -------- */
 	/* ------------------------------------------------------------------- */
 	GINFO("Loop over moving images..\n");
-	// loop over respiration
+	// loop over gates
 // 	#pragma omp parallel for	// Parallelising here may work, but may also introduce errors. Check that before enabling!
-	for (size_t iState = 1; iState < number_of_images; iState++) {
-		GINFO("%i of %i ...\n", iState, number_of_images-1);
+	for (size_t calculated_images = 1; calculated_images < number_of_images; calculated_images++) {
+		GINFO("%i of %i ...\n", calculated_images, number_of_images-1);
+
+		// calculate offset for one single image
+		const size_t moving_image_offset = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>())*calculated_images;  // accumulate() := dimensions_of_image[0]*dimensions_of_image[1]*...
 
 		// crop moving image from 4D dataset
-		size_t tOffset = std::accumulate(std::begin(dimensions_of_image), std::end(dimensions_of_image), 1, std::multiplies<size_t>())*iState;	// accumulate() := dimensions_of_image[0]*dimensions_of_image[1]*...
-		hoNDArray<float> fMovingImage(dimensions_of_image, pfDataset + tOffset, false);
+		std::vector<size_t> moving_image_dimensions = dimensions_of_image;
+		hoNDArray<float> moving_image(moving_image_dimensions, const_cast<float*>(data.get_data_ptr()) + moving_image_offset, false);
 
-		memcpy(cMovingImage.memptr(), fMovingImage.get_data_ptr(), cuiNumberOfPixels*sizeof(float));
+		memcpy(cMovingImage.memptr(), moving_image.get_data_ptr(), moving_image.get_number_of_bytes());
 		mLAP3D.setMovingImage(cMovingImage);
 
 		// image registration
@@ -120,10 +126,13 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 		// save deformation fields
 		for (size_t i = 0; i < dimensions_of_image.size(); i++) {
 			// calculate offset
-			size_t def_field_offset = cuiNumberOfPixels * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
-				+ (iState - 1) * dimensions_of_image.size()	// jump to correct deformation field image position
-				+ i);										// select correct slot
-			memcpy(output_deformation_field.get_data_ptr()+def_field_offset, flow_estimation(i).memptr(), cuiNumberOfPixels*sizeof(float));
+			const size_t def_field_offset = moving_image.get_number_of_elements() * (	// all slots (4th dimension 3D images) have same size, so multiply it with position)
+				i * output_deformation_field.get_size(3)	// select correct vector component (X|Y[|Z])
+				+ (calculated_images - 1)	// select correct image
+			);
+
+			// copy image
+			memcpy(output_deformation_field.get_data_ptr()+def_field_offset, flow_estimation(i).memptr(), moving_image.get_number_of_bytes());
 		}
 
 		// get output image
@@ -132,7 +141,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 		CubeType cRegisteredImage = shifter.execCubicShift();
 
 		// copy image to new registered 4D image
-		memcpy(fRegisteredImage.get_data_ptr()+tOffset, cRegisteredImage.memptr(), cuiNumberOfPixels*sizeof(float));
+		memcpy(output_image.get_data_ptr()+moving_image_offset, cRegisteredImage.memptr(), moving_image.get_number_of_bytes());
 	}
 
 	// free memory
@@ -146,7 +155,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 
 	// create output
 	try {
-		cm2->getObjectPtr()->create(*fRegisteredImage.get_dimensions());
+		cm2->getObjectPtr()->create(*output_image.get_dimensions());
 	} catch (std::runtime_error &err) {
 		GEXCEPTION(err,"Unable to allocate new image array\n");
 		m1->release();
@@ -155,7 +164,7 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	}
 
 	// copy data
-	memcpy(cm2->getObjectPtr()->get_data_ptr(), fRegisteredImage.begin(), sizeof(float)*fRegisteredImage.get_number_of_elements());
+	memcpy(cm2->getObjectPtr()->get_data_ptr(), output_image.begin(), output_image.get_number_of_bytes());
 
 	// Now pass on image
 	if (this->next()->putq(m1) < 0) {
@@ -166,12 +175,6 @@ int LAPRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader> 
 	// copy header
 	GadgetContainerMessage<ISMRMRD::ImageHeader> *m1_df = new GadgetContainerMessage<ISMRMRD::ImageHeader>();
 	fCopyImageHeader(m1_df, m1->getObjectPtr());
-
-	// correct channels value for MRIImageWriter (last dimension of output array)
-	m1_df->getObjectPtr()->channels = output_deformation_field.get_size(output_deformation_field.get_number_of_dimensions()-1);
-
-	// set new image number
-	m1_df->getObjectPtr()->image_series_index = 1;
 
 	// new GadgetContainer
 	GadgetContainerMessage<hoNDArray<float> > *m2_df = new GadgetContainerMessage<hoNDArray<float> >();

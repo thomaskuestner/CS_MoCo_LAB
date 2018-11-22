@@ -24,6 +24,15 @@
 		<classname>RemoveROOversamplingGadget</classname>
 	</gadget>
 
+	<!-- Coil reduction for further processing -->
+	<gadget>
+		<name>CoilReduction</name>
+		<dll>gadgetron_mricore</dll>
+		<classname>CoilReductionGadget</classname>
+		<!-- Keep a max of 16 coils -->
+		<property><name>coils_out</name><value>16</value></property>
+	</gadget>
+
 	<!-- first try - normal AccumulatorGadget -->
 	<gadget>
 		<name>Accumulator</name>
@@ -31,7 +40,8 @@
 		<classname>CS_Retro_AccumulatorGadget</classname>
 		<property><name>NavPeriod</name><value>200</value></property>
 		<property><name>NavPERes</name><value>8</value></property>
-		<property><name>Phases</name><value>4</value></property>
+		<property><name>CardiacPhases</name><value>12</value></property>
+		<property><name>RespiratoryPhases</name><value>4</value></property>
 	</gadget>
 
 <!-- Calculate navigator signal - Choose either classical or PCA algorithm -->
@@ -75,18 +85,60 @@
 		<classname>CS_Retro_PopulationGadget</classname>
 
 		<property>
-			<!-- weighting tolerance factor -->
-			<name>Tolerance</name>
+			<!-- cardiac weighting tolerance factor -->
+			<name>CardiacTolerance</name>
 			<value>2.0</value>
 		</property>
 		<property>
-			<!-- 0: closest, 1: average (not impl.), 2: collect (not impl.), 3: gauss -->
+			<!-- respiratory weighting tolerance factor -->
+			<name>RespiratoryTolerance</name>
+			<value>2.0</value>
+		</property>
+		<property>
+			<!-- 0: closest, 1: average, 2: collect (not impl.), 3: gauss -->
 			<name>PopulationMode</name>
 			<value>0</value>
 		</property>
 		<property>
+			<!-- 0: PanTompkin, 1: Wavelet (not impl.), 2: WaveletPanTomp (not impl.) -->
+			<name>RPeakDetection</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- 0: linear, 1: diastole -->
+			<name>CardiacGatingMode</name>
+			<value>0</value>
+		</property>
+		<property>
 			<!-- 0: percentile, 1: k-means (not impl.) -->
-			<name>GatingMode</name>
+			<name>RespiratoryGatingMode</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- [0,1] (0: none, 1: use complete fully sampled center) -->
+			<name>LowResVS</name>
+			<value>0.5</value>
+		</property>
+		<property>
+			<!-- 0: False, 1: True -->
+			<name>OmitCenterVS</name>
+			<value>1</value>
+		</property>
+	</gadget>
+
+	<gadget>
+		<name>Splitter</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageSplitterGadget</classname>
+
+		<property>
+			<!-- Amout of simultaneous cardiac phases. 0 means all at once -->
+			<name>SimultaneousCardiacPhases</name>
+			<value>0</value>
+		</property>
+		<property>
+			<!-- Amout of simultaneous respiratory phases. 0 means all at once -->
+			<name>SimultaneousRespiratoryPhases</name>
 			<value>0</value>
 		</property>
 	</gadget>
@@ -129,7 +181,7 @@
 		<name>Combine</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_CombineGadget</classname>
-	</gadget>
+	</gadget>-->
 
 <!-- 	BART-Toolchain -->
 	<!-- Notes on CS_MRIImageToAcquisitionGadget -->
@@ -170,13 +222,17 @@
 		<property><name>BartCommandScript_name</name><value>CS_LAB_BART_Recon.sh</value></property>
 		<property><name>isBartFileBeingStored</name><value>false</value></property>
 		<property><name>image_series</name><value>0</value></property>
-		<property><name>isBartFolderBeingCachedToVM</name><value>false</value></property>
-		<property><name>AllocateMemorySizeInMegabytes</name><value>50</value></property>
 	</gadget>
 	<gadget>
 		<name>Post BART</name>
 		<dll>CS_LAB</dll>
 		<classname>CS_Retro_PostBARTGadget</classname>
+	</gadget>
+
+	<gadget>
+		<name>Combiner</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageCombinerGadget</classname>
 	</gadget>
 
 	<!-- extract components like (magnitude: 1, real: 2, imag: 4, phase:8 or combine: 9 for magnitude and phase) -->
@@ -225,6 +281,13 @@
 			<name>LvlMax</name>
 			<value>4</value>
 		</property>
+	</gadget>
+
+	<!-- brings the 5D image [x y z resp_phases card_phases] to a format which can be saved by Gadgetron -->
+	<gadget>
+		<name>ImageFormatForSaving</name>
+		<dll>CS_LAB</dll>
+		<classname>CS_Retro_ImageFormatForSavingGadget</classname>
 	</gadget>
 
 	<gadget>
