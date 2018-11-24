@@ -73,9 +73,9 @@ RUN	cd /opt/code \
 	&& make -j$(expr $(nproc) + 1) \
 	&& make install \
 	&& /opt/code/gadgetron/docker/manifest --key .io.gadgetron.gadgetron.sha1 --value `git rev-parse HEAD` \
-    && cp ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml.example ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml \
-    && cp /opt/code/gadgetron/docker/start_supervisor /opt/ \
-    && cp /opt/code/gadgetron/docker/supervisord.conf /opt/ \
+	&& cp ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml.example ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml \
+	&& cp /opt/code/gadgetron/docker/start_supervisor /opt/ \
+	&& cp /opt/code/gadgetron/docker/supervisord.conf /opt/ \
 	&& cd ../.. \
 	&& rm -rf gadgetron/build
 
