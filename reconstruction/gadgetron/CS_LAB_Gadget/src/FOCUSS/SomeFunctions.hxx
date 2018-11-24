@@ -441,7 +441,7 @@ namespace Gadgetron
 				}
 
 				vPermute.push_back(dimension);
-				NewTmpArray = *permute(&NewTmpArray, &vPermute,false);
+				NewTmpArray = permute(NewTmpArray, vPermute);
 
 				// create output array
 				std::vector<size_t> vNewDims = *NewTmpArray.get_dimensions();

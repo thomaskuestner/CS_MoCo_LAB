@@ -79,7 +79,7 @@ int CS_Retro_ImageSplitterGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 			// copy sub image
 			const vector_td<size_t, 6> crop_offset = { static_cast<size_t>(0), static_cast<size_t>(0), static_cast<size_t>(0), resp_phase*simultaneous_respiratory_phases_, card_phase*simultaneous_cardiac_phases_, static_cast<size_t>(0) };
 			const vector_td<size_t, 6> crop_size = { data_slice.get_size(0), data_slice.get_size(1), data_slice.get_size(2), data_slice.get_size(3), data_slice.get_size(4), data_slice.get_size(5) };
-			crop(crop_offset, crop_size, &data, &data_slice);
+			crop(crop_offset, crop_size, data, data_slice);
 
 			// create data message
 			GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();

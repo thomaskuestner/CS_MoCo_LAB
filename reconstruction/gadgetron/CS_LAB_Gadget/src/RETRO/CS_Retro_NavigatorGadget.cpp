@@ -772,7 +772,7 @@ void CS_Retro_NavigatorGadget::getNav2DPCA(hoNDArray<std::complex<float> > &aNav
 	aImg_new_order.push_back(2);
 	aImg_new_order.push_back(3);
 	aImg_new_order.push_back(1);
-	aImg = *permute(&aImg, &aImg_new_order,false);
+	aImg = permute(aImg, aImg_new_order);
 
 	// then reshape
 	std::vector<size_t> new_aImg_dims;

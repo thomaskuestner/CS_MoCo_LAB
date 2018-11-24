@@ -282,13 +282,13 @@ void hoNDKLT_CS<T>::compute_eigen_vector(const hoNDArray<T> &data, bool remove_m
 					data2DNoMean(m, n) = data2D(m, n) - dataMean(0, n);
 				}
 			}
-			Am = as_arma_matrix(&data2DNoMean);
+			Am = as_arma_matrix(data2DNoMean);
 		} else {
-			Am = as_arma_matrix(&data2D);
+			Am = as_arma_matrix(data2D);
 		}
 
 		// call svd
-		arma::Mat<T> Vm = as_arma_matrix(&V_);
+		arma::Mat<T> Vm = as_arma_matrix(V_);
 		arma::Mat<T> Um;
 		arma::Col<value_type> Sv;
 		GADGET_CHECK_THROW(arma::svd_econ(Um, Sv, Vm, Am, 'r'));
@@ -385,7 +385,7 @@ void hoNDKLT_CS<T>::prepare(const hoNDArray<T> &data, size_t dim, size_t output_
 
 			hoNDArray<T> dataP;
 			dataP.create(dimPermuted);
-			Gadgetron::permute(const_cast<hoNDArray<T>* >(&data), &dataP, &dimOrder);
+			Gadgetron::permute(data, dataP, dimOrder);
 			this->compute_eigen_vector(dataP, remove_mean);
 		}
 
@@ -643,7 +643,7 @@ void hoNDKLT_CS<T>::transform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t 
 
 			hoNDArray<T> inP;
 			inP.create(dimPermuted);
-			Gadgetron::permute(const_cast<hoNDArray<T>*>(&in), &inP, &dimOrder);
+			Gadgetron::permute(in, inP, dimOrder);
 
 			hoNDArray<T> inP2D;
 			inP2D.create(num, N, inP.begin());
@@ -655,7 +655,7 @@ void hoNDKLT_CS<T>::transform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t 
 			outP2D.create(num, M_.get_size(1), outP.begin());
 
 			Gadgetron::gemm(outP2D, inP2D, false, M_, false);
-			Gadgetron::permute(&outP, &out, &dimOrder);
+			Gadgetron::permute(outP, out, dimOrder);
 		}
 	} catch (...) {
 		GERROR("Errors in hoNDKLT_CS<T>::transform(hoNDArray<T>& in, hoNDArray<T>& out, size_t dim) ...\n");
@@ -706,7 +706,7 @@ void hoNDKLT_CS<T>::ftransform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t
 
 			hoNDArray<T> inP;
 			inP.create(dimPermuted);
-			Gadgetron::permute(const_cast< hoNDArray<T>* >(&in), &inP, &dimOrder);
+			Gadgetron::permute(in, inP, dimOrder);
 
 			hoNDArray<T> inP2D;
 			inP2D.create(num, N, inP.begin());
@@ -719,7 +719,7 @@ void hoNDKLT_CS<T>::ftransform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t
 			outP2D.create(num, M_.get_size(1), outP.begin());
 
 			Gadgetron::gemm(outP2D, inP2D, false, M_, false);
-			Gadgetron::permute(&outP, &out, &dimOrder);
+			Gadgetron::permute(outP, out, dimOrder);
 		}
 	} catch (...) {
 		GERROR("Errors in hoNDKLT_CS<T>::transform(hoNDArray<T>& in, hoNDArray<T>& out, size_t dim) ...\n");
@@ -771,7 +771,7 @@ void hoNDKLT_CS<T>::btransform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t
 
 			hoNDArray<T> inP;
 			inP.create(dimPermuted);
-			Gadgetron::permute(const_cast< hoNDArray<T>* >(&in), &inP, &dimOrder);
+			Gadgetron::permute(in, inP, dimOrder);
 
 			hoNDArray<T> inP2D;
 			inP2D.create(num, N, inP.begin());
@@ -782,7 +782,7 @@ void hoNDKLT_CS<T>::btransform(const hoNDArray<T> &in, hoNDArray<T> &out, size_t
 			outP2D.create(num, M_.get_size(1), outP.begin());
 
 			Gadgetron::gemm(outP2D, inP2D, false, M_, true);
-			Gadgetron::permute(&outP, &out, &dimOrder);
+			Gadgetron::permute(outP, out, dimOrder);
 		}
 	} catch (...) {
 		GERROR("Errors in hoNDKLT_CS<T>::transform(hoNDArray<T>& in, hoNDArray<T>& out, size_t dim) ...\n");
@@ -849,7 +849,7 @@ void hoNDKLT_CS<T>::KL_filter(const hoNDArray<T> &in, hoNDArray<T> &out, size_t 
 
 			hoNDArray<T> inP;
 			inP.create(dimPermuted);
-			Gadgetron::permute(const_cast< hoNDArray<T>* >(&in), &inP, &dimOrder);
+			Gadgetron::permute(in, inP, dimOrder);
 			hoNDArray<T> inP2D;
 			inP2D.create(num, N, inP.begin());
 			hoNDArray<T> outP;
@@ -857,7 +857,7 @@ void hoNDKLT_CS<T>::KL_filter(const hoNDArray<T> &in, hoNDArray<T> &out, size_t 
 			hoNDArray<T> outP2D;
 			outP2D.create(num, N, outP.begin());
 			Gadgetron::gemm(outP2D, inP2D, false, EET, false);
-			Gadgetron::permute(&outP, &out, &dimOrder);
+			Gadgetron::permute(outP, out, dimOrder);
 		}
 	} catch (...) {
 		GERROR("Errors in hoNDKLT_CS<T>::KL_filter(const hoNDArray<T>& in, hoNDArray<T>& out, size_t dim, size_t mode_kept) ...\n");

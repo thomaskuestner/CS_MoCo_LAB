@@ -88,7 +88,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	vtDimOrder.push_back(2);
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(3);
-	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder,false);
+	hacfKSpace = permute(hacfKSpace, vtDimOrder);
 
 	// update dim_ vector
 	vtDim_.clear();
@@ -364,7 +364,7 @@ int CS_FOCUSS_3D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(1);
 	vtDimOrder.push_back(3);
-	hacfRho = *permute(&hacfRho, &vtDimOrder,false);
+	hacfRho = permute(hacfRho, vtDimOrder);
 
 	vtDim_.clear();
 	vtDim_ = *hacfRho.get_dimensions();

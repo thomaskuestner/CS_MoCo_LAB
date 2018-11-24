@@ -56,7 +56,7 @@ int CS_Retro_PreBARTGadget::process(GadgetContainerMessage<ISMRMRD::ImageHeader>
 	vtDimOrder.push_back(6);
 	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(4);
-	data = *permute(&data, &vtDimOrder, false);
+	data = permute(data, vtDimOrder);
 
 	// create hoNDArray with header
 	hoNDArray<ISMRMRD::AcquisitionHeader> header_array;
