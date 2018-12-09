@@ -547,7 +547,7 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 	new_nav_dim.push_back(3);
 	new_nav_dim.push_back(2);
 	new_nav_dim.push_back(1);
-	total_nav_array = *permute(&total_nav_array, &new_nav_dim, false);
+	total_nav_array = permute(total_nav_array, new_nav_dim);
 	total_nav_array.delete_data_on_destruct(false);	// now do not delete the data anymore, it will be directly passed into GadgetContainerMessage!
 
 	// create navigator output message
@@ -598,7 +598,7 @@ bool CS_Retro_AccumulatorGadget::process_data(void)
 	new_kspace_dim.push_back(0);
 	new_kspace_dim.push_back(2);
 	new_kspace_dim.push_back(1);
-	total_kspace_array = *permute(&total_kspace_array, &new_kspace_dim, false);
+	total_kspace_array = permute(total_kspace_array, new_kspace_dim);
 	total_kspace_array.delete_data_on_destruct(false);	// now do not delete the data anymore, it will be directly passed into GadgetContainerMessage!
 
 	// create kspace output message

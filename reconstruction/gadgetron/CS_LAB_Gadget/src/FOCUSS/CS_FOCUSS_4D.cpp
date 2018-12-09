@@ -78,7 +78,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	vtDimOrder.push_back(2);
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(4);
-	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder, false);
+	hacfKSpace = permute(hacfKSpace, vtDimOrder);
 
 	// update dim_ vector
 	vtDim_.clear();
@@ -389,7 +389,7 @@ int CS_FOCUSS_4D::fRecon(hoNDArray<std::complex<float> > &hacfInput, hoNDArray<s
 	vtDimOrder.push_back(2);
 	vtDimOrder.push_back(0);
 	vtDimOrder.push_back(4);
-	hacfRho = *permute(&hacfRho, &vtDimOrder,false);
+	hacfRho = permute(hacfRho, vtDimOrder);
 
 	vtDim_.clear();
 	vtDim_ = *hacfRho.get_dimensions();
@@ -433,9 +433,9 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(4);
 	vtDimOrder.push_back(0);
-	hacfRhoTmp = *permute(&hacfRhoTmp, &vtDimOrder,false);
+	hacfRhoTmp = permute(hacfRhoTmp, vtDimOrder);
 	vtDim_ = *hacfRhoTmp.get_dimensions();
-	hacfKSpace = *permute(&hacfKSpace, &vtDimOrder, false);
+	hacfKSpace = permute(hacfKSpace, vtDimOrder);
 
 	hoNDArray< std::complex<float> > hacfKSpaceCombi(vtDim_[0], vtDim_[1], vtDim_[2], vtDim_[3], vtDim_[4]);
 	hacfKSpaceCombi.fill( std::complex< float >(0.0, 0.0) );
@@ -549,9 +549,9 @@ void CS_FOCUSS_4D::fGradESPReSSo(hoNDArray<std::complex<float> > &hacfRho, hoNDA
 		vtDimOrder.push_back(1);
 		vtDimOrder.push_back(2);
 		vtDimOrder.push_back(3);
-		hacfKSpaceCombi = *permute(&hacfKSpaceCombi, &vtDimOrder,false);
+		hacfKSpaceCombi = permute(hacfKSpaceCombi, vtDimOrder);
 		vtDim_ = *hacfKSpaceCombi.get_dimensions();
-		hacfPhase= *permute(&hacfPhase, &vtDimOrder, false);
+		hacfPhase= permute(hacfPhase, vtDimOrder);
 
 		//--------------------------------------------------------------------------
 		//------------------------- get ESPReSSo gradient --------------------------
@@ -580,7 +580,7 @@ void CS_FOCUSS_4D::fInitESPReSSo(hoNDArray<bool>& habFullMask)
 	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(4);
 	vtDimOrder.push_back(0);
-	habFullMask = *permute(&habFullMask, &vtDimOrder,false);
+	habFullMask = permute(habFullMask, vtDimOrder);
 	vtDim_ = *habFullMask.get_dimensions();
 
 	// loop over states/gates
@@ -1114,7 +1114,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(4);
 	vtDimOrder.push_back(0);
-	hacfWWindowed = *permute(&hacfWWindowed, &vtDimOrder,false);
+	hacfWWindowed = permute(hacfWWindowed, vtDimOrder);
 
 	vtDim_ = *hacfWWindowed.get_dimensions();
 
@@ -1183,7 +1183,7 @@ void CS_FOCUSS_4D::fWindowing(hoNDArray<std::complex<float> > &hacfWWindowed)
 	vtDimOrder.push_back(1);
 	vtDimOrder.push_back(2);
 	vtDimOrder.push_back(3);
-	hacfWWindowed = *permute(&hacfWWindowed, &vtDimOrder, false);
+	hacfWWindowed = permute(hacfWWindowed, vtDimOrder);
 
 	vtDim_ = *hacfWWindowed.get_dimensions();
 }
@@ -1200,7 +1200,7 @@ void CS_FOCUSS_4D::fGetCalibrationSize(hoNDArray<bool> &habArray)
 	vtDimOrder.push_back(3);
 	vtDimOrder.push_back(4);
 	vtDimOrder.push_back(0);
-	habArray = *permute(&habArray, &vtDimOrder,false);
+	habArray = permute(habArray, vtDimOrder);
 
 	vtDim_ = *habArray.get_dimensions();
 

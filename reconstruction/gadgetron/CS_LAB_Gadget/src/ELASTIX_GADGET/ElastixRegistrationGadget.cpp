@@ -302,7 +302,7 @@ int ElastixRegistrationGadget::process(GadgetContainerMessage<ISMRMRD::ImageHead
 			new_dim_order.push_back(2);
 			new_dim_order.push_back(3);
 			new_dim_order.push_back(0);
-			deformation_field = *permute(&deformation_field, &new_dim_order, false);
+			deformation_field = permute(deformation_field, new_dim_order);
 
 			// save deformation fields
 			for (size_t i = 0; i < dimensions_of_image.size(); i++) {
