@@ -106,7 +106,7 @@ z_comp = x_wave;
 flag_MAD = true;
 if flag_MAD
     x_wavedec = cell(1,nCha);
-    threshold = zeros(1:nCha);
+    threshold = zeros(1,nCha);
     if flagRealAndImag
         for j=1:nCha
             x_wavedec{1,j} = wavedec2(abs(z{1,j}),waveletStages,waveletFilterName_l1); % atm only based on l1-daubechie
