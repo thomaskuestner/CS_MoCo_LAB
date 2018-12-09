@@ -380,14 +380,12 @@ set(cs_lab_config_files config/CS_LAB_offline.xml config/CS_LAB_online.xml confi
 
 if ((${GADGETRON_VERSION_MAJOR} GREATER 3) OR ((${GADGETRON_VERSION_MAJOR} EQUAL 3) AND (${GADGETRON_VERSION_MINOR} GREATER 5)))
 	add_library(CS_LAB ${LIBTYPE}
-		CS_LAB_export.h
 		${cs_lab_header_files}
 		${cs_lab_src_files}
 		${cs_lab_config_files}
 	)
 else()
 	add_library(CS_LAB ${LIBTYPE}
-		CS_LAB_export.h
 		${cs_lab_header_files}
 		${cs_lab_src_files}
 		${cs_lab_config_files}
@@ -441,7 +439,7 @@ else ()
 endif()
 
 #set_property(TARGET CS_LAB PROPERTY INSTALL_RPATH_USE_LINK_PATH TRUE)
-install (FILES CS_LAB_export.h ${cs_lab_header_files} DESTINATION ${GADGETRON_HOME}/include)
+install (FILES src/CS_LAB_export.h ${cs_lab_header_files} DESTINATION ${GADGETRON_HOME}/include)
 install(TARGETS CS_LAB DESTINATION ${GADGETRON_HOME}/lib)
 
 if (WIN32)
