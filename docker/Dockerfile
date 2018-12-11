@@ -54,10 +54,9 @@ RUN	sed -i "s;#error -- unsupported GNU version! gcc versions later than 4.9 are
 RUN	cd /opt/code \
 	&& git clone ${BART_URL} \
 	&& cd bart \
-# 	&& mkdir build \
-# 	&& cd build \
-# 	&& cmake .. -DBART_FPIC=ON -DBART_ENABLE_MEM_CFL=ON -DBART_REDEFINE_PRINTF_FOR_TRACE=ON -DBART_LOG_BACKEND=ON -DBART_LOG_GADGETRON_BACKEND=ON \
-	# use Makefile instead of cmake. May be changed in further releases
+	&& mkdir build \
+	&& cd build \
+	&& cmake -DBART_FPIC=ON -DBART_ENABLE_MEM_CFL=ON -DBART_REDEFINE_PRINTF_FOR_TRACE=ON -DBART_LOG_BACKEND=ON -DBART_LOG_GADGETRON_BACKEND=ON ../ \
 	&& make -j$(expr $(nproc) + 1) \
 	&& make install \
 	&& cd ../.. \
