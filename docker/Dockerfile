@@ -27,6 +27,9 @@ RUN	apt-get -y purge cmake \
 	&& make install \
 	&& cd .. \
 	&& rm -rf cmake-3* \
+	# update system
+	&& apt-get -y update \
+	&& apt-get -y upgrade \
 	# install NumPy dependency
 	&& apt-get -y install python-numpy \
 	# install other software
