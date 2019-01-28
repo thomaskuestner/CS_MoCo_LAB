@@ -182,7 +182,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	for (int c = 0; c < iNoChannels_; c++) {
 		size_t offset = aImg.get_size(0)*aImg.get_size(1)*aImg.get_size(2)*c;
 		hoNDArray<std::complex<float> > SubArray(aImg.get_size(0), aImg.get_size(1), aImg.get_size(2), aImg.get_data_ptr()+offset, false);
-		fPower.at(c) = asum(&SubArray);
+		fPower.at(c) = asum(SubArray);
 
 		// fill part of the 3D array
 		#pragma omp parallel for
@@ -244,7 +244,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	arrayConv(aPowerAcrossChan, vGaussian, 0);
 
 	// find index of maximum
-	int iMaxIndex = amax(&aPowerAcrossChan);
+	int iMaxIndex = amax(aPowerAcrossChan);
 
 	GINFO("data filtered and maximum determined.. iMaxIndex: %i\n", iMaxIndex);
 
@@ -282,7 +282,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		hoNDArray<float> aTmp;
 		size_t offset = aPowerInChan.get_size(0)*c;
 		aTmp.create(aPowerInChan.get_size(0), aPowerInChan.get_data_ptr()+offset, false);
-		int iTmpInd = amax(&aTmp);
+		int iTmpInd = amax(aTmp);
 		vGoodChannels.push_back(aTmp.at(iTmpInd));
 	}
 
@@ -346,7 +346,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	GINFO("\n aPowerInPE\n");
 	aPowerInPE.print(std::cout);
 
-	iMaxIndex = amax(&aPowerInPE);
+	iMaxIndex = amax(aPowerInPE);
 	int iMaxChan = iMaxIndex;
 
 	GINFO("found at %i\n", iMaxIndex);
@@ -419,7 +419,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	arrayConv(aPowerAcrossChan, vGaussian);
 
 	// find index of maximum
-	iMaxIndex = amax(&aPowerAcrossChan);
+	iMaxIndex = amax(aPowerAcrossChan);
 	int dX = iMaxIndex;
 
 	GINFO("found at %i\n", iMaxIndex);
@@ -444,7 +444,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		hoNDArray<float> aTmp;
 		aTmp.create(aPowerInChan.get_size(0), aPowerInChan.get_data_ptr()+offset, false);
 
-		int iTmpInd = amax(&aTmp);
+		int iTmpInd = amax(aTmp);
 		vGoodChannels.push_back(aTmp.at(iTmpInd));
 	}
 
@@ -513,7 +513,7 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 	float *fPtr = hafMax.get_data_ptr();
 	for (size_t iI = 0; iI < aRelevantImg.get_size(2); iI++) {
 		hoNDArray<float> tmp(aRelevantImg.get_size(0), aRelevantImg.get_size(1), aRelevantImg.get_data_ptr()+tOffset*iI);
-		iMaxIndex = amax(&tmp);
+		iMaxIndex = amax(tmp);
 		fMax = tmp.at(iMaxIndex);
 
 		for (size_t iL = 0; iL < tOffset; iL++) {
@@ -670,7 +670,14 @@ void CS_Retro_NavigatorGadget::getNav2D(hoNDArray<std::complex<float> > &aNav)
 		}
 
 		//MATLAB: min(sum(dRMSImg(dX-round(dDisplacement/2):dX+round(dDisplacement/2),:)))
-		int iMinVal = amin(&aRMSImg);
+		// TODO: change back to amin (Gadgetron project seems to introduce the error)
+// 		int iMinVal = amin(&aRMSImg);
+		int iMinVal = aRMSImg.at(0);
+		for (size_t i = 0; i < aRMSImg.get_number_of_elements(); i++) {
+			if (aRMSImg.at(i) < iMinVal) {
+				iMinVal = aRMSImg.at(i);
+			}
+		}
 
 		//MATLAB: dDisplacement + 1 - dNav(i)
 		navigator_resp.at(i) = iDisplacement - iMinVal;
