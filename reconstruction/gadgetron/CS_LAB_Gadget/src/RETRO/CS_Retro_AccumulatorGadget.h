@@ -58,9 +58,9 @@ namespace Gadgetron {
 		CS_Retro_AccumulatorGadget();
 		~CS_Retro_AccumulatorGadget();
 
-		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
-
 		int close(unsigned long flags) override;
+
+		GADGET_DECLARE(CS_Retro_AccumulatorGadget);
 
 	protected:
 		int process_config(ACE_Message_Block *mb);
