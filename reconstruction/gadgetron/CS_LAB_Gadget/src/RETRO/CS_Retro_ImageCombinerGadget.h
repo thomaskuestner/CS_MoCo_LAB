@@ -26,7 +26,7 @@ namespace Gadgetron
 		int process(GadgetContainerMessage<ISMRMRD::ImageHeader> *m1, GadgetContainerMessage<hoNDArray<std::complex<float> > > *m2);
 
 	private:
-		hoNDArray<std::complex<float> > *data = NULL;
+		hoNDArray<std::complex<float> > *data_ = NULL;
 		unsigned int receive_counter_ = 0;
 		unsigned int number_of_cardiac_phases_, number_of_respiratory_phases_;
 	};

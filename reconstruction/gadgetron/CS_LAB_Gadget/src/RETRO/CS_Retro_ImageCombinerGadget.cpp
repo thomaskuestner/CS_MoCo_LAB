@@ -12,7 +12,7 @@ CS_Retro_ImageCombinerGadget::CS_Retro_ImageCombinerGadget()
 // class destructor
 CS_Retro_ImageCombinerGadget::~CS_Retro_ImageCombinerGadget()
 {
-	delete data;
+	delete data_;
 }
 
 int CS_Retro_ImageCombinerGadget::process_config(ACE_Message_Block *mb)
@@ -26,7 +26,7 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	hoNDArray<std::complex<float> > &received_data = *m2->getObjectPtr();
 
 	// handle first initialization
-	if (data == NULL) {
+	if (data_ == NULL) {
 		number_of_respiratory_phases_	= get_number_of_gates(m1->getObjectPtr()->user_int[0], 0);
 		number_of_cardiac_phases_		= get_number_of_gates(m1->getObjectPtr()->user_int[0], 1);
 
@@ -43,7 +43,7 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 		}
 
 		// order of array: [x y z resp_phases card_phases]
-		data = new hoNDArray<std::complex<float> >(received_data.get_size(0), received_data.get_size(1), received_data.get_size(2), number_of_respiratory_phases_, number_of_cardiac_phases_);
+		data_ = new hoNDArray<std::complex<float> >(received_data.get_size(0), received_data.get_size(1), received_data.get_size(2), number_of_respiratory_phases_, number_of_cardiac_phases_);
 	}
 
 	// get current image position (which phase?)
@@ -51,9 +51,9 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	const unsigned int current_card_phase = m1->getObjectPtr()->image_series_index;
 
 	// copy data to position
-	size_t offset = current_resp_phase * data->get_size(0) * data->get_size(1) * data->get_size(2)
-		+ current_card_phase * data->get_size(0) * data->get_size(1) * data->get_size(2) * data->get_size(3);
-	memcpy(data->get_data_ptr()+offset, received_data.get_data_ptr(), received_data.get_number_of_bytes());
+	size_t offset = current_resp_phase * data_->get_size(0) * data_->get_size(1) * data_->get_size(2)
+		+ current_card_phase * data_->get_size(0) * data_->get_size(1) * data_->get_size(2) * data_->get_size(3);
+	memcpy(data_->get_data_ptr()+offset, received_data.get_data_ptr(), received_data.get_number_of_bytes());
 
 	// increase receive counter
 	receive_counter_ += received_data.get_size(3)*received_data.get_size(4);
@@ -66,8 +66,8 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 
 		// create data element
 		GadgetContainerMessage<hoNDArray<std::complex<float> > > *cm2 = new GadgetContainerMessage<hoNDArray<std::complex<float> > >();
-		cm2->getObjectPtr()->create(data->get_dimensions());
-		memcpy(cm2->getObjectPtr()->get_data_ptr(), data->get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
+		cm2->getObjectPtr()->create(data_->get_dimensions());
+		memcpy(cm2->getObjectPtr()->get_data_ptr(), data_->get_data_ptr(), cm2->getObjectPtr()->get_number_of_bytes());
 
 		// concatenate data
 		cm1->cont(cm2);
