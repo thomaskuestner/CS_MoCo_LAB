@@ -47,9 +47,6 @@ namespace Gadgetron {
 		// center mask
 		hoNDArray<bool> mask_center_;
 
-		// samples to fill center
-		hoNDArray<std::complex<float> > center_samples_;
-
 		// parameters for center mask
 		float low_res_vs_;			//% low-resolution view-sharing [0,1] (0: none, 1: use complete fully sampled center)
 		bool omit_center_vs_;		//% omit DC component (1D navigator) to be shared amongst all motion states
