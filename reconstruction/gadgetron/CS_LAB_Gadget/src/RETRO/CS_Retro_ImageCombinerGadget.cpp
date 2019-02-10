@@ -55,13 +55,11 @@ int CS_Retro_ImageCombinerGadget::process(GadgetContainerMessage<ISMRMRD::ImageH
 	const unsigned int current_card_phase = m1->getObjectPtr()->image_series_index;
 
 	// copy data to position
-	size_t offset = current_resp_phase * data_->get_size(0) * data_->get_size(1) * data_->get_size(2)
-		+ current_card_phase * data_->get_size(0) * data_->get_size(1) * data_->get_size(2) * data_->get_size(3);
-	memcpy(data_->get_data_ptr()+offset, received_data.get_data_ptr(), received_data.get_number_of_bytes());
+	const vector_td<size_t, 5> fill_offset = { static_cast<size_t>(0), static_cast<size_t>(0), static_cast<size_t>(0), current_resp_phase, current_card_phase };
+	fill(received_data, fill_offset, *data_);
 
 	// increase receive counter
 	receive_counter_ += received_data.get_size(3)*received_data.get_size(4);
-
 
 	// free memory
 	m1->release();
