@@ -3,7 +3,6 @@ FROM gadgetron/ubuntu_1804_cuda92_cudnn7_base:latest
 
 # set arguments
 ARG GADGETRON_URL=https://github.com/gadgetron/gadgetron
-ARG GADGETRON_BRANCH=v3.17.0
 ARG ISMRMRD_URL=https://github.com/ismrmrd/ismrmrd.git
 ARG ISMRMRD_PYTHON_API_URL=https://github.com/ismrmrd/ismrmrd-python.git
 ARG ISMRMRD_PYTHON_TOOLS_URL=https://github.com/ismrmrd/ismrmrd-python-tools.git
@@ -19,8 +18,8 @@ ARG CSMOCO_URL=https://github.com/thomaskuestner/CS_MoCo_LAB.git
 ADD . /tmp
 
 # install newest version of cmake
-RUN	apt-get --yes purge cmake \
-	&& wget https://cmake.org/files/v3.11/cmake-3.11.0.tar.gz \
+RUN	apt-get -y purge cmake \
+	&& wget https://cmake.org/files/v3.13/cmake-3.13.0.tar.gz \
 	&& tar -xzvf cmake-*.tar.gz \
 	&& cd cmake-3*/ \
 	&& ./bootstrap \
@@ -28,10 +27,13 @@ RUN	apt-get --yes purge cmake \
 	&& make install \
 	&& cd .. \
 	&& rm -rf cmake-3* \
+	# update system
+	&& apt-get -y update \
+	&& apt-get -y upgrade \
 	# install NumPy dependency
-	&& apt-get --yes install python-numpy \
+	&& apt-get -y install python-numpy \
 	# install other software
-	&& apt-get --yes install gcc-6 g++-6 gfortran \
+	&& apt-get -y install gcc-6 g++-6 gfortran \
 	# and cleanup
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*
@@ -57,7 +59,7 @@ RUN	cd /opt/code \
 	&& cd bart \
 	&& mkdir build \
 	&& cd build \
-	&& cmake .. -DBART_FPIC=ON -DBART_ENABLE_MEM_CFL=ON -DBART_REDEFINE_PRINTF_FOR_TRACE=ON -DBART_LOG_BACKEND=ON -DBART_LOG_GADGETRON_BACKEND=ON \
+	&& cmake -DBART_FPIC=ON -DBART_ENABLE_MEM_CFL=ON -DBART_REDEFINE_PRINTF_FOR_TRACE=ON -DBART_LOG_BACKEND=ON -DBART_LOG_GADGETRON_BACKEND=ON ../ \
 	&& make -j$(expr $(nproc) + 1) \
 	&& make install \
 	&& cd ../.. \
@@ -65,7 +67,7 @@ RUN	cd /opt/code \
 
 # install GADGETRON
 RUN	cd /opt/code \
-	&& git clone ${GADGETRON_URL} --branch ${GADGETRON_BRANCH} --single-branch \
+	&& git clone ${GADGETRON_URL} \
 	&& cd gadgetron \
 	&& mkdir build \
 	&& cd build \
@@ -73,9 +75,9 @@ RUN	cd /opt/code \
 	&& make -j$(expr $(nproc) + 1) \
 	&& make install \
 	&& /opt/code/gadgetron/docker/manifest --key .io.gadgetron.gadgetron.sha1 --value `git rev-parse HEAD` \
-    && cp ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml.example ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml \
-    && cp /opt/code/gadgetron/docker/start_supervisor /opt/ \
-    && cp /opt/code/gadgetron/docker/supervisord.conf /opt/ \
+	&& cp ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml.example ${GADGETRON_HOME}/share/gadgetron/config/gadgetron.xml \
+	&& cp /opt/code/gadgetron/docker/start_supervisor /opt/ \
+	&& cp /opt/code/gadgetron/docker/supervisord.conf /opt/ \
 	&& cd ../.. \
 	&& rm -rf gadgetron/build
 
