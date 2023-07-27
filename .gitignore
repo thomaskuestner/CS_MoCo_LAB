@@ -11,3 +11,5 @@ build/
 reconstruction/matlab/CS_LAB_GUI/parameter_currRun_1.m
 reconstruction/matlab/CS_LAB_GUI/parameter_currRun_2.m
 reconstruction/matlab/CS_LAB_GUI/samplingPattern.txt
+.DS_Store
+.idea
