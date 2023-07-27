@@ -36,7 +36,7 @@ for t=1:loop
     else
         s = obj.calibSize;
     end
-    
+
     idx = cell(1,length(s));
     for n=1:length(s)
         if(mod(s(n),2) == 0)
@@ -54,7 +54,7 @@ for t=1:loop
         end
     end
     eval(sprintf('helper(%s) = false;',pos));
-end 
+end
 kSpaceCenter = ~helper;
 
 % windowing for cut-out region
@@ -66,7 +66,7 @@ end
 W(helper) = 0; % just take the k-space center (y values); all other values are zero
 clear 'helper' 'idx' 'hShift' 'tmp' 'm' 's';
 if(exist('window','var'))
-    W(kSpaceCenter) = W(kSpaceCenter) .* window(:); 
+    W(kSpaceCenter) = W(kSpaceCenter) .* window(:);
     clear 'window';
 end
 
@@ -110,13 +110,13 @@ if(obj.lambdaMC > 0)
 
     dImgCenter = dImg;
     dImg = sqrt(sum(abs(dImg).^2,5));
-    dImg = fTurnImg(dImg,0);    
+    dImg = fTurnImg(dImg,0);
 %     dImg = sqrt(sum(abs(permute(dImg,[2 4 3 1 5])).^2,5)); % TODO: Or multichannel input -> elastix: multi-image, parameter:
     % calculate sensemap
     % a) sum(Multi-Cha-Img .* conj(dSensemap),5)
     % b) repmat(Single-Cha-Img,[1 1 1 1 nCha]) .* dSensemap
     if(obj.mc.lSenseMC)
-%         dImgCenter = permute(dImgCenter, [4, 2, 3, 1, 5]); 
+%         dImgCenter = permute(dImgCenter, [4, 2, 3, 1, 5]);
 %         dImgCenter = flipdim(dImgCenter,1);
         dSensemap = dImgCenter./(repmat(sqrt(sum(abs(dImgCenter).^2,5)),[1 1 1 1 size(dImgCenter,5)])); % t-y-z-x-cha
         clear 'dImgCenter';
@@ -144,7 +144,7 @@ if(obj.lambdaMC > 0)
     else
         SImg = fMCReconMain(dImg, SImg, obj.mc.sElastixPath, mcPath, mcParaPath, sElastixParamFile, 1);
         % manually copy files
-        fCreateLoopImages(dImg,SImg);
+        % fCreateLoopImages(dImg,SImg);
     end
     clear 'dImg';
 end
@@ -204,7 +204,7 @@ if(obj.lambdaCalib > 0)
         kernelImg = TRAFO(kernelImg, getMeta(W), paraTrafo, 'kernel');
     end
     for iCha=1:nCha
-        if(obj.trafo.kspaceTrafo)           
+        if(obj.trafo.kspaceTrafo)
             kernelImg(:,:,:,:,:,iCha) = kernelFTrafo(fftnshift(obj.kernelImg(:,:,:,:,:,iCha),unique([obj.trafo.kspaceTrafoFFTdims, obj.trafo.fftdim]),unique([obj.trafo.kspaceTrafoScrambledims, obj.trafo.scrambledim])));
         else
             kernelImg(:,:,:,:,:,iCha) = kernelFTrafo(obj.kernelImg(:,:,:,:,:,iCha)); % => t-y-z-x-cha-cha (new_base)
@@ -239,7 +239,7 @@ for iI = 1:obj.iNOUTER % outer loop for kt-FOCUSS
         for c=1:nCha
             G_helper = G(:,:,:,:,c);
             g_old_helper = g_old(:,:,:,:,c);
-            beta(:,:,:,:,c) = (G_helper(:)'*G_helper(:))/(g_old_helper(:)'*g_old_helper(:)); 
+            beta(:,:,:,:,c) = (G_helper(:)'*G_helper(:))/(g_old_helper(:)'*g_old_helper(:));
         end
         if(~isempty(paraTrafo.permRule)), beta = permute(beta,paraTrafo.permRule); end
         clear 'G_helper' 'g_old_helper';
@@ -272,17 +272,17 @@ for iI = 1:obj.iNOUTER % outer loop for kt-FOCUSS
             if(obj.trafo.trafodim(1,4)) % fft operation along time
                 rhoMC = fftnshift(rhoMC,1,[]);
             end
-            rhoMC = sqrt(sum(abs(rhoMC).^2,5)); % TODO: Sensemap?!    
+            rhoMC = sqrt(sum(abs(rhoMC).^2,5)); % TODO: Sensemap?!
             rhoMC = fTurnImg(rhoMC,0);
-            
-            SImg = fMCReconMain(rhoMC, SImg, obj.mc.sElastixPath, mcPath, mcParaPath, sElastixParamFileFast);   
-            fCreateLoopImages(rhoMC,SImg);
+
+            SImg = fMCReconMain(rhoMC, SImg, obj.mc.sElastixPath, mcPath, mcParaPath, sElastixParamFileFast);
+            % fCreateLoopImages(rhoMC,SImg);
         end
         dispProgress('CG',iJ/obj.iNINNER);
         dispProgress('FOCUSS',((iI - 1)*obj.iNINNER + iJ)/(obj.iNOUTER*obj.iNINNER));
     end
     dispProgress('CG','Close');
-    if(obj.espresso.state && obj.espresso.reconType == 2) % t-y-z-x       
+    if(obj.espresso.state && obj.espresso.reconType == 2) % t-y-z-x
         cs.pfn = obj.espresso.pfn;
         rho = bTrafo(rho);
         if(any(obj.trafo.fftBA(1,:))) % go back to kSpace
@@ -410,16 +410,16 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
 
         for c=1:nCha
             kernel = kernelImg(:,:,:,:,:,c);
-            kMI = (kernel - ones(size(kernel),obj.measPara.precision)).*zpad(W,size(kernel)); % kernel - 1   TODO: check abs(.) nötig
+            kMI = (kernel - ones(size(kernel),obj.measPara.precision)).*zpad(W,size(kernel)); % kernel - 1   TODO: check abs(.) nï¿½tig
     %         res(:,:,:,c) = sum(kMI.*kMI .* q,4);
             res(:,:,:,:,c) = sum(conj(kMI) .* kMI .* zpad(q,size(kernel)),5);
         end
         clear 'Wtmp' 'qtmp' 'padsizeCurr' 'kMI' 'kernel';
-        
+
         if(resize)
             res = kernelBTrafo(res);
             if(obj.trafo.zeroPad)
-                res = crop(res,cropsize); 
+                res = crop(res,cropsize);
             else
                 resout = complex(zeros(cropsize,obj.measPara.precision),zeros(cropsize,obj.measPara.precision));
                 RI = imref3d(size(squeeze(res(1,:,:,:,1))),1,1,1);
@@ -455,7 +455,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
 
         for c=1:nCha
             for t=1:nTime
-                x = rhotmp(:,:,:,t,c);     
+                x = rhotmp(:,:,:,t,c);
                 if(type == 1)
                     % formula
 
@@ -561,7 +561,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
             tv = 0; % scalar needed for TRAFO object addition
             return;
         end
-        % TODO        
+        % TODO
     end
 
     function out = gradESPReSSO(lambdaESPReSSo)
@@ -570,7 +570,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
             out = 0;
             return;
         end
-        
+
         rhoTmp = bTrafo(W.*q);
         if(nnz(rhoTmp) == 0)
             rhoTmp = kSpace;
@@ -595,7 +595,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
                 maskLeft = maskLeft | squeeze(kSpaceCenter(t,:,:,:,:));
                 cs.smplPtrn = permute(maskRight(:,:,:,1),[1 3 2]);
                 cs.pfn = 0.5;
-            else      
+            else
                 cs.smplPtrn = permute(obj.fullMask(t,:,:,:,1),[2 4 3 1]); %tmp(:,:,:,1);
                 cs.pfn = obj.espresso.pfn;
             end
@@ -624,7 +624,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
             else
                 lmaskConj = xor(lmaskSym,squeeze(obj.fullMask(t,:,:,:,:)));
 
-                if(pfDim == 1) %y 
+                if(pfDim == 1) %y
                     lmaskLower = lmaskConj(end:-1:1,:,:,:);
                 elseif(pfDim == 2) % x
                     lmaskLower = lmaskConj(:,:,end:-1:1,:);
@@ -636,7 +636,7 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
                 kSpaceCombi(lmaskConj) = conj(kSpaceL(lmaskLower));
             end
 
-%             out(t,:,:,:,:) = 0.5 * (conj(W) .* q .* (1+phase) + conj(W) .* W .* conj(q) .* phase - fTrafo(kSpaceCombi) .* (1+phase)); 
+%             out(t,:,:,:,:) = 0.5 * (conj(W) .* q .* (1+phase) + conj(W) .* W .* conj(q) .* phase - fTrafo(kSpaceCombi) .* (1+phase));
             out = 2 .* conj(q) + conj(W) .* W .* q .* conj(phase) - conj(W) .* fTrafo(kSpaceCombi) .* conj(phase);
         end
         clear 'rhoTmp';
@@ -648,23 +648,23 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
             out = 0;
             return;
         end
-        
+
         out = complex(zeros(size(W),obj.measPara.precision),zeros(size(W),obj.measPara.precision));
 %         rhoTmp = sqrt(sum(abs(permute(rhoTmp,[2 4 3 1 5])).^2,5)); % TODO: Sensemap?!
         tmpPath = pwd;
         cd(mcPath); % due to horrible programming of read_mhd -> will fail otherwise
         if(~exist('rhoMC','var'))
-%             rhoRef = permute(out(1,:,:,:,1),[2 4 3 1]); % happens for the first run            
-            rhoRef = read_mhd('Gate01.mhd'); % happens for the first run 
+%             rhoRef = permute(out(1,:,:,:,1),[2 4 3 1]); % happens for the first run
+            rhoRef = read_mhd('Gate01.mhd'); % happens for the first run
             rhoRef = rhoRef.data;
         else
 %             rhoRef = scaleImg(rhoMC(:,:,:,1),[0 2^16-1]);
             rhoRef = rhoMC(:,:,:,1);
         end
-        
+
         for iMC=2:size(out,1)
             % T_mu
-            [~,~] = system([obj.mc.sElastixPath, filesep, 'transformix.exe -in ', [mcPath,filesep,sprintf('Gate%02u.mhd', iMC)],' -out ',mcPath,' -tp ',mcPath,filesep,sprintf('TransformParameters_Gate%02u_f.txt', iMC)]);   
+            [~,~] = system([obj.mc.sElastixPath, filesep, 'transformix.exe -in ', [mcPath,filesep,sprintf('Gate%02u.mhd', iMC)],' -out ',mcPath,' -tp ',mcPath,filesep,sprintf('TransformParameters_Gate%02u_f.txt', iMC)]);
             sData = read_mhd('result.mhd');
             % refGate - movedGate
 %             SImg.data = int16(rhoRef - sData.data);
@@ -675,9 +675,9 @@ dImg = shiftdim(mat2cell(dImg, nPha, nFreq, nZ, nTime, ones(1,nCha)),3);
             sData = read_mhd('result.mhd');
 %             sData.data = sData.data./max(sData.data(:));
             if(obj.mc.lSenseMC)
-                out(iMC,:,:,:,:) = repmat(fTurnImg(sData.data,1),[1 1 1 size(out,5)]) .* squeeze(dSensemapMC(iMC,:,:,:,:)); % t-y-z-x-cha           
+                out(iMC,:,:,:,:) = repmat(fTurnImg(sData.data,1),[1 1 1 size(out,5)]) .* squeeze(dSensemapMC(iMC,:,:,:,:)); % t-y-z-x-cha
             else
-                out(iMC,:,:,:,:) = repmat(fTurnImg(sData.data,1),[1 1 1 size(out,5)]); 
+                out(iMC,:,:,:,:) = repmat(fTurnImg(sData.data,1),[1 1 1 size(out,5)]);
             end
 %             out(iMC,:,:,:,:) = scaleImg(out(iMC,:,:,:,:), [min(abs(e(:))), max(abs(e(:)))]);
 %             out(iMC,:,:,:,:) = scaleImg(out(iMC,:,:,:,:)./max(max(max(max(out(iMC,:,:,:,:))))), [min(min(min((rhoMC(:,:,:,iMC))))), max(max(max(rhoMC(:,:,:,iMC))))]);
